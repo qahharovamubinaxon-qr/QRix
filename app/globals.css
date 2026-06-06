@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+:root {
+  --background: #09090b;
+  --foreground: #ffffff;
+}
+
+body {
+  background: #09090b;
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.glow {
+  box-shadow:
+    0 0 30px rgba(0, 212, 255, 0.25),
+    0 0 60px rgba(0, 212, 255, 0.15);
+}
+
+.hero-grid {
+  background-image:
+    linear-gradient(rgba(0,212,255,.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,.08) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  width: 600px;
+  height: 600px;
+  background: rgba(0,212,255,.08);
+  filter: blur(140px);
+  top: -150px;
+  right: -150px;
+  pointer-events: none;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  width: 500px;
+  height: 500px;
+  background: rgba(0,212,255,.05);
+  filter: blur(120px);
+  bottom: -150px;
+  left: -150px;
+  pointer-events: none;
+}
