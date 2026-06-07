@@ -1,37 +1,54 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase-server";
 
 export async function POST(req: Request) {
-  const requestCookies = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: requestCookies,
-    }
-  );
+  const supabase = await createClient();
 
   // Auth is optional - allow both guests and authenticated users
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+  data: { session },
+} = await supabase.auth.getSession();
 
-  try {
-    const { url, pin } = await req.json();
+console.log("SESSION:", session);
 
-    const slug = Math.random()
-      .toString(36)
-      .substring(2, 8);
+try {
+    const { url, pin, customSlug } =
+  await req.json();
 
-    const result = await supabase
-      .from("dynamic_links")
-      .insert({
-        slug,
-        target_url: url,
-        pin: pin || null,
-        user_id: session?.user?.id || null, // null for guests, user id for authenticated
-      });
+const slug =
+  customSlug ||
+  Math.random()
+    .toString(36)
+    .substring(2, 8);
+
+// ← ШУ ЕРГА ҚЎЙИЛАДИ
+if (customSlug) {
+  const { data: existing } = await supabase
+    .from("dynamic_links")
+    .select("slug")
+    .eq("slug", customSlug)
+    .maybeSingle();
+
+  if (existing) {
+    return NextResponse.json(
+      {
+        error: "Slug already exists",
+      },
+      {
+        status: 400,
+      }
+    );
+  }
+}
+
+const result = await supabase
+  .from("dynamic_links")
+  .insert({
+    slug,
+    target_url: url,
+    pin: pin || null,
+    user_id: session?.user?.id || null,
+  });
 
     console.log("SUPABASE RESULT:", result);
 

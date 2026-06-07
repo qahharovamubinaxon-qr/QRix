@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
+
+throw new Error("VERIFY FILE TEST");
 
 export async function POST(
   req: Request,
@@ -34,14 +37,42 @@ export async function POST(
     );
   }
 
-  await supabase
-    .from("dynamic_links")
-    .update({
-      scans: data.scans + 1,
-    })
-    .eq("slug", slug);
+  const headersList = await headers();
 
-  return NextResponse.redirect(
-    data.target_url
-  );
+const userAgent =
+  headersList.get("user-agent") ||
+  "unknown";
+
+const scanResult = await supabase
+  .from("qr_scans")
+  .insert({
+    slug,
+    user_agent: userAgent,
+  });
+ console.log(
+  "PIN SCAN RESULT:",
+  JSON.stringify(scanResult, null, 2)
+); 
+
+console.log(
+  "PIN SCAN RESULT:",
+  scanResult
+);
+
+  await supabase
+  .from("dynamic_links")
+  .update({
+    scans: (data.scans || 0) + 1,
+  })
+  .eq("slug", slug);
+
+console.log(
+  "TARGET URL:",
+  data.target_url
+);
+
+return NextResponse.redirect(
+  data.target_url,
+  303
+);
 }

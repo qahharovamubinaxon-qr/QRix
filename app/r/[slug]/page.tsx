@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
 
 type Props = {
@@ -28,9 +29,29 @@ export default async function Page({
 
   // If this slug is PIN protected, redirect to the PIN page.
   if (data.pin) {
-    redirect(`/pin/${slug}`);
-  }
+  redirect(`/pin/${slug}`);
+}
 
-  // /r/[slug] is for direct redirects (non-PIN links)
-  redirect(data.target_url);
+const headersList = await headers();
+
+const userAgent =
+  headersList.get("user-agent") || "unknown";
+
+const scanResult = await supabase
+  .from("qr_scans")
+  .insert({
+    slug,
+    user_agent: userAgent,
+  });
+
+console.log("SCAN RESULT:", scanResult);
+
+await supabase
+  .from("dynamic_links")
+  .update({
+    scans: (data.scans || 0) + 1,
+  })
+  .eq("slug", slug);
+
+redirect(data.target_url);
 }

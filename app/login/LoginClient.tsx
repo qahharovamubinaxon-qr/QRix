@@ -66,7 +66,7 @@ export default function LoginClient() {
       console.warn("Failed to sync session to server cookies", err);
     }
 
-    router.replace("/dashboard");
+    router.replace("/");
   };
 
   return (

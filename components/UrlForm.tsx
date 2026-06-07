@@ -3,6 +3,8 @@ type Props = {
   setUrl: (value: string) => void;
   pin: string;
   setPin: (value: string) => void;
+  customSlug: string;
+  setCustomSlug: (value: string) => void;
   color: string;
   setColor: (value: string) => void;
   bgColor: string;
@@ -18,6 +20,8 @@ export default function UrlForm({
   setUrl,
   pin,
   setPin,
+  customSlug,
+  setCustomSlug,
   color,
   setColor,
   bgColor,
@@ -68,7 +72,20 @@ export default function UrlForm({
           Confirm PIN
         </button>
       </div>
+      
+      <div className="mt-5">
+  <label className="text-gray-400 text-sm">
+    Custom Slug (Optional)
+  </label>
 
+  <input
+    type="text"
+    value={customSlug}
+    onChange={(e) => setCustomSlug(e.target.value)}
+    placeholder="myyoutube"
+    className="w-full mt-3 h-14 px-5 rounded-xl bg-black border border-cyan-500/20 outline-none"
+  />
+      </div>
       <div className="grid grid-cols-2 gap-5 mt-5">
 
         <div>

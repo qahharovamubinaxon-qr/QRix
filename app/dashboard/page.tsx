@@ -2,19 +2,11 @@
 import DashboardLinks from "@/components/DashboardLinks";
 import CopyButton from "@/components/CopyButton";
 import DeleteButton from "@/components/DeleteButton";
-import { createServerClient } from "@supabase/auth-helpers-nextjs";
-import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase-server";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
-  const requestCookies = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: requestCookies,
-    }
-  );
+  const supabase = await createClient();
   const {
     data: { session },
   } = await supabase.auth.getSession();

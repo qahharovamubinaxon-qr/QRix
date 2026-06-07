@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
 
 export async function POST(
@@ -27,21 +28,38 @@ export async function POST(
     );
   }
 
-  if (String(pin) !== String(data.pin)) {
-    return new Response(
-      "Wrong PIN",
-      { status: 401 }
-    );
-  }
+  const headersList = await headers();
 
-  await supabase
-    .from("dynamic_links")
-    .update({
-      scans: data.scans + 1,
-    })
-    .eq("slug", slug);
+const userAgent =
+  headersList.get("user-agent") ||
+  "unknown";
 
-  return NextResponse.redirect(
-    data.target_url
-  );
+const scanResult = await supabase
+  .from("qr_scans")
+  .insert({
+    slug,
+    user_agent: userAgent,
+  });
+
+console.log(
+  "PIN SCAN RESULT:",
+  JSON.stringify(scanResult, null, 2)
+);
+
+await supabase
+  .from("dynamic_links")
+  .update({
+    scans: (data.scans || 0) + 1,
+  })
+  .eq("slug", slug);
+
+console.log(
+  "TARGET URL:",
+  data.target_url
+);
+
+return NextResponse.redirect(
+  new URL(data.target_url),
+  303
+);
 }

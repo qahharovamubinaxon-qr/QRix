@@ -23,6 +23,7 @@ export default function Home() {
 
   const [url, setUrl] = useState("https://qrix.com");
   const [pin, setPin] = useState("");
+  const [customSlug, setCustomSlug] = useState("");
 
   const [color, setColor] = useState("#000000");
   const [bgColor, setBgColor] = useState("#ffffff");
@@ -121,9 +122,10 @@ END:VCARD`;
               "application/json",
           },
           body: JSON.stringify({
-            url,
-            pin,
-          }),
+          url,
+          pin,
+          customSlug,
+        }),
         }
       );
 
@@ -198,9 +200,10 @@ END:VCARD`;
               "application/json",
           },
           body: JSON.stringify({
-            url,
-            pin,
-          }),
+           url,
+           pin,
+           customSlug,
+         }),
         }
       );
 
@@ -267,45 +270,65 @@ END:VCARD`;
             <div>
 
               <div className="mb-6">
-                <label className="text-gray-400 text-sm">
-                  Logo Upload
-                </label>
 
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="block mt-3"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
+  <label className="text-gray-400 text-sm block">
+    Logo Upload
+  </label>
 
-                    if (!file) return;
+  <label
+    className="
+      inline-block
+      mt-3
+      px-4
+      py-2
+      bg-cyan-500
+      text-black
+      font-bold
+      rounded-xl
+      cursor-pointer
+    "
+  >
+    Choose File
 
-                    const reader = new FileReader();
+    <input
+      type="file"
+      accept="image/*"
+      className="hidden"
+      onChange={(e) => {
+        const file = e.target.files?.[0];
 
-                    reader.onload = () => {
-                      setLogo(reader.result as string);
-                    };
+        if (!file) return;
 
-                    reader.readAsDataURL(file);
-                  }}
-                />
-              </div>
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          setLogo(reader.result as string);
+        };
+
+        reader.readAsDataURL(file);
+      }}
+    />
+  </label>
+
+</div>
 
               {active === "URL" && (
                 <UrlForm
-                  url={url}
-                  setUrl={setUrl}
-                  pin={pin}
-                  setPin={setPin}
-                  color={color}
-                  setColor={setColor}
-                  bgColor={bgColor}
-                  setBgColor={setBgColor}
-                  size={size}
-                  setSize={setSize}
-                  style={style}
-                  setStyle={setStyle}
-                />
+  url={url}
+  setUrl={setUrl}
+  pin={pin}
+  setPin={setPin}
+  customSlug={customSlug}
+  setCustomSlug={setCustomSlug}
+  color={color}
+  setColor={setColor}
+  bgColor={bgColor}
+  setBgColor={setBgColor}
+  size={size}
+  setSize={setSize}
+  style={style}
+  setStyle={setStyle}
+/>
               )}
 
               {active === "WiFi" && (
