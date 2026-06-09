@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import type { MouseEvent } from "react";
 import DeleteButton from "@/components/DeleteButton";
 
@@ -42,29 +40,69 @@ export default function DashboardLinks({ links }: DashboardLinksProps) {
   };
 
   return (
-    <div className="space-y-3">
-      {links.map((item) => (
-        <div
-          key={item.id ?? item.slug}
-          className="grid gap-2 p-4 bg-black rounded-xl"
-        >
-          <div className="text-white font-semibold">{item.slug}</div>
-          <div className="text-gray-400 break-words">{item.target_url}</div>
-          <div className="text-gray-400">Scans: {item.scans}</div>
-          <div className="text-gray-400">
-            PIN: {item.pin ? item.pin : "No PIN"}
-          </div>
-          <div className="flex flex-wrap gap-3 mt-2">
-            <button
-              onClick={(event) => handleEdit(event, item)}
-              className="inline-flex items-center justify-center rounded-xl bg-cyan-500 px-4 py-2 text-black font-semibold"
-            >
-              Edit URL
-            </button>
-            <DeleteButton slug={item.slug} />
-          </div>
-        </div>
-      ))}
+  <div className="overflow-x-auto">
+    <table className="w-full">
+      <thead>
+        <tr className="border-b border-zinc-700 text-left">
+          <th className="pb-4">Slug</th>
+          <th className="pb-4">URL</th>
+          <th className="pb-4">Scans</th>
+          <th className="pb-4">PIN</th>
+          <th className="pb-4">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {links.map((item) => (
+          <tr
+            key={item.id ?? item.slug}
+            className="border-b border-zinc-800"
+          >
+            <td className="py-4 font-semibold">
+              {item.slug}
+            </td>
+
+            <td className="py-4 text-gray-400 max-w-sm truncate">
+              {item.target_url}
+            </td>
+
+            <td className="py-4">
+              {item.scans}
+            </td>
+
+            <td className="py-4">
+              {item.pin || "-"}
+            </td>
+
+            <td className="py-4">
+              <div className="flex gap-2 flex-wrap">
+
+                <button
+                  onClick={(event) =>
+                    handleEdit(event, item)
+                  }
+                  className="px-3 py-2 rounded-lg bg-cyan-500 text-black text-sm font-semibold"
+                >
+                  Edit
+                </button>
+
+                <a
+                  href={`/dashboard/analytics/${item.slug}`}
+                  className="px-3 py-2 rounded-lg bg-green-500 text-black text-sm font-semibold"
+                >
+                  Analytics
+                </a>
+
+                <DeleteButton
+                  slug={item.slug}
+                />
+
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
     </div>
-  );
+);
 }

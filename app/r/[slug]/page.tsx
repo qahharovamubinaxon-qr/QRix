@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
+import { getGeoData } from "@/lib/geoip";
 
 type Props = {
   params: Promise<{
@@ -37,12 +38,58 @@ const headersList = await headers();
 const userAgent =
   headersList.get("user-agent") || "unknown";
 
+  const ip =
+  headersList.get("x-forwarded-for") ||
+  headersList.get("x-real-ip") ||
+  "unknown";
+
+const geo = await getGeoData(ip);
+
+console.log("GEO DATA:", geo);
+
+let browser = "Unknown";
+
+if (userAgent.includes("Chrome"))
+  browser = "Chrome";
+else if (userAgent.includes("Firefox"))
+  browser = "Firefox";
+else if (userAgent.includes("Safari"))
+  browser = "Safari";
+else if (userAgent.includes("Edge"))
+  browser = "Edge";
+
+let os = "Unknown";
+
+if (userAgent.includes("Android"))
+  os = "Android";
+else if (userAgent.includes("iPhone"))
+  os = "iPhone";
+else if (userAgent.includes("Windows"))
+  os = "Windows";
+else if (userAgent.includes("Mac"))
+  os = "MacOS";
+
+let device = "Desktop";
+
+if (
+  userAgent.includes("Android") ||
+  userAgent.includes("iPhone")
+) {
+  device = "Mobile";
+}
+
 const scanResult = await supabase
   .from("qr_scans")
   .insert({
-    slug,
-    user_agent: userAgent,
-  });
+  slug,
+  user_agent: userAgent,
+  ip,
+  browser,
+  os,
+  device,
+  country: geo.country,
+  city: geo.city,
+});
 
 console.log("SCAN RESULT:", scanResult);
 

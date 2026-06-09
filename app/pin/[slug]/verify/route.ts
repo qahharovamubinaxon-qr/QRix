@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
+import { getGeoData } from "@/lib/geoip";
 
 export async function POST(
   req: Request,
@@ -28,38 +29,93 @@ export async function POST(
     );
   }
 
+  // PIN текшириш
+  if (String(pin) !== String(data.pin)) {
+    return new Response(
+      "Wrong PIN",
+      { status: 401 }
+    );
+  }
+
   const headersList = await headers();
 
-const userAgent =
-  headersList.get("user-agent") ||
-  "unknown";
+  const userAgent =
+    headersList.get("user-agent") ||
+    "unknown";
 
-const scanResult = await supabase
-  .from("qr_scans")
-  .insert({
-    slug,
-    user_agent: userAgent,
-  });
+  const ip =
+    headersList.get("x-forwarded-for") ||
+    headersList.get("x-real-ip") ||
+    "unknown";
 
-console.log(
-  "PIN SCAN RESULT:",
-  JSON.stringify(scanResult, null, 2)
-);
+  const geo = await getGeoData(ip);
 
-await supabase
-  .from("dynamic_links")
-  .update({
-    scans: (data.scans || 0) + 1,
-  })
-  .eq("slug", slug);
+  console.log("IP:", ip);
+  console.log("GEO DATA:", geo);
 
-console.log(
-  "TARGET URL:",
-  data.target_url
-);
+  let browser = "Unknown";
 
-return NextResponse.redirect(
-  new URL(data.target_url),
-  303
-);
+  if (userAgent.includes("Chrome"))
+    browser = "Chrome";
+  else if (userAgent.includes("Firefox"))
+    browser = "Firefox";
+  else if (userAgent.includes("Safari"))
+    browser = "Safari";
+  else if (userAgent.includes("Edge"))
+    browser = "Edge";
+
+  let os = "Unknown";
+
+  if (userAgent.includes("Android"))
+    os = "Android";
+  else if (userAgent.includes("iPhone"))
+    os = "iPhone";
+  else if (userAgent.includes("Windows"))
+    os = "Windows";
+  else if (userAgent.includes("Mac"))
+    os = "MacOS";
+
+  let device = "Desktop";
+
+  if (
+    userAgent.includes("Android") ||
+    userAgent.includes("iPhone")
+  ) {
+    device = "Mobile";
+  }
+
+  const scanResult = await supabase
+    .from("qr_scans")
+    .insert({
+      slug,
+      user_agent: userAgent,
+      ip,
+      browser,
+      os,
+      device,
+      country: geo.country,
+      city: geo.city,
+    });
+
+  console.log(
+    "PIN SCAN RESULT:",
+    JSON.stringify(scanResult, null, 2)
+  );
+
+  await supabase
+    .from("dynamic_links")
+    .update({
+      scans: (data.scans || 0) + 1,
+    })
+    .eq("slug", slug);
+
+  console.log(
+    "TARGET URL:",
+    data.target_url
+  );
+
+  return NextResponse.redirect(
+    data.target_url,
+    303
+  );
 }
