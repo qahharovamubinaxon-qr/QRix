@@ -37,6 +37,28 @@ export default function PdfToolsPage() {
           JPG to PDF
         </Link>
 
+        {/* ✅ ЯНГИ ҚЎШИЛДИ */}
+        <Link
+          href="/pdf-tools/pdf-to-word"
+          className="bg-zinc-900 p-8 rounded-3xl"
+        >
+          PDF to Word
+        </Link>
+
+        <Link
+          href="/pdf-tools/word-to-pdf"
+          className="bg-zinc-900 p-8 rounded-3xl"
+        >
+          Word to PDF
+        </Link>
+       
+        <Link
+          href="/pdf-tools/compress"
+          className="bg-zinc-900 p-8 rounded-3xl"
+        >
+          Compress PDF
+        </Link>
+
       </div>
     </div>
   );
