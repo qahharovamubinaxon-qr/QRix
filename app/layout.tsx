@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import TopNav from "@/components/TopNav";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -27,10 +28,10 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        {/* Тема флэшини олдини олиш — сақланган темани дарҳол қўллайди */}
         <script
           dangerouslySetInnerHTML={{
             __html: `try{if(localStorage.getItem("theme")==="light"){document.documentElement.classList.add("light")}}catch(e){}`,
@@ -38,6 +39,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
+        <TopNav />
         {children}
       </body>
     </html>
