@@ -1,49 +1,324 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+/* ============================================
+   QRix Design System — Midnight Indigo
+   Dark/Light via .light class on <html>
+   ============================================ */
+
 :root {
-  --background: #09090b;
-  --foreground: #ffffff;
+  /* Dark theme (default) */
+  --bg: #07070f;
+  --bg-gradient: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124, 58, 237, 0.18), transparent),
+                 radial-gradient(ellipse 60% 40% at 90% 110%, rgba(34, 211, 238, 0.08), transparent),
+                 #07070f;
+  --surface: rgba(17, 17, 32, 0.75);
+  --surface-solid: #111120;
+  --surface-hover: rgba(139, 92, 246, 0.06);
+  --border: rgba(139, 92, 246, 0.14);
+  --border-strong: rgba(139, 92, 246, 0.3);
+
+  --text: #f4f4f8;
+  --text-muted: #9b9bb3;
+  --text-faint: #5c5c75;
+
+  --primary: #8b5cf6;
+  --primary-bright: #a78bfa;
+  --accent: #22d3ee;
+  --success: #34d399;
+  --danger: #f87171;
+  --warning: #fbbf24;
+
+  --grad-primary: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #6366f1 100%);
+  --grad-accent: linear-gradient(135deg, #22d3ee, #3b82f6);
+  --grad-text: linear-gradient(120deg, #a78bfa, #22d3ee);
+
+  --glow-primary: 0 0 24px rgba(139, 92, 246, 0.35);
+  --shadow-card: 0 1px 0 rgba(255,255,255,0.04) inset, 0 8px 32px rgba(0, 0, 0, 0.45);
+  --shadow-pop: 0 16px 48px rgba(124, 58, 237, 0.25);
+
+  --radius: 16px;
+  --radius-lg: 22px;
+
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+
+  color-scheme: dark;
 }
+
+html.light {
+  --bg: #f4f5fb;
+  --bg-gradient: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(124, 58, 237, 0.10), transparent),
+                 radial-gradient(ellipse 60% 40% at 90% 110%, rgba(34, 211, 238, 0.07), transparent),
+                 #f4f5fb;
+  --surface: rgba(255, 255, 255, 0.85);
+  --surface-solid: #ffffff;
+  --surface-hover: rgba(124, 58, 237, 0.05);
+  --border: rgba(99, 102, 241, 0.16);
+  --border-strong: rgba(124, 58, 237, 0.35);
+
+  --text: #15152b;
+  --text-muted: #5b5b78;
+  --text-faint: #9595ad;
+
+  --glow-primary: 0 0 24px rgba(139, 92, 246, 0.18);
+  --shadow-card: 0 1px 2px rgba(21, 21, 43, 0.04), 0 8px 28px rgba(21, 21, 43, 0.08);
+  --shadow-pop: 0 16px 48px rgba(124, 58, 237, 0.18);
+
+  color-scheme: light;
+}
+
+/* ============ Base ============ */
+* { border-color: var(--border); }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background: #09090b;
-  color: #ffffff;
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg-gradient);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.4s ease, color 0.3s ease;
 }
 
-.glow {
-  box-shadow:
-    0 0 30px rgba(0, 212, 255, 0.25),
-    0 0 60px rgba(0, 212, 255, 0.15);
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
 }
 
-.hero-grid {
-  background-image:
-    linear-gradient(rgba(0,212,255,.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,212,255,.08) 1px, transparent 1px);
-  background-size: 40px 40px;
+/* ============ Scrollbar ============ */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, rgba(139,92,246,.5), rgba(34,211,238,.4));
+  border-radius: 99px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(139,92,246,.8); }
+
+/* ============ Selection ============ */
+::selection { background: rgba(139, 92, 246, 0.4); color: #fff; }
+
+/* ============ Components ============ */
+
+/* Glass card — асосий карта */
+.qx-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: transform .25s cubic-bezier(.4,0,.2,1), border-color .25s, box-shadow .25s;
+}
+.qx-card:hover {
+  border-color: var(--border-strong);
+}
+.qx-card-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-pop);
 }
 
-body::before {
+/* Stat value — катта рақамлар */
+.qx-stat {
+  font-family: var(--font-display);
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Primary button */
+.qx-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .7rem 1.4rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: .875rem;
+  background: var(--grad-primary);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.12);
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35);
+  transition: transform .2s, box-shadow .2s, filter .2s;
+  cursor: pointer;
+}
+.qx-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45);
+  filter: brightness(1.08);
+}
+.qx-btn:active { transform: translateY(0); }
+
+/* Secondary / ghost button */
+.qx-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .65rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: .875rem;
+  background: var(--surface-hover);
+  color: var(--text);
+  border: 1px solid var(--border);
+  transition: border-color .2s, background .2s, transform .2s;
+  cursor: pointer;
+}
+.qx-btn-ghost:hover {
+  border-color: var(--border-strong);
+  background: var(--surface-hover);
+  transform: translateY(-1px);
+}
+
+/* Inputs — глобал, ҳамма саҳифага таъсир қилади */
+input[type="text"], input[type="url"], input[type="email"],
+input[type="password"], input[type="number"], input[type="search"],
+input[type="tel"], textarea, select {
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 12px;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+input::placeholder, textarea::placeholder { color: var(--text-faint); }
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.18);
+}
+
+/* Table — глобал */
+.qx-table { width: 100%; border-collapse: collapse; }
+.qx-table thead th {
+  text-align: left;
+  font-size: .72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-faint);
+  padding: .8rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.qx-table tbody td {
+  padding: .9rem 1rem;
+  font-size: .875rem;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+}
+.qx-table tbody td:first-child { color: var(--text); font-weight: 500; }
+.qx-table tbody tr { transition: background .15s; }
+.qx-table tbody tr:hover { background: var(--surface-hover); }
+.qx-table tbody tr:last-child td { border-bottom: none; }
+
+/* Section title */
+.qx-title {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+.qx-title::before {
   content: "";
-  position: fixed;
-  width: 600px;
-  height: 600px;
-  background: rgba(0,212,255,.08);
-  filter: blur(140px);
-  top: -150px;
-  right: -150px;
-  pointer-events: none;
+  width: 4px;
+  height: 1.1em;
+  border-radius: 99px;
+  background: var(--grad-primary);
+  box-shadow: var(--glow-primary);
 }
 
-body::after {
-  content: "";
-  position: fixed;
-  width: 500px;
-  height: 500px;
-  background: rgba(0,212,255,.05);
-  filter: blur(120px);
-  bottom: -150px;
-  left: -150px;
-  pointer-events: none;
+/* Badge / tag */
+.qx-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .25rem .7rem;
+  border-radius: 99px;
+  font-size: .72rem;
+  font-weight: 600;
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--primary-bright);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+.qx-badge-success { background: rgba(52,211,153,.1); color: var(--success); border-color: rgba(52,211,153,.25); }
+.qx-badge-danger { background: rgba(248,113,113,.1); color: var(--danger); border-color: rgba(248,113,113,.25); }
+
+/* Sidebar link */
+.qx-navlink {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  padding: .65rem .9rem;
+  border-radius: 12px;
+  font-size: .875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  transition: all .18s;
+}
+.qx-navlink:hover {
+  color: var(--text);
+  background: var(--surface-hover);
+  border-color: var(--border);
+  transform: translateX(2px);
+}
+.qx-navlink.active {
+  color: var(--text);
+  background: linear-gradient(135deg, rgba(124,58,237,.18), rgba(34,211,238,.08));
+  border-color: var(--border-strong);
+}
+
+/* Icon tile (Quick create) */
+.qx-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  padding: 1.2rem;
+  border-radius: var(--radius);
+  background: var(--surface-hover);
+  border: 1px solid var(--border);
+  font-size: .8rem;
+  font-weight: 600;
+  color: var(--text);
+  transition: all .2s;
+}
+.qx-tile:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-pop);
+}
+.qx-tile-icon {
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 12px;
+  font-size: 1.25rem;
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
+}
+
+/* Entrance animation */
+@keyframes qx-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.qx-rise { animation: qx-rise .5s cubic-bezier(.4,0,.2,1) both; }
+.qx-rise-1 { animation-delay: .05s; }
+.qx-rise-2 { animation-delay: .1s; }
+.qx-rise-3 { animation-delay: .15s; }
+.qx-rise-4 { animation-delay: .2s; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

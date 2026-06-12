@@ -5,11 +5,33 @@ import { useEffect, useState } from "react";
 import LogoutButton from "@/components/LogoutButton";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
+import {
+  FiSun, FiMoon, FiChevronDown, FiHome, FiLink, FiWifi,
+  FiMessageCircle, FiMail, FiSend, FiMessageSquare, FiUser,
+  FiFileText, FiImage,
+} from "react-icons/fi";
+
+const LANGUAGES = [
+  { code: "en", label: "EN", name: "English", flag: "🇬🇧" },
+  { code: "ru", label: "RU", name: "Русский", flag: "🇷🇺" },
+  { code: "uz", label: "UZ", name: "O'zbek", flag: "🇺🇿" },
+];
 
 export default function Sidebar() {
   const [user, setUser] = useState<User | null>(null);
+  const [dark, setDark] = useState(true);
+  const [lang, setLang] = useState("en");
+  const [langOpen, setLangOpen] = useState(false);
 
   useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const savedLang = localStorage.getItem("language");
+    if (savedTheme === "light") {
+      setDark(false);
+      document.documentElement.classList.add("light");
+    }
+    if (savedLang) setLang(savedLang);
+
     let mounted = true;
 
     supabaseBrowser.auth.getSession().then(({ data }) => {
@@ -28,113 +50,191 @@ export default function Sidebar() {
     };
   }, []);
 
+  const toggleTheme = () => {
+    const next = !dark;
+    setDark(next);
+    localStorage.setItem("theme", next ? "dark" : "light");
+    document.documentElement.classList.toggle("light", !next);
+  };
+
+  const changeLang = (code: string) => {
+    setLang(code);
+    localStorage.setItem("language", code);
+    setLangOpen(false);
+    window.dispatchEvent(new Event("qrix-lang"));
+  };
+
+  const currentLang = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
+
+  const qrLinks = [
+    { href: "/url-qr", label: "URL QR", icon: <FiLink size={15} /> },
+    { href: "/wifi-qr", label: "WiFi QR", icon: <FiWifi size={15} /> },
+    { href: "/whatsapp-qr", label: "WhatsApp QR", icon: <FiMessageCircle size={15} /> },
+    { href: "/email-qr", label: "Email QR", icon: <FiMail size={15} /> },
+    { href: "/telegram-qr", label: "Telegram QR", icon: <FiSend size={15} /> },
+    { href: "/sms-qr", label: "SMS QR", icon: <FiMessageSquare size={15} /> },
+    { href: "/vcard-qr", label: "vCard QR", icon: <FiUser size={15} /> },
+  ];
+
   return (
-    <aside className="w-72 min-h-screen bg-zinc-950 border-r border-cyan-500/20 p-6">
+    <aside
+      className="w-72 min-h-screen p-5 flex flex-col sticky top-0 max-h-screen overflow-y-auto"
+      style={{
+        background: "var(--surface)",
+        borderRight: "1px solid var(--border)",
+        backdropFilter: "blur(20px)",
+      }}
+    >
+      {/* Logo */}
+      <Link href="/" className="font-display flex items-center gap-2 mb-7 px-1">
+        <span
+          className="w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold text-sm"
+          style={{ background: "var(--grad-primary)", boxShadow: "var(--glow-primary)" }}
+        >
+          QR
+        </span>
+        <span className="text-2xl font-bold tracking-tight" style={{ color: "var(--text)" }}>
+          QR<span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>ix</span>
+        </span>
+      </Link>
 
-      <h2 className="text-3xl font-bold mb-8">
-        QR<span className="text-cyan-400">ix</span>
-      </h2>
-
+      {/* User section — логика ўша */}
       {user ? (
-        <div className="mb-6 rounded-3xl bg-zinc-900 p-4 text-sm text-gray-300">
-          <div className="font-semibold text-white mb-2">Signed in as</div>
-          <div className="break-words">{user.email}</div>
-          <div className="mt-4">
-            <LogoutButton />
+        <div className="qx-card mb-5 p-4 text-sm" style={{ borderRadius: 16 }}>
+          <div className="flex items-center gap-3 mb-3">
+            <div
+              className="w-9 h-9 rounded-full shrink-0"
+              style={{ background: "var(--grad-accent)" }}
+            />
+            <div className="min-w-0">
+              <div className="font-semibold text-xs" style={{ color: "var(--text)" }}>
+                Signed in as
+              </div>
+              <div className="truncate text-xs" style={{ color: "var(--text-muted)" }}>
+                {user.email}
+              </div>
+            </div>
           </div>
+          <LogoutButton />
         </div>
       ) : (
-        <div className="mb-6 rounded-3xl bg-zinc-900 p-4 text-sm text-gray-300">
-          <div className="font-semibold text-white mb-2">Auth required</div>
-          <Link
-            href="/login"
-            className="block rounded-xl bg-cyan-500 px-4 py-3 text-black text-center font-semibold"
-          >
+        <div className="qx-card mb-5 p-4" style={{ borderRadius: 16 }}>
+          <div className="font-semibold text-sm mb-3" style={{ color: "var(--text)" }}>
+            Auth required
+          </div>
+          <Link href="/login" className="qx-btn w-full mb-2 !py-2.5 text-xs">
             Login
           </Link>
-          <Link
-            href="/register"
-            className="mt-3 block rounded-xl border border-cyan-500 px-4 py-3 text-center text-white hover:bg-zinc-900"
-          >
+          <Link href="/register" className="qx-btn-ghost w-full !py-2.5 text-xs">
             Register
           </Link>
         </div>
       )}
 
-      <div className="space-y-8">
-
-        <div>
-          <Link href="/dashboard" className="block p-3 rounded-xl hover:bg-zinc-900">
-            Dashboard
-          </Link>
+      {/* Theme + Language */}
+      <div className="flex gap-2 mb-7">
+        <button
+          onClick={toggleTheme}
+          className="qx-btn-ghost flex-1 !px-2"
+          aria-label="Toggle theme"
+          style={{ color: dark ? "#fbbf24" : "var(--primary)" }}
+        >
+          {dark ? <FiSun size={15} /> : <FiMoon size={15} />}
+        </button>
+        <div className="flex-1 relative">
+          <button
+            onClick={() => setLangOpen(!langOpen)}
+            className="qx-btn-ghost w-full !px-2"
+          >
+            <span className="text-sm">{currentLang.flag}</span>
+            <span className="text-xs font-semibold">{currentLang.label}</span>
+            <FiChevronDown size={12} style={{ transform: langOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
+          </button>
+          {langOpen && (
+            <div
+              className="absolute left-0 right-0 top-full mt-2 rounded-xl overflow-hidden z-50"
+              style={{
+                background: "var(--surface-solid)",
+                border: "1px solid var(--border-strong)",
+                boxShadow: "var(--shadow-pop)",
+              }}
+            >
+              {LANGUAGES.map((l) => (
+                <button
+                  key={l.code}
+                  onClick={() => changeLang(l.code)}
+                  className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium text-left transition-colors"
+                  style={{
+                    color: lang === l.code ? "var(--primary-bright)" : "var(--text-muted)",
+                    background: lang === l.code ? "var(--surface-hover)" : "transparent",
+                  }}
+                >
+                  <span>{l.flag}</span>
+                  <span>{l.name}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
-
-        <div>
-
-          <h3 className="text-cyan-400 text-xs uppercase mb-3">
-            QR TOOLS
-          </h3>
-
-          <div className="space-y-2">
-
-            <Link href="/url-qr" className="block p-3 rounded-xl hover:bg-zinc-900">
-              URL QR
-            </Link>
-
-            <Link href="/wifi-qr" className="block p-3 rounded-xl hover:bg-zinc-900">
-              WiFi QR
-            </Link>
-
-            <Link href="/whatsapp-qr" className="block p-3 rounded-xl hover:bg-zinc-900">
-              WhatsApp QR
-            </Link>
-
-            <Link href="/email-qr" className="block p-3 rounded-xl hover:bg-zinc-900">
-              Email QR
-            </Link>
-
-            <Link href="/telegram-qr" className="block p-3 rounded-xl hover:bg-zinc-900">
-              Telegram QR
-            </Link>
-
-            <Link href="/sms-qr" className="block p-3 rounded-xl hover:bg-zinc-900">
-              SMS QR
-            </Link>
-
-            <Link href="/vcard-qr" className="block p-3 rounded-xl hover:bg-zinc-900">
-              vCard QR
-            </Link>
-
-          </div>
-
-        </div>
-
-        <div>
-
-          <h3 className="text-cyan-400 text-xs uppercase mb-3">
-            PDF TOOLS
-          </h3>
-
-          <Link href="/pdf-tools" className="block p-3 rounded-xl hover:bg-zinc-900">
-            PDF Tools
-          </Link>
-
-        </div>
-
-        <div>
-
-          <h3 className="text-cyan-400 text-xs uppercase mb-3">
-            IMAGE TOOLS
-          </h3>
-
-          <Link href="/image-tools" className="block p-3 rounded-xl hover:bg-zinc-900">
-            Image Tools
-          </Link>
-
-        </div>
-
       </div>
 
+      {/* Navigation — линклар ўша */}
+      <nav className="flex-1 space-y-7">
+        <Link href="/dashboard" className="qx-navlink active">
+          <FiHome size={16} />
+          Dashboard
+        </Link>
+
+        <div>
+          <h3
+            className="text-[10px] uppercase font-bold mb-2.5 px-2 tracking-[0.12em]"
+            style={{ color: "var(--text-faint)" }}
+          >
+            QR Tools
+          </h3>
+          <div className="space-y-0.5">
+            {qrLinks.map((item) => (
+              <Link key={item.href} href={item.href} className="qx-navlink">
+                <span style={{ color: "var(--primary-bright)" }}>{item.icon}</span>
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3
+            className="text-[10px] uppercase font-bold mb-2.5 px-2 tracking-[0.12em]"
+            style={{ color: "var(--text-faint)" }}
+          >
+            PDF Tools
+          </h3>
+          <Link href="/pdf-tools" className="qx-navlink">
+            <span style={{ color: "var(--accent)" }}><FiFileText size={15} /></span>
+            PDF Tools
+          </Link>
+        </div>
+
+        <div>
+          <h3
+            className="text-[10px] uppercase font-bold mb-2.5 px-2 tracking-[0.12em]"
+            style={{ color: "var(--text-faint)" }}
+          >
+            Image Tools
+          </h3>
+          <Link href="/image-tools" className="qx-navlink">
+            <span style={{ color: "var(--success)" }}><FiImage size={15} /></span>
+            Image Tools
+          </Link>
+        </div>
+      </nav>
+
+      <div
+        className="text-[11px] text-center pt-5 mt-5"
+        style={{ color: "var(--text-faint)", borderTop: "1px solid var(--border)" }}
+      >
+        QRix © 2026
+      </div>
     </aside>
   );
 }
