@@ -14,9 +14,9 @@ const LANGUAGES = [
 ];
 
 const NAV = {
-  en: { home: "Home", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", signin: "Sign in", signout: "Sign out", getStarted: "Get Started Free" },
-  ru: { home: "Главная", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", signin: "Войти", signout: "Выйти", getStarted: "Начать бесплатно" },
-  uz: { home: "Бош саҳифа", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", signin: "Кириш", signout: "Чиқиш", getStarted: "Бошлаш" },
+  en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", signin: "Sign in", signout: "Sign out", getStarted: "Get Started Free" },
+  ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", signin: "Войти", signout: "Выйти", getStarted: "Начать бесплатно" },
+  uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", signin: "Кириш", signout: "Чиқиш", getStarted: "Бошлаш" },
 };
 
 export default function TopNav() {
@@ -71,6 +71,7 @@ export default function TopNav() {
 
   const links = [
     { href: "/", label: t.home },
+    { href: "/qr-tools", label: t.qr },
     { href: "/pdf-tools", label: t.pdf },
     { href: "/image-tools", label: t.image },
     { href: "/dashboard", label: t.dashboard },

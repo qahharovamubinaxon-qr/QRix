@@ -12,6 +12,7 @@ import {
   FiScissors, FiMinimize2, FiFile, FiType, FiRotateCw, FiLayers,
   FiShield, FiZap, FiCheckCircle, FiUploadCloud, FiArrowRight,
   FiChevronRight, FiHome, FiLock, FiUnlock, FiCheck,
+  FiHash, FiDroplet, FiCopy, FiTrash2,
 } from "react-icons/fi";
 
 type Tool = {
@@ -34,7 +35,11 @@ const TOOLS: Tool[] = [
   { href: "/pdf-tools/jpg-to-pdf", title: "JPG to PDF", desc: "Convert images (JPG, PNG) to a single PDF file.", icon: <FiFile size={20} />, grad: "linear-gradient(135deg,#dc2626,#f87171)", popularity: 70 },
   { href: "/pdf-tools/rotate", title: "Rotate PDF", desc: "Rotate PDF pages to the correct orientation.", icon: <FiRotateCw size={20} />, grad: "linear-gradient(135deg,#0d9488,#2dd4bf)", popularity: 65 },
   { href: "/pdf-tools/reorder", title: "Reorder Pages", desc: "Rearrange pages in your PDF files.", icon: <FiGrid size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", popularity: 60 },
-  { href: "#", title: "Protect PDF", desc: "Add password protection to your PDF files.", icon: <FiLock size={20} />, grad: "linear-gradient(135deg,#6366f1,#8b5cf6)", popularity: 50, soon: true },
+  { href: "/pdf-tools/page-numbers", title: "Add Page Numbers", desc: "Insert automatic page numbers in any position.", icon: <FiHash size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", popularity: 58 },
+  { href: "/pdf-tools/watermark", title: "Add Watermark", desc: "Stamp text watermark across every page.", icon: <FiDroplet size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)", popularity: 55 },
+  { href: "/pdf-tools/extract-pages", title: "Extract Pages", desc: "Pull selected pages into a new PDF.", icon: <FiCopy size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)", popularity: 52 },
+  { href: "/pdf-tools/delete-pages", title: "Delete Pages", desc: "Remove unwanted pages from your PDF.", icon: <FiTrash2 size={20} />, grad: "linear-gradient(135deg,#dc2626,#f87171)", popularity: 48 },
+  { href: "#", title: "Protect PDF", desc: "Add password protection to your PDF files.", icon: <FiLock size={20} />, grad: "linear-gradient(135deg,#6366f1,#8b5cf6)", popularity: 44, soon: true },
   { href: "#", title: "Unlock PDF", desc: "Remove password protection from PDF files.", icon: <FiUnlock size={20} />, grad: "linear-gradient(135deg,#d97706,#fbbf24)", popularity: 45, soon: true },
   { href: "#", title: "PDF to Excel", desc: "Convert PDF tables to Excel spreadsheets.", icon: <FiGrid size={20} />, grad: "linear-gradient(135deg,#059669,#34d399)", popularity: 40, soon: true },
 ];

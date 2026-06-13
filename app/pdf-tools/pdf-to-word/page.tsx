@@ -1,9 +1,17 @@
+import ToolPageShell from "@/components/ToolPageShell";
 import PdfToWordClient from "@/components/PdfToWordClient";
-
-export default function PdfToWordPage() {
+export default function Page() {
   return (
-    <main className="min-h-screen bg-zinc-950 flex items-center justify-center p-8">
+    <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="PDF to Word" emoji="📝"
+      grad="linear-gradient(135deg,#2563eb,#60a5fa)"
+      intro="Convert PDF documents into editable Word files."
+      about="This tool extracts the text and layout from your PDF and produces an editable Word document. Useful when you need to edit content that's locked in a PDF. Works best with text-based PDFs; scanned documents use OCR where available."
+      steps={[
+        { title: "Upload a PDF", desc: "Choose the document to convert." },
+        { title: "Convert", desc: "The tool extracts text into Word format." },
+        { title: "Download", desc: "Save the editable .docx file." },
+      ]}>
       <PdfToWordClient />
-    </main>
+    </ToolPageShell>
   );
 }

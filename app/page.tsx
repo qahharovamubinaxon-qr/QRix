@@ -32,6 +32,7 @@ const T: Record<Lang, Record<string, string>> = {
     tgUser: "Telegram username (without @)",
     pin: "Add PIN Protection", pinOpt: "(optional)", pinPh: "Enter 4–10 digit PIN",
     pinInfo: "Scans will require this PIN. Creates a protected dynamic link.",
+    confirmPin: "Confirm PIN", pinSet: "PIN set — it will be added to the QR code.",
     generate: "Generate QR Code", generating: "Creating...",
     yourQr: "Your QR Code", dlPng: "Download PNG", dlSvg: "Download SVG",
     customize: "Customize Design",
@@ -67,6 +68,7 @@ const T: Record<Lang, Record<string, string>> = {
     tgUser: "Telegram username (без @)",
     pin: "PIN защита", pinOpt: "(опционально)", pinPh: "PIN из 4–10 цифр",
     pinInfo: "Для сканирования потребуется PIN. Создаётся защищённая динамическая ссылка.",
+    confirmPin: "Подтвердить", pinSet: "PIN установлен — добавлен в QR код.",
     generate: "Создать QR код", generating: "Создание...",
     yourQr: "Ваш QR код", dlPng: "Скачать PNG", dlSvg: "Скачать SVG",
     customize: "Настроить дизайн",
@@ -102,6 +104,7 @@ const T: Record<Lang, Record<string, string>> = {
     tgUser: "Telegram username (@сиз)",
     pin: "PIN ҳимояси", pinOpt: "(ихтиёрий)", pinPh: "4–10 рақамли PIN",
     pinInfo: "Сканлаш учун PIN сўралади. Ҳимояланган динамик ссилка яратилади.",
+    confirmPin: "Тасдиқлаш", pinSet: "PIN ўрнатилди — QR кодга қўшилади.",
     generate: "QR код яратиш", generating: "Яратилмоқда...",
     yourQr: "Сизнинг QR кодингиз", dlPng: "PNG юклаб олиш", dlSvg: "SVG юклаб олиш",
     customize: "Дизайнни созлаш",
@@ -181,6 +184,7 @@ export default function HomePage() {
   /* ===== PIN ===== */
   const [pinOn, setPinOn] = useState(false);
   const [pin, setPin] = useState("");
+  const [pinConfirmed, setPinConfirmed] = useState(false);
   const [protectedUrl, setProtectedUrl] = useState("");
 
   /* ===== QR & design ===== */
@@ -335,7 +339,12 @@ export default function HomePage() {
     { title: t.f4, desc: t.f4d, icon: <FiPenTool size={20} />, grad: "linear-gradient(135deg,#7c3aed,#d946ef)" },
   ];
 
-  const inputCls = "w-full px-4 py-3 text-sm";
+  const inputCls = "w-full px-4 py-3 text-sm rounded-xl";
+  const inputStyle = {
+    background: "var(--surface-hover)",
+    border: "1.5px solid var(--border-strong)",
+    color: "var(--text)",
+  } as React.CSSProperties;
 
   return (
     <div className="relative overflow-x-clip">
@@ -442,7 +451,7 @@ export default function HomePage() {
             {tab === "url" && (
               <div>
                 <label className="block text-xs font-semibold mb-2" style={{ color: "var(--text)" }}>{t.enterUrl}</label>
-                <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://yourwebsite.com" className={inputCls} />
+                <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://yourwebsite.com" className={inputCls} style={inputStyle} />
               </div>
             )}
             {tab === "text" && (
@@ -491,19 +500,42 @@ export default function HomePage() {
 
           {/* PIN — реал динамик ссилка */}
           <div className="mt-5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <FiLock size={13} style={{ color: "var(--text-muted)" }} />
                 <span className="text-xs font-semibold" style={{ color: "var(--text)" }}>{t.pin}</span>
                 <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>{t.pinOpt}</span>
               </div>
-              <button type="button" onClick={() => setPinOn(!pinOn)} className={`qx-toggle ${pinOn ? "on" : "off"}`} aria-label="PIN toggle" />
+              <button type="button" onClick={() => { setPinOn(!pinOn); if (pinOn) { setPin(""); setPinConfirmed(false); } }} className={`qx-toggle ${pinOn ? "on" : "off"}`} aria-label="PIN toggle" />
             </div>
             {pinOn && (
-              <div className="mt-3">
-                <input value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 10))}
-                  placeholder={t.pinPh} inputMode="numeric" className={inputCls} />
-                <p className="text-[10px] mt-1.5" style={{ color: "var(--text-faint)" }}>{t.pinInfo}</p>
+              <div>
+                <div className="flex gap-2">
+                  <input
+                    value={pin}
+                    onChange={(e) => { setPin(e.target.value.replace(/\D/g, "").slice(0, 10)); setPinConfirmed(false); }}
+                    placeholder={t.pinPh}
+                    inputMode="numeric"
+                    className={`${inputCls} flex-1`}
+                    style={inputStyle}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => { if (pin.length >= 4) setPinConfirmed(true); }}
+                    disabled={pin.length < 4}
+                    className="qx-btn !px-4 shrink-0 disabled:opacity-40"
+                  >
+                    {pinConfirmed ? <FiCheck size={15} /> : t.confirmPin}
+                  </button>
+                </div>
+                {pinConfirmed && (
+                  <p className="text-[10px] mt-1.5 flex items-center gap-1" style={{ color: "var(--success)" }}>
+                    <FiCheck size={11} /> {t.pinSet}
+                  </p>
+                )}
+                {!pinConfirmed && (
+                  <p className="text-[10px] mt-1.5" style={{ color: "var(--text-faint)" }}>{t.pinInfo}</p>
+                )}
               </div>
             )}
           </div>

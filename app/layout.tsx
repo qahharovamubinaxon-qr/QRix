@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import TopNav from "@/components/TopNav";
+import CursorGlow from "@/components/CursorGlow";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -39,6 +40,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
+        <CursorGlow />
         <TopNav />
         {children}
       </body>

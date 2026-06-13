@@ -322,3 +322,56 @@ input:focus, textarea:focus, select:focus {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ============================================
+   Эски PDF/Image client компонентларни янги
+   дизайнга мослаш (legacy override)
+   ============================================ */
+
+/* Эски карта контейнерлари → glass card */
+.bg-zinc-900 {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  backdrop-filter: blur(16px);
+}
+
+/* Эски кўк/сариқ тугмалар → бренд градиент */
+.bg-cyan-500, .bg-cyan-400, .bg-yellow-400, .bg-yellow-300 {
+  background: var(--grad-primary) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.35) !important;
+  border-radius: 12px !important;
+  transition: transform .2s, box-shadow .2s, filter .2s !important;
+}
+.bg-cyan-500:hover, .bg-cyan-400:hover, .bg-yellow-400:hover, .bg-yellow-300:hover {
+  transform: translateY(-1px) !important;
+  filter: brightness(1.08) !important;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.45) !important;
+}
+
+/* Эски тугма ичидаги қора матн → оқ */
+.bg-cyan-500.text-black, .bg-cyan-400.text-black,
+.bg-yellow-400.text-black, .bg-yellow-300.text-black {
+  color: #fff !important;
+}
+
+/* Эски қора фон input/select → glass */
+.bg-black {
+  background: var(--surface-hover) !important;
+}
+input.bg-black, select.bg-black, textarea.bg-black {
+  border: 1.5px solid var(--border-strong) !important;
+  color: var(--text) !important;
+  border-radius: 12px !important;
+}
+
+/* Эски акцент матнлар → бренд ранги */
+.text-cyan-400, .text-cyan-500 {
+  color: var(--primary-bright) !important;
+}
+
+/* Эски рамкалар */
+.border-cyan-500\/20, .border-zinc-700, .border-zinc-800 {
+  border-color: var(--border) !important;
+}

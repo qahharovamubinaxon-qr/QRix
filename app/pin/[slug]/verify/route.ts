@@ -29,11 +29,11 @@ export async function POST(
     );
   }
 
-  // PIN текшириш
+  // PIN текшириш — хато бўлса чиройли саҳифага қайтарамиз
   if (String(pin) !== String(data.pin)) {
-    return new Response(
-      "Wrong PIN",
-      { status: 401 }
+    return NextResponse.redirect(
+      new URL(`/pin/${slug}?error=1`, req.url),
+      303
     );
   }
 
@@ -114,8 +114,14 @@ export async function POST(
     data.target_url
   );
 
-  return NextResponse.redirect(
-    data.target_url,
-    303
-  );
+  // target_url'ni to'g'rilash: http/https bo'lmasa qo'shamiz
+  let target = String(data.target_url || "").trim();
+  if (target && !/^https?:\/\//i.test(target) && !/^(mailto:|tel:|sms:|geo:|bitcoin:|WIFI:|BEGIN:)/i.test(target)) {
+    target = "https://" + target;
+  }
+  if (!target) {
+    target = new URL("/", req.url).toString();
+  }
+
+  return NextResponse.redirect(target, 303);
 }

@@ -1,17 +1,17 @@
+import ToolPageShell from "@/components/ToolPageShell";
 import SplitPdfClient from "@/components/SplitPdfClient";
-
-export default function SplitPdfPage() {
+export default function Page() {
   return (
-    <div className="max-w-5xl mx-auto p-10 text-white">
-      <h1 className="text-5xl font-bold mb-4">
-        Split PDF
-      </h1>
-
-      <p className="text-zinc-400 mb-8">
-        Upload a PDF and extract selected pages.
-      </p>
-
+    <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Split PDF" emoji="✂️"
+      grad="linear-gradient(135deg,#0891b2,#22d3ee)"
+      intro="Extract selected pages or split your PDF into separate files."
+      about="Splitting lets you break a large PDF into smaller pieces or pull out specific pages. Useful when you only need a few pages from a big document, or want to separate chapters. Upload your PDF and choose the pages to extract."
+      steps={[
+        { title: "Upload a PDF", desc: "Choose the document to split." },
+        { title: "Select pages", desc: "Pick which pages to extract." },
+        { title: "Download", desc: "Save the resulting PDF." },
+      ]}>
       <SplitPdfClient />
-    </div>
+    </ToolPageShell>
   );
 }

@@ -1,15 +1,17 @@
+import ToolPageShell from "@/components/ToolPageShell";
 import ReorderPdfClient from "@/components/ReorderPdfClient";
-
-export default function ReorderPdfPage() {
+export default function Page() {
   return (
-    <div className="max-w-5xl mx-auto p-8 lg:p-10">
-      <h1 className="font-display text-4xl font-bold mb-2" style={{ color: "var(--text)" }}>
-        Reorder Pages
-      </h1>
-      <p className="mb-8 text-sm" style={{ color: "var(--text-muted)" }}>
-        Rearrange pages in your PDF file and download the result.
-      </p>
+    <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Reorder Pages" emoji="🔀"
+      grad="linear-gradient(135deg,#7c3aed,#a78bfa)"
+      intro="Rearrange the pages of your PDF into a new order."
+      about="This tool lets you move pages up or down to change their order, then download the reorganized PDF. Useful for fixing the sequence of scanned pages or reordering sections. Everything runs locally in your browser."
+      steps={[
+        { title: "Upload a PDF", desc: "Choose the document to reorder." },
+        { title: "Move pages", desc: "Use the arrows to set the new page order." },
+        { title: "Download", desc: "Save the reordered PDF." },
+      ]}>
       <ReorderPdfClient />
-    </div>
+    </ToolPageShell>
   );
 }
