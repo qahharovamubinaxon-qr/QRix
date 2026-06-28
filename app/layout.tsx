@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import TopNav from "@/components/TopNav";
 import CursorGlow from "@/components/CursorGlow";
+import DotDistortionBackground from "@/components/DotDistortionBackground";
+import Mascots3D from "@/components/Mascots3D";
+import PandaMascot from "@/components/PandaMascot";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -33,14 +36,20 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        {/* theme init — runs before paint to avoid flash */}
         <script
+          // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem("theme")==="light"){document.documentElement.classList.add("light")}}catch(e){}`,
+            __html: `try{if(localStorage.getItem("theme")!=="dark"){document.documentElement.classList.add("light")}}catch(e){document.documentElement.classList.add("light")}`,
           }}
         />
       </head>
       <body className="min-h-full flex flex-col">
+        {/* Бутун сайт фони — barcha sahifalarda chiqadi */}
+        {/* <DotDistortionBackground /> */}
+        {/* <Mascots3D /> */}
         <CursorGlow />
+        <PandaMascot />
         <TopNav />
         {children}
       </body>

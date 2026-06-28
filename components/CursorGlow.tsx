@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 const TRAIL = 14; // думча узунлиги (нечта нуқта)
 
 export default function CursorGlow() {
-  const ringRef = useRef<HTMLDivElement>(null);
   const dotRef = useRef<HTMLDivElement>(null);
   const glowRef = useRef<HTMLDivElement>(null);
   const trailRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -19,7 +18,6 @@ export default function CursorGlow() {
 
     let mx = window.innerWidth / 2;
     let my = window.innerHeight / 2;
-    let rx = mx, ry = my;     // ҳалқа
     let gx = mx, gy = my;     // нур
     let hue = 0;              // камалак ранги айланади
     // Думча учун охирги нуқталар тарихи
@@ -32,31 +30,12 @@ export default function CursorGlow() {
       if (dotRef.current) dotRef.current.style.transform = `translate(${mx}px, ${my}px)`;
     };
 
-    const onOver = (e: MouseEvent) => {
-      const t = e.target as HTMLElement;
-      const interactive = t.closest("a, button, input, textarea, select, [role=button], label");
-      if (ringRef.current) {
-        ringRef.current.style.width = interactive ? "60px" : "36px";
-        ringRef.current.style.height = interactive ? "60px" : "36px";
-        ringRef.current.style.opacity = interactive ? "1" : "0.9";
-      }
-    };
-
-    const onDown = () => { if (ringRef.current) ringRef.current.style.transform += " scale(0.8)"; };
-
     const tick = () => {
-      // Ҳалқа ва нур lerp билан эргашади
-      rx += (mx - rx) * 0.22;
-      ry += (my - ry) * 0.22;
+      // Нур lerp билан эргашади
       gx += (mx - gx) * 0.1;
       gy += (my - gy) * 0.1;
       hue = (hue + 2.2) % 360; // ранг доимий айланади (камалак)
 
-      if (ringRef.current) {
-        ringRef.current.style.transform = `translate(${rx}px, ${ry}px)`;
-        ringRef.current.style.borderColor = `hsl(${hue}, 95%, 65%)`;
-        ringRef.current.style.boxShadow = `0 0 18px hsl(${hue}, 95%, 60%), inset 0 0 8px hsl(${(hue + 40) % 360}, 95%, 65%)`;
-      }
       if (dotRef.current) {
         dotRef.current.style.background = `hsl(${hue}, 95%, 65%)`;
         dotRef.current.style.boxShadow = `0 0 12px hsl(${hue}, 95%, 60%)`;
@@ -85,14 +64,10 @@ export default function CursorGlow() {
     };
 
     window.addEventListener("mousemove", onMove);
-    window.addEventListener("mouseover", onOver);
-    window.addEventListener("mousedown", onDown);
     raf = requestAnimationFrame(tick);
 
     return () => {
       window.removeEventListener("mousemove", onMove);
-      window.removeEventListener("mouseover", onOver);
-      window.removeEventListener("mousedown", onDown);
       cancelAnimationFrame(raf);
     };
   }, []);
@@ -125,22 +100,6 @@ export default function CursorGlow() {
           }}
         />
       ))}
-
-      {/* Ҳалқа (эргашади, ранги айланади) */}
-      <div
-        ref={ringRef}
-        className="absolute top-0 left-0"
-        style={{
-          width: 36,
-          height: 36,
-          marginLeft: -18,
-          marginTop: -18,
-          borderRadius: "50%",
-          border: "2px solid #a78bfa",
-          transition: "width .25s, height .25s, opacity .25s",
-          willChange: "transform",
-        }}
-      />
 
       {/* Марказий нуқта (курсорда, ёрқин) */}
       <div

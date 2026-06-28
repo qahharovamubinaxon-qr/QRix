@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import ReviewsSection from "@/components/ReviewsSection";
+import ToolCards3D from "@/components/ToolCards3D";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
   FiMessageCircle, FiPlay, FiArrowRight, FiZap, FiRefreshCw,
   FiShield, FiPenTool, FiBarChart2, FiCamera, FiFileText, FiImage,
   FiUpload, FiTrash2, FiCheck,
+  FiLayers, FiMinimize2, FiMaximize2, FiDroplet, FiScissors,
 } from "react-icons/fi";
 
 type Lang = "en" | "ru" | "uz";
@@ -312,17 +314,40 @@ export default function HomePage() {
     { id: "telegram", label: "Telegram", icon: <FiSend size={14} /> },
   ];
 
-  const tools = [
-    { href: "/url-qr", label: "URL QR", desc: lang === "uz" ? "Ҳар қандай ссилка учун" : lang === "ru" ? "QR для любой ссылки" : "Create QR for any link", icon: <FiLink size={20} />, grad: "linear-gradient(135deg,#4f46e5,#3b82f6)" },
-    { href: "/wifi-qr", label: "WiFi QR", desc: lang === "uz" ? "WiFi'ни бирдан улашинг" : lang === "ru" ? "Делитесь WiFi мгновенно" : "Share WiFi instantly", icon: <FiWifi size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
-    { href: "/vcard-qr", label: "vCard / NFC", desc: lang === "uz" ? "Рақамли визитка" : lang === "ru" ? "Цифровая визитка" : "Digital business card", icon: <FiUser size={20} />, grad: "linear-gradient(135deg,#d97706,#fbbf24)" },
-    { href: "/whatsapp-qr", label: "WhatsApp QR", desc: lang === "uz" ? "Чатга тўғридан" : lang === "ru" ? "Прямо в чат" : "Straight to chat", icon: <FiMessageCircle size={20} />, grad: "linear-gradient(135deg,#16a34a,#86efac)", badge: "New" },
-    { href: "/telegram-qr", label: "Telegram QR", desc: lang === "uz" ? "Каналлар учун" : lang === "ru" ? "Для каналов" : "For channels & bots", icon: <FiSend size={20} />, grad: "linear-gradient(135deg,#0284c7,#38bdf8)" },
-    { href: "/email-qr", label: "Email QR", desc: lang === "uz" ? "Тайёр хатлар" : lang === "ru" ? "Готовые письма" : "Pre-filled emails", icon: <FiMail size={20} />, grad: "linear-gradient(135deg,#db2777,#f472b6)", badge: "New" },
-    { href: "/sms-qr", label: "SMS QR", desc: lang === "uz" ? "Тезкор хабарлар" : lang === "ru" ? "Быстрые сообщения" : "Instant messages", icon: <FiMessageSquare size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a78bfa)" },
-    { href: "/scanner", label: "QR Scanner", desc: lang === "uz" ? "Камера орқали ўқиш" : lang === "ru" ? "Чтение через камеру" : "Scan with camera", icon: <FiCamera size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)", badge: "New" },
-    { href: "/pdf-tools", label: "PDF Tools", desc: lang === "uz" ? "Конверт ва сиқиш" : lang === "ru" ? "Конвертация и сжатие" : "Convert & compress", icon: <FiFileText size={20} />, grad: "linear-gradient(135deg,#ea580c,#fb923c)" },
-    { href: "/image-tools", label: "Image Tools", desc: lang === "uz" ? "Расм асбоблари" : lang === "ru" ? "Работа с фото" : "Edit & convert images", icon: <FiImage size={20} />, grad: "linear-gradient(135deg,#9333ea,#d946ef)" },
+  // 1-қатор — QR функциялари
+  const qrRow = [
+    { href: "/qr-tools/url", label: "URL QR", desc: lang === "uz" ? "Ҳар қандай ссилка" : lang === "ru" ? "Любая ссылка" : "Any link", icon: <FiLink size={20} />, grad: "linear-gradient(135deg,#4f46e5,#3b82f6)" },
+    { href: "/qr-tools/wifi", label: "WiFi QR", desc: lang === "uz" ? "WiFi улашиш" : lang === "ru" ? "Поделиться WiFi" : "Share WiFi", icon: <FiWifi size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
+    { href: "/qr-tools/vcard", label: "vCard / NFC", desc: lang === "uz" ? "Рақамли визитка" : lang === "ru" ? "Визитка" : "Business card", icon: <FiUser size={20} />, grad: "linear-gradient(135deg,#d97706,#fbbf24)" },
+    { href: "/qr-tools/whatsapp", label: "WhatsApp QR", desc: lang === "uz" ? "Чатга тўғридан" : lang === "ru" ? "Прямо в чат" : "Straight to chat", icon: <FiMessageCircle size={20} />, grad: "linear-gradient(135deg,#16a34a,#86efac)", badge: "New" },
+    { href: "/qr-tools/telegram", label: "Telegram QR", desc: lang === "uz" ? "Каналлар учун" : lang === "ru" ? "Для каналов" : "Channels & bots", icon: <FiSend size={20} />, grad: "linear-gradient(135deg,#0284c7,#38bdf8)" },
+    { href: "/qr-tools", label: lang === "uz" ? "Барчаси +25" : lang === "ru" ? "Все +25" : "All +25", desc: lang === "uz" ? "QR турлари" : lang === "ru" ? "Типы QR" : "QR types", icon: <FiGrid size={20} />, grad: "linear-gradient(135deg,#7c3aed,#6366f1)" },
+  ];
+
+  // 2-қатор — PDF функциялари
+  const pdfRow = [
+    { href: "/pdf-tools/merge", label: "Merge PDF", desc: lang === "uz" ? "Бирлаштириш" : lang === "ru" ? "Объединить" : "Combine files", icon: <FiLayers size={20} />, grad: "linear-gradient(135deg,#4f46e5,#818cf8)" },
+    { href: "/pdf-tools/split", label: "Split PDF", desc: lang === "uz" ? "Ажратиш" : lang === "ru" ? "Разделить" : "Split pages", icon: <FiScissors size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)" },
+    { href: "/pdf-tools/compress", label: "Compress", desc: lang === "uz" ? "Сиқиш" : lang === "ru" ? "Сжать" : "Reduce size", icon: <FiMinimize2 size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
+    { href: "/pdf-tools/protect", label: "Protect PDF", desc: lang === "uz" ? "Парол қўйиш" : lang === "ru" ? "Пароль" : "Password", icon: <FiLock size={20} />, grad: "linear-gradient(135deg,#6366f1,#8b5cf6)", badge: "New" },
+    { href: "/pdf-tools/watermark", label: "Watermark", desc: lang === "uz" ? "Сув белгиси" : lang === "ru" ? "Водяной знак" : "Watermark", icon: <FiDroplet size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)" },
+    { href: "/pdf-tools", label: lang === "uz" ? "Барчаси +8" : lang === "ru" ? "Все +8" : "All +8", desc: lang === "uz" ? "PDF асбоблари" : lang === "ru" ? "PDF инструменты" : "PDF tools", icon: <FiFileText size={20} />, grad: "linear-gradient(135deg,#ea580c,#fb923c)" },
+  ];
+
+  // 3-қатор — Image функциялари
+  const imageRow = [
+    { href: "/image-tools/remove-bg", label: "Remove BG", desc: lang === "uz" ? "Фон ўчириш" : lang === "ru" ? "Удалить фон" : "Remove background", icon: <FiScissors size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a855f7)", badge: "AI" },
+    { href: "/image-tools/image-to-text", label: "Image to Text", desc: lang === "uz" ? "Матн олиш" : lang === "ru" ? "Текст из фото" : "Extract text", icon: <FiType size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)", badge: "AI" },
+    { href: "/image-tools/upscale", label: "Enhancer", desc: lang === "uz" ? "Сифат ошириш" : lang === "ru" ? "Улучшить" : "Upscale", icon: <FiZap size={20} />, grad: "linear-gradient(135deg,#f59e0b,#fbbf24)", badge: "New" },
+    { href: "/image-tools/compress", label: "Compress", desc: lang === "uz" ? "Сиқиш" : lang === "ru" ? "Сжать" : "Reduce size", icon: <FiMinimize2 size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
+    { href: "/image-tools/resize", label: "Resize", desc: lang === "uz" ? "Ўлчам" : lang === "ru" ? "Размер" : "Resize", icon: <FiMaximize2 size={20} />, grad: "linear-gradient(135deg,#2563eb,#60a5fa)" },
+    { href: "/image-tools", label: lang === "uz" ? "Барчаси" : lang === "ru" ? "Все" : "All tools", desc: lang === "uz" ? "Расм асбоблари" : lang === "ru" ? "Фото инструменты" : "Image tools", icon: <FiImage size={20} />, grad: "linear-gradient(135deg,#9333ea,#d946ef)" },
+  ];
+
+  const toolRows = [
+    { title: lang === "uz" ? "QR Код Асбоблари" : lang === "ru" ? "QR Инструменты" : "QR Code Tools", href: "/qr-tools", items: qrRow },
+    { title: lang === "uz" ? "PDF Асбоблари" : lang === "ru" ? "PDF Инструменты" : "PDF Tools", href: "/pdf-tools", items: pdfRow },
+    { title: lang === "uz" ? "Расм Асбоблари" : lang === "ru" ? "Инструменты Изображений" : "Image Tools", href: "/image-tools", items: imageRow },
   ];
 
   const stats = [
@@ -341,339 +366,286 @@ export default function HomePage() {
 
   const inputCls = "w-full px-4 py-3 text-sm rounded-xl";
   const inputStyle = {
-    background: "var(--surface-hover)",
-    border: "1.5px solid var(--border-strong)",
+    background: "var(--surface-2)",
+    border: "1.5px solid var(--border)",
     color: "var(--text)",
   } as React.CSSProperties;
 
   return (
     <div className="relative overflow-x-clip">
-      {/* ===== Жонли фон орблари ===== */}
-      <div className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-        <div className="qx-orb" style={{ top: "-10%", left: "-5%", background: "rgba(124,58,237,.22)", animationDelay: "0s" }} />
-        <div className="qx-orb" style={{ top: "30%", right: "-8%", background: "rgba(34,211,238,.14)", animationDelay: "-7s" }} />
-        <div className="qx-orb" style={{ bottom: "-15%", left: "30%", background: "rgba(99,102,241,.16)", animationDelay: "-14s" }} />
-      </div>
       <style>{`
-        .qx-orb{position:absolute;width:540px;height:540px;border-radius:50%;filter:blur(110px);animation:qxFloat 22s ease-in-out infinite;}
-        @keyframes qxFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(60px,-40px) scale(1.12)}66%{transform:translate(-50px,40px) scale(.94)}}
         @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.35)}50%{box-shadow:0 0 0 14px rgba(124,58,237,0)}}
         .qx-toggle{width:44px;height:24px;border-radius:99px;position:relative;transition:background .25s;cursor:pointer;border:1px solid var(--border)}
         .qx-toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
-        .qx-toggle.on{background:var(--grad-primary)}.qx-toggle.on::after{transform:translateX(20px)}
+        .qx-toggle.on{background:#F58F20}.qx-toggle.on::after{transform:translateX(20px)}
         .qx-toggle.off{background:var(--surface-hover)}
-        @media (prefers-reduced-motion: reduce){.qx-orb{animation:none}}
       `}</style>
 
       {/* ================= HERO ================= */}
-      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-12 pb-16 grid lg:grid-cols-[1.1fr_1.25fr_0.85fr] gap-7 items-start">
-        {/* Чап — матн */}
-        <div className="qx-rise pt-4">
-          <span className="qx-badge mb-6">{t.badge}</span>
-          <h1 className="font-display text-[44px] lg:text-[54px] font-bold leading-[1.05] tracking-tight" style={{ color: "var(--text)" }}>
-            {t.h1a}<br />{t.h1b}{" "}
-            <span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-              {t.h1c}
-            </span>
-          </h1>
-          <p className="mt-5 text-[15px] leading-relaxed max-w-md" style={{ color: "var(--text-muted)" }}>{t.sub}</p>
+      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-10 pb-16 relative">
+        <hr className="qx-neon-line mb-10" />
 
-          <div className="flex flex-wrap gap-3 mt-7">
-            <a href="#generator" className="qx-btn !px-6 !py-3.5" style={{ animation: "qxPulse 2.5s infinite" }}>
-              {t.cta} <FiArrowRight size={15} />
+        {/* ── TOP: Headline row ── */}
+        <div className="text-center mb-10 relative z-10">
+          <span className="qx-badge-hero inline-flex mb-5">
+            <span className="qx-badge-hero-dot" />{t.badge}
+          </span>
+          <h1 className="qx-headline-main text-[44px] sm:text-[56px] lg:text-[68px] leading-[1.1] mb-5 tracking-tight">
+            {t.h1a}{" "}
+            <span className="qx-headline-neon-orange">{t.h1b}</span>{" "}
+            <span className="qx-headline-neon-green">{t.h1c}</span>
+          </h1>
+          <p className="text-[15px] lg:text-[17px] leading-relaxed max-w-xl mx-auto mb-7" style={{ color:"var(--text-muted)" }}>{t.sub}</p>
+          <div className="flex flex-wrap justify-center items-center gap-3 mb-6">
+            <a href="#generator" className="qx-btn-hero px-7 py-3">
+              {t.cta} <FiArrowRight size={15}/>
             </a>
-            <a href="#why" className="qx-btn-ghost !px-6 !py-3.5">
-              <FiPlay size={14} /> {t.demo}
+            <a href="#why" className="qx-btn-hero-ghost px-6 py-3">
+              <FiPlay size={13}/> {t.demo}
             </a>
           </div>
-
-          <div className="flex items-center gap-3 mt-8">
+          <div className="flex flex-wrap justify-center items-center gap-4">
             <div className="flex -space-x-2.5">
-              {["#8b5cf6", "#22d3ee", "#ec4899", "#34d399", "#f59e0b"].map((c, i) => (
-                <span key={i} className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-[10px] font-bold text-white"
-                  style={{ background: c, borderColor: "var(--bg)" }}>
-                  {String.fromCharCode(65 + i)}
-                </span>
+              {["#8b5cf6","#22d3ee","#ec4899","#34d399","#f59e0b"].map((c,i)=>(
+                <span key={i} className="qx-avatar" style={{ background:c, borderColor:"var(--bg)" }}>{String.fromCharCode(65+i)}</span>
               ))}
             </div>
-            <div>
-              <div style={{ color: "#fbbf24", letterSpacing: 2 }}>★★★★★</div>
-              <div className="text-xs" style={{ color: "var(--text-muted)" }}>{t.rating}</div>
+            <div className="text-sm" style={{ color:"var(--text-muted)" }}>
+              <span style={{ color:"#fbbf24" }}>★★★★★</span> {t.rating}
             </div>
+            {[{icon:"⚡",text:"1M+ QR"},{icon:"🌍",text:"150+ countries"},{icon:"🔒",text:"SOC2"}].map(s=>(
+              <span key={s.text} className="qx-stat-pill">{s.icon} {s.text}</span>
+            ))}
           </div>
         </div>
 
-        {/* Марказ — генератор */}
-        <div id="generator" className="qx-card qx-rise qx-rise-1 p-6 lg:p-7">
-          <h2 className="font-display text-xl font-bold" style={{ color: "var(--text)" }}>{t.cardTitle}</h2>
-          <p className="text-xs mt-1 mb-5" style={{ color: "var(--text-muted)" }}>{t.cardSub}</p>
+        {/* ── BOTTOM: 3 equal cards ── */}
+        <div id="generator" className="grid lg:grid-cols-3 gap-5 items-stretch relative z-10">
 
-          {/* Tabs */}
-          <div className="flex flex-wrap gap-1.5 mb-5">
-            {tabs.map((tb) => (
-              <button key={tb.id} onClick={() => { setTab(tb.id); setMoreOpen(false); }}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all"
-                style={{
-                  background: tab === tb.id ? "linear-gradient(135deg,rgba(124,58,237,.25),rgba(99,102,241,.15))" : "var(--surface-hover)",
-                  border: `1px solid ${tab === tb.id ? "var(--border-strong)" : "var(--border)"}`,
-                  color: tab === tb.id ? "var(--primary-bright)" : "var(--text-muted)",
-                }}>
-                {tb.icon} {tb.label}
-              </button>
-            ))}
-            <div className="relative">
-              <button onClick={() => setMoreOpen(!moreOpen)}
-                className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all"
-                style={{
-                  background: moreTabs.some((m) => m.id === tab) ? "linear-gradient(135deg,rgba(124,58,237,.25),rgba(99,102,241,.15))" : "var(--surface-hover)",
-                  border: `1px solid ${moreTabs.some((m) => m.id === tab) ? "var(--border-strong)" : "var(--border)"}`,
-                  color: moreTabs.some((m) => m.id === tab) ? "var(--primary-bright)" : "var(--text-muted)",
-                }}>
-                <FiGrid size={14} /> {moreTabs.find((m) => m.id === tab)?.label || t.more} <FiChevronDown size={12} />
-              </button>
-              {moreOpen && (
-                <div className="absolute left-0 top-full mt-2 w-44 rounded-xl overflow-hidden z-40"
-                  style={{ background: "var(--surface-solid)", border: "1px solid var(--border-strong)", boxShadow: "var(--shadow-pop)" }}>
-                  {moreTabs.map((m) => (
-                    <button key={m.id} onClick={() => { setTab(m.id); setMoreOpen(false); }}
-                      className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium text-left transition-colors"
-                      style={{ color: tab === m.id ? "var(--primary-bright)" : "var(--text-muted)", background: tab === m.id ? "var(--surface-hover)" : "transparent" }}>
-                      {m.icon} {m.label} QR
-                    </button>
-                  ))}
+          {/* LEFT — QR Type selector */}
+          <div className="qx-card overflow-hidden flex flex-col" style={{ padding:0 }}>
+            <div className="px-5 py-4 flex items-center gap-2" style={{ borderBottom:"1px solid var(--border)" }}>
+              <FiGrid size={14} style={{ color:"#F58F20" }}/>
+              <span className="text-[13px] font-bold" style={{ color:"var(--text)" }}>
+                {lang==="uz"?"QR Turi"  : lang==="ru"?"Тип QR кода" : "QR Type"}
+              </span>
+            </div>
+            <div className="flex-1 overflow-auto">
+              {[...tabs, ...moreTabs].map((tb) => (
+                <button key={tb.id} onClick={()=>{ setTab(tb.id); setMoreOpen(false); }}
+                  className="w-full flex items-center gap-3 px-5 py-3 text-[13px] font-medium transition-all text-left"
+                  style={{
+                    background: tab===tb.id ? "rgba(70,116,52,0.1)" : "transparent",
+                    borderLeft: `3px solid ${tab===tb.id ? "#467434" : "transparent"}`,
+                    color: tab===tb.id ? "#fff" : "var(--text-muted)",
+                    borderBottom: "1px solid var(--border)",
+                  }}>
+                  <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: tab===tb.id ? "rgba(70,116,52,0.2)" : "var(--surface-2)", color: tab===tb.id ? "#467434" : "var(--text-faint)" }}>
+                    {tb.icon}
+                  </span>
+                  {tb.label}
+                  {tab===tb.id && <FiArrowRight size={12} className="ml-auto" style={{ color:"#467434" }}/>}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* CENTER — Generator form */}
+          <div data-mascot-anchor="generator" className="qx-card flex flex-col" style={{ padding:"20px 24px" }}>
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm shrink-0"
+                style={{ background:"#F58F20", color:"#0c0c0c" }}>⚡</div>
+              <div>
+                <h2 className="font-display text-[15px] font-bold leading-none" style={{ color:"var(--text)" }}>{t.cardTitle}</h2>
+                <p className="text-[11px] mt-0.5" style={{ color:"var(--text-faint)" }}>{t.cardSub}</p>
+              </div>
+            </div>
+
+            {/* Form fields */}
+            <div className="space-y-2.5 flex-1">
+              {tab==="url" && <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://yourwebsite.com" className={inputCls} style={inputStyle}/>}
+              {tab==="text" && <textarea value={textVal} onChange={e=>setTextVal(e.target.value)} rows={3} placeholder="QRix..." className={`${inputCls} resize-none`} style={inputStyle}/>}
+              {tab==="wifi" && <>
+                <input value={ssid} onChange={e=>setSsid(e.target.value)} placeholder={t.ssid} className={inputCls} style={inputStyle}/>
+                <input value={wifiPass} onChange={e=>setWifiPass(e.target.value)} placeholder={t.password} className={inputCls} style={inputStyle}/>
+              </>}
+              {tab==="vcard" && <div className="grid grid-cols-2 gap-2">
+                <input value={vName} onChange={e=>setVName(e.target.value)} placeholder={t.fullName} className={inputCls} style={inputStyle}/>
+                <input value={vPhone} onChange={e=>setVPhone(e.target.value)} placeholder={t.phone} className={inputCls} style={inputStyle}/>
+                <input value={vEmail} onChange={e=>setVEmail(e.target.value)} placeholder={t.emailL} className={inputCls} style={inputStyle}/>
+                <input value={vOrg} onChange={e=>setVOrg(e.target.value)} placeholder={t.org} className={inputCls} style={inputStyle}/>
+              </div>}
+              {tab==="email" && <>
+                <input value={emTo} onChange={e=>setEmTo(e.target.value)} placeholder={t.emailTo} className={inputCls} style={inputStyle}/>
+                <input value={emSub} onChange={e=>setEmSub(e.target.value)} placeholder={t.subject} className={inputCls} style={inputStyle}/>
+                <textarea value={emBody} onChange={e=>setEmBody(e.target.value)} rows={2} placeholder={t.body} className={`${inputCls} resize-none`} style={inputStyle}/>
+              </>}
+              {tab==="sms" && <>
+                <input value={smsNum} onChange={e=>setSmsNum(e.target.value)} placeholder={t.smsPhone} className={inputCls} style={inputStyle}/>
+                <textarea value={smsMsg} onChange={e=>setSmsMsg(e.target.value)} rows={2} placeholder={t.smsMsg} className={`${inputCls} resize-none`} style={inputStyle}/>
+              </>}
+              {tab==="whatsapp" && <>
+                <input value={waNum} onChange={e=>setWaNum(e.target.value)} placeholder={t.waPhone} className={inputCls} style={inputStyle}/>
+                <textarea value={waMsg} onChange={e=>setWaMsg(e.target.value)} rows={2} placeholder={t.waMsg} className={`${inputCls} resize-none`} style={inputStyle}/>
+              </>}
+              {tab==="telegram" && <input value={tgUser} onChange={e=>setTgUser(e.target.value)} placeholder={t.tgUser} className={inputCls} style={inputStyle}/>}
+            </div>
+
+            {/* PIN */}
+            <div className="mt-4 p-3 rounded-xl" style={{ background:"rgba(245,143,32,0.05)", border:"1px solid rgba(245,143,32,0.18)" }}>
+              <div className="flex items-center gap-2 mb-2">
+                <FiLock size={11} style={{ color:"#F58F20" }}/>
+                <span className="text-[11px] font-semibold" style={{ color:"var(--text)" }}>{t.pin}</span>
+                <span className="text-[10px]" style={{ color:"var(--text-faint)" }}>{t.pinOpt}</span>
+              </div>
+              <div className="flex gap-2">
+                <input value={pin}
+                  onChange={e=>{ setPin(e.target.value.replace(/\D/g,"").slice(0,10)); setPinConfirmed(false); setPinOn(e.target.value.length>0); }}
+                  placeholder={t.pinPh} inputMode="numeric"
+                  className={`${inputCls} flex-1`} style={{ ...inputStyle, fontSize:"13px" }}/>
+                <button type="button" onClick={()=>{ if(pin.length>=4) setPinConfirmed(true); }}
+                  disabled={pin.length<4} className="qx-btn !px-3 !py-2 text-xs shrink-0 disabled:opacity-35">
+                  {pinConfirmed ? <FiCheck size={14}/> : t.confirmPin}
+                </button>
+              </div>
+              {pinConfirmed && <p className="text-[10px] mt-1.5 flex items-center gap-1" style={{ color:"var(--success)" }}><FiCheck size={10}/>{t.pinSet}</p>}
+              {!pinConfirmed && <p className="text-[10px] mt-1.5" style={{ color:"var(--text-faint)" }}>{t.pinInfo}</p>}
+            </div>
+
+            <button onClick={generate} disabled={busy} className="qx-btn-hero w-full mt-4 disabled:opacity-60">
+              {busy ? <><span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2"/>{t.generating}</> : <>{t.generate} <FiArrowRight size={15}/></>}
+            </button>
+            {protectedUrl && (
+              <div className="mt-2.5 p-2.5 rounded-xl text-[11px] break-all"
+                style={{ background:"rgba(52,211,153,.08)", border:"1px solid rgba(52,211,153,.3)", color:"var(--success)" }}>
+                <FiCheck className="inline mr-1" size={11}/> {t.protected} <b>{protectedUrl}</b>
+              </div>
+            )}
+          </div>
+
+          {/* RIGHT — QR Preview */}
+          <div className="qx-card flex flex-col" style={{ padding:"20px 24px" }}>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm shrink-0"
+                style={{ background:"var(--surface-2)", color:"var(--text-muted)" }}>
+                <FiCamera size={14}/>
+              </div>
+              <h3 className="font-display text-[15px] font-bold" style={{ color:"var(--text)" }}>{t.yourQr}</h3>
+            </div>
+
+            <div className="flex-1 flex flex-col items-center justify-center py-2">
+              <div ref={qrBoxRef} onMouseMove={onTilt} onMouseLeave={()=>setTilt({x:0,y:0})}
+                className="flex items-center justify-center w-full" style={{ perspective:700 }}>
+                <div ref={canvasWrapRef} className="p-4 rounded-2xl transition-transform duration-150"
+                  style={{ background:bg, transform:`rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                    boxShadow:"0 16px 40px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,0.06)" }}>
+                  <QRCodeCanvas value={qrValue} size={180} bgColor={bg} fgColor={fg} level={level} marginSize={1}
+                    imageSettings={logo?{src:logo,height:Math.round(qrSize*.2),width:Math.round(qrSize*.2),excavate:true}:undefined}/>
                 </div>
-              )}
+              </div>
+              <div id="qrix-svg-hidden" style={{ display:"none" }}>
+                <QRCodeSVG value={qrValue} size={qrSize} bgColor={bg} fgColor={fg} level={level} marginSize={1}/>
+              </div>
             </div>
-          </div>
 
-          {/* Forms */}
-          <div className="space-y-3">
-            {tab === "url" && (
-              <div>
-                <label className="block text-xs font-semibold mb-2" style={{ color: "var(--text)" }}>{t.enterUrl}</label>
-                <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://yourwebsite.com" className={inputCls} style={inputStyle} />
-              </div>
-            )}
-            {tab === "text" && (
-              <div>
-                <label className="block text-xs font-semibold mb-2" style={{ color: "var(--text)" }}>{t.enterText}</label>
-                <textarea value={textVal} onChange={(e) => setTextVal(e.target.value)} rows={3} placeholder="QRix..." className={`${inputCls} resize-none`} />
-              </div>
-            )}
-            {tab === "wifi" && (
-              <>
-                <input value={ssid} onChange={(e) => setSsid(e.target.value)} placeholder={t.ssid} className={inputCls} />
-                <input value={wifiPass} onChange={(e) => setWifiPass(e.target.value)} placeholder={t.password} className={inputCls} />
-              </>
-            )}
-            {tab === "vcard" && (
-              <div className="grid grid-cols-2 gap-3">
-                <input value={vName} onChange={(e) => setVName(e.target.value)} placeholder={t.fullName} className={inputCls} />
-                <input value={vPhone} onChange={(e) => setVPhone(e.target.value)} placeholder={t.phone} className={inputCls} />
-                <input value={vEmail} onChange={(e) => setVEmail(e.target.value)} placeholder={t.emailL} className={inputCls} />
-                <input value={vOrg} onChange={(e) => setVOrg(e.target.value)} placeholder={t.org} className={inputCls} />
-              </div>
-            )}
-            {tab === "email" && (
-              <>
-                <input value={emTo} onChange={(e) => setEmTo(e.target.value)} placeholder={t.emailTo} className={inputCls} />
-                <input value={emSub} onChange={(e) => setEmSub(e.target.value)} placeholder={t.subject} className={inputCls} />
-                <textarea value={emBody} onChange={(e) => setEmBody(e.target.value)} rows={2} placeholder={t.body} className={`${inputCls} resize-none`} />
-              </>
-            )}
-            {tab === "sms" && (
-              <>
-                <input value={smsNum} onChange={(e) => setSmsNum(e.target.value)} placeholder={t.smsPhone} className={inputCls} />
-                <textarea value={smsMsg} onChange={(e) => setSmsMsg(e.target.value)} rows={2} placeholder={t.smsMsg} className={`${inputCls} resize-none`} />
-              </>
-            )}
-            {tab === "whatsapp" && (
-              <>
-                <input value={waNum} onChange={(e) => setWaNum(e.target.value)} placeholder={t.waPhone} className={inputCls} />
-                <textarea value={waMsg} onChange={(e) => setWaMsg(e.target.value)} rows={2} placeholder={t.waMsg} className={`${inputCls} resize-none`} />
-              </>
-            )}
-            {tab === "telegram" && (
-              <input value={tgUser} onChange={(e) => setTgUser(e.target.value)} placeholder={t.tgUser} className={inputCls} />
-            )}
-          </div>
-
-          {/* PIN — реал динамик ссилка */}
-          <div className="mt-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <FiLock size={13} style={{ color: "var(--text-muted)" }} />
-                <span className="text-xs font-semibold" style={{ color: "var(--text)" }}>{t.pin}</span>
-                <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>{t.pinOpt}</span>
-              </div>
-              <button type="button" onClick={() => { setPinOn(!pinOn); if (pinOn) { setPin(""); setPinConfirmed(false); } }} className={`qx-toggle ${pinOn ? "on" : "off"}`} aria-label="PIN toggle" />
-            </div>
-            {pinOn && (
-              <div>
-                <div className="flex gap-2">
-                  <input
-                    value={pin}
-                    onChange={(e) => { setPin(e.target.value.replace(/\D/g, "").slice(0, 10)); setPinConfirmed(false); }}
-                    placeholder={t.pinPh}
-                    inputMode="numeric"
-                    className={`${inputCls} flex-1`}
-                    style={inputStyle}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => { if (pin.length >= 4) setPinConfirmed(true); }}
-                    disabled={pin.length < 4}
-                    className="qx-btn !px-4 shrink-0 disabled:opacity-40"
-                  >
-                    {pinConfirmed ? <FiCheck size={15} /> : t.confirmPin}
+            <div className="mt-4 space-y-2">
+              <div className="relative">
+                <div className="flex">
+                  <button onClick={downloadPng} className="qx-btn flex-1 !rounded-r-none !py-2.5 text-sm">
+                    <FiDownload size={14}/> {t.dlPng}
+                  </button>
+                  <button onClick={()=>setDlOpen(!dlOpen)} className="qx-btn !rounded-l-none !px-3 !py-2.5" style={{ borderLeft:"1px solid rgba(255,255,255,.15)" }} aria-label="Format">
+                    <FiChevronDown size={13}/>
                   </button>
                 </div>
-                {pinConfirmed && (
-                  <p className="text-[10px] mt-1.5 flex items-center gap-1" style={{ color: "var(--success)" }}>
-                    <FiCheck size={11} /> {t.pinSet}
-                  </p>
-                )}
-                {!pinConfirmed && (
-                  <p className="text-[10px] mt-1.5" style={{ color: "var(--text-faint)" }}>{t.pinInfo}</p>
+                {dlOpen && (
+                  <div className="absolute left-0 right-0 top-full mt-1.5 rounded-xl overflow-hidden z-40"
+                    style={{ background:"var(--surface-2)", border:"1px solid var(--border)", boxShadow:"var(--shadow-pop)" }}>
+                    <button onClick={downloadPng} className="w-full px-4 py-2.5 text-xs font-medium text-left hover:opacity-80" style={{ color:"var(--text)" }}>PNG</button>
+                    <button onClick={downloadSvg} className="w-full px-4 py-2.5 text-xs font-medium text-left hover:opacity-80" style={{ color:"var(--text)", borderTop:"1px solid var(--border)" }}>SVG</button>
+                  </div>
                 )}
               </div>
-            )}
-          </div>
-
-          <button onClick={generate} disabled={busy} className="qx-btn w-full mt-5 !py-3.5 disabled:opacity-60">
-            {busy ? t.generating : t.generate} <FiArrowRight size={15} />
-          </button>
-
-          {protectedUrl && (
-            <div className="mt-3 p-3 rounded-xl text-xs break-all"
-              style={{ background: "rgba(52,211,153,.08)", border: "1px solid rgba(52,211,153,.3)", color: "var(--success)" }}>
-              <FiCheck className="inline mr-1" size={12} /> {t.protected} <b>{protectedUrl}</b>
-            </div>
-          )}
-        </div>
-
-        {/* Ўнг — превью (3D tilt) */}
-        <div className="qx-card qx-rise qx-rise-2 p-6 lg:sticky lg:top-24">
-          <h3 className="font-display text-base font-bold mb-4" style={{ color: "var(--text)" }}>{t.yourQr}</h3>
-          <div
-            ref={qrBoxRef}
-            onMouseMove={onTilt}
-            onMouseLeave={() => setTilt({ x: 0, y: 0 })}
-            className="flex items-center justify-center"
-            style={{ perspective: 700 }}
-          >
-            <div
-              ref={canvasWrapRef}
-              className="p-4 rounded-2xl transition-transform duration-150"
-              style={{
-                background: bg,
-                transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                boxShadow: "0 20px 50px rgba(0,0,0,.35), 0 0 30px rgba(124,58,237,.15)",
-              }}
-            >
-              <QRCodeCanvas
-                value={qrValue}
-                size={qrSize}
-                bgColor={bg}
-                fgColor={fg}
-                level={level}
-                marginSize={1}
-                imageSettings={logo ? { src: logo, height: Math.round(qrSize * 0.2), width: Math.round(qrSize * 0.2), excavate: true } : undefined}
-              />
+              <button onClick={()=>setDesignOpen(true)} className="qx-btn-ghost w-full !py-2.5 text-sm">
+                <FiSliders size={13}/> {t.customize}
+              </button>
             </div>
           </div>
-          {/* SVG юклаб олиш учун яширин нусха */}
-          <div id="qrix-svg-hidden" style={{ display: "none" }}>
-            <QRCodeSVG value={qrValue} size={qrSize} bgColor={bg} fgColor={fg} level={level} marginSize={1} />
-          </div>
 
-          <div className="mt-5 space-y-2.5">
-            <div className="relative">
-              <div className="flex">
-                <button onClick={downloadPng} className="qx-btn flex-1 !rounded-r-none">
-                  <FiDownload size={14} /> {t.dlPng}
-                </button>
-                <button onClick={() => setDlOpen(!dlOpen)} className="qx-btn !rounded-l-none !px-3" style={{ borderLeft: "1px solid rgba(255,255,255,.2)" }} aria-label="Format">
-                  <FiChevronDown size={14} />
-                </button>
-              </div>
-              {dlOpen && (
-                <div className="absolute left-0 right-0 top-full mt-2 rounded-xl overflow-hidden z-40"
-                  style={{ background: "var(--surface-solid)", border: "1px solid var(--border-strong)", boxShadow: "var(--shadow-pop)" }}>
-                  <button onClick={downloadPng} className="w-full px-4 py-2.5 text-xs font-medium text-left transition-colors hover:opacity-80" style={{ color: "var(--text)" }}>PNG</button>
-                  <button onClick={downloadSvg} className="w-full px-4 py-2.5 text-xs font-medium text-left transition-colors hover:opacity-80" style={{ color: "var(--text)", borderTop: "1px solid var(--border)" }}>SVG</button>
-                </div>
-              )}
-            </div>
-            <button onClick={() => setDesignOpen(true)} className="qx-btn-ghost w-full">
-              <FiSliders size={14} /> {t.customize}
-            </button>
-          </div>
-        </div>
+        </div>{/* closes 3-col grid */}
       </section>
 
-      {/* ================= TOOLS ================= */}
+      {/* ================= TOOLS — 3D сузувчи карталар ================= */}
       <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-16">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-          {tools.map((tool) => (
-            <Link key={tool.href + tool.label} href={tool.href} className="qx-tile relative !items-center text-center">
-              {tool.badge && (
-                <span className="absolute top-2 right-2 text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white"
-                  style={{ background: "var(--grad-primary)" }}>
-                  {tool.badge}
-                </span>
-              )}
-              <span className="qx-tile-icon text-white" style={{ background: tool.grad }}>{tool.icon}</span>
-              <span>{tool.label}</span>
-              <span className="text-[10px] font-normal -mt-1" style={{ color: "var(--text-muted)" }}>{tool.desc}</span>
-            </Link>
-          ))}
-        </div>
+        <ToolCards3D
+          rows={toolRows}
+          heading={lang === "uz" ? "Барча Асбоблар" : lang === "ru" ? "Все Инструменты" : "All Tools"}
+        />
       </section>
 
       {/* ================= STATS ================= */}
       <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20">
-        <div className="qx-card p-7 grid grid-cols-2 lg:grid-cols-5 gap-6">
-          {stats.map((s) => (
-            <div key={s.label} className="flex items-center gap-3">
-              <span className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: `color-mix(in srgb, ${s.color} 14%, transparent)`, color: s.color }}>
-                {s.icon}
-              </span>
-              <div>
-                <div className="font-display text-xl font-bold" style={{ color: s.color }}>
+        <div className="relative overflow-hidden rounded-2xl"
+          style={{ background:"rgba(255,255,255,0.03)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,0.08)", boxShadow:"0 8px 40px rgba(0,0,0,0.4)" }}>
+          {/* top shine line */}
+          <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+            style={{ background:"linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)" }}/>
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-0">
+            {stats.map((s, i) => (
+              <div key={s.label} className="flex flex-col items-center justify-center text-center p-7 relative group"
+                style={{ borderRight: i < stats.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none" }}>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
+                  style={{ background:`radial-gradient(circle at 50% 50%, ${s.color}20 0%, transparent 70%)` }}/>
+                <span className="w-11 h-11 rounded-xl flex items-center justify-center mb-3 text-lg"
+                  style={{ background:`${s.color}15`, color:s.color, boxShadow:`0 0 20px ${s.color}30` }}>
+                  {s.icon}
+                </span>
+                <div className="qx-counter-big" style={{ textShadow:`0 0 30px ${s.color}40` }}>
                   <CountUp end={s.end} suffix={s.suffix} />
                 </div>
-                <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>{s.label}</div>
+                <div className="text-[11px] mt-1 font-medium" style={{ color:"var(--text-muted)" }}>{s.label}</div>
               </div>
-            </div>
-          ))}
-          <div className="flex items-center gap-3">
-            <span className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: "rgba(52,211,153,.14)", color: "#34d399" }}>
-              <FiShield />
-            </span>
-            <div>
-              <div className="font-display text-xl font-bold" style={{ color: "#34d399" }}>99.9%</div>
-              <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>{t.statUptime}</div>
+            ))}
+            <div className="flex flex-col items-center justify-center text-center p-7 group relative">
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
+                style={{ background:"radial-gradient(circle at 50%,rgba(52,211,153,.12) 0%,transparent 70%)" }}/>
+              <span className="w-11 h-11 rounded-xl flex items-center justify-center mb-3 text-lg"
+                style={{ background:"rgba(52,211,153,.12)", color:"#34d399", boxShadow:"0 0 20px rgba(52,211,153,.25)" }}>
+                <FiShield/>
+              </span>
+              <div className="qx-counter-big" style={{ color:"#34d399", textShadow:"0 0 30px rgba(52,211,153,.5)" }}>99.9%</div>
+              <div className="text-[11px] mt-1 font-medium" style={{ color:"var(--text-muted)" }}>{t.statUptime}</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ================= WHY QRIX ================= */}
+      {/* ================= WHY QRIX — BENTO GRID ================= */}
       <section id="why" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20">
-        <h2 className="font-display text-3xl lg:text-4xl font-bold" style={{ color: "var(--text)" }}>
-          {t.whyTitle}{" "}
-          <span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>QRix</span>?
-        </h2>
-        <p className="mt-2 text-sm mb-9" style={{ color: "var(--text-muted)" }}>{t.whySub}</p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <hr className="qx-neon-line mb-16" />
+        <div className="text-center mb-12">
+          <h2 className="qx-section-title justify-center" style={{ color:"var(--text)", fontSize:"clamp(2rem,5vw,3.2rem)", fontWeight:900 }}>
+            {t.whyTitle}{" "}
+            <span className="qx-headline-neon-orange">QRix</span>?
+          </h2>
+          <p className="mt-4 text-[16px] max-w-[520px] mx-auto" style={{ color:"var(--text-muted)" }}>{t.whySub}</p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {features.map((f, i) => (
-            <div key={f.title} className={`qx-card qx-card-lift qx-rise qx-rise-${i + 1} p-6`}>
-              <span className="qx-tile-icon text-white mb-4" style={{ background: f.grad }}>{f.icon}</span>
-              <h3 className="font-display text-[15px] font-bold mb-2" style={{ color: "var(--text)" }}>{f.title}</h3>
-              <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>{f.desc}</p>
+            <div key={f.title} className={`qx-bento qx-rise qx-rise-${i+1}`}
+              style={{ background:"rgba(255,255,255,0.03)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}>
+              <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+                style={{ background:"linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)" }}/>
+              {/* icon glow bg */}
+              <div className="absolute inset-0 opacity-30 pointer-events-none rounded-[18px]"
+                style={{ background:`radial-gradient(circle at 30% 30%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#F58F20"}30 0%, transparent 60%)` }}/>
+              <div className="qx-bento-icon text-white relative z-10"
+                style={{ background:f.grad, boxShadow:`0 8px 24px ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#F58F20"}40` }}>
+                {f.icon}
+              </div>
+              <h3 className="font-display text-[17px] font-bold mb-2 relative z-10" style={{ color:"var(--text)" }}>{f.title}</h3>
+              <p className="text-sm leading-relaxed relative z-10" style={{ color:"var(--text-muted)" }}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -683,50 +655,114 @@ export default function HomePage() {
       <ReviewsSection lang={lang} />
 
       {/* ================= FOOTER ================= */}
-      <footer className="mt-10" style={{ borderTop: "1px solid var(--border)", background: "var(--surface)" }}>
-        <div className="max-w-[1400px] mx-auto px-5 lg:px-8 py-14 grid md:grid-cols-[1.4fr_1fr_1fr_1.2fr] gap-10">
+      <footer className="mt-10 relative overflow-hidden">
+        {/* Top neon line */}
+        <hr className="qx-neon-line" />
+        {/* Footer bg subtle top glow */}
+        <div className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,143,32,.05) 0%, transparent 60%)" }} />
+
+        <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 pb-10 grid md:grid-cols-[1.6fr_1fr_1fr_1.2fr] gap-12">
+          {/* Brand */}
           <div>
-            <div className="font-display flex items-center gap-0.5 mb-4">
-              <span className="text-2xl font-bold" style={{ color: "var(--text)" }}>QR</span>
-              <span className="text-2xl font-bold" style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>ix</span>
+            <div className="font-display flex items-center gap-0.5 mb-5">
+              <span className="text-3xl font-black tracking-tight" style={{ color: "var(--text)" }}>QR</span>
+              <span className="text-3xl font-black tracking-tight" style={{ color: "#F58F20" }}>ix</span>
             </div>
-            <p className="text-xs leading-relaxed max-w-xs" style={{ color: "var(--text-muted)" }}>{t.footAbout}</p>
+            <p className="text-sm leading-relaxed max-w-[240px] mb-6" style={{ color: "var(--text-muted)" }}>{t.footAbout}</p>
+            {/* Social chips */}
+            <div className="flex gap-2">
+              {[
+                { href: "mailto:musarasulzada@gmail.com", icon: <FiMail size={14} />, label: "Email" },
+                { href: "https://t.me/QRix2020", icon: <FiSend size={14} />, label: "Telegram" },
+              ].map((s) => (
+                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                  style={{ background: "rgba(245,143,32,.1)", border: "1px solid rgba(245,143,32,.25)", color: "#F58F20" }}
+                  aria-label={s.label}>
+                  {s.icon}
+                </a>
+              ))}
+            </div>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider mb-4" style={{ color: "var(--text)" }}>{t.footProduct}</h4>
-            <div className="space-y-2.5 text-xs">
-              <Link href="/url-qr" className="block transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>URL QR</Link>
-              <Link href="/dashboard" className="block transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>Dashboard</Link>
-              <Link href="/scanner" className="block transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>QR Scanner</Link>
-              <Link href="/login" className="block transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>Sign in</Link>
+            <h4 className="text-[11px] font-bold uppercase tracking-widest mb-5" style={{ color: "var(--text-faint)" }}>{t.footProduct}</h4>
+            <div className="space-y-3 text-sm">
+              {[
+                { href: "/url-qr", label: "URL QR" },
+                { href: "/dashboard", label: "Dashboard" },
+                { href: "/scanner", label: "QR Scanner" },
+                { href: "/login", label: "Sign in" },
+              ].map((l) => (
+                <Link key={l.href} href={l.href}
+                  className="block transition-all hover:translate-x-1"
+                  style={{ color: "var(--text-muted)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#F58F20")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+                >{l.label}</Link>
+              ))}
             </div>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider mb-4" style={{ color: "var(--text)" }}>{t.footTools}</h4>
-            <div className="space-y-2.5 text-xs">
-              <Link href="/pdf-tools" className="block transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>PDF Tools</Link>
-              <Link href="/image-tools" className="block transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>Image Tools</Link>
-              <Link href="/wifi-qr" className="block transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>WiFi QR</Link>
-              <Link href="/vcard-qr" className="block transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>vCard QR</Link>
+            <h4 className="text-[11px] font-bold uppercase tracking-widest mb-5" style={{ color: "var(--text-faint)" }}>{t.footTools}</h4>
+            <div className="space-y-3 text-sm">
+              {[
+                { href: "/pdf-tools", label: "PDF Tools" },
+                { href: "/image-tools", label: "Image Tools" },
+                { href: "/wifi-qr", label: "WiFi QR" },
+                { href: "/vcard-qr", label: "vCard QR" },
+              ].map((l) => (
+                <Link key={l.href} href={l.href}
+                  className="block transition-all hover:translate-x-1"
+                  style={{ color: "var(--text-muted)" }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#F58F20")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
+                >{l.label}</Link>
+              ))}
             </div>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-wider mb-4" style={{ color: "var(--text)" }}>{t.footContact}</h4>
-            <div className="space-y-2.5 text-xs">
-              <a href="mailto:musarasulzada@gmail.com" className="flex items-center gap-2 transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>
-                <FiMail size={13} style={{ color: "var(--primary-bright)" }} /> musarasulzada@gmail.com
+            <h4 className="text-[11px] font-bold uppercase tracking-widest mb-5" style={{ color: "var(--text-faint)" }}>{t.footContact}</h4>
+            <div className="space-y-3 text-sm">
+              <a href="mailto:musarasulzada@gmail.com"
+                className="flex items-center gap-2.5 transition-colors"
+                style={{ color: "var(--text-muted)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#F58F20")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
+                <FiMail size={14} style={{ color: "#F58F20" }} /> musarasulzada@gmail.com
               </a>
-              <a href="https://t.me/QRix2020" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 transition-colors hover:opacity-80" style={{ color: "var(--text-muted)" }}>
-                <FiSend size={13} style={{ color: "var(--accent)" }} /> @QRix2020
+              <a href="https://t.me/QRix2020" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-2.5 transition-colors"
+                style={{ color: "var(--text-muted)" }}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#F58F20")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
+                <FiSend size={14} style={{ color: "#F58F20" }} /> @QRix2020
               </a>
             </div>
+            {/* CTA mini */}
+            <Link href="/register" className="qx-btn mt-8 text-sm inline-flex">
+              Get Started Free →
+            </Link>
           </div>
         </div>
-        <div className="py-5 text-center text-[11px]" style={{ borderTop: "1px solid var(--border)", color: "var(--text-faint)" }}>
-          © 2026 QRix. {t.rights}
+
+        {/* Bottom bar */}
+        <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3"
+          style={{ borderTop: "1px solid rgba(255,255,255,.06)" }}>
+          <div className="text-[12px]" style={{ color: "var(--text-faint)" }}>
+            © 2026 <span style={{ color: "#F58F20" }}>QRix</span>. {t.rights}
+          </div>
+          <div className="flex items-center gap-4 text-[12px]" style={{ color: "var(--text-faint)" }}>
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-green-400 inline-block" style={{ boxShadow: "0 0 6px #34d399" }} />
+              All systems operational
+            </span>
+            <span>·</span>
+            <span>v2.0</span>
+          </div>
         </div>
       </footer>
 
@@ -736,11 +772,11 @@ export default function HomePage() {
           style={{ background: "rgba(0,0,0,.6)", backdropFilter: "blur(8px)" }}
           onClick={() => setDesignOpen(false)}>
           <div className="qx-card w-full max-w-lg max-h-[88vh] overflow-y-auto p-6 relative"
-            style={{ background: "var(--surface-solid)" }}
+            style={{ background: "var(--surface)" }}
             onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-display text-lg font-bold flex items-center gap-2" style={{ color: "var(--text)" }}>
-                <FiSliders style={{ color: "var(--primary-bright)" }} /> {t.designTitle}
+                <FiSliders style={{ color: "#F58F20" }} /> {t.designTitle}
               </h3>
               <button onClick={() => setDesignOpen(false)} className="qx-btn-ghost !p-2" aria-label="Close">
                 <FiX size={16} />
@@ -761,7 +797,7 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-2">
                 {COLOR_PRESETS.map((c) => (
                   <button key={c} onClick={() => setFg(c)} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
-                    style={{ background: c, border: fg === c ? "2px solid var(--primary-bright)" : "1px solid var(--border)", boxShadow: fg === c ? "var(--glow-primary)" : "none" }}
+                    style={{ background: c, border: fg === c ? "2px solid #F58F20" : "1px solid var(--border)", boxShadow: fg === c ? "0 0 0 3px rgba(245,143,32,0.2)" : "none" }}
                     aria-label={c} />
                 ))}
                 <input type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
@@ -774,7 +810,7 @@ export default function HomePage() {
               <div className="flex flex-wrap items-center gap-2">
                 {BG_PRESETS.map((c) => (
                   <button key={c} onClick={() => setBg(c)} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
-                    style={{ background: c, border: bg === c ? "2px solid var(--primary-bright)" : "1px solid var(--border)", boxShadow: bg === c ? "var(--glow-primary)" : "none" }}
+                    style={{ background: c, border: bg === c ? "2px solid #F58F20" : "1px solid var(--border)", boxShadow: bg === c ? "0 0 0 3px rgba(245,143,32,0.2)" : "none" }}
                     aria-label={c} />
                 ))}
                 <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
@@ -796,8 +832,8 @@ export default function HomePage() {
                   <button key={lv} onClick={() => setLevel(lv)}
                     className="py-2 rounded-xl text-xs font-bold transition-all"
                     style={{
-                      background: level === lv ? "var(--grad-primary)" : "var(--surface-hover)",
-                      color: level === lv ? "#fff" : "var(--text-muted)",
+                      background: level === lv ? "#F58F20" : "var(--surface-2)",
+                      color: level === lv ? "#0c0c0c" : "var(--text-muted)",
                       border: `1px solid ${level === lv ? "transparent" : "var(--border)"}`,
                     }}>
                     {lv}
