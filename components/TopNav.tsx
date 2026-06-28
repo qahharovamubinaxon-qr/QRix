@@ -20,9 +20,9 @@ const LANGUAGES = [
 ];
 
 const NAV = {
-  en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", signin: "Sign in", signout: "Sign out", getStarted: "Get Started Free" },
-  ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", signin: "Войти", signout: "Выйти", getStarted: "Начать бесплатно" },
-  uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", signin: "Кириш", signout: "Чиқиш", getStarted: "Бошлаш" },
+  en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", signin: "Sign in", signout: "Sign out", signup: "Sign up" },
+  ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", signin: "Войти", signout: "Выйти", signup: "Регистрация" },
+  uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", signin: "Кириш", signout: "Чиқиш", signup: "Рўйхатдан ўтиш" },
 };
 
 const DROPDOWNS: Record<string, { href: string; label: string; desc: string; icon: React.ReactNode; color: string }[]> = {
@@ -245,8 +245,8 @@ export default function TopNav() {
             </div>
           ) : (
             <>
-              <Link href="/login" className="qx-btn-ghost !py-2 text-[13px]">{t.signin}</Link>
-              <Link href="/register" className="qx-btn !py-2 text-[13px] hidden sm:inline-flex">{t.getStarted} →</Link>
+              <Link href="/login" className="qx-btn-ghost !py-2 !px-4 text-[13px] font-semibold">{t.signin}</Link>
+              <Link href="/register" className="qx-btn !py-2 !px-4 text-[13px] font-bold hidden sm:inline-flex">{t.signup}</Link>
             </>
           )}
         </div>

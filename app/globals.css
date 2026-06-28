@@ -509,6 +509,24 @@ html.light textarea, html.light select {
 .qx-no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 .qx-no-scrollbar::-webkit-scrollbar { display: none; }
 
+/* Auth form input */
+.qx-auth-input {
+  width: 100%;
+  padding: .7rem .9rem;
+  font-size: .9rem;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1.5px solid var(--card-border);
+  color: var(--text);
+  transition: border-color .2s, box-shadow .2s;
+}
+.qx-auth-input::placeholder { color: var(--text-faint); }
+.qx-auth-input:focus {
+  outline: none;
+  border-color: rgba(245,143,32,0.6);
+  box-shadow: 0 0 0 3px rgba(245,143,32,0.12);
+}
+
 /* ============================================================
    HERO
    ============================================================ */

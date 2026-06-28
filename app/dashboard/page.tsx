@@ -9,7 +9,7 @@ export default async function DashboardPage() {
   } = await supabase.auth.getSession();
 
   if (!session?.user) {
-    redirect("/login?next=/dashboard");
+    redirect("/register?next=/dashboard");
   }
 
   const userId = session.user.id;

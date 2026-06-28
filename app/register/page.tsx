@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import RegisterClient from "./RegisterClient";
@@ -13,5 +14,9 @@ export default async function RegisterPage() {
     redirect("/dashboard");
   }
 
-  return <RegisterClient />;
+  return (
+    <Suspense fallback={null}>
+      <RegisterClient />
+    </Suspense>
+  );
 }
