@@ -17,10 +17,10 @@
   --accent: #7c3aed;
   --accent-dim: rgba(124,58,237,0.12);
 
-  /* Backgrounds */
-  --bg: #080c14;
+  /* Backgrounds — base matches the starfield canvas vignette */
+  --bg: #07070f;
   --surface: rgba(255,255,255,0.04);
-  --surface-solid: #111827;
+  --surface-solid: #12131d;
   --surface-2: rgba(255,255,255,0.06);
   --surface-hover: rgba(255,255,255,0.07);
 
@@ -71,7 +71,7 @@
 }
 
 html.light {
-  --bg: #eef1f8;
+  --bg: #f4f5fb;
   --surface: rgba(255,255,255,0.85);
   --surface-solid: #ffffff;
   --surface-2: rgba(240,243,252,0.9);
@@ -102,23 +102,6 @@ html.light body {
     radial-gradient(ellipse 50% 40% at 50% 90%, rgba(70,116,52,0.04) 0%, transparent 50%);
 }
 
-html.light .qx-card {
-  background: rgba(255,255,255,0.85);
-  border-color: rgba(0,0,0,0.09);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08), 0 1px 0 rgba(255,255,255,1) inset;
-}
-html.light .qx-card:hover {
-  border-color: rgba(217,119,6,0.4);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.12), 0 0 20px rgba(217,119,6,0.06);
-}
-html.light .qx-card-glow {
-  background: rgba(255,255,255,0.85);
-  border-color: rgba(0,0,0,0.09);
-}
-html.light .qx-bento {
-  background: rgba(255,255,255,0.8);
-  border-color: rgba(0,0,0,0.08);
-}
 html.light .qx-headline-neon-orange {
   color: #c46e0a;
   text-shadow: 0 0 30px rgba(217,119,6,0.25);
@@ -155,24 +138,13 @@ html.light .qx-stat-pill {
 html { scroll-behavior: smooth; }
 
 body {
+  /* Solid base — the animated starfield canvas paints orbs + dots behind */
   background-color: var(--bg);
-  background-image:
-    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(124,58,237,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(245,143,32,0.12) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 50% 90%, rgba(70,116,52,0.1) 0%, transparent 50%);
-  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   transition: background-color 0.3s ease, color 0.3s ease;
   min-height: 100vh;
-}
-
-html.light body {
-  background-image:
-    radial-gradient(ellipse 80% 60% at 20% -10%, rgba(124,58,237,0.07) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 10%, rgba(245,143,32,0.06) 0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 50% 90%, rgba(70,116,52,0.05) 0%, transparent 50%);
 }
 
 h1, h2, h3, h4, .font-display {
@@ -209,73 +181,84 @@ h1, h2, h3, h4, .font-display {
 }
 
 /* ============================================================
-   GLASS CARD — core component
+   CARD — premium glass, theme-coherent
+   --card-bg / --card-border / --card-sheen are theme tokens
    ============================================================ */
-.qx-card {
-  background: var(--surface);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-glass);
-  box-shadow: var(--shadow-glass);
-  position: relative;
-  transition: transform .25s cubic-bezier(.4,0,.2,1), border-color .2s, box-shadow .2s;
+:root {
+  --card-bg: linear-gradient(160deg, rgba(24,26,38,0.78) 0%, rgba(15,17,26,0.82) 100%);
+  --card-border: rgba(255,255,255,0.10);
+  --card-border-hover: rgba(245,143,32,0.45);
+  --card-sheen: linear-gradient(180deg, rgba(255,255,255,0.07), transparent 40%);
+  --card-shadow: 0 10px 40px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.05);
+  --card-shadow-hover: 0 18px 60px rgba(0,0,0,0.55), 0 0 36px rgba(245,143,32,0.14), inset 0 1px 0 rgba(255,255,255,0.07);
+  --card-glow: rgba(245,143,32,0.10);
 }
-.qx-card:hover {
-  border-color: rgba(245,143,32,0.3);
-  box-shadow: var(--shadow-glass), 0 0 30px rgba(245,143,32,0.08);
-}
-.qx-card-lift:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-pop);
-}
-
-html.light .qx-card {
-  background: rgba(255,255,255,0.65);
-  border-color: rgba(255,255,255,0.5);
+html.light {
+  --card-bg: linear-gradient(160deg, #ffffff 0%, #fdf8f1 100%);
+  --card-border: rgba(20,20,30,0.08);
+  --card-border-hover: rgba(245,143,32,0.55);
+  --card-sheen: linear-gradient(180deg, rgba(255,255,255,0.9), transparent 45%);
+  --card-shadow: 0 8px 30px rgba(60,50,30,0.10), 0 1px 2px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 16px 44px rgba(60,50,30,0.16), 0 0 30px rgba(245,143,32,0.10);
+  --card-glow: rgba(245,143,32,0.14);
 }
 
-/* Premium card */
+.qx-card,
+.qx-card-glow,
 .qx-card-premium {
   position: relative;
-  background: rgba(15,20,35,0.7);
+  background: var(--card-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-glass);
-  box-shadow: var(--shadow-glass);
-  transition: transform .25s cubic-bezier(.4,0,.2,1), border-color .2s;
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
   overflow: hidden;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), border-color .25s, box-shadow .25s;
 }
+/* top sheen + corner glow */
+.qx-card::before,
+.qx-card-glow::before,
 .qx-card-premium::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(245,143,32,0.06) 0%, transparent 50%, rgba(70,116,52,0.04) 100%);
+  background: var(--card-sheen);
   pointer-events: none;
+  z-index: 0;
 }
+.qx-card::after,
+.qx-card-glow::after,
+.qx-card-premium::after {
+  content: "";
+  position: absolute;
+  top: -40%; right: -30%;
+  width: 70%; height: 70%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--card-glow) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0.6;
+  transition: opacity .3s;
+  z-index: 0;
+}
+.qx-card:hover,
+.qx-card-glow:hover,
 .qx-card-premium:hover {
-  border-color: rgba(245,143,32,0.35);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-pop);
+  border-color: var(--card-border-hover);
+  box-shadow: var(--card-shadow-hover);
 }
+.qx-card:hover::after,
+.qx-card-glow:hover::after,
+.qx-card-premium:hover::after { opacity: 1; }
 
-/* Flat card alias (for non-glass pages) */
-.qx-card-glow {
-  background: rgba(255,255,255,0.04);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-glass);
-  position: relative;
-  transition: border-color .2s, box-shadow .2s;
-}
-.qx-card-glow:hover {
-  border-color: rgba(245,143,32,0.3);
-}
+.qx-card-lift:hover { transform: translateY(-3px); }
 .qx-card-glow-behind { display: none; }
+
+/* keep card content above the sheen/glow decoration layers */
+.qx-card > *,
+.qx-card-glow > *,
+.qx-card-premium > * { position: relative; z-index: 1; }
 
 /* ============================================================
    BUTTONS
@@ -468,8 +451,8 @@ html.light .qx-topnav {
 .qx-headline-main {
   font-family: var(--font-display);
   font-weight: 900;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
   color: var(--text);
 }
 .qx-headline-neon-orange {
@@ -566,35 +549,33 @@ html.light .qx-topnav {
   position: relative;
   border-radius: 18px;
   padding: 1.75rem;
-  background: rgba(255,255,255,0.04);
+  background: var(--card-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--border-glass);
+  border: 1px solid var(--card-border);
   overflow: hidden;
-  transition: transform .25s cubic-bezier(.4,0,.2,1), border-color .2s, box-shadow .2s;
+  transition: transform .25s cubic-bezier(.4,0,.2,1), border-color .25s, box-shadow .25s;
+  box-shadow: var(--card-shadow);
 }
 .qx-bento::before {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  background: linear-gradient(90deg, transparent, rgba(245,143,32,0.35), transparent);
+  z-index: 1;
 }
 .qx-bento:hover {
   transform: translateY(-3px);
-  border-color: rgba(245,143,32,0.25);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 30px rgba(245,143,32,0.08);
+  border-color: var(--card-border-hover);
+  box-shadow: var(--card-shadow-hover);
 }
+.qx-bento > * { position: relative; z-index: 1; }
 .qx-bento-icon {
   width: 52px; height: 52px; border-radius: 14px;
   display: flex; align-items: center; justify-content: center;
   font-size: 1.4rem; margin-bottom: 1rem; position: relative;
 }
-html.light .qx-bento {
-  background: rgba(255,255,255,0.6);
-  border-color: rgba(255,255,255,0.5);
-}
-
 /* ============================================================
    SECTION TITLE / MISC
    ============================================================ */

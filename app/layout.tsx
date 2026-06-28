@@ -3,8 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import TopNav from "@/components/TopNav";
 import CursorGlow from "@/components/CursorGlow";
 import DotDistortionBackground from "@/components/DotDistortionBackground";
-import Mascots3D from "@/components/Mascots3D";
-import PandaMascot from "@/components/PandaMascot";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -46,10 +44,8 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col">
         {/* Бутун сайт фони — barcha sahifalarda chiqadi */}
-        {/* <DotDistortionBackground /> */}
-        {/* <Mascots3D /> */}
+        <DotDistortionBackground />
         <CursorGlow />
-        <PandaMascot />
         <TopNav />
         {children}
       </body>

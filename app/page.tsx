@@ -382,15 +382,15 @@ export default function HomePage() {
       `}</style>
 
       {/* ================= HERO ================= */}
-      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-10 pb-16 relative">
-        <hr className="qx-neon-line mb-10" />
+      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-16 pb-16 relative">
+        <hr className="qx-neon-line mb-12" />
 
         {/* ── TOP: Headline row ── */}
-        <div className="text-center mb-10 relative z-10">
-          <span className="qx-badge-hero inline-flex mb-5">
+        <div className="text-center mb-12 relative z-10">
+          <span className="qx-badge-hero inline-flex mb-6">
             <span className="qx-badge-hero-dot" />{t.badge}
           </span>
-          <h1 className="qx-headline-main text-[44px] sm:text-[56px] lg:text-[68px] leading-[1.1] mb-5 tracking-tight">
+          <h1 className="qx-headline-main text-[42px] sm:text-[54px] lg:text-[66px] leading-[1.18] pb-1 mb-5 tracking-tight">
             {t.h1a}{" "}
             <span className="qx-headline-neon-orange">{t.h1b}</span>{" "}
             <span className="qx-headline-neon-green">{t.h1c}</span>
@@ -435,10 +435,11 @@ export default function HomePage() {
                 <button key={tb.id} onClick={()=>{ setTab(tb.id); setMoreOpen(false); }}
                   className="w-full flex items-center gap-3 px-5 py-3 text-[13px] font-medium transition-all text-left"
                   style={{
-                    background: tab===tb.id ? "rgba(70,116,52,0.1)" : "transparent",
+                    background: tab===tb.id ? "rgba(70,116,52,0.12)" : "transparent",
                     borderLeft: `3px solid ${tab===tb.id ? "#467434" : "transparent"}`,
-                    color: tab===tb.id ? "#fff" : "var(--text-muted)",
-                    borderBottom: "1px solid var(--border)",
+                    color: tab===tb.id ? "var(--text)" : "var(--text-muted)",
+                    fontWeight: tab===tb.id ? 700 : 500,
+                    borderBottom: "1px solid var(--card-border)",
                   }}>
                   <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                     style={{ background: tab===tb.id ? "rgba(70,116,52,0.2)" : "var(--surface-2)", color: tab===tb.id ? "#467434" : "var(--text-faint)" }}>
@@ -586,15 +587,11 @@ export default function HomePage() {
 
       {/* ================= STATS ================= */}
       <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20">
-        <div className="relative overflow-hidden rounded-2xl"
-          style={{ background:"rgba(255,255,255,0.03)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)", border:"1px solid rgba(255,255,255,0.08)", boxShadow:"0 8px 40px rgba(0,0,0,0.4)" }}>
-          {/* top shine line */}
-          <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-            style={{ background:"linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent)" }}/>
+        <div className="qx-card relative overflow-hidden">
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-0">
             {stats.map((s, i) => (
               <div key={s.label} className="flex flex-col items-center justify-center text-center p-7 relative group"
-                style={{ borderRight: i < stats.length - 1 ? "1px solid rgba(255,255,255,0.07)" : "none" }}>
+                style={{ borderRight: i < stats.length - 1 ? "1px solid var(--card-border)" : "none" }}>
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
                   style={{ background:`radial-gradient(circle at 50% 50%, ${s.color}20 0%, transparent 70%)` }}/>
                 <span className="w-11 h-11 rounded-xl flex items-center justify-center mb-3 text-lg"
@@ -633,19 +630,16 @@ export default function HomePage() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {features.map((f, i) => (
-            <div key={f.title} className={`qx-bento qx-rise qx-rise-${i+1}`}
-              style={{ background:"rgba(255,255,255,0.03)", backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)" }}>
-              <div className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-                style={{ background:"linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent)" }}/>
-              {/* icon glow bg */}
-              <div className="absolute inset-0 opacity-30 pointer-events-none rounded-[18px]"
-                style={{ background:`radial-gradient(circle at 30% 30%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#F58F20"}30 0%, transparent 60%)` }}/>
-              <div className="qx-bento-icon text-white relative z-10"
-                style={{ background:f.grad, boxShadow:`0 8px 24px ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#F58F20"}40` }}>
+            <div key={f.title} className={`qx-bento qx-rise qx-rise-${i+1}`}>
+              {/* icon color glow */}
+              <div className="absolute inset-0 opacity-40 pointer-events-none"
+                style={{ background:`radial-gradient(circle at 28% 24%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#F58F20"}26 0%, transparent 58%)` }}/>
+              <div className="qx-bento-icon text-white"
+                style={{ background:f.grad, boxShadow:`0 8px 24px ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#F58F20"}45` }}>
                 {f.icon}
               </div>
-              <h3 className="font-display text-[17px] font-bold mb-2 relative z-10" style={{ color:"var(--text)" }}>{f.title}</h3>
-              <p className="text-sm leading-relaxed relative z-10" style={{ color:"var(--text-muted)" }}>{f.desc}</p>
+              <h3 className="font-display text-[17px] font-bold mb-2" style={{ color:"var(--text)" }}>{f.title}</h3>
+              <p className="text-sm leading-relaxed" style={{ color:"var(--text-muted)" }}>{f.desc}</p>
             </div>
           ))}
         </div>
