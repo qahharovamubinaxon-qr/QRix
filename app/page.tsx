@@ -5,6 +5,7 @@ import Link from "next/link";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import ReviewsSection from "@/components/ReviewsSection";
 import ToolCards3D from "@/components/ToolCards3D";
+import QRDesignStudio from "@/components/QRDesignStudio";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -167,6 +168,10 @@ export default function HomePage() {
   const [tab, setTab] = useState("url");
   const [moreOpen, setMoreOpen] = useState(false);
   const [url, setUrl] = useState("");
+  const [utmOn, setUtmOn] = useState(false);
+  const [utmSource, setUtmSource] = useState("");
+  const [utmMedium, setUtmMedium] = useState("qr");
+  const [utmCampaign, setUtmCampaign] = useState("");
   const [textVal, setTextVal] = useState("");
   const [ssid, setSsid] = useState("");
   const [wifiPass, setWifiPass] = useState("");
@@ -216,9 +221,22 @@ export default function HomePage() {
     return () => window.removeEventListener("qrix-lang", onLang);
   }, []);
 
+  const buildUrlWithUtm = (raw: string): string => {
+    if (!utmOn || (!utmSource && !utmCampaign)) return raw;
+    try {
+      const u = new URL(/^https?:\/\//.test(raw) ? raw : `https://${raw}`);
+      if (utmSource) u.searchParams.set("utm_source", utmSource);
+      if (utmMedium) u.searchParams.set("utm_medium", utmMedium);
+      if (utmCampaign) u.searchParams.set("utm_campaign", utmCampaign);
+      return u.toString();
+    } catch {
+      return raw;
+    }
+  };
+
   const buildValue = (): string => {
     switch (tab) {
-      case "url": return url.trim() || "https://qrix.uz";
+      case "url": return buildUrlWithUtm(url.trim() || "https://qrix.uz");
       case "text": return textVal.trim() || "QRix";
       case "wifi": return `WIFI:T:WPA;S:${ssid};P:${wifiPass};;`;
       case "vcard":
@@ -451,7 +469,24 @@ export default function HomePage() {
 
             {/* Form fields */}
             <div className="space-y-2.5 flex-1">
-              {tab==="url" && <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://yourwebsite.com" className={inputCls} style={inputStyle}/>}
+              {tab==="url" && <>
+                <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://yourwebsite.com" className={inputCls} style={inputStyle}/>
+                <div className="rounded-xl p-2.5" style={{ background:"rgba(70,116,52,0.06)", border:"1px solid rgba(70,116,52,0.2)" }}>
+                  <label className="flex items-center gap-2 text-[11px] font-semibold cursor-pointer" style={{ color:"var(--text)" }}>
+                    <input type="checkbox" checked={utmOn} onChange={e=>setUtmOn(e.target.checked)} className="accent-green-600"/>
+                    <FiBarChart2 size={12} style={{ color:"#467434" }}/>
+                    {lang==="uz"?"UTM кузатув қўшиш" : lang==="ru"?"Добавить UTM-метки" : "Add UTM tracking"}
+                    <span className="text-[10px] font-normal" style={{ color:"var(--text-faint)" }}>(Google Analytics)</span>
+                  </label>
+                  {utmOn && (
+                    <div className="grid grid-cols-3 gap-1.5 mt-2">
+                      <input value={utmSource} onChange={e=>setUtmSource(e.target.value)} placeholder="source" className={inputCls} style={{ ...inputStyle, fontSize:"12px", padding:"6px 8px" }}/>
+                      <input value={utmMedium} onChange={e=>setUtmMedium(e.target.value)} placeholder="medium" className={inputCls} style={{ ...inputStyle, fontSize:"12px", padding:"6px 8px" }}/>
+                      <input value={utmCampaign} onChange={e=>setUtmCampaign(e.target.value)} placeholder="campaign" className={inputCls} style={{ ...inputStyle, fontSize:"12px", padding:"6px 8px" }}/>
+                    </div>
+                  )}
+                </div>
+              </>}
               {tab==="text" && <textarea value={textVal} onChange={e=>setTextVal(e.target.value)} rows={3} placeholder="QRix..." className={`${inputCls} resize-none`} style={inputStyle}/>}
               {tab==="wifi" && <>
                 <input value={ssid} onChange={e=>setSsid(e.target.value)} placeholder={t.ssid} className={inputCls} style={inputStyle}/>
@@ -674,9 +709,9 @@ export default function HomePage() {
             <div className="space-y-3 text-sm">
               {[
                 { href: "/url-qr", label: "URL QR" },
+                { href: "/bulk-qr", label: "Bulk QR" },
                 { href: "/dashboard", label: "Dashboard" },
                 { href: "/scanner", label: "QR Scanner" },
-                { href: "/login", label: "Sign in" },
               ].map((l) => (
                 <Link key={l.href} href={l.href}
                   className="block transition-all hover:translate-x-1"
@@ -749,106 +784,16 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* ================= DESIGN MODAL ================= */}
+      {/* ================= DESIGN STUDIO ================= */}
       {designOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-          style={{ background: "rgba(0,0,0,.6)", backdropFilter: "blur(8px)" }}
-          onClick={() => setDesignOpen(false)}>
-          <div className="qx-card w-full max-w-lg max-h-[88vh] overflow-y-auto p-6 relative"
-            style={{ background: "var(--surface)" }}
-            onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-display text-lg font-bold flex items-center gap-2" style={{ color: "var(--text)" }}>
-                <FiSliders style={{ color: "#F58F20" }} /> {t.designTitle}
-              </h3>
-              <button onClick={() => setDesignOpen(false)} className="qx-btn-ghost !p-2" aria-label="Close">
-                <FiX size={16} />
-              </button>
-            </div>
-
-            {/* Live mini preview */}
-            <div className="flex justify-center mb-6">
-              <div className="p-3 rounded-xl" style={{ background: bg, boxShadow: "0 8px 28px rgba(0,0,0,.3)" }}>
-                <QRCodeCanvas value={qrValue} size={120} bgColor={bg} fgColor={fg} level={level} marginSize={1}
-                  imageSettings={logo ? { src: logo, height: 24, width: 24, excavate: true } : undefined} />
-              </div>
-            </div>
-
-            {/* QR Color */}
-            <div className="mb-5">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>🎨 {t.qrColor}</label>
-              <div className="flex flex-wrap items-center gap-2">
-                {COLOR_PRESETS.map((c) => (
-                  <button key={c} onClick={() => setFg(c)} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
-                    style={{ background: c, border: fg === c ? "2px solid #F58F20" : "1px solid var(--border)", boxShadow: fg === c ? "0 0 0 3px rgba(245,143,32,0.2)" : "none" }}
-                    aria-label={c} />
-                ))}
-                <input type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
-              </div>
-            </div>
-
-            {/* BG Color */}
-            <div className="mb-5">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>🖼 {t.bgColor}</label>
-              <div className="flex flex-wrap items-center gap-2">
-                {BG_PRESETS.map((c) => (
-                  <button key={c} onClick={() => setBg(c)} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
-                    style={{ background: c, border: bg === c ? "2px solid #F58F20" : "1px solid var(--border)", boxShadow: bg === c ? "0 0 0 3px rgba(245,143,32,0.2)" : "none" }}
-                    aria-label={c} />
-                ))}
-                <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
-              </div>
-            </div>
-
-            {/* Size */}
-            <div className="mb-5">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>📐 {t.size}: {qrSize}px</label>
-              <input type="range" min={140} max={340} value={qrSize} onChange={(e) => setQrSize(Number(e.target.value))}
-                className="w-full accent-violet-500" />
-            </div>
-
-            {/* Error level */}
-            <div className="mb-5">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>🛡 {t.errLevel}</label>
-              <div className="grid grid-cols-4 gap-2">
-                {(["L", "M", "Q", "H"] as const).map((lv) => (
-                  <button key={lv} onClick={() => setLevel(lv)}
-                    className="py-2 rounded-xl text-xs font-bold transition-all"
-                    style={{
-                      background: level === lv ? "#F58F20" : "var(--surface-2)",
-                      color: level === lv ? "#0c0c0c" : "var(--text-muted)",
-                      border: `1px solid ${level === lv ? "transparent" : "var(--border)"}`,
-                    }}>
-                    {lv}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Logo */}
-            <div className="mb-6">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>⭐ {t.logo}</label>
-              <div className="flex items-center gap-3">
-                <label className="qx-btn-ghost !text-xs cursor-pointer">
-                  <FiUpload size={13} /> {t.uploadLogo}
-                  <input type="file" accept="image/*" onChange={onLogoUpload} className="hidden" />
-                </label>
-                {logo && (
-                  <>
-                    <img src={logo} alt="logo" className="w-9 h-9 rounded-lg object-contain" style={{ border: "1px solid var(--border)" }} />
-                    <button onClick={() => setLogo(null)} className="qx-btn-ghost !text-xs !text-red-400">
-                      <FiTrash2 size={13} /> {t.removeLogo}
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <button onClick={() => setDesignOpen(false)} className="qx-btn w-full">
-              <FiCheck size={14} /> {t.done}
-            </button>
-          </div>
-        </div>
+        <QRDesignStudio
+          value={qrValue}
+          initialFg={fg}
+          initialBg={bg}
+          initialLevel={level}
+          initialLogo={logo}
+          onClose={() => setDesignOpen(false)}
+        />
       )}
     </div>
   );
