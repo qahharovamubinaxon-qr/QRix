@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 /* ============================================
@@ -45,7 +45,7 @@
   --radius-xl: 22px;
 
   /* Fonts */
-  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-display: "Poppins", "Inter", system-ui, sans-serif;
   --font-body: "Inter", system-ui, sans-serif;
 
   /* Shadows */
@@ -149,7 +149,8 @@ body {
 
 h1, h2, h3, h4, .font-display {
   font-family: var(--font-display);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  font-weight: 700;
 }
 
 /* ============ Scrollbar ============ */
@@ -259,6 +260,49 @@ html.light {
 .qx-card > *,
 .qx-card-glow > *,
 .qx-card-premium > * { position: relative; z-index: 1; }
+
+/* ============================================================
+   FIRESHIP-STYLE CARD — solid color frame + dark inner panel
+   Set the card color with inline style: --fc: #16a34a
+   ============================================================ */
+.qx-fcard {
+  --fc: #F58F20;
+  position: relative;
+  background: var(--fc);
+  border-radius: 22px;
+  padding: 16px;
+  border: 2px solid rgba(0,0,0,0.18);
+  box-shadow: 0 6px 0 0 rgba(0,0,0,0.22), 0 16px 34px rgba(0,0,0,0.28);
+  transition: transform .22s cubic-bezier(.4,0,.2,1), box-shadow .22s;
+}
+.qx-fcard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 0 0 rgba(0,0,0,0.22), 0 24px 46px rgba(0,0,0,0.34);
+}
+.qx-fcard-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  line-height: 1.05;
+  color: #0e0e0c;
+}
+.qx-fcard-sub {
+  color: rgba(0,0,0,0.66);
+  font-weight: 600;
+}
+/* dark working panel inside a colored card — force light text regardless of theme */
+.qx-fcard-panel {
+  background: #18181f;
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,0.07);
+  --text: #f0f4ff;
+  --text-muted: #9aa3b2;
+  --text-faint: #5a6273;
+  --card-border: rgba(255,255,255,0.08);
+  --surface-2: rgba(255,255,255,0.06);
+  color: var(--text);
+}
 
 /* ============================================================
    BUTTONS
@@ -396,25 +440,74 @@ html.light textarea, html.light select {
 /* ============================================================
    TOPNAV
    ============================================================ */
+/* Solid brand-colored nav bar (Smashing-style) — same in both themes */
 .qx-topnav {
-  background: rgba(8,12,20,0.75) !important;
-  backdrop-filter: blur(20px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-  border-bottom: 1px solid rgba(255,255,255,0.07) !important;
+  background: linear-gradient(180deg, #fb9b2e 0%, #ef7d10 100%) !important;
+  border-bottom: 3px solid rgba(0,0,0,0.22) !important;
+  box-shadow: 0 6px 24px rgba(239,125,16,0.28) !important;
+  /* white-on-orange text tokens for everything inside the bar */
+  --text: #ffffff;
+  --text-muted: rgba(255,255,255,0.86);
+  --text-faint: rgba(255,255,255,0.7);
+  --border: rgba(255,255,255,0.28);
+  --border-glass: rgba(255,255,255,0.3);
+  --surface-hover: rgba(255,255,255,0.16);
+  --surface-solid: #1a1206;
 }
-html.light .qx-topnav {
-  background: rgba(240,244,255,0.82) !important;
-  border-bottom: 1px solid rgba(0,0,0,0.07) !important;
+/* nav ghost buttons → translucent white pills on the orange bar */
+.qx-topnav .qx-btn-ghost {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.32);
+  color: #fff;
+}
+.qx-topnav .qx-btn-ghost:hover {
+  background: rgba(255,255,255,0.26);
+  border-color: rgba(255,255,255,0.55);
+  color: #fff;
+}
+/* primary "Get Started" button → solid dark on the orange bar */
+.qx-topnav .qx-btn {
+  background: #161208;
+  border-color: rgba(0,0,0,0.2);
+  color: #fff;
+}
+.qx-topnav .qx-btn:hover {
+  background: #000;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
 }
 
 .qx-nav-active {
-  background: rgba(245,143,32,0.1) !important;
-  color: #F58F20 !important;
-  border: 1px solid rgba(245,143,32,0.25) !important;
+  background: rgba(255,255,255,0.22) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255,255,255,0.4) !important;
+}
+
+/* category pill row under the nav */
+.qx-navpill {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .3rem .85rem;
+  border-radius: 99px;
+  font-size: .76rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #fff;
+  background: rgba(255,255,255,0.14);
+  border: 1px solid rgba(255,255,255,0.28);
+  transition: background .18s, transform .18s;
+}
+.qx-navpill:hover {
+  background: rgba(255,255,255,0.28);
+  transform: translateY(-1px);
 }
 
 .qx-logo-glow { transition: opacity .2s; }
 .qx-logo-glow:hover { opacity: 0.85; }
+
+.qx-no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+.qx-no-scrollbar::-webkit-scrollbar { display: none; }
 
 /* ============================================================
    HERO
@@ -450,9 +543,9 @@ html.light .qx-topnav {
 /* Headline with neon glow */
 .qx-headline-main {
   font-family: var(--font-display);
-  font-weight: 900;
-  line-height: 1.15;
-  letter-spacing: -0.03em;
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.02em;
   color: var(--text);
 }
 .qx-headline-neon-orange {

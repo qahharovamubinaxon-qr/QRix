@@ -422,46 +422,45 @@ export default function HomePage() {
         {/* ── BOTTOM: 3 equal cards ── */}
         <div id="generator" className="grid lg:grid-cols-3 gap-5 items-stretch relative z-10">
 
-          {/* LEFT — QR Type selector */}
-          <div className="qx-card overflow-hidden flex flex-col" style={{ padding:0 }}>
-            <div className="px-5 py-4 flex items-center gap-2" style={{ borderBottom:"1px solid var(--border)" }}>
-              <FiGrid size={14} style={{ color:"#F58F20" }}/>
-              <span className="text-[13px] font-bold" style={{ color:"var(--text)" }}>
-                {lang==="uz"?"QR Turi"  : lang==="ru"?"Тип QR кода" : "QR Type"}
-              </span>
+          {/* LEFT — QR Type selector (Fireship green) */}
+          <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#22b14c" } as React.CSSProperties}>
+            <div className="px-2 pt-1 pb-3">
+              <div className="qx-fcard-title text-[19px]">
+                {lang==="uz"?"QR TURI"  : lang==="ru"?"ТИП QR" : "QR TYPE"}
+              </div>
+              <div className="qx-fcard-sub text-[12px] mt-0.5">
+                {lang==="uz"?"Форматни танланг" : lang==="ru"?"Выберите формат" : "Pick your format"}
+              </div>
             </div>
-            <div className="flex-1 overflow-auto">
+            <div className="qx-fcard-panel flex-1 overflow-auto p-1.5">
               {[...tabs, ...moreTabs].map((tb) => (
                 <button key={tb.id} onClick={()=>{ setTab(tb.id); setMoreOpen(false); }}
-                  className="w-full flex items-center gap-3 px-5 py-3 text-[13px] font-medium transition-all text-left"
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all text-left"
                   style={{
-                    background: tab===tb.id ? "rgba(70,116,52,0.12)" : "transparent",
-                    borderLeft: `3px solid ${tab===tb.id ? "#467434" : "transparent"}`,
-                    color: tab===tb.id ? "var(--text)" : "var(--text-muted)",
+                    background: tab===tb.id ? "rgba(34,177,76,0.18)" : "transparent",
+                    color: tab===tb.id ? "#fff" : "var(--text-muted)",
                     fontWeight: tab===tb.id ? 700 : 500,
-                    borderBottom: "1px solid var(--card-border)",
                   }}>
                   <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: tab===tb.id ? "rgba(70,116,52,0.2)" : "var(--surface-2)", color: tab===tb.id ? "#467434" : "var(--text-faint)" }}>
+                    style={{ background: tab===tb.id ? "#22b14c" : "var(--surface-2)", color: tab===tb.id ? "#0e0e0c" : "var(--text-faint)" }}>
                     {tb.icon}
                   </span>
                   {tb.label}
-                  {tab===tb.id && <FiArrowRight size={12} className="ml-auto" style={{ color:"#467434" }}/>}
+                  {tab===tb.id && <FiArrowRight size={12} className="ml-auto" style={{ color:"#22b14c" }}/>}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* CENTER — Generator form */}
-          <div data-mascot-anchor="generator" className="qx-card flex flex-col" style={{ padding:"20px 24px" }}>
-            <div className="flex items-center gap-2.5 mb-5">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm shrink-0"
-                style={{ background:"#F58F20", color:"#0c0c0c" }}>⚡</div>
-              <div>
-                <h2 className="font-display text-[15px] font-bold leading-none" style={{ color:"var(--text)" }}>{t.cardTitle}</h2>
-                <p className="text-[11px] mt-0.5" style={{ color:"var(--text-faint)" }}>{t.cardSub}</p>
+          {/* CENTER — Generator form (Fireship orange) */}
+          <div data-mascot-anchor="generator" className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#F58F20" } as React.CSSProperties}>
+            <div className="px-2 pt-1 pb-3">
+              <div className="qx-fcard-title text-[19px]">
+                {lang==="uz"?"QR ЯРАТИШ" : lang==="ru"?"СОЗДАТЬ QR" : "CREATE QR CODE"}
               </div>
+              <div className="qx-fcard-sub text-[12px] mt-0.5">{t.cardSub}</div>
             </div>
+            <div className="qx-fcard-panel flex flex-col flex-1 p-4">
 
             {/* Form fields */}
             <div className="space-y-2.5 flex-1">
@@ -523,18 +522,20 @@ export default function HomePage() {
                 <FiCheck className="inline mr-1" size={11}/> {t.protected} <b>{protectedUrl}</b>
               </div>
             )}
+            </div>{/* closes center panel */}
           </div>
 
-          {/* RIGHT — QR Preview */}
-          <div className="qx-card flex flex-col" style={{ padding:"20px 24px" }}>
-            <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center text-sm shrink-0"
-                style={{ background:"var(--surface-2)", color:"var(--text-muted)" }}>
-                <FiCamera size={14}/>
+          {/* RIGHT — QR Preview (Fireship purple) */}
+          <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#8b5cf6" } as React.CSSProperties}>
+            <div className="px-2 pt-1 pb-3">
+              <div className="qx-fcard-title text-[19px]">
+                {lang==="uz"?"СИЗНИНГ QR" : lang==="ru"?"ВАШ QR КОД" : "YOUR QR CODE"}
               </div>
-              <h3 className="font-display text-[15px] font-bold" style={{ color:"var(--text)" }}>{t.yourQr}</h3>
+              <div className="qx-fcard-sub text-[12px] mt-0.5">
+                {lang==="uz"?"Юклаб олинг" : lang==="ru"?"Скачать и настроить" : "Download & customize"}
+              </div>
             </div>
-
+            <div className="qx-fcard-panel flex flex-col flex-1 p-4">
             <div className="flex-1 flex flex-col items-center justify-center py-2">
               <div ref={qrBoxRef} onMouseMove={onTilt} onMouseLeave={()=>setTilt({x:0,y:0})}
                 className="flex items-center justify-center w-full" style={{ perspective:700 }}>
@@ -572,6 +573,7 @@ export default function HomePage() {
                 <FiSliders size={13}/> {t.customize}
               </button>
             </div>
+            </div>{/* closes right panel */}
           </div>
 
         </div>{/* closes 3-col grid */}

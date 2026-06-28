@@ -92,12 +92,9 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
       <style>{`
         .qx-mq-wrap {
           width: 100%;
+          /* white text reads well on all the saturated tool colors */
           --card-label: #ffffff;
-          --card-desc: rgba(235,235,245,.58);
-        }
-        html.light .qx-mq-wrap {
-          --card-label: #15151c;
-          --card-desc: rgba(40,40,60,.60);
+          --card-desc: rgba(255,255,255,.82);
         }
 
         .qx-mq-stage { display: flex; flex-direction: column; gap: 20px; perspective: 2000px; }
@@ -127,106 +124,79 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
         @keyframes qxMqLeft  { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
         @keyframes qxMqRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 
-        /* ===== Clean 3D card ===== */
+        /* ===== Fireship-style solid color card ===== */
         .qx-mqcard {
           flex: 0 0 auto;
-          width: 165px; height: 210px;
-          border-radius: 18px;
-          padding: 16px 14px 14px;
+          width: 172px; height: 218px;
+          border-radius: 20px;
+          padding: 14px;
           position: relative;
-          display: flex; flex-direction: column; justify-content: space-between;
+          display: flex; flex-direction: column; gap: 12px;
           text-decoration: none;
           transform-style: preserve-3d;
           transform: translateZ(0) scale(1);
-          transition: transform .45s cubic-bezier(.22,.9,.3,1.1), box-shadow .45s ease, border-color .25s;
-          background: #161616;
-          border: 1px solid rgba(255,255,255,0.07);
-          box-shadow: 0 4px 16px rgba(0,0,0,.4);
+          transition: transform .4s cubic-bezier(.22,.9,.3,1.1), box-shadow .4s ease;
+          background: var(--c1);
+          border: 2px solid rgba(0,0,0,0.18);
+          box-shadow: 0 6px 0 0 rgba(0,0,0,.2), 0 14px 28px rgba(0,0,0,.28);
           overflow: hidden;
           isolation: isolate;
         }
         .qx-mqcard::before { display: none; }
-        /* subtle gloss sheen */
+        /* subtle top gloss */
         .qx-mqcard::after {
           content: ""; position: absolute; inset: 0; z-index: 0;
-          background: linear-gradient(135deg, rgba(255,255,255,.04), transparent 50%);
+          background: linear-gradient(160deg, rgba(255,255,255,.18), transparent 42%);
           pointer-events: none;
         }
         .qx-mqcard > * { position: relative; z-index: 1; }
+        .qx-mqcard-glow { display: none; }
 
-        /* top subtle glow — very muted */
-        .qx-mqcard-glow {
-          position: absolute; z-index: 0;
-          top: -60%; left: -20%; right: -20%; height: 80%;
-          background: radial-gradient(58% 70% at 50% 0%, rgba(245,143,32,0.12), transparent 75%);
-          opacity: .6; pointer-events: none;
-          transition: opacity .45s ease;
-        }
-
-        /* icon wrap with halo */
+        /* dark logo panel holding the icon */
         .qx-mqcard-icon-wrap {
           position: relative;
-          display: inline-flex;
+          display: flex;
           align-items: center; justify-content: center;
-          width: 46px; height: 46px;
-          z-index: 1;
+          width: 100%; height: 96px;
+          border-radius: 13px;
+          background: #18181f;
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
         }
-        .qx-mqcard-icon-halo {
-          position: absolute; inset: -6px;
-          border-radius: 16px;
-          background: var(--cgrad);
-          filter: blur(12px);
-          opacity: .5;
-        }
+        .qx-mqcard-icon-halo { display: none; }
         .qx-mqcard-icon {
           position: relative; z-index: 1;
-          width: 46px; height: 46px;
-          border-radius: 13px;
+          width: 50px; height: 50px;
+          border-radius: 14px;
           display: flex; align-items: center; justify-content: center;
           color: #fff;
           background: var(--cgrad);
-          box-shadow: 0 6px 20px rgba(0,0,0,.45);
+          box-shadow: 0 6px 18px rgba(0,0,0,.5);
         }
-        .qx-mqcard-body { display: flex; flex-direction: column; gap: 5px; }
+        .qx-mqcard-body { display: flex; flex-direction: column; gap: 4px; }
         .qx-mqcard-label {
-          display: block; font-size: 15px; font-weight: 900; line-height: 1.1;
+          display: block;
+          font-family: var(--font-display), "Poppins", sans-serif;
+          font-size: 15px; font-weight: 800; line-height: 1.08;
+          text-transform: uppercase; letter-spacing: -.005em;
           color: var(--card-label);
-          text-shadow: 0 1px 10px rgba(0,0,0,.4);
-          letter-spacing: -.01em;
         }
         .qx-mqcard-desc {
-          display: block; font-size: 12px; line-height: 1.35;
+          display: block; font-size: 11.5px; line-height: 1.3; font-weight: 600;
           color: var(--card-desc);
         }
         .qx-mqcard-badge {
-          position: absolute; top: 13px; right: 13px; z-index: 3;
-          font-size: 9px; font-weight: 800; letter-spacing: .04em; color: #0c0c0c;
-          background: #F58F20;
-          padding: 3px 8px; border-radius: 8px;
+          position: absolute; top: 12px; right: 12px; z-index: 3;
+          font-size: 9px; font-weight: 800; letter-spacing: .04em; color: #fff;
+          background: #161208;
+          padding: 3px 9px; border-radius: 8px;
           box-shadow: 0 2px 6px rgba(0,0,0,.3);
         }
 
-        /* HOVER — lift forward, tangerine shadow */
+        /* HOVER — chunky lift */
         .qx-mqcard:hover, .qx-mqcard:focus-visible {
-          transform: translateZ(100px) translateY(-12px) scale(1.08);
-          box-shadow:
-            0 30px 60px rgba(0,0,0,.5),
-            0 0 30px rgba(245,143,32,0.15);
-          border-color: rgba(245,143,32,0.3);
+          transform: translateZ(80px) translateY(-10px) scale(1.06);
+          box-shadow: 0 12px 0 0 rgba(0,0,0,.2), 0 28px 50px rgba(0,0,0,.4);
           z-index: 6; outline: none;
-        }
-        .qx-mqcard:hover .qx-mqcard-glow,
-        .qx-mqcard:focus-visible .qx-mqcard-glow { opacity: 1; }
-
-        /* light theme overrides */
-        html.light .qx-mqcard {
-          background: #ffffff;
-          border-color: rgba(0,0,0,0.08);
-          box-shadow: 0 2px 12px rgba(0,0,0,.08);
-        }
-        html.light .qx-mqcard:hover {
-          border-color: rgba(245,143,32,0.4);
-          box-shadow: 0 20px 50px rgba(0,0,0,.12), 0 0 20px rgba(245,143,32,0.12);
         }
 
         @media (prefers-reduced-motion: reduce) {
