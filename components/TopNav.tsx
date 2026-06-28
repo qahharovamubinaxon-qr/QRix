@@ -163,20 +163,6 @@ export default function TopNav() {
     { href: "/dashboard",  label: t.dashboard, dropdown: "/dashboard" },
   ];
 
-  const pills = [
-    { href: "/qr-tools/url",          label: "URL QR",       icon: <FiLink size={12}/> },
-    { href: "/qr-tools/wifi",         label: "WiFi",         icon: <FiWifi size={12}/> },
-    { href: "/qr-tools/vcard",        label: "vCard",        icon: <FiUser size={12}/> },
-    { href: "/qr-tools/whatsapp",     label: "WhatsApp",     icon: <FiMessageCircle size={12}/> },
-    { href: "/qr-tools/telegram",     label: "Telegram",     icon: <FiSend size={12}/> },
-    { href: "/pdf-tools/merge",       label: "Merge PDF",    icon: <FiLayers size={12}/> },
-    { href: "/pdf-tools/compress",    label: "Compress",     icon: <FiMinimize2 size={12}/> },
-    { href: "/pdf-tools/protect",     label: "Protect PDF",  icon: <FiLock size={12}/> },
-    { href: "/image-tools/remove-bg", label: "Remove BG",    icon: <FiScissors size={12}/> },
-    { href: "/image-tools/image-to-text", label: "Image→Text", icon: <FiType size={12}/> },
-    { href: "/image-tools/upscale",   label: "AI Upscale",   icon: <FiZap size={12}/> },
-  ];
-
   return (
     <header className="qx-topnav sticky top-0 z-50 px-5 lg:px-10">
       <div className="max-w-[1400px] mx-auto h-[68px] flex items-center gap-6">
@@ -264,15 +250,6 @@ export default function TopNav() {
             </>
           )}
         </div>
-      </div>
-
-      {/* ── Category pills row (Smashing-style) ── */}
-      <div className="max-w-[1400px] mx-auto pb-2.5 -mt-0.5 hidden md:flex items-center gap-2 overflow-x-auto qx-no-scrollbar">
-        {pills.map((p) => (
-          <Link key={p.href + p.label} href={p.href} className="qx-navpill">
-            {p.icon}{p.label}
-          </Link>
-        ))}
       </div>
     </header>
   );

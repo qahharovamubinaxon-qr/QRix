@@ -396,26 +396,13 @@ export default function HomePage() {
             <span className="qx-headline-neon-green">{t.h1c}</span>
           </h1>
           <p className="text-[15px] lg:text-[17px] leading-relaxed max-w-xl mx-auto mb-7" style={{ color:"var(--text-muted)" }}>{t.sub}</p>
-          <div className="flex flex-wrap justify-center items-center gap-3 mb-6">
+          <div className="flex flex-wrap justify-center items-center gap-3">
             <a href="#generator" className="qx-btn-hero px-7 py-3">
               {t.cta} <FiArrowRight size={15}/>
             </a>
             <a href="#why" className="qx-btn-hero-ghost px-6 py-3">
               <FiPlay size={13}/> {t.demo}
             </a>
-          </div>
-          <div className="flex flex-wrap justify-center items-center gap-4">
-            <div className="flex -space-x-2.5">
-              {["#8b5cf6","#22d3ee","#ec4899","#34d399","#f59e0b"].map((c,i)=>(
-                <span key={i} className="qx-avatar" style={{ background:c, borderColor:"var(--bg)" }}>{String.fromCharCode(65+i)}</span>
-              ))}
-            </div>
-            <div className="text-sm" style={{ color:"var(--text-muted)" }}>
-              <span style={{ color:"#fbbf24" }}>★★★★★</span> {t.rating}
-            </div>
-            {[{icon:"⚡",text:"1M+ QR"},{icon:"🌍",text:"150+ countries"},{icon:"🔒",text:"SOC2"}].map(s=>(
-              <span key={s.text} className="qx-stat-pill">{s.icon} {s.text}</span>
-            ))}
           </div>
         </div>
 

@@ -1,4 +1,5 @@
-﻿import { createClient } from "@/lib/supabase-server";
+﻿import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase-server";
 import DashboardClient from "@/components/DashboardClient";
 
 export default async function DashboardPage() {
@@ -8,11 +9,7 @@ export default async function DashboardPage() {
   } = await supabase.auth.getSession();
 
   if (!session?.user) {
-    return (
-      <pre style={{ color: "white", padding: "20px" }}>
-        {JSON.stringify(await supabase.auth.getUser(), null, 2)}
-      </pre>
-    );
+    redirect("/login?next=/dashboard");
   }
 
   const userId = session.user.id;

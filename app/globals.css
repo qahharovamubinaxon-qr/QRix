@@ -442,9 +442,9 @@ html.light textarea, html.light select {
    ============================================================ */
 /* Solid brand-colored nav bar (Smashing-style) — same in both themes */
 .qx-topnav {
-  background: linear-gradient(180deg, #fb9b2e 0%, #ef7d10 100%) !important;
-  border-bottom: 3px solid rgba(0,0,0,0.22) !important;
-  box-shadow: 0 6px 24px rgba(239,125,16,0.28) !important;
+  background: linear-gradient(180deg, #e0760c 0%, #c25e02 100%) !important;
+  border-bottom: 3px solid rgba(0,0,0,0.3) !important;
+  box-shadow: 0 6px 24px rgba(180,90,0,0.32) !important;
   /* white-on-orange text tokens for everything inside the bar */
   --text: #ffffff;
   --text-muted: rgba(255,255,255,0.86);
