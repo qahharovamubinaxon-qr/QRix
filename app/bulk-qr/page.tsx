@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { FiUploadCloud, FiDownload, FiGrid, FiArrowLeft, FiZap } from "react-icons/fi";
+import { pickSave, finishSave } from "@/lib/save-file";
 
 type Row = { data: string; name: string };
 
@@ -58,6 +59,8 @@ export default function BulkQRPage() {
 
   const generateZip = async () => {
     if (!rows.length) return;
+    const target = await pickSave("qrix-bulk-qr.zip");
+    if (target.kind === "cancelled") return;
     setBusy(true);
     setProgress(0);
     try {
@@ -81,11 +84,7 @@ export default function BulkQRPage() {
       }
 
       const out = await zip.generateAsync({ type: "blob" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(out);
-      a.download = "qrix-bulk-qr.zip";
-      a.click();
-      URL.revokeObjectURL(a.href);
+      await finishSave(target, out, "qrix-bulk-qr.zip");
     } finally {
       setBusy(false);
     }

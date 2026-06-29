@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FiUploadCloud, FiFilePlus, FiLayers } from "react-icons/fi";
 import { PDFDocument } from "pdf-lib";
 import ReorderGrid, { type ReorderItem } from "@/components/ReorderGrid";
-import { saveBlob } from "@/lib/save-file";
+import { pickSave, finishSave } from "@/lib/save-file";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -42,6 +42,8 @@ export default function MergePdfClient() {
 
   async function merge() {
     if (pdfs.length < 2) { alert("Add at least 2 PDFs."); return; }
+    const target = await pickSave("merged.pdf");
+    if (target.kind === "cancelled") return;
     setBusy(true);
     setProgress("Merging…");
     try {
@@ -53,7 +55,7 @@ export default function MergePdfClient() {
       }
       const bytes = await out.save();
       setBusy(false); setProgress("");
-      await saveBlob(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), "merged.pdf");
+      await finishSave(target, new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), "merged.pdf");
     } catch (e) {
       setBusy(false); setProgress("");
       alert("Merge failed: " + (e as Error).message);

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FiEye, FiDownload, FiCopy, FiCheck } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
+import { saveBlob } from "@/lib/save-file";
 
 const LANGS = [
   { code: "eng", label: "English" },
@@ -58,11 +59,7 @@ export default function OcrPdfClient() {
 
   function download() {
     const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = (file?.name.replace(/\.pdf$/i, "") || "ocr") + ".txt";
-    a.click();
-    URL.revokeObjectURL(a.href);
+    saveBlob(blob, (file?.name.replace(/\.pdf$/i, "") || "ocr") + ".txt");
   }
   function copy() {
     navigator.clipboard.writeText(text);

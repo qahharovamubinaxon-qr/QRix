@@ -78,9 +78,12 @@ export default function SignPdfClient() {
 
   async function run() {
     if (!file || !sig || !place) return;
+    const { pickSave, finishSave } = await import("@/lib/save-file");
+    const outName = file.name.replace(/\.pdf$/i, "") + "-signed.pdf";
+    const target = await pickSave(outName);
+    if (target.kind === "cancelled") return;
     setBusy(true);
     try {
-      const { saveBlob } = await import("@/lib/save-file");
       const doc = await PDFDocument.load(await file.arrayBuffer());
       const png = await doc.embedPng(sig);
       const pages = doc.getPages();
@@ -96,7 +99,7 @@ export default function SignPdfClient() {
       }
       const bytes = await doc.save();
       setBusy(false);
-      await saveBlob(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), file.name.replace(/\.pdf$/i, "") + "-signed.pdf");
+      await finishSave(target, new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), outName);
     } catch (e) {
       setBusy(false);
       alert("Signing failed: " + (e as Error).message);
@@ -182,25 +185,54 @@ export default function SignPdfClient() {
 
 function clamp(n: number, a: number, b: number) { return Math.max(a, Math.min(b, n)); }
 
+const INK_COLORS = [
+  { id: "#0e0e0e", label: "Black" },
+  { id: "#1d4ed8", label: "Blue" },
+  { id: "#3730a3", label: "Ink" },
+  { id: "#dc2626", label: "Red" },
+  { id: "#15803d", label: "Green" },
+];
+
 function SignaturePad({ value, onChange }: { value: string | null; onChange: (v: string | null) => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
-  useEffect(() => {
-    const c = ref.current; if (!c) return;
-    const ctx = c.getContext("2d")!;
-    ctx.lineWidth = 2.5; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.strokeStyle = "#0e0e0e";
-  }, []);
+  const [color, setColor] = useState("#0e0e0e");
+  const [thickness, setThickness] = useState(2.5);
+
+  function applyStyle() {
+    const ctx = ref.current!.getContext("2d")!;
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.strokeStyle = color; ctx.lineWidth = thickness;
+  }
   function pos(e: React.PointerEvent) { const c = ref.current!; const r = c.getBoundingClientRect(); return { x: ((e.clientX - r.left) / r.width) * c.width, y: ((e.clientY - r.top) / r.height) * c.height }; }
-  function down(e: React.PointerEvent) { drawing.current = true; const ctx = ref.current!.getContext("2d")!; const { x, y } = pos(e); ctx.beginPath(); ctx.moveTo(x, y); }
+  function down(e: React.PointerEvent) { drawing.current = true; applyStyle(); const ctx = ref.current!.getContext("2d")!; const { x, y } = pos(e); ctx.beginPath(); ctx.moveTo(x, y); }
   function move(e: React.PointerEvent) { if (!drawing.current) return; const ctx = ref.current!.getContext("2d")!; const { x, y } = pos(e); ctx.lineTo(x, y); ctx.stroke(); }
   function up() { if (!drawing.current) return; drawing.current = false; onChange(ref.current!.toDataURL("image/png")); }
   function clear() { const c = ref.current!; c.getContext("2d")!.clearRect(0, 0, c.width, c.height); onChange(null); }
+
   return (
-    <div className="relative rounded-xl overflow-hidden" style={{ background: "#fff", border: "1px solid var(--border)" }}>
-      <canvas ref={ref} width={500} height={150} className="w-full touch-none" style={{ height: 130, cursor: "crosshair" }}
-        onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={up} />
-      {!value && <span className="absolute inset-0 flex items-center justify-center pointer-events-none text-sm" style={{ color: "#9ca3af" }}>✍️ Draw your signature here</span>}
-      <button onClick={clear} className="absolute top-2 right-2 text-[10px] px-2 py-1 rounded-md" style={{ background: "#f1f1f1", color: "#555" }}>Clear</button>
+    <div>
+      <div className="relative rounded-xl overflow-hidden" style={{ background: "#fff", border: "1px solid var(--border)" }}>
+        <canvas ref={ref} width={500} height={150} className="w-full touch-none" style={{ height: 130, cursor: "crosshair" }}
+          onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerLeave={up} />
+        {!value && <span className="absolute inset-0 flex items-center justify-center pointer-events-none text-sm" style={{ color: "#9ca3af" }}>✍️ Draw your signature here</span>}
+        <button onClick={clear} className="absolute top-2 right-2 text-[10px] px-2 py-1 rounded-md" style={{ background: "#f1f1f1", color: "#555" }}>Clear</button>
+      </div>
+      {/* ink color + thickness */}
+      <div className="flex items-center gap-3 mt-2 flex-wrap">
+        <div className="flex items-center gap-1.5">
+          {INK_COLORS.map((c) => (
+            <button key={c.id} onClick={() => setColor(c.id)} title={c.label}
+              className="w-6 h-6 rounded-full transition-transform hover:scale-110"
+              style={{ background: c.id, border: color === c.id ? "2px solid var(--primary)" : "1px solid var(--border)", boxShadow: color === c.id ? "0 0 0 2px rgba(245,143,32,.25)" : "none" }} />
+          ))}
+        </div>
+        <div className="flex items-center gap-2 flex-1 min-w-[120px]">
+          <span className="text-[10px] font-bold" style={{ color: "var(--text-faint)" }}>Thin</span>
+          <input type="range" min={1} max={6} step={0.5} value={thickness} onChange={(e) => setThickness(Number(e.target.value))} className="flex-1 accent-orange-500" />
+          <span className="text-[10px] font-bold" style={{ color: "var(--text-faint)" }}>Bold</span>
+        </div>
+      </div>
     </div>
   );
 }

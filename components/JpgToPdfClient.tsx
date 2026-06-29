@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FiUploadCloud, FiFilePlus, FiImage } from "react-icons/fi";
 import { PDFDocument } from "pdf-lib";
 import ReorderGrid, { type ReorderItem } from "@/components/ReorderGrid";
-import { saveBlob } from "@/lib/save-file";
+import { pickSave, finishSave } from "@/lib/save-file";
 
 type Img = ReorderItem & { file: File };
 type PageSize = "a4" | "letter" | "fit";
@@ -37,6 +37,8 @@ export default function JpgToPdfClient() {
 
   async function convert() {
     if (!imgs.length) return;
+    const target = await pickSave("images.pdf");
+    if (target.kind === "cancelled") return;
     setBusy(true);
     try {
       const doc = await PDFDocument.create();
@@ -62,7 +64,7 @@ export default function JpgToPdfClient() {
       }
       const bytes = await doc.save();
       setBusy(false);
-      await saveBlob(new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), "images.pdf");
+      await finishSave(target, new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), "images.pdf");
     } catch (e) {
       setBusy(false);
       alert("Conversion failed: " + (e as Error).message);

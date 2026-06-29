@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FiImage } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
+import { pickSave, finishSave } from "@/lib/save-file";
 
 export default function PdfToPngClient() {
   const [file, setFile] = useState<File | null>(null);
@@ -11,6 +12,9 @@ export default function PdfToPngClient() {
 
   async function run() {
     if (!file) return;
+    const outName = (file.name.replace(/\.pdf$/i, "") || "pdf") + "-png.zip";
+    const target = await pickSave(outName);
+    if (target.kind === "cancelled") return;
     setBusy(true);
     setProgress(0);
     try {
@@ -37,11 +41,7 @@ export default function PdfToPngClient() {
       }
 
       const out = await zip.generateAsync({ type: "blob" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(out);
-      a.download = (file.name.replace(/\.pdf$/i, "") || "pdf") + "-png.zip";
-      a.click();
-      URL.revokeObjectURL(a.href);
+      await finishSave(target, out, outName);
     } catch (e) {
       alert("Conversion failed: " + (e as Error).message);
     } finally {

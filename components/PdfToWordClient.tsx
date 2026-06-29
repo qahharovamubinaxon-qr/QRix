@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FiFileText } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
-import { saveBlob } from "@/lib/save-file";
+import { pickSave, finishSave } from "@/lib/save-file";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -14,6 +14,9 @@ export default function PdfToWordClient() {
 
   async function convert() {
     if (!file) return;
+    const outName = file.name.replace(/\.pdf$/i, "") + ".docx";
+    const target = await pickSave(outName);
+    if (target.kind === "cancelled") return;
     setLoading(true);
     setProgress("Reading PDF…");
     try {
@@ -78,7 +81,7 @@ export default function PdfToWordClient() {
       const doc = new Document({ sections: [{ properties: { page: { margin: { top: 1000, right: 1000, bottom: 1000, left: 1000 } } }, children }] });
       const blob = await Packer.toBlob(doc);
       setProgress("");
-      await saveBlob(blob, file.name.replace(/\.pdf$/i, "") + ".docx");
+      await finishSave(target, blob, outName);
     } catch (e) {
       setProgress("");
       alert("Conversion failed: " + (e as Error).message);

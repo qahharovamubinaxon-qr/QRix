@@ -126,9 +126,11 @@ export default function QRDesignStudio({
     setDlOpen(false);
     const srcCanvas = mountRef.current?.querySelector("canvas") as HTMLCanvasElement | null;
     if (!srcCanvas) return;
+    const { saveBlob } = await import("@/lib/save-file");
 
     if (!frameOn) {
-      qrRef.current?.download({ name: "qrix-code", extension: "png" });
+      const blob = (await qrRef.current?.getRawData("png")) as Blob | null;
+      if (blob) await saveBlob(blob, "qrix-code.png");
       return;
     }
 
@@ -140,31 +142,28 @@ export default function QRDesignStudio({
     const c = document.createElement("canvas");
     c.width = W; c.height = H;
     const ctx = c.getContext("2d")!;
-    // frame background (rounded)
     roundRect(ctx, 0, 0, W, H, 26);
     ctx.fillStyle = frameColor;
     ctx.fill();
-    // white QR area
     roundRect(ctx, pad, pad, RENDER, RENDER, 14);
     ctx.fillStyle = bg;
     ctx.fill();
     ctx.drawImage(srcCanvas, pad, pad, RENDER, RENDER);
-    // caption
     ctx.fillStyle = pickTextColor(frameColor);
     ctx.font = "800 26px Poppins, Inter, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText(frameText || "SCAN ME", W / 2, pad + RENDER + capH / 2 + 4);
 
-    const a = document.createElement("a");
-    a.href = c.toDataURL("image/png");
-    a.download = "qrix-code.png";
-    a.click();
+    const blob = await new Promise<Blob | null>((res) => c.toBlob((b) => res(b), "image/png"));
+    if (blob) await saveBlob(blob, "qrix-code.png");
   };
 
-  const downloadSvg = () => {
+  const downloadSvg = async () => {
     setDlOpen(false);
-    qrRef.current?.download({ name: "qrix-code", extension: "svg" });
+    const { saveBlob } = await import("@/lib/save-file");
+    const blob = (await qrRef.current?.getRawData("svg")) as Blob | null;
+    if (blob) await saveBlob(blob, "qrix-code.svg");
   };
 
   return (

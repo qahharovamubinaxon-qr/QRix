@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FiCrop } from "react-icons/fi";
 import { PDFDocument } from "pdf-lib";
 import { UploadBox } from "@/components/PdfToTextClient";
+import { pickSave, finishSave } from "@/lib/save-file";
 
 export default function CropPdfClient() {
   const [file, setFile] = useState<File | null>(null);
@@ -12,6 +13,9 @@ export default function CropPdfClient() {
 
   async function run() {
     if (!file) return;
+    const outName = (file.name.replace(/\.pdf$/i, "") || "cropped") + "-cropped.pdf";
+    const target = await pickSave(outName);
+    if (target.kind === "cancelled") return;
     setBusy(true);
     try {
       const src = await PDFDocument.load(await file.arrayBuffer());
@@ -24,12 +28,7 @@ export default function CropPdfClient() {
         p.setCropBox(mx, my, w - 2 * mx, h - 2 * my);
       }
       const bytes = await src.save();
-      const blob = new Blob([new Uint8Array(bytes)], { type: "application/pdf" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = (file.name.replace(/\.pdf$/i, "") || "cropped") + "-cropped.pdf";
-      a.click();
-      URL.revokeObjectURL(a.href);
+      await finishSave(target, new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), outName);
     } catch (e) {
       alert("Crop failed: " + (e as Error).message);
     } finally {
