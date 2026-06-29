@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FiChevronRight, FiInfo, FiCheckCircle } from "react-icons/fi";
+import GlobalFileDrop from "@/components/GlobalFileDrop";
 
 type Step = { title: string; desc: string };
 
@@ -28,6 +29,7 @@ export default function ToolPageShell({
 }) {
   return (
     <div className="max-w-6xl mx-auto p-5 lg:p-8">
+      <GlobalFileDrop />
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs mb-5" style={{ color: "var(--text-muted)" }}>
         <Link href="/dashboard" className="hover:opacity-80">Dashboard</Link>
