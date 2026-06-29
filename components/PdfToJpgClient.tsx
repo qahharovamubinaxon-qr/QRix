@@ -1,97 +1,56 @@
 "use client";
 
 import { useState } from "react";
+import { FiImage } from "react-icons/fi";
+import { UploadBox } from "@/components/PdfToTextClient";
+import { pickSave, finishSave } from "@/lib/save-file";
 
 export default function PdfToJpgClient() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   async function convertPdf() {
-    if (!file) {
-      alert("Please select a PDF file");
-      return;
-    }
-
+    if (!file) return;
+    const outName = (file.name.replace(/\.pdf$/i, "") || "pdf") + "-jpg.zip";
+    const target = await pickSave(outName);
+    if (target.kind === "cancelled") return;
+    setLoading(true);
+    setProgress(0);
     try {
-      setLoading(true);
-
-      // ✅ TO'G'RI YO'L
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
-
-      const bytes = await file.arrayBuffer();
-
-      const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
-
+      const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
       const JSZip = (await import("jszip")).default;
       const zip = new JSZip();
-
-      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-        const page = await pdf.getPage(pageNum);
+      for (let n = 1; n <= pdf.numPages; n++) {
+        const page = await pdf.getPage(n);
         const viewport = page.getViewport({ scale: 2 });
-
         const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-
-        if (!context) continue;
-
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-
-        await page.render({ canvasContext: context, viewport }).promise;
-
-        const blob = await new Promise<Blob>((resolve) =>
-          canvas.toBlob((b) => resolve(b as Blob), "image/jpeg", 0.95)
-        );
-
-        zip.file(`page-${pageNum}.jpg`, blob);
+        const ctx = canvas.getContext("2d");
+        if (!ctx) continue;
+        canvas.width = viewport.width; canvas.height = viewport.height;
+        await page.render({ canvasContext: ctx, viewport }).promise;
+        const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b as Blob), "image/jpeg", 0.95));
+        zip.file(`page-${n}.jpg`, blob);
+        setProgress(Math.round((n / pdf.numPages) * 100));
       }
-
-      const zipBlob = await zip.generateAsync({ type: "blob" });
-      const { saveAs } = await import("file-saver");
-      saveAs(zipBlob, "pdf-images.zip");
-
-      alert("JPG files created successfully! ✅");
-    } catch (error) {
-      console.error(error);
-      alert("Conversion failed: " + (error as Error).message);
-    } finally {
+      const out = await zip.generateAsync({ type: "blob" });
       setLoading(false);
+      await finishSave(target, out, outName);
+    } catch (e) {
+      setLoading(false);
+      alert("Conversion failed: " + (e as Error).message);
     }
   }
 
   return (
-    <div className="bg-zinc-900 rounded-3xl border border-cyan-500/20 p-8 max-w-xl">
-      <h2 className="text-cyan-400 text-xl font-bold mb-6">PDF to JPG Converter</h2>
-
-      <input
-        id="pdf-upload"
-        type="file"
-        accept=".pdf"
-        className="hidden"
-        onChange={(e) => setFile(e.target.files?.[0] || null)}
-      />
-
-      <div className="flex gap-4 flex-wrap">
-        <label
-          htmlFor="pdf-upload"
-          className="bg-cyan-500 text-black font-bold px-6 py-3 rounded-xl cursor-pointer hover:bg-cyan-600 transition"
-        >
-          Select PDF
-        </label>
-
-        <button
-          onClick={convertPdf}
-          disabled={loading}
-          className="bg-cyan-500 text-black font-bold px-6 py-3 rounded-xl hover:bg-cyan-600 disabled:opacity-50 transition"
-        >
-          {loading ? "Processing..." : "Convert to JPG"}
-        </button>
-      </div>
-
-      {file && (
-        <div className="mt-6 text-cyan-400">📄 {file.name}</div>
-      )}
+    <div className="qx-card p-6 max-w-2xl">
+      <UploadBox file={file} setFile={setFile} accept=".pdf" />
+      <button onClick={convertPdf} disabled={!file || loading} className="qx-btn-hero w-full mt-4 disabled:opacity-50">
+        {loading ? `Converting… ${progress}%` : <><FiImage size={15} /> Convert to JPG (ZIP)</>}
+      </button>
+      <p className="text-[11px] mt-3" style={{ color: "var(--text-faint)" }}>Each page becomes a high-quality JPG, packed into a ZIP.</p>
     </div>
   );
 }
