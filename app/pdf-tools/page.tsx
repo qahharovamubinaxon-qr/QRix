@@ -12,7 +12,7 @@ import {
   FiScissors, FiMinimize2, FiFile, FiType, FiRotateCw, FiLayers,
   FiShield, FiZap, FiCheckCircle, FiUploadCloud, FiArrowRight,
   FiChevronRight, FiHome, FiLock, FiUnlock, FiCheck,
-  FiHash, FiDroplet, FiCopy, FiTrash2, FiEye, FiCrop,
+  FiHash, FiDroplet, FiCopy, FiTrash2, FiEye, FiCrop, FiEdit3,
 } from "react-icons/fi";
 
 type Tool = {
@@ -45,6 +45,7 @@ const TOOLS: Tool[] = [
   { href: "/pdf-tools/pdf-to-text", title: "PDF to Text", desc: "Extract all selectable text as a .txt file.", icon: <FiType size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)", popularity: 76 },
   { href: "/pdf-tools/pdf-to-png", title: "PDF to PNG", desc: "Convert pages to high-res PNG images.", icon: <FiImage size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", popularity: 68 },
   { href: "/pdf-tools/crop", title: "Crop PDF", desc: "Trim page margins to focus on content.", icon: <FiCrop size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)", popularity: 50 },
+  { href: "/pdf-tools/sign", title: "Sign PDF", desc: "Draw or upload a signature and place it.", icon: <FiEdit3 size={20} />, grad: "linear-gradient(135deg,#2563eb,#60a5fa)", popularity: 82 },
 ];
 
 const SIDE_LINKS = [
