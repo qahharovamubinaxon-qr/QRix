@@ -12,7 +12,7 @@ import {
   FiScissors, FiMinimize2, FiFile, FiType, FiRotateCw, FiLayers,
   FiShield, FiZap, FiCheckCircle, FiUploadCloud, FiArrowRight,
   FiChevronRight, FiHome, FiLock, FiUnlock, FiCheck,
-  FiHash, FiDroplet, FiCopy, FiTrash2,
+  FiHash, FiDroplet, FiCopy, FiTrash2, FiEye, FiCrop,
 } from "react-icons/fi";
 
 type Tool = {
@@ -41,7 +41,10 @@ const TOOLS: Tool[] = [
   { href: "/pdf-tools/delete-pages", title: "Delete Pages", desc: "Remove unwanted pages from your PDF.", icon: <FiTrash2 size={20} />, grad: "linear-gradient(135deg,#dc2626,#f87171)", popularity: 48 },
   { href: "/pdf-tools/protect", title: "Protect PDF", desc: "Add password protection to your PDF files.", icon: <FiLock size={20} />, grad: "linear-gradient(135deg,#6366f1,#8b5cf6)", popularity: 44 },
   { href: "/pdf-tools/unlock", title: "Unlock PDF", desc: "Remove password protection from PDF files.", icon: <FiUnlock size={20} />, grad: "linear-gradient(135deg,#d97706,#fbbf24)", popularity: 42 },
-  { href: "#", title: "PDF to Excel", desc: "Convert PDF tables to Excel spreadsheets.", icon: <FiGrid size={20} />, grad: "linear-gradient(135deg,#059669,#34d399)", popularity: 40, soon: true },
+  { href: "/pdf-tools/ocr", title: "OCR PDF", desc: "Recognize text from scanned PDFs (EN/RU/UZ).", icon: <FiEye size={20} />, grad: "linear-gradient(135deg,#ea580c,#fb923c)", popularity: 88 },
+  { href: "/pdf-tools/pdf-to-text", title: "PDF to Text", desc: "Extract all selectable text as a .txt file.", icon: <FiType size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)", popularity: 76 },
+  { href: "/pdf-tools/pdf-to-png", title: "PDF to PNG", desc: "Convert pages to high-res PNG images.", icon: <FiImage size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", popularity: 68 },
+  { href: "/pdf-tools/crop", title: "Crop PDF", desc: "Trim page margins to focus on content.", icon: <FiCrop size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)", popularity: 50 },
 ];
 
 const SIDE_LINKS = [
