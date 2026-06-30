@@ -90,8 +90,7 @@ const scanResult = await supabase
   country: geo.country,
   city: geo.city,
 });
-
-console.log("SCAN RESULT:", scanResult);
+void scanResult;
 
 await supabase
   .from("dynamic_links")
@@ -99,6 +98,17 @@ await supabase
     scans: (data.scans || 0) + 1,
   })
   .eq("slug", slug);
+
+// Defense-in-depth: only ever redirect to safe http(s) destinations.
+let safeTarget = false;
+try {
+  const u = new URL(data.target_url);
+  safeTarget = u.protocol === "http:" || u.protocol === "https:";
+} catch { safeTarget = false; }
+
+if (!safeTarget) {
+  return <h1 className="text-white p-10">This link points to an unsupported destination.</h1>;
+}
 
 redirect(data.target_url);
 }
