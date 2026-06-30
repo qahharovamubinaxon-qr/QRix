@@ -558,6 +558,36 @@ html.light textarea, html.light select {
   margin: 0;
 }
 
+/* Aurora animated gradient text (shifting colors) */
+.qx-aurora {
+  background-image: linear-gradient(100deg, #F58F20, #ffd24a, #34d399, #22d3ee, #7c3aed, #ec4899, #F58F20);
+  background-size: 260% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: qxAurora 7s linear infinite;
+  filter: drop-shadow(0 0 24px rgba(245,143,32,0.25));
+}
+@keyframes qxAurora { to { background-position: 260% 50%; } }
+html.light .qx-aurora { filter: drop-shadow(0 0 14px rgba(245,143,32,0.18)); }
+
+/* Animated nav-list row (QR types): slides forward on hover */
+.qx-typerow {
+  transition: transform .26s cubic-bezier(.34,1.4,.5,1), background .2s, box-shadow .26s, border-color .2s;
+  border: 1px solid transparent;
+  position: relative;
+}
+.qx-typerow:hover {
+  transform: translateX(10px) scale(1.03);
+  background: rgba(34,177,76,0.16) !important;
+  border-color: rgba(34,177,76,0.5);
+  box-shadow: 0 0 0 1px rgba(34,177,76,0.25), 0 8px 24px rgba(0,0,0,0.35), 0 0 22px rgba(34,177,76,0.25);
+  z-index: 2;
+}
+.qx-typerow:hover .qx-typerow-ico { transform: scale(1.12) rotate(-4deg); }
+.qx-typerow-ico { transition: transform .26s cubic-bezier(.34,1.6,.5,1); }
+
 /* Headline with neon glow */
 .qx-headline-main {
   font-family: var(--font-display);

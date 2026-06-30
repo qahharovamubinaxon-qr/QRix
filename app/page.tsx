@@ -408,10 +408,8 @@ export default function HomePage() {
           <span className="qx-badge-hero inline-flex mb-6">
             <span className="qx-badge-hero-dot" />{t.badge}
           </span>
-          <h1 className="qx-headline-main text-[42px] sm:text-[54px] lg:text-[66px] leading-[1.18] pb-1 mb-5 tracking-tight">
-            {t.h1a}{" "}
-            <span className="qx-headline-neon-orange">{t.h1b}</span>{" "}
-            <span className="qx-headline-neon-green">{t.h1c}</span>
+          <h1 className="qx-headline-main qx-aurora text-[42px] sm:text-[54px] lg:text-[66px] leading-[1.18] pb-1 mb-5 tracking-tight">
+            {t.h1a} {t.h1b} {t.h1c}
           </h1>
           <p className="text-[15px] lg:text-[17px] leading-relaxed max-w-xl mx-auto mb-7" style={{ color:"var(--text-muted)" }}>{t.sub}</p>
           <div className="flex flex-wrap justify-center items-center gap-3">
@@ -440,13 +438,13 @@ export default function HomePage() {
             <div className="qx-fcard-panel flex-1 overflow-auto p-1.5">
               {[...tabs, ...moreTabs].map((tb) => (
                 <button key={tb.id} onClick={()=>{ setTab(tb.id); setMoreOpen(false); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] transition-all text-left"
+                  className="qx-typerow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-left"
                   style={{
                     background: tab===tb.id ? "rgba(34,177,76,0.18)" : "transparent",
                     color: tab===tb.id ? "#fff" : "var(--text-muted)",
                     fontWeight: tab===tb.id ? 700 : 500,
                   }}>
-                  <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+                  <span className="qx-typerow-ico w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                     style={{ background: tab===tb.id ? "#22b14c" : "var(--surface-2)", color: tab===tb.id ? "#0e0e0c" : "var(--text-faint)" }}>
                     {tb.icon}
                   </span>
