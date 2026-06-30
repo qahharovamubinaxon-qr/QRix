@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import ImageEditClient from "@/components/ImageEditClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "Compress Image — Free Online Tool", description: "Reduce image file size while keeping good visual quality — perfect for web and email.", path: "/image-tools/compress" });
 export default function CompressImagePage() {
   return (
     <ToolPageShell

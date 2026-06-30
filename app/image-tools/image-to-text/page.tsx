@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import ImageToTextClient from "@/components/ImageToTextClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "Image to Text (OCR) — Free Online Tool", description: "Extract text from images, screenshots and scanned documents in multiple languages.", path: "/image-tools/image-to-text" });
 export default function ImageToTextPage() {
   return (
     <ToolPageShell

@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import CompressPdfClient from "@/components/CompressPdfClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Compress PDF — Free Online Tool", description: "Reduce your PDF file size while keeping good quality.", path: "/pdf-tools/compress" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Compress PDF" emoji="🗜️"

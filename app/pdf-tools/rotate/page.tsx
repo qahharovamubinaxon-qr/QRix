@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import RotatePdfClient from "@/components/RotatePdfClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Rotate PDF — Free Online Tool", description: "Rotate PDF pages to the correct orientation.", path: "/pdf-tools/rotate" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Rotate PDF" emoji="🔄"

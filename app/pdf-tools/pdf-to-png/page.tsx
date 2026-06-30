@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import PdfToPngClient from "@/components/PdfToPngClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "PDF to PNG — Free Online Tool", description: "Convert each PDF page into a high-resolution PNG image.", path: "/pdf-tools/pdf-to-png" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="PDF to PNG" emoji="🌅"

@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import WordToPdfClient from "@/components/WordToPdfClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Word to PDF — Free Online Tool", description: "Convert Word documents into clean PDF files.", path: "/pdf-tools/word-to-pdf" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Word to PDF" emoji="📄"

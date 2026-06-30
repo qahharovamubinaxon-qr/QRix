@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import MergePdfClient from "@/components/MergePdfClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Merge PDF — Free Online Tool", description: "Combine multiple PDF files into one single document.", path: "/pdf-tools/merge" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Merge PDF" emoji="📚"

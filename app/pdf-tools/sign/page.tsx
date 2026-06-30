@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import SignPdfClient from "@/components/SignPdfClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "Sign PDF — Free Online Tool", description: "Draw or upload your signature and place it on your PDF.", path: "/pdf-tools/sign" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Sign PDF" emoji="✍️"

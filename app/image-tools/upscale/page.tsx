@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import ImageUpscaleClient from "@/components/ImageUpscaleClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "Image Enhancer — Free Online Tool", description: "Upscale and sharpen blurry or low-resolution images to make them clearer and larger.", path: "/image-tools/upscale" });
 export default function UpscalePage() {
   return (
     <ToolPageShell

@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import CropPdfClient from "@/components/CropPdfClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "Crop PDF — Free Online Tool", description: "Trim the margins of every page to focus on the content.", path: "/pdf-tools/crop" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Crop PDF" emoji="✂️"

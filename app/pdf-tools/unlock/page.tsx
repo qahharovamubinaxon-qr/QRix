@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import UnlockPdfClient from "@/components/UnlockPdfClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Unlock PDF — Free Online Tool", description: "Remove password protection from a PDF you can already open.", path: "/pdf-tools/unlock" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Unlock PDF" emoji="🔓"

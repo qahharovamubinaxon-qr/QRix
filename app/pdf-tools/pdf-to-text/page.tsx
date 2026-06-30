@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import PdfToTextClient from "@/components/PdfToTextClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "PDF to Text — Free Online Tool", description: "Extract all selectable text from a PDF and download it as a .txt file.", path: "/pdf-tools/pdf-to-text" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="PDF to Text" emoji="📃"

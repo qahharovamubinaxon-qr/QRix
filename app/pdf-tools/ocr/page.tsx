@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import OcrPdfClient from "@/components/OcrPdfClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "OCR PDF — Free Online Tool", description: "Recognize text from scanned PDFs and images using OCR.", path: "/pdf-tools/ocr" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="OCR PDF" emoji="🔍"

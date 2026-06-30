@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import PageSelectClient from "@/components/PageSelectClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Extract Pages — Free Online Tool", description: "Pull out specific pages into a brand-new PDF.", path: "/pdf-tools/extract-pages" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Extract Pages" emoji="📑"

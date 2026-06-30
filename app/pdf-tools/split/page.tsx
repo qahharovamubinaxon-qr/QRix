@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import SplitPdfClient from "@/components/SplitPdfClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Split PDF — Free Online Tool", description: "Extract selected pages or split your PDF into separate files.", path: "/pdf-tools/split" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Split PDF" emoji="✂️"

@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import PageNumbersClient from "@/components/PageNumbersClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Add Page Numbers — Free Online Tool", description: "Add automatic page numbers to your PDF in any position and format.", path: "/pdf-tools/page-numbers" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Add Page Numbers" emoji="🔢"

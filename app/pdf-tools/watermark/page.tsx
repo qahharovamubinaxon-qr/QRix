@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import WatermarkClient from "@/components/WatermarkClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Add Watermark — Free Online Tool", description: "Stamp a text watermark across every page of your PDF.", path: "/pdf-tools/watermark" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Add Watermark" emoji="💧"

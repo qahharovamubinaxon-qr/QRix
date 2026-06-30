@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import ProtectPdfClient from "@/components/ProtectPdfClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Protect PDF — Free Online Tool", description: "Add a password to your PDF so only people with the password can open it.", path: "/pdf-tools/protect" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Protect PDF" emoji="🔒"

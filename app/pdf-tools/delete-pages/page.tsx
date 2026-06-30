@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import PageSelectClient from "@/components/PageSelectClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Delete Pages — Free Online Tool", description: "Remove unwanted pages from your PDF and keep the rest.", path: "/pdf-tools/delete-pages" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Delete Pages" emoji="🗑️"

@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import PdfToJpgClient from "@/components/PdfToJpgClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "PDF to JPG — Free Online Tool", description: "Convert each PDF page into a high-quality JPG image.", path: "/pdf-tools/pdf-to-jpg" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="PDF to JPG" emoji="🖼️"

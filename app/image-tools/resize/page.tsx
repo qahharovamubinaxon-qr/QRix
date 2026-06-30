@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import ImageEditClient from "@/components/ImageEditClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "Resize Image — Free Online Tool", description: "Change the dimensions of your image to exact pixel sizes, with optional aspect-ratio lock.", path: "/image-tools/resize" });
 export default function ResizeImagePage() {
   return (
     <ToolPageShell

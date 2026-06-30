@@ -1,5 +1,8 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import ReorderPdfClient from "@/components/ReorderPdfClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({ title: "Reorder Pages — Free Online Tool", description: "Rearrange the pages of your PDF into a new order.", path: "/pdf-tools/reorder" });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="Reorder Pages" emoji="🔀"

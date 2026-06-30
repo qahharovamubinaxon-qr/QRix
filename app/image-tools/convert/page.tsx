@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import ImageEditClient from "@/components/ImageEditClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "Convert Image — Free Online Tool", description: "Convert images between JPG, PNG and WebP formats in one click.", path: "/image-tools/convert" });
 export default function ConvertImagePage() {
   return (
     <ToolPageShell

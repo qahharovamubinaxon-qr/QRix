@@ -1,6 +1,9 @@
 import ToolPageShell from "@/components/ToolPageShell";
 import RemoveBgClient from "@/components/RemoveBgClient";
+import { pageMeta } from "@/lib/seo";
 
+
+export const metadata = pageMeta({ title: "Background Remover — Free Online Tool", description: "Remove the background from any image automatically with AI — right in your browser.", path: "/image-tools/remove-bg" });
 export default function RemoveBgPage() {
   return (
     <ToolPageShell
