@@ -131,9 +131,12 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
       <style>{`
         .qx-mq-wrap {
           width: 100%;
-          /* white text reads well on all the saturated tool colors */
           --card-label: #ffffff;
-          --card-desc: rgba(255,255,255,.82);
+          --card-desc: rgba(235,238,245,.78);
+        }
+        html.light .qx-mq-wrap {
+          --card-label: #14141c;
+          --card-desc: rgba(30,30,45,.62);
         }
 
         .qx-mq-stage { display: flex; flex-direction: column; gap: 20px; perspective: 2000px; }
@@ -176,13 +179,22 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           text-decoration: none;
           transform-style: preserve-3d;
           transform: translateZ(0) scale(1);
-          transition: box-shadow .3s ease;
+          transition: box-shadow .3s ease, border-color .3s ease;
           will-change: transform, opacity;
-          background: var(--c1);
-          border: 2px solid rgba(0,0,0,0.18);
-          box-shadow: 0 6px 0 0 rgba(0,0,0,.2), 0 14px 28px rgba(0,0,0,.28);
+          background: linear-gradient(160deg, rgba(255,255,255,0.10), rgba(18,18,26,0.55));
+          backdrop-filter: blur(14px) saturate(150%);
+          -webkit-backdrop-filter: blur(14px) saturate(150%);
+          border: 1.5px solid var(--c1);
+          box-shadow:
+            0 0 18px -3px var(--c1),
+            0 0 46px -14px var(--c1),
+            0 12px 30px rgba(0,0,0,0.5),
+            inset 0 1px 0 rgba(255,255,255,0.12);
           overflow: hidden;
           isolation: isolate;
+        }
+        html.light .qx-mqcard {
+          background: linear-gradient(160deg, rgba(255,255,255,0.85), rgba(245,245,250,0.6));
         }
         .qx-mqcard::before { display: none; }
         /* subtle top gloss */
@@ -201,8 +213,9 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           align-items: center; justify-content: center;
           width: 100%; height: 96px;
           border-radius: 13px;
-          background: #18181f;
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+          background: rgba(10,10,16,0.55);
+          border: 1px solid color-mix(in srgb, var(--c1) 35%, transparent);
+          box-shadow: inset 0 1px 0 rgba(255,255,255,.06), inset 0 0 22px -6px var(--c1);
         }
         .qx-mqcard-icon-halo { display: none; }
         .qx-mqcard-icon {
@@ -212,7 +225,7 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           display: flex; align-items: center; justify-content: center;
           color: #fff;
           background: var(--cgrad);
-          box-shadow: 0 6px 18px rgba(0,0,0,.5);
+          box-shadow: 0 0 16px -2px var(--c1), 0 6px 18px rgba(0,0,0,.5);
         }
         .qx-mqcard-body { display: flex; flex-direction: column; gap: 4px; }
         .qx-mqcard-label {
@@ -221,6 +234,7 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           font-size: 15px; font-weight: 800; line-height: 1.08;
           text-transform: uppercase; letter-spacing: -.005em;
           color: var(--card-label);
+          text-shadow: 0 0 14px color-mix(in srgb, var(--c1) 45%, transparent);
         }
         .qx-mqcard-desc {
           display: block; font-size: 11.5px; line-height: 1.3; font-weight: 600;
@@ -234,10 +248,14 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           box-shadow: 0 2px 6px rgba(0,0,0,.3);
         }
 
-        /* HOVER — chunky lift */
+        /* HOVER — brighter neon */
         .qx-mqcard:hover, .qx-mqcard:focus-visible {
-          transform: translateZ(80px) translateY(-10px) scale(1.06);
-          box-shadow: 0 12px 0 0 rgba(0,0,0,.2), 0 28px 50px rgba(0,0,0,.4);
+          border-color: var(--c1);
+          box-shadow:
+            0 0 26px -2px var(--c1),
+            0 0 64px -12px var(--c1),
+            0 28px 50px rgba(0,0,0,0.5),
+            inset 0 1px 0 rgba(255,255,255,0.14);
           z-index: 6; outline: none;
         }
 
