@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 /* ============================================================
    QRix — Premium 3D floating card marquee rows
@@ -33,8 +33,47 @@ function firstHex(grad: string): string {
 }
 
 export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; heading?: string }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // Coverflow: each card scales / rotates / fades by its distance from the
+  // centre of its row, so the middle card pops forward while the side cards
+  // recede in 3D — while the row keeps auto-scrolling.
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const viewports = Array.from(wrap.querySelectorAll<HTMLElement>(".qx-mq-viewport"));
+    const cardsByVp = viewports.map((vp) => Array.from(vp.querySelectorAll<HTMLElement>(".qx-mqcard")));
+    let raf = 0;
+
+    const loop = () => {
+      for (let v = 0; v < viewports.length; v++) {
+        const r = viewports[v].getBoundingClientRect();
+        const cx = r.left + r.width / 2;
+        const half = r.width / 2 || 1;
+        for (const card of cardsByVp[v]) {
+          const cr = card.getBoundingClientRect();
+          if (cr.right < r.left - 80 || cr.left > r.right + 80) continue; // offscreen
+          let dx = (cr.left + cr.width / 2 - cx) / half;
+          dx = Math.max(-1, Math.min(1, dx));
+          const abs = Math.abs(dx);
+          const scale = 1.06 - abs * 0.36;
+          const ry = dx * -34;
+          const tz = -abs * 150;
+          card.style.transform = `translateZ(${tz.toFixed(1)}px) rotateY(${ry.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
+          card.style.opacity = (1 - abs * 0.5).toFixed(2);
+          card.style.zIndex = String(Math.round((1 - abs) * 100));
+        }
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+  }, [rows]);
+
   return (
-    <div className="qx-mq-wrap">
+    <div className="qx-mq-wrap" ref={wrapRef}>
       {heading && (
         <h2 className="font-display text-2xl lg:text-3xl font-extrabold mb-8 text-center" style={{ color: "var(--text)" }}>
           {heading}
@@ -107,9 +146,11 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
 
         .qx-mq-viewport {
           overflow: hidden;
-          padding: 30px 0;
-          -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
-                  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+          padding: 38px 0;
+          perspective: 1100px;
+          perspective-origin: center center;
+          -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+                  mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
         }
         .qx-mq-track {
           display: flex;
@@ -135,7 +176,8 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           text-decoration: none;
           transform-style: preserve-3d;
           transform: translateZ(0) scale(1);
-          transition: transform .4s cubic-bezier(.22,.9,.3,1.1), box-shadow .4s ease;
+          transition: box-shadow .3s ease;
+          will-change: transform, opacity;
           background: var(--c1);
           border: 2px solid rgba(0,0,0,0.18);
           box-shadow: 0 6px 0 0 rgba(0,0,0,.2), 0 14px 28px rgba(0,0,0,.28);
