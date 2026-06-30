@@ -106,6 +106,15 @@ export default function TopNav() {
   const [hovered, setHovered] = useState<string | null>(null);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // sliding glass pill behind the nav items
+  const itemRefs = useRef<Record<number, HTMLDivElement | null>>({});
+  const [pill, setPill] = useState<{ x: number; y: number; w: number; h: number; show: boolean }>({ x: 0, y: 0, w: 0, h: 0, show: false });
+  const moveTo = (idx: number) => {
+    const el = itemRefs.current[idx];
+    if (!el) return;
+    setPill({ x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight, show: true });
+  };
+
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     const isDark = saved === "dark";
@@ -163,6 +172,15 @@ export default function TopNav() {
     { href: "/dashboard",  label: t.dashboard, dropdown: "/dashboard" },
   ];
 
+  const activeIndex = links.findIndex((l) => (l.href === "/" ? pathname === "/" : pathname.startsWith(l.href)));
+  const moveToActive = () => { if (activeIndex >= 0) moveTo(activeIndex); else setPill((p) => ({ ...p, show: false })); };
+  useEffect(() => {
+    const t = setTimeout(moveToActive, 60);
+    window.addEventListener("resize", moveToActive);
+    return () => { clearTimeout(t); window.removeEventListener("resize", moveToActive); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname, lang]);
+
   return (
     <header className="qx-topnav sticky top-0 z-50 px-5 lg:px-10">
       <div className="max-w-[1400px] mx-auto h-[68px] flex items-center gap-6">
@@ -173,23 +191,21 @@ export default function TopNav() {
         </Link>
 
         {/* Nav links */}
-        <nav className="hidden md:flex items-center gap-0.5 mx-auto">
-          {links.map((l) => {
+        <nav className="hidden md:flex items-center gap-0.5 mx-auto relative" onMouseLeave={moveToActive}>
+          {/* sliding glass pill */}
+          <span className="qx-nav-glasspill" style={{ transform: `translateX(${pill.x}px)`, top: pill.y, width: pill.w, height: pill.h, opacity: pill.show ? 1 : 0 }} />
+          {links.map((l, idx) => {
             const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
             const hasDropdown = !!l.dropdown;
             return (
-              <div key={l.href} className="relative"
-                onMouseEnter={() => l.dropdown && onEnter(l.dropdown)}
+              <div key={l.href} ref={(el) => { itemRefs.current[idx] = el; }} className="qx-nav-item"
+                onMouseEnter={() => { moveTo(idx); l.dropdown && onEnter(l.dropdown); }}
                 onMouseLeave={onLeave}>
                 <Link href={l.href}
-                  className={`relative flex items-center gap-1 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-all border ${active ? "qx-nav-active" : "border-transparent hover:border-[var(--border)] hover:bg-[var(--surface-hover)]"}`}
-                  style={{ color: active ? "var(--primary)" : "var(--text-muted)" }}>
+                  className={`relative flex items-center gap-1 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors ${active ? "qx-nav-active" : ""}`}
+                  style={{ color: active ? "#fff" : "var(--text-muted)" }}>
                   {l.label}
                   {hasDropdown && <FiChevronDown size={11} style={{ opacity: 0.6, transform: hovered === l.dropdown ? "rotate(180deg)" : "none", transition: "transform .2s" }}/>}
-                  {active && (
-                    <span className="absolute -bottom-[10px] left-1/2 -translate-x-1/2 w-6 h-[3px] rounded-full"
-                      style={{ background: "#fff", boxShadow: "0 0 8px rgba(255,255,255,0.6)" }}/>
-                  )}
                 </Link>
                 {hasDropdown && hovered === l.dropdown && (
                   <div onMouseEnter={() => l.dropdown && onEnter(l.dropdown)} onMouseLeave={onLeave}>

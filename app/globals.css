@@ -478,10 +478,28 @@ html.light textarea, html.light select {
 }
 
 .qx-nav-active {
-  background: rgba(255,255,255,0.22) !important;
   color: #fff !important;
-  border: 1px solid rgba(255,255,255,0.4) !important;
 }
+
+/* Sliding glass pill that follows the hovered / active nav item (video 2) */
+.qx-nav-glasspill {
+  position: absolute;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.20);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.45), inset 0 -1px 0 rgba(0,0,0,0.06);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: transform .38s cubic-bezier(.34,1.25,.45,1), width .38s cubic-bezier(.34,1.25,.45,1), height .25s, opacity .25s;
+}
+.qx-nav-glasspill::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(120deg, rgba(255,255,255,0.5), transparent 45%);
+  opacity: .6;
+}
+.qx-nav-item { position: relative; z-index: 1; }
 
 /* category pill row under the nav */
 .qx-navpill {
