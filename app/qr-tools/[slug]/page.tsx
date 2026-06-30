@@ -1,31 +1,45 @@
-"use client";
-
-import { use } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import ToolPageShell from "@/components/ToolPageShell";
-import QRGenerator from "@/components/QRGenerator";
-import { getQrTool } from "@/lib/qr-tools-meta";
-import { QR_TYPES } from "@/lib/qr-types";
+import QRToolClient from "./QRToolClient";
+import { getQrTool, QR_TOOLS } from "@/lib/qr-tools-meta";
+import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd } from "@/lib/seo";
 
-export default function QRToolPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
+export function generateStaticParams() {
+  return QR_TOOLS.map((t) => ({ slug: t.slug }));
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
   const meta = getQrTool(slug);
-  const type = meta ? QR_TYPES[meta.typeId] : undefined;
+  if (!meta) return {};
+  return pageMeta({
+    title: `${meta.title} — Free Online Generator`,
+    description: meta.info || meta.desc,
+    path: `/qr-tools/${slug}`,
+    keywords: [meta.title, `${meta.title} generator`, "free QR code", "QR code with logo"],
+  });
+}
 
-  if (!meta || !type) return notFound();
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const meta = getQrTool(slug);
+  if (!meta) notFound();
 
   return (
-    <ToolPageShell
-      category="QR Tools"
-      categoryHref="/qr-tools"
-      title={meta.title}
-      emoji={meta.emoji}
-      grad={meta.grad}
-      intro={meta.desc}
-      about={meta.about}
-      steps={meta.steps}
-    >
-      <QRGenerator type={type} />
-    </ToolPageShell>
+    <>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={jsonLd([
+          softwareAppLd(meta.title, meta.about, `/qr-tools/${slug}`),
+          breadcrumbLd([
+            { name: "Home", path: "/" },
+            { name: "QR Tools", path: "/qr-tools" },
+            { name: meta.title, path: `/qr-tools/${slug}` },
+          ]),
+        ])}
+      />
+      <QRToolClient slug={slug} />
+    </>
   );
 }

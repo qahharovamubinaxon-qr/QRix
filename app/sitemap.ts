@@ -1,0 +1,29 @@
+import type { MetadataRoute } from "next";
+import { SITE_URL } from "@/lib/seo";
+import { QR_TOOLS } from "@/lib/qr-tools-meta";
+
+const PDF_TOOLS = [
+  "merge", "split", "compress", "pdf-to-word", "word-to-pdf", "pdf-to-jpg", "jpg-to-pdf",
+  "pdf-to-png", "pdf-to-text", "ocr", "crop", "sign", "rotate", "reorder", "page-numbers",
+  "watermark", "extract-pages", "delete-pages", "protect", "unlock",
+];
+const IMAGE_TOOLS = ["remove-bg", "image-to-text", "compress", "resize", "convert", "upscale"];
+const LEGAL = ["about", "privacy", "terms", "contact"];
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const now = new Date();
+  const entry = (path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly") =>
+    ({ url: `${SITE_URL}${path}`, lastModified: now, changeFrequency, priority });
+
+  return [
+    entry("/", 1.0, "daily"),
+    entry("/qr-tools", 0.9),
+    entry("/pdf-tools", 0.9),
+    entry("/image-tools", 0.9),
+    entry("/bulk-qr", 0.7),
+    ...QR_TOOLS.map((t) => entry(`/qr-tools/${t.slug}`, 0.8)),
+    ...PDF_TOOLS.map((s) => entry(`/pdf-tools/${s}`, 0.8)),
+    ...IMAGE_TOOLS.map((s) => entry(`/image-tools/${s}`, 0.8)),
+    ...LEGAL.map((s) => entry(`/${s}`, 0.4, "yearly")),
+  ];
+}
