@@ -620,7 +620,7 @@ export default function HomePage() {
                   style={{ background:`${s.color}15`, color:s.color, boxShadow:`0 0 20px ${s.color}30` }}>
                   {s.icon}
                 </span>
-                <div className="qx-counter-big" style={{ textShadow:`0 0 30px ${s.color}40` }}>
+                <div className="qx-counter-big" style={{ color:s.color, textShadow:`0 0 30px ${s.color}55` }}>
                   <CountUp end={s.end} suffix={s.suffix} />
                 </div>
                 <div className="text-[11px] mt-1 font-medium" style={{ color:"var(--text-muted)" }}>{s.label}</div>
