@@ -771,13 +771,11 @@ export default function HomePage() {
           <div className="text-[12px]" style={{ color: "var(--text-faint)" }}>
             © 2026 <span style={{ color: "#F58F20" }}>QRix</span>. {t.rights}
           </div>
-          <div className="flex items-center gap-4 text-[12px]" style={{ color: "var(--text-faint)" }}>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-green-400 inline-block" style={{ boxShadow: "0 0 6px #34d399" }} />
-              All systems operational
-            </span>
-            <span>·</span>
-            <span>v2.0</span>
+          <div className="flex items-center gap-3.5 text-[12px]" style={{ color: "var(--text-faint)" }}>
+            <Link href="/about" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>About</Link>
+            <Link href="/privacy" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>Privacy</Link>
+            <Link href="/terms" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>Terms</Link>
+            <Link href="/contact" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>Contact</Link>
           </div>
         </div>
       </footer>
