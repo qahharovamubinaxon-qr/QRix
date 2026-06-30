@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import ReviewsSection from "@/components/ReviewsSection";
+import { trackTool } from "@/lib/track";
 import ToolCards3D from "@/components/ToolCards3D";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import {
@@ -252,6 +253,7 @@ export default function HomePage() {
   /* Generate — PIN бўлса реал динамик ссилка яратади */
   const generate = async () => {
     setProtectedUrl("");
+    trackTool("qr-generate", { type: tab });
     const raw = buildValue();
 
     if (pinOn && pin.length >= 4 && tab === "url") {

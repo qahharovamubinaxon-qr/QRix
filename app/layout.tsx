@@ -4,6 +4,8 @@ import TopNav from "@/components/TopNav";
 import CursorGlow from "@/components/CursorGlow";
 import DotDistortionBackground from "@/components/DotDistortionBackground";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, jsonLd } from "@/lib/seo";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -84,6 +86,8 @@ export default function RootLayout({
         <CursorGlow />
         <TopNav />
         {children}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
