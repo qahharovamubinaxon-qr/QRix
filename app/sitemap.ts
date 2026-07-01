@@ -22,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/image-tools", 0.9),
     entry("/bulk-qr", 0.7),
     entry("/poster", 0.8),
+    entry("/link-in-bio", 0.8),
     ...QR_TOOLS.map((t) => entry(`/qr-tools/${t.slug}`, 0.8)),
     ...PDF_TOOLS.map((s) => entry(`/pdf-tools/${s}`, 0.8)),
     ...IMAGE_TOOLS.map((s) => entry(`/image-tools/${s}`, 0.8)),
