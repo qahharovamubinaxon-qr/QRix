@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 import {
-  FiMoon, FiSun, FiGlobe, FiChevronDown, FiLogOut, FiSend,
+  FiMoon, FiSun, FiGlobe, FiChevronDown, FiLogOut, FiSend, FiMenu, FiX,
   FiLink, FiWifi, FiUser, FiMessageCircle, FiType, FiRefreshCw,
   FiLayers, FiScissors, FiMinimize2, FiLock, FiDroplet,
   FiZap, FiBarChart2, FiCamera, FiImage, FiMaximize2,
@@ -106,6 +106,7 @@ export default function TopNav() {
   const [lang, setLang] = useState<keyof typeof NAV>("en");
   const [langOpen, setLangOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // sliding glass pill behind the nav items
@@ -263,12 +264,42 @@ export default function TopNav() {
             </div>
           ) : (
             <>
-              <Link href="/login" className="qx-btn-ghost !py-2 !px-4 text-[13px] font-semibold">{t.signin}</Link>
+              <Link href="/login" className="qx-btn-ghost !py-2 !px-4 text-[13px] font-semibold hidden sm:inline-flex">{t.signin}</Link>
               <Link href="/register" className="qx-btn !py-2 !px-4 text-[13px] font-bold hidden sm:inline-flex">{t.signup}</Link>
             </>
           )}
+
+          {/* Hamburger — mobile only */}
+          <button onClick={() => setMobileOpen((v) => !v)} className="qx-btn-ghost !p-2.5 md:hidden" aria-label="Menu">
+            {mobileOpen ? <FiX size={18} /> : <FiMenu size={18} />}
+          </button>
         </div>
       </div>
+
+      {/* ── Mobile menu ── */}
+      {mobileOpen && (
+        <div className="md:hidden pb-4 pt-1 max-w-[1400px] mx-auto">
+          <nav className="flex flex-col gap-1">
+            {links.map((l) => {
+              const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
+              return (
+                <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl text-[15px] font-semibold"
+                  style={{ background: active ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.18)" }}>
+                  {l.label}
+                  <FiChevronDown size={14} style={{ transform: "rotate(-90deg)", opacity: .7 }} />
+                </Link>
+              );
+            })}
+            {!user && (
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold" style={{ background: "rgba(255,255,255,0.14)", color: "#fff", border: "1px solid rgba(255,255,255,0.28)" }}>{t.signin}</Link>
+                <Link href="/register" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold" style={{ background: "#161208", color: "#fff" }}>{t.signup}</Link>
+              </div>
+            )}
+          </nav>
+        </div>
+      )}
     </header>
   );
 }
