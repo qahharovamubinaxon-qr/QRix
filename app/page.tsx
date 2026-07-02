@@ -426,7 +426,7 @@ export default function HomePage() {
         </div>
 
         {/* ── BOTTOM: 3 equal cards ── */}
-        <div id="generator" className="grid lg:grid-cols-3 gap-5 items-stretch relative z-10">
+        <div id="generator" className="grid lg:grid-cols-3 gap-5 items-start relative z-10">
 
           {/* LEFT — QR Type selector (Fireship green) */}
           <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#22b14c" } as React.CSSProperties}>
@@ -438,7 +438,7 @@ export default function HomePage() {
                 {lang==="uz"?"Форматни танланг" : lang==="ru"?"Выберите формат" : "Pick your format"}
               </div>
             </div>
-            <div className="qx-fcard-panel flex-1 overflow-auto p-1.5">
+            <div className="qx-fcard-panel overflow-y-auto p-1.5" style={{ height: 420 }}>
               {[...tabs, ...moreTabs].map((tb) => (
                 <button key={tb.id} onClick={()=>{ setTab(tb.id); setMoreOpen(false); }}
                   className="qx-typerow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-left"
