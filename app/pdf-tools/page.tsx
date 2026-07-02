@@ -46,6 +46,7 @@ const TOOLS: Tool[] = [
   { href: "/pdf-tools/pdf-to-png", title: "PDF to PNG", desc: "Convert pages to high-res PNG images.", icon: <FiImage size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", popularity: 68 },
   { href: "/pdf-tools/crop", title: "Crop PDF", desc: "Trim page margins to focus on content.", icon: <FiCrop size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)", popularity: 50 },
   { href: "/pdf-tools/sign", title: "Sign PDF", desc: "Draw or upload a signature and place it.", icon: <FiEdit3 size={20} />, grad: "linear-gradient(135deg,#2563eb,#60a5fa)", popularity: 82 },
+  { href: "/pdf-tools/redact", title: "Redact PDF", desc: "Permanently black out sensitive content.", icon: <FiShield size={20} />, grad: "linear-gradient(135deg,#dc2626,#f87171)", popularity: 86 },
 ];
 
 const SIDE_LINKS = [

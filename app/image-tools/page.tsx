@@ -20,6 +20,7 @@ const TOOLS: Tool[] = [
   { href: "/image-tools/resize", title: "Resize Image", desc: "Change image dimensions to exact pixels.", info: "Set a precise width and height with optional aspect-ratio lock. Perfect for social media, thumbnails and avatars.", icon: <FiMaximize2 size={20} />, grad: "linear-gradient(135deg,#2563eb,#60a5fa)", popularity: 80 },
   { href: "/image-tools/convert", title: "Convert Image", desc: "Convert between JPG, PNG and WebP.", info: "Switch formats in one click. JPG for photos, PNG for transparency, WebP for the smallest web-ready files.", icon: <FiRefreshCw size={20} />, grad: "linear-gradient(135deg,#db2777,#f472b6)", popularity: 75 },
   { href: "/image-tools/upscale", title: "Image Enhancer", desc: "Upscale and sharpen blurry images.", info: "Make small or blurry photos larger and clearer with 2×–4× AI-style upscaling and smart sharpening. Great for thumbnails and old photos.", icon: <FiZap size={20} />, grad: "linear-gradient(135deg,#f59e0b,#fbbf24)", badge: "New", popularity: 85 },
+  { href: "/image-tools/exif-remover", title: "EXIF Remover", desc: "Strip GPS & metadata from photos.", info: "Photos secretly carry GPS location, device model and timestamps. Remove all hidden metadata before sharing — private, in your browser.", icon: <FiShield size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)", badge: "New", popularity: 88 },
 ];
 
 const SIDE_LINKS = [

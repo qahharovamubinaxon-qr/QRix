@@ -27,6 +27,7 @@ export default function QRToolsPage() {
     { href: "/link-in-bio", emoji: "🔗", title: "Link-in-Bio Page", desc: "All your links on one page — free, no signup.", grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", badge: "New" },
     { href: "/poster", emoji: "🖼️", title: "QR Poster Maker", desc: "Printable ‘Scan me’ flyers for menus, reviews & more.", grad: "linear-gradient(135deg,#F58F20,#e07a10)", badge: "New" },
     { href: "/bulk-qr", emoji: "📦", title: "Bulk QR Generator", desc: "Create many QR codes from a CSV and download a ZIP.", grad: "linear-gradient(135deg,#0891b2,#22d3ee)" },
+    { href: "/qr-tools/decode", emoji: "🔎", title: "QR Decoder", desc: "Read a QR code from any photo or screenshot.", grad: "linear-gradient(135deg,#0891b2,#22d3ee)", badge: "New" },
     { href: "/scanner", emoji: "📷", title: "QR Scanner", desc: "Scan any QR code with your camera.", grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
   ];
 

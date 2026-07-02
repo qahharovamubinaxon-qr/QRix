@@ -81,6 +81,8 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
       )}
 
       <div className="qx-mq-stage">
+        {/* 3D animated backdrop: receding neon grid + drifting orb */}
+        <div className="qx-mq-3dbg" aria-hidden="true" />
         {rows.map((row, ri) => {
           const dir = ri % 2 === 1 ? "right" : "left";
           const approxW = 178;
@@ -139,13 +141,44 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           --card-desc: rgba(30,30,45,.62);
         }
 
-        .qx-mq-stage { display: flex; flex-direction: column; gap: 20px; perspective: 2000px; }
+        .qx-mq-stage { display: flex; flex-direction: column; gap: 20px; perspective: 1400px; position: relative; }
         .qx-mq-row { width: 100%; }
         .qx-mq-rowtitle {
           font-weight: 800; font-size: 13px; letter-spacing: .08em;
           text-transform: uppercase; color: var(--text-muted);
           margin: 0 0 10px 4px; text-align: left;
+          display: flex; align-items: center; gap: 8px;
         }
+        .qx-mq-rowtitle::before {
+          content: ""; width: 22px; height: 3px; border-radius: 99px;
+          background: linear-gradient(90deg, #F58F20, #7c3aed);
+          box-shadow: 0 0 10px rgba(245,143,32,.6);
+        }
+
+        /* ===== 3D animated backdrop ===== */
+        .qx-mq-3dbg { position: absolute; inset: -50px -6%; z-index: -1; overflow: hidden; pointer-events: none; }
+        .qx-mq-3dbg::before {
+          content: ""; position: absolute; left: -20%; right: -20%; top: 40%; bottom: -35%;
+          background-image:
+            linear-gradient(rgba(245,143,32,0.14) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(124,58,237,0.14) 1px, transparent 1px);
+          background-size: 52px 52px;
+          transform: perspective(650px) rotateX(62deg);
+          transform-origin: top center;
+          animation: qxGridMove 4s linear infinite;
+          -webkit-mask-image: linear-gradient(to bottom, transparent, black 30%, black 75%, transparent);
+                  mask-image: linear-gradient(to bottom, transparent, black 30%, black 75%, transparent);
+        }
+        .qx-mq-3dbg::after {
+          content: ""; position: absolute; width: 460px; height: 460px; left: 4%; top: -10%;
+          background: radial-gradient(circle, rgba(124,58,237,0.20), rgba(34,211,238,0.10) 45%, transparent 68%);
+          filter: blur(12px);
+          animation: qxOrbDrift 13s ease-in-out infinite alternate;
+        }
+        @keyframes qxGridMove { from { background-position: 0 0, 0 0; } to { background-position: 0 52px, 0 0; } }
+        @keyframes qxOrbDrift { from { transform: translate(0,0) scale(1); } to { transform: translate(55vw, 40px) scale(1.15); } }
+        html.light .qx-mq-3dbg::before { opacity: .55; }
+        html.light .qx-mq-3dbg::after { opacity: .5; }
 
         .qx-mq-viewport {
           overflow: hidden;
@@ -179,7 +212,7 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           text-decoration: none;
           transform-style: preserve-3d;
           transform: translateZ(0) scale(1);
-          transition: box-shadow .3s ease, border-color .3s ease;
+          transition: transform .4s cubic-bezier(.22,.9,.3,1.1), box-shadow .3s ease, border-color .3s ease;
           will-change: transform, opacity;
           background: linear-gradient(160deg, rgba(255,255,255,0.10), rgba(18,18,26,0.55));
           backdrop-filter: blur(14px) saturate(150%);
@@ -248,8 +281,9 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           box-shadow: 0 2px 6px rgba(0,0,0,.3);
         }
 
-        /* HOVER — brighter neon */
+        /* HOVER — 3D pop toward the viewer + brighter neon */
         .qx-mqcard:hover, .qx-mqcard:focus-visible {
+          transform: translateZ(70px) translateY(-10px) scale(1.05);
           border-color: var(--c1);
           box-shadow:
             0 0 26px -2px var(--c1),
