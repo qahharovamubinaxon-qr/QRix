@@ -23,6 +23,13 @@ export default function QRToolsPage() {
     .filter((t) => t.title.toLowerCase().includes(query.toLowerCase()) || t.desc.toLowerCase().includes(query.toLowerCase()))
     .sort((a, b) => (sort === "popular" ? b.popularity - a.popularity : a.title.localeCompare(b.title)));
 
+  const FEATURED = [
+    { href: "/link-in-bio", emoji: "🔗", title: "Link-in-Bio Page", desc: "All your links on one page — free, no signup.", grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", badge: "New" },
+    { href: "/poster", emoji: "🖼️", title: "QR Poster Maker", desc: "Printable ‘Scan me’ flyers for menus, reviews & more.", grad: "linear-gradient(135deg,#F58F20,#e07a10)", badge: "New" },
+    { href: "/bulk-qr", emoji: "📦", title: "Bulk QR Generator", desc: "Create many QR codes from a CSV and download a ZIP.", grad: "linear-gradient(135deg,#0891b2,#22d3ee)" },
+    { href: "/scanner", emoji: "📷", title: "QR Scanner", desc: "Scan any QR code with your camera.", grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
+  ];
+
   return (
     <div className="flex min-h-screen">
       {/* Чап мини-сайдбар */}
@@ -80,6 +87,24 @@ export default function QRToolsPage() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Featured tools */}
+        <h2 className="font-display text-2xl font-bold mb-4" style={{ color: "var(--text)" }}>Featured</h2>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-9">
+          {FEATURED.map((tool, i) => (
+            <Link key={tool.href} href={tool.href} className={`group qx-card qx-card-lift p-4 relative qx-rise qx-rise-${(i % 4) + 1}`}>
+              {tool.badge && (
+                <span className="absolute top-2.5 right-2.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>{tool.badge}</span>
+              )}
+              <span className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-3" style={{ background: tool.grad, boxShadow: "0 6px 18px rgba(0,0,0,.25)" }}>{tool.emoji}</span>
+              <h3 className="text-sm font-bold leading-tight" style={{ color: "var(--text)" }}>{tool.title}</h3>
+              <p className="text-[11px] mt-1 leading-snug" style={{ color: "var(--text-muted)" }}>{tool.desc}</p>
+              <span className="flex items-center gap-1 text-[11px] font-bold mt-3 transition-transform group-hover:translate-x-1" style={{ color: "var(--primary-bright)" }}>
+                Open <FiArrowRight size={11} />
+              </span>
+            </Link>
+          ))}
         </div>
 
         {/* Search + sort */}

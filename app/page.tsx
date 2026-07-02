@@ -5,6 +5,7 @@ import Link from "next/link";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import ReviewsSection from "@/components/ReviewsSection";
 import { trackTool } from "@/lib/track";
+import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import ToolCards3D from "@/components/ToolCards3D";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import {
@@ -453,6 +454,21 @@ export default function HomePage() {
                   {tb.label}
                   {tab===tb.id && <FiArrowRight size={12} className="ml-auto" style={{ color:"#22b14c" }}/>}
                 </button>
+              ))}
+
+              {/* All other QR formats → dedicated tool pages */}
+              <div className="px-3 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider" style={{ color:"var(--text-faint)" }}>
+                {lang==="uz"?"Барча форматлар" : lang==="ru"?"Все форматы" : "All formats"}
+              </div>
+              {QR_TOOLS.filter(m => !["url","text","wifi","vcard","email","sms","whatsapp","telegram"].includes(m.slug)).map((m) => (
+                <Link key={m.slug} href={`/qr-tools/${m.slug}`}
+                  className="qx-typerow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-left"
+                  style={{ color:"var(--text-muted)", fontWeight:500 }}>
+                  <span className="qx-typerow-ico w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-base"
+                    style={{ background:"var(--surface-2)" }}>{m.emoji}</span>
+                  {m.title.replace(/ QR Code$/,"")}
+                  <FiArrowRight size={12} className="ml-auto" style={{ color:"var(--text-faint)" }}/>
+                </Link>
               ))}
             </div>
           </div>
