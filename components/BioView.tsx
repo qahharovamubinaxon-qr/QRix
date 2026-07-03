@@ -34,7 +34,14 @@ export default function BioView({ page }: { page: BioPage }) {
         })}
       </div>
 
-      <Link href="/" className="mt-10 text-[12px]" style={{ color: "var(--text-faint)" }}>⚡ Made with QRix</Link>
+      <Link
+        href="/?utm_source=bio&utm_medium=badge&utm_campaign=powered_by"
+        className="mt-10 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-bold transition-transform hover:-translate-y-0.5"
+        style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)" }}
+      >
+        <span aria-hidden style={{ display: "inline-flex", width: 14, height: 14, borderRadius: 4, background: "linear-gradient(135deg,#F58F20,#cc7010)" }} />
+        Made with <span style={{ color: "var(--text)" }}>QRix</span>
+      </Link>
     </div>
   );
 }
