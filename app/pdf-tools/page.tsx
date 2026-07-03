@@ -203,8 +203,8 @@ export default function PdfToolsPage() {
                 const card = (
                   <div className={`qx-card qx-card-lift p-5 h-full relative ${tool.soon ? "opacity-60" : ""}`}>
                     {tool.soon && (
-                      <span className="absolute top-3 right-3 text-[9px] font-bold px-2 py-0.5 rounded-full"
-                        style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text-faint)" }}>
+                      <span className="text-[9px] font-bold px-2 py-0.5 rounded-full"
+                        style={{ position: "absolute", top: 12, right: 12, zIndex: 3, background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--text-faint)" }}>
                         SOON
                       </span>
                     )}
@@ -219,8 +219,8 @@ export default function PdfToolsPage() {
                       </div>
                     </div>
                     {!tool.soon && (
-                      <span className="absolute bottom-4 right-4 w-7 h-7 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5"
-                        style={{ background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--primary-bright)" }}>
+                      <span className="w-7 h-7 rounded-full flex items-center justify-center transition-transform group-hover:translate-x-0.5"
+                        style={{ position: "absolute", bottom: 16, right: 16, zIndex: 3, background: "var(--surface-hover)", border: "1px solid var(--border)", color: "var(--primary-bright)" }}>
                         <FiArrowRight size={13} />
                       </span>
                     )}

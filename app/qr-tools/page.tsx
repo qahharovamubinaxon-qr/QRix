@@ -96,7 +96,7 @@ export default function QRToolsPage() {
           {FEATURED.map((tool, i) => (
             <Link key={tool.href} href={tool.href} className={`group qx-card qx-card-lift p-4 relative qx-rise qx-rise-${(i % 4) + 1}`}>
               {tool.badge && (
-                <span className="absolute top-2.5 right-2.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>{tool.badge}</span>
+                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ position: "absolute", top: 10, right: 10, zIndex: 3, background: "var(--grad-primary)", boxShadow: "0 2px 8px rgba(0,0,0,.3)" }}>{tool.badge}</span>
               )}
               <span className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-3" style={{ background: tool.grad, boxShadow: "0 6px 18px rgba(0,0,0,.25)" }}>{tool.emoji}</span>
               <h3 className="text-sm font-bold leading-tight" style={{ color: "var(--text)" }}>{tool.title}</h3>
@@ -129,7 +129,7 @@ export default function QRToolsPage() {
           {filtered.map((tool, i) => (
             <Link key={tool.slug} href={`/qr-tools/${tool.slug}`} className={`group qx-card qx-card-lift p-4 relative qx-rise qx-rise-${(i % 4) + 1}`}>
               {tool.badge && (
-                <span className="absolute top-2.5 right-2.5 text-[8px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>{tool.badge}</span>
+                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ position: "absolute", top: 10, right: 10, zIndex: 3, background: "var(--grad-primary)", boxShadow: "0 2px 8px rgba(0,0,0,.3)" }}>{tool.badge}</span>
               )}
               <span className="w-11 h-11 rounded-xl flex items-center justify-center text-xl mb-3" style={{ background: tool.grad, boxShadow: "0 6px 18px rgba(0,0,0,.25)" }}>{tool.emoji}</span>
               <h3 className="text-sm font-bold leading-tight" style={{ color: "var(--text)" }}>{tool.title}</h3>

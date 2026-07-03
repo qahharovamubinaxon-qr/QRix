@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Logo from "@/components/Logo";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
@@ -188,9 +189,8 @@ export default function TopNav() {
     <header className="qx-topnav sticky top-0 z-50 px-5 lg:px-10">
       <div className="max-w-[1400px] mx-auto h-[68px] flex items-center gap-6">
         {/* Logo */}
-        <Link href="/" className="qx-logo-glow font-display flex items-center gap-0.5 shrink-0">
-          <span className="text-[25px] font-extrabold tracking-tight" style={{ color: "#fff" }}>QR</span>
-          <span className="text-[25px] font-extrabold tracking-tight" style={{ color: "#161208" }}>ix</span>
+        <Link href="/" className="shrink-0" aria-label="QRix home">
+          <Logo size={30} />
         </Link>
 
         {/* Nav links */}

@@ -107,7 +107,7 @@ export default function ImageToolsPage() {
         <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {sorted.map((tool, i) => (
             <Link key={tool.title} href={tool.href} className={`group qx-card qx-card-lift p-6 relative qx-rise qx-rise-${(i % 4) + 1}`}>
-              {tool.badge && (<span className="absolute top-4 right-4 text-[9px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>{tool.badge}</span>)}
+              {tool.badge && (<span className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white" style={{ position: "absolute", top: 12, right: 12, zIndex: 3, background: "var(--grad-primary)", boxShadow: "0 2px 8px rgba(0,0,0,.3)" }}>{tool.badge}</span>)}
               <span className="w-12 h-12 rounded-xl flex items-center justify-center text-white mb-4" style={{ background: tool.grad, boxShadow: "0 6px 18px rgba(0,0,0,.25)" }}>{tool.icon}</span>
               <h3 className="text-base font-bold mb-1.5" style={{ color: "var(--text)" }}>{tool.title}</h3>
               <p className="text-xs font-medium mb-3" style={{ color: "var(--text-muted)" }}>{tool.desc}</p>
