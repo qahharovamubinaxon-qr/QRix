@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FiChevronRight, FiInfo, FiCheckCircle } from "react-icons/fi";
 import GlobalFileDrop from "@/components/GlobalFileDrop";
+import AdSlot from "@/components/AdSlot";
 
 type Step = { title: string; desc: string };
 
@@ -57,6 +58,9 @@ export default function ToolPageShell({
 
       {/* Tool */}
       <div className="qx-rise qx-rise-1">{children}</div>
+
+      {/* In-content ad (renders only when AdSense is configured) */}
+      <AdSlot slot="0000000000" />
 
       {/* About + How-to */}
       <div className="grid lg:grid-cols-2 gap-6 mt-8">
