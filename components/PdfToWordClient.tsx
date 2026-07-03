@@ -214,7 +214,7 @@ async function renderPagePng(page: any): Promise<{ data: Uint8Array; w: number; 
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
   canvas.width = viewport.width; canvas.height = viewport.height;
-  await page.render({ canvasContext: ctx, viewport }).promise;
+  await page.render({ canvas, canvasContext: ctx, viewport }).promise;
   const blob = await new Promise<Blob | null>((res) => canvas.toBlob((b) => res(b), "image/png"));
   if (!blob) return null;
   return { data: new Uint8Array(await blob.arrayBuffer()), w: canvas.width, h: canvas.height };

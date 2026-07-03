@@ -34,7 +34,7 @@ export default function PdfToPngClient() {
         if (!ctx) continue;
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        await page.render({ canvasContext: ctx, viewport }).promise;
+        await page.render({ canvas, canvasContext: ctx, viewport }).promise;
         const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b as Blob), "image/png"));
         zip.file(`page-${i}.png`, blob);
         setProgress(Math.round((i / pdf.numPages) * 100));

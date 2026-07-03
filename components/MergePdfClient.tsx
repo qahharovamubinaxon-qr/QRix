@@ -24,7 +24,7 @@ export default function MergePdfClient() {
       const viewport = page.getViewport({ scale: 0.5 });
       const canvas = document.createElement("canvas");
       canvas.width = viewport.width; canvas.height = viewport.height;
-      await page.render({ canvasContext: canvas.getContext("2d")!, viewport }).promise;
+      await page.render({ canvas, canvasContext: canvas.getContext("2d")!, viewport }).promise;
       return canvas.toDataURL("image/jpeg", 0.7);
     } catch { return ""; }
   }

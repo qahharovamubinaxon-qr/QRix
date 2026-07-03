@@ -52,7 +52,7 @@ export default function SignPdfClient() {
       const vp = page.getViewport({ scale });
       canvas.width = vp.width; canvas.height = vp.height;
       if (cancelled) return;
-      task = page.render({ canvasContext: canvas.getContext("2d"), viewport: vp });
+      task = page.render({ canvas, canvasContext: canvas.getContext("2d"), viewport: vp });
       try { await task.promise; } catch { /* cancelled */ }
     })();
     return () => { cancelled = true; try { task && task.cancel(); } catch { /* */ } };

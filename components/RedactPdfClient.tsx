@@ -52,7 +52,7 @@ export default function RedactPdfClient() {
       const vp = page.getViewport({ scale });
       canvas.width = vp.width; canvas.height = vp.height;
       if (cancelled) return;
-      task = page.render({ canvasContext: canvas.getContext("2d"), viewport: vp });
+      task = page.render({ canvas, canvasContext: canvas.getContext("2d"), viewport: vp });
       try { await task.promise; } catch { /* cancelled */ }
     })();
     return () => { cancelled = true; try { task && task.cancel(); } catch { /* */ } };
@@ -117,7 +117,7 @@ export default function RedactPdfClient() {
         const canvas = document.createElement("canvas");
         canvas.width = vp.width; canvas.height = vp.height;
         const ctx = canvas.getContext("2d")!;
-        await page.render({ canvasContext: ctx, viewport: vp }).promise;
+        await page.render({ canvas, canvasContext: ctx, viewport: vp }).promise;
         // burn the black boxes into the pixels — content underneath is destroyed
         for (const r of rects[i] || []) {
           ctx.fillStyle = "#000000";

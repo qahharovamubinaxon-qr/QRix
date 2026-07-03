@@ -50,7 +50,7 @@ export async function POST(
       await mergedPdf.save();
 
     return new Response(
-      result,
+      new Blob([new Uint8Array(result)], { type: "application/pdf" }),
       {
         headers: {
           "Content-Type":

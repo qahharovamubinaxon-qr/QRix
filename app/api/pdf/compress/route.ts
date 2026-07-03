@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+// @ts-ignore - sharp ships types but they don't resolve via package "exports"
 import sharp from "sharp";
 import { PDFDocument } from "pdf-lib";
 
@@ -113,7 +114,7 @@ export async function POST(request: Request) {
       const compressedSize = outBytes.length;
       const savedPercent   = Math.max(0, Math.round(((originalSize - compressedSize) / originalSize) * 100));
 
-      return new Response(outBytes, {
+      return new Response(new Blob([new Uint8Array(outBytes)], { type: "application/pdf" }), {
         status: 200,
         headers: {
           "Content-Type":        "application/pdf",

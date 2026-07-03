@@ -18,6 +18,7 @@ export default function WordToPdfClient() {
     if (target.kind === "cancelled") return;
     setLoading(true);
     try {
+      // @ts-ignore - mammoth browser build has no bundled types
       const mammoth = (await import("mammoth/mammoth.browser")) as any;
       const result = await mammoth.convertToHtml({ arrayBuffer: await file.arrayBuffer() });
 
@@ -38,7 +39,7 @@ export default function WordToPdfClient() {
 
       let yOffset = 0; let first = true;
       while (yOffset < totalHeight) {
-        const canvas = await html2canvas(container, { scale: 2, useCORS: true, allowTaint: true, y: yOffset, height: Math.min(pageHeightPx, totalHeight - yOffset), windowHeight: totalHeight, scrollY: -yOffset, backgroundColor: "#ffffff" });
+        const canvas = await html2canvas(container, { scale: 2, useCORS: true, allowTaint: true, y: yOffset, height: Math.min(pageHeightPx, totalHeight - yOffset), windowHeight: totalHeight, scrollY: -yOffset, backgroundColor: "#ffffff" } as any);
         const imgData = canvas.toDataURL("image/jpeg", 0.95);
         const imgWidth = pageWidth - margin * 2;
         const imgHeight = (canvas.height / canvas.width) * imgWidth;
