@@ -35,6 +35,7 @@ const DROPDOWNS: Record<string, { href: string; label: string; desc: string; ico
     { href: "/link-in-bio",        label: "Link-in-Bio", desc: "All your links, one page", icon: <FiLink size={15}/>,      color: "#7c3aed" },
     { href: "/poster",             label: "QR Poster",   desc: "Printable 'Scan me' flyer", icon: <FiImage size={15}/>,    color: "#F58F20" },
     { href: "/bulk-qr",            label: "Bulk QR",     desc: "Many QR from CSV",     icon: <FiGrid size={15}/>,         color: "#7c3aed" },
+    { href: "/barcode",            label: "Barcode",     desc: "EAN, UPC, Code 128…",  icon: <FiBarChart2 size={15}/>,    color: "#0e7490" },
     { href: "/qr-tools",           label: "All QR Tools",desc: "25+ QR types",         icon: <FiGrid size={15}/>,         color: "#F58F20" },
   ],
   "/pdf-tools": [

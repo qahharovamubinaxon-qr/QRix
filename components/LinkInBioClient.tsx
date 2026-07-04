@@ -11,6 +11,23 @@ import { trackTool } from "@/lib/track";
 const ACCENTS = ["#F58F20", "#16a34a", "#7c3aed", "#2563eb", "#db2777", "#0891b2", "#0e0e0e"];
 const AVATARS = ["😀", "🚀", "🌟", "🎵", "🍕", "💼", "📸", "❤️"];
 
+/* Ready-made business templates — one click fills the whole page */
+type Template = { id: string; label: string; emoji: string; page: Omit<BioPage, "l"> & { l: LinkItem[] } };
+const TEMPLATES: Template[] = [
+  { id: "restaurant", label: "Restaurant / Café", emoji: "🍕", page: { t: "Bella Cucina", s: "Fresh pasta & wood-fired pizza — order or book below 👇", av: "🍕", c: "#e05252",
+    l: [{ label: "📖 View our menu", url: "" }, { label: "🛵 Order delivery", url: "" }, { label: "📅 Book a table", url: "" }, { label: "⭐ Leave a review", url: "" }, { label: "📍 Find us on the map", url: "" }] } },
+  { id: "shop", label: "Shop / Store", emoji: "🛍️", page: { t: "Nova Store", s: "New arrivals every week — shop online or visit us 🛍️", av: "🛍️", c: "#7c3aed",
+    l: [{ label: "🛒 Shop online", url: "" }, { label: "🔥 This week's deals", url: "" }, { label: "📸 Instagram", url: "" }, { label: "💬 WhatsApp us", url: "" }, { label: "📍 Store location", url: "" }] } },
+  { id: "salon", label: "Salon / Beauty", emoji: "💅", page: { t: "Glow Studio", s: "Hair · nails · lashes — book your slot in seconds ✨", av: "💅", c: "#db2777",
+    l: [{ label: "📅 Book an appointment", url: "" }, { label: "💰 Price list", url: "" }, { label: "📸 Our work (Instagram)", url: "" }, { label: "💬 Ask a question", url: "" }] } },
+  { id: "freelancer", label: "Freelancer", emoji: "💼", page: { t: "Alex Karimov", s: "Web developer & designer — let's build something great", av: "💼", c: "#2563eb",
+    l: [{ label: "🗂️ My portfolio", url: "" }, { label: "💼 LinkedIn", url: "" }, { label: "✉️ Hire me", url: "" }, { label: "📄 Download CV", url: "" }] } },
+  { id: "musician", label: "Musician / Creator", emoji: "🎵", page: { t: "DJ Nightwave", s: "New single out now — stream it everywhere 🎧", av: "🎵", c: "#0891b2",
+    l: [{ label: "🎧 Spotify", url: "" }, { label: "▶️ YouTube", url: "" }, { label: "🎬 TikTok", url: "" }, { label: "🎟️ Upcoming shows", url: "" }] } },
+  { id: "event", label: "Event / Wedding", emoji: "🎉", page: { t: "Aziza & Timur", s: "We're getting married! All the details below 💍", av: "🎉", c: "#F58F20",
+    l: [{ label: "📅 Save the date", url: "" }, { label: "📍 Venue & directions", url: "" }, { label: "✅ RSVP", url: "" }, { label: "🎁 Gift registry", url: "" }] } },
+];
+
 export default function LinkInBioClient() {
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
@@ -87,6 +104,30 @@ export default function LinkInBioClient() {
       <div className="grid lg:grid-cols-[1fr_380px] gap-8">
         {/* ── editor ── */}
         <div className="space-y-5">
+          {/* Business templates */}
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
+              Start from a template
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {TEMPLATES.map((tp) => (
+                <button key={tp.id}
+                  onClick={() => {
+                    setTitle(tp.page.t); setSubtitle(tp.page.s || ""); setAvatar(tp.page.av || "🚀");
+                    setAccent(tp.page.c || "#F58F20"); setLinks(tp.page.l.map((l) => ({ ...l })));
+                    trackTool("link-in-bio", { action: "template", id: tp.id });
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12.5px] font-bold transition-all hover:-translate-y-0.5"
+                  style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}>
+                  <span>{tp.emoji}</span> {tp.label}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] mt-2" style={{ color: "var(--text-faint)" }}>
+              One click fills the page — then just paste your own links.
+            </p>
+          </div>
+
           <div className="grid sm:grid-cols-2 gap-4">
             <label className="block">
               <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Name / title</span>

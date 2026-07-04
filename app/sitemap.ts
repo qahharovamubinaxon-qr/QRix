@@ -25,6 +25,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/poster", 0.8),
     entry("/link-in-bio", 0.8),
     entry("/qr-tools/decode", 0.8),
+    entry("/barcode", 0.8),
     entry("/pricing", 0.7, "monthly"),
     entry("/blog", 0.7, "weekly"),
     ...POSTS.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly")),
