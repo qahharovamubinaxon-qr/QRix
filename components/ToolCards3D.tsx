@@ -152,8 +152,8 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
         }
         .qx-mq-rowtitle::before {
           content: ""; width: 22px; height: 3px; border-radius: 99px;
-          background: linear-gradient(90deg, #F58F20, #7c3aed);
-          box-shadow: 0 0 10px rgba(245,143,32,.6);
+          background: linear-gradient(90deg, #e1ff04, #bba9ff);
+          box-shadow: 0 0 10px rgba(225,255,4,.6);
         }
 
         /* ===== 3D animated backdrop ===== */
@@ -161,8 +161,8 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
         .qx-mq-3dbg::before {
           content: ""; position: absolute; left: -20%; right: -20%; top: 40%; bottom: -35%;
           background-image:
-            linear-gradient(rgba(245,143,32,0.09) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(124,58,237,0.09) 1px, transparent 1px);
+            linear-gradient(rgba(225,255,4,0.09) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(187,169,255,0.09) 1px, transparent 1px);
           background-size: 52px 52px;
           transform: perspective(650px) rotateX(62deg);
           transform-origin: top center;
@@ -172,7 +172,7 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
         }
         .qx-mq-3dbg::after {
           content: ""; position: absolute; width: 460px; height: 460px; left: 4%; top: -10%;
-          background: radial-gradient(circle, rgba(124,58,237,0.20), rgba(34,211,238,0.10) 45%, transparent 68%);
+          background: radial-gradient(circle, rgba(187,169,255,0.20), rgba(34,211,238,0.10) 45%, transparent 68%);
           filter: blur(12px);
           animation: qxOrbDrift 13s ease-in-out infinite alternate;
         }

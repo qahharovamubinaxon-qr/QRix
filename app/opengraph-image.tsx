@@ -31,7 +31,7 @@ export default function OpengraphImage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: "linear-gradient(135deg,#F58F20,#cc7010)",
+              background: "linear-gradient(135deg,#1c1c1c,#000)",
               borderRadius: 24,
               color: "#fff",
               fontSize: 60,
@@ -45,7 +45,7 @@ export default function OpengraphImage() {
         <div style={{ color: "#fff", fontSize: 72, fontWeight: 800, lineHeight: 1.1, maxWidth: 900 }}>
           {SITE_TAGLINE}
         </div>
-        <div style={{ color: "#F58F20", fontSize: 34, fontWeight: 600, marginTop: 28 }}>
+        <div style={{ color: "#e1ff04", fontSize: 34, fontWeight: 600, marginTop: 28 }}>
           55+ tools · 100% free · private in your browser
         </div>
       </div>

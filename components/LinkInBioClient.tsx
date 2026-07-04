@@ -94,8 +94,30 @@ export default function LinkInBioClient() {
     return () => { cancelled = true; };
   }, [shareUrl, accent]);
 
-  /** Upload a photo → center-crop to 96×96 JPEG data-URL (small enough to live in the link). */
+  /** Animated GIFs must be embedded as-is (canvas would freeze them) — cap the size so the link stays shareable. */
+  const GIF_LIMIT = 400 * 1024;
+  function readGifAsDataUrl(file: File): Promise<string> {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result as string);
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  }
+  function gifTooBig(file: File): boolean {
+    if (file.size <= GIF_LIMIT) return false;
+    alert(`This GIF is ${(file.size / 1024).toFixed(0)} KB — too large to live inside the link (max ${GIF_LIMIT / 1024} KB). Tip: paste a GIF URL (e.g. from Giphy/Tenor) instead — the animation plays and the link stays short.`);
+    return true;
+  }
+
+  /** Upload a photo → center-crop to 96×96 JPEG data-URL. GIFs are kept as-is so they stay animated. */
   async function uploadAvatar(file: File) {
+    if (file.type === "image/gif") {
+      if (gifTooBig(file)) return;
+      setAvatarUrl(await readGifAsDataUrl(file));
+      trackTool("link-in-bio", { action: "avatar-upload-gif" });
+      return;
+    }
     const img = new Image();
     const url = URL.createObjectURL(file);
     try {
@@ -114,8 +136,14 @@ export default function LinkInBioClient() {
     }
   }
 
-  /** Upload a background photo → downscale to ≤640px JPEG data-URL (lives in the link). */
+  /** Upload a background photo → downscale to ≤640px JPEG data-URL. GIFs are kept as-is (animated). */
   async function uploadBackground(file: File) {
+    if (file.type === "image/gif") {
+      if (gifTooBig(file)) return;
+      setBgImage(await readGifAsDataUrl(file));
+      trackTool("link-in-bio", { action: "bg-upload-gif" });
+      return;
+    }
     const img = new Image();
     const url = URL.createObjectURL(file);
     try {

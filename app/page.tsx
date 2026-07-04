@@ -131,7 +131,7 @@ const T: Record<Lang, Record<string, string>> = {
   },
 };
 
-const COLOR_PRESETS = ["#000000", "#7c3aed", "#2563eb", "#0891b2", "#16a34a", "#dc2626", "#db2777", "#d97706"];
+const COLOR_PRESETS = ["#000000", "#bba9ff", "#2563eb", "#0891b2", "#16a34a", "#dc2626", "#db2777", "#d97706"];
 const BG_PRESETS = ["#ffffff", "#f4f4f8", "#fef9c3", "#e0f2fe", "#f3e8ff", "#dcfce7", "#ffe4e6", "#0a0a14"];
 
 /* Жонли санагич */
@@ -342,7 +342,7 @@ export default function HomePage() {
     { href: "/qr-tools/vcard", label: "vCard / NFC", desc: lang === "uz" ? "Рақамли визитка" : lang === "ru" ? "Визитка" : "Business card", icon: <FiUser size={20} />, grad: "linear-gradient(135deg,#d97706,#fbbf24)" },
     { href: "/qr-tools/whatsapp", label: "WhatsApp QR", desc: lang === "uz" ? "Чатга тўғридан" : lang === "ru" ? "Прямо в чат" : "Straight to chat", icon: <FiMessageCircle size={20} />, grad: "linear-gradient(135deg,#16a34a,#86efac)", badge: "New" },
     { href: "/qr-tools/telegram", label: "Telegram QR", desc: lang === "uz" ? "Каналлар учун" : lang === "ru" ? "Для каналов" : "Channels & bots", icon: <FiSend size={20} />, grad: "linear-gradient(135deg,#0284c7,#38bdf8)" },
-    { href: "/qr-tools", label: lang === "uz" ? "Барчаси +25" : lang === "ru" ? "Все +25" : "All +25", desc: lang === "uz" ? "QR турлари" : lang === "ru" ? "Типы QR" : "QR types", icon: <FiGrid size={20} />, grad: "linear-gradient(135deg,#7c3aed,#6366f1)" },
+    { href: "/qr-tools", label: lang === "uz" ? "Барчаси +25" : lang === "ru" ? "Все +25" : "All +25", desc: lang === "uz" ? "QR турлари" : lang === "ru" ? "Типы QR" : "QR types", icon: <FiGrid size={20} />, grad: "linear-gradient(135deg,#bba9ff,#6366f1)" },
   ];
 
   // 2-қатор — PDF функциялари
@@ -357,7 +357,7 @@ export default function HomePage() {
 
   // 3-қатор — Image функциялари
   const imageRow = [
-    { href: "/image-tools/remove-bg", label: "Remove BG", desc: lang === "uz" ? "Фон ўчириш" : lang === "ru" ? "Удалить фон" : "Remove background", icon: <FiScissors size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a855f7)", badge: "AI" },
+    { href: "/image-tools/remove-bg", label: "Remove BG", desc: lang === "uz" ? "Фон ўчириш" : lang === "ru" ? "Удалить фон" : "Remove background", icon: <FiScissors size={20} />, grad: "linear-gradient(135deg,#bba9ff,#a855f7)", badge: "AI" },
     { href: "/image-tools/image-to-text", label: "Image to Text", desc: lang === "uz" ? "Матн олиш" : lang === "ru" ? "Текст из фото" : "Extract text", icon: <FiType size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)", badge: "AI" },
     { href: "/image-tools/upscale", label: "Enhancer", desc: lang === "uz" ? "Сифат ошириш" : lang === "ru" ? "Улучшить" : "Upscale", icon: <FiZap size={20} />, grad: "linear-gradient(135deg,#f59e0b,#fbbf24)", badge: "New" },
     { href: "/image-tools/compress", label: "Compress", desc: lang === "uz" ? "Сиқиш" : lang === "ru" ? "Сжать" : "Reduce size", icon: <FiMinimize2 size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
@@ -382,7 +382,7 @@ export default function HomePage() {
     { title: t.f1, desc: t.f1d, icon: <FiZap size={20} />, grad: "linear-gradient(135deg,#6366f1,#8b5cf6)" },
     { title: t.f2, desc: t.f2d, icon: <FiRefreshCw size={20} />, grad: "linear-gradient(135deg,#059669,#34d399)" },
     { title: t.f3, desc: t.f3d, icon: <FiShield size={20} />, grad: "linear-gradient(135deg,#d97706,#fbbf24)" },
-    { title: t.f4, desc: t.f4d, icon: <FiPenTool size={20} />, grad: "linear-gradient(135deg,#7c3aed,#d946ef)" },
+    { title: t.f4, desc: t.f4d, icon: <FiPenTool size={20} />, grad: "linear-gradient(135deg,#bba9ff,#d946ef)" },
   ];
 
   const inputCls = "w-full px-4 py-3 text-sm rounded-xl";
@@ -395,10 +395,10 @@ export default function HomePage() {
   return (
     <div className="relative overflow-x-clip">
       <style>{`
-        @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(124,58,237,.35)}50%{box-shadow:0 0 0 14px rgba(124,58,237,0)}}
+        @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(187,169,255,.35)}50%{box-shadow:0 0 0 14px rgba(187,169,255,0)}}
         .qx-toggle{width:44px;height:24px;border-radius:99px;position:relative;transition:background .25s;cursor:pointer;border:1px solid var(--border)}
         .qx-toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
-        .qx-toggle.on{background:#F58F20}.qx-toggle.on::after{transform:translateX(20px)}
+        .qx-toggle.on{background:#e1ff04}.qx-toggle.on::after{transform:translateX(20px)}
         .qx-toggle.off{background:var(--surface-hover)}
       `}</style>
 
@@ -443,7 +443,7 @@ export default function HomePage() {
         <div id="generator" className="grid lg:grid-cols-3 gap-5 items-stretch relative z-10">
 
           {/* LEFT — QR Type selector (Fireship green) */}
-          <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#22b14c" } as React.CSSProperties}>
+          <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#e1ff04" } as React.CSSProperties}>
             <div className="px-2 pt-1 pb-3">
               <div className="qx-fcard-title text-[19px]">
                 {lang==="uz"?"QR TURI"  : lang==="ru"?"ТИП QR" : "QR TYPE"}
@@ -488,7 +488,7 @@ export default function HomePage() {
           </div>
 
           {/* CENTER — Generator form (Fireship orange) */}
-          <div data-mascot-anchor="generator" className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#F58F20" } as React.CSSProperties}>
+          <div data-mascot-anchor="generator" className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#ffffff" } as React.CSSProperties}>
             <div className="px-2 pt-1 pb-3">
               <div className="qx-fcard-title text-[19px]">
                 {lang==="uz"?"QR ЯРАТИШ" : lang==="ru"?"СОЗДАТЬ QR" : "CREATE QR CODE"}
@@ -545,9 +545,9 @@ export default function HomePage() {
             </div>
 
             {/* PIN */}
-            <div className="mt-4 p-3 rounded-xl" style={{ background:"rgba(245,143,32,0.05)", border:"1px solid rgba(245,143,32,0.18)" }}>
+            <div className="mt-4 p-3 rounded-xl" style={{ background:"rgba(225,255,4,0.05)", border:"1px solid rgba(225,255,4,0.18)" }}>
               <div className="flex items-center gap-2 mb-2">
-                <FiLock size={11} style={{ color:"#F58F20" }}/>
+                <FiLock size={11} style={{ color:"#e1ff04" }}/>
                 <span className="text-[11px] font-semibold" style={{ color:"var(--text)" }}>{t.pin}</span>
                 <span className="text-[10px]" style={{ color:"var(--text-faint)" }}>{t.pinOpt}</span>
               </div>
@@ -578,7 +578,7 @@ export default function HomePage() {
           </div>
 
           {/* RIGHT — QR Preview (Fireship purple) */}
-          <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#8b5cf6" } as React.CSSProperties}>
+          <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#bba9ff" } as React.CSSProperties}>
             <div className="px-2 pt-1 pb-3">
               <div className="qx-fcard-title text-[19px]">
                 {lang==="uz"?"СИЗНИНГ QR" : lang==="ru"?"ВАШ QR КОД" : "YOUR QR CODE"}
@@ -687,9 +687,9 @@ export default function HomePage() {
             <div key={f.title} className={`qx-bento qx-rise qx-rise-${i+1}`}>
               {/* icon color glow */}
               <div className="absolute inset-0 opacity-40 pointer-events-none"
-                style={{ background:`radial-gradient(circle at 28% 24%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#F58F20"}26 0%, transparent 58%)` }}/>
+                style={{ background:`radial-gradient(circle at 28% 24%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#e1ff04"}26 0%, transparent 58%)` }}/>
               <div className="qx-bento-icon text-white"
-                style={{ background:f.grad, boxShadow:`0 8px 24px ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#F58F20"}45` }}>
+                style={{ background:f.grad, boxShadow:`0 8px 24px ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#e1ff04"}45` }}>
                 {f.icon}
               </div>
               <h3 className="font-display text-[17px] font-bold mb-2" style={{ color:"var(--text)" }}>{f.title}</h3>
@@ -708,14 +708,14 @@ export default function HomePage() {
         <hr className="qx-neon-line" />
         {/* Footer bg subtle top glow */}
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245,143,32,.05) 0%, transparent 60%)" }} />
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(225,255,4,.05) 0%, transparent 60%)" }} />
 
         <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 pb-10 grid md:grid-cols-[1.6fr_1fr_1fr_1.2fr] gap-12">
           {/* Brand */}
           <div>
             <div className="font-display flex items-center gap-0.5 mb-5">
               <span className="text-3xl font-black tracking-tight" style={{ color: "var(--text)" }}>QR</span>
-              <span className="text-3xl font-black tracking-tight" style={{ color: "#F58F20" }}>ix</span>
+              <span className="text-3xl font-black tracking-tight" style={{ color: "var(--primary-bright)" }}>ix</span>
             </div>
             <p className="text-sm leading-relaxed max-w-[240px] mb-6" style={{ color: "var(--text-muted)" }}>{t.footAbout}</p>
             {/* Social chips */}
@@ -726,7 +726,7 @@ export default function HomePage() {
               ].map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                   className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110"
-                  style={{ background: "rgba(245,143,32,.1)", border: "1px solid rgba(245,143,32,.25)", color: "#F58F20" }}
+                  style={{ background: "rgba(225,255,4,.1)", border: "1px solid rgba(225,255,4,.25)", color: "#e1ff04" }}
                   aria-label={s.label}>
                   {s.icon}
                 </a>
@@ -746,7 +746,7 @@ export default function HomePage() {
                 <Link key={l.href} href={l.href}
                   className="block transition-all hover:translate-x-1"
                   style={{ color: "var(--text-muted)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#F58F20")}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#e1ff04")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
                 >{l.label}</Link>
               ))}
@@ -765,7 +765,7 @@ export default function HomePage() {
                 <Link key={l.href} href={l.href}
                   className="block transition-all hover:translate-x-1"
                   style={{ color: "var(--text-muted)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#F58F20")}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#e1ff04")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
                 >{l.label}</Link>
               ))}
@@ -778,16 +778,16 @@ export default function HomePage() {
               <a href="mailto:musarasulzada@gmail.com"
                 className="flex items-center gap-2.5 transition-colors"
                 style={{ color: "var(--text-muted)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#F58F20")}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#e1ff04")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
-                <FiMail size={14} style={{ color: "#F58F20" }} /> musarasulzada@gmail.com
+                <FiMail size={14} style={{ color: "#e1ff04" }} /> musarasulzada@gmail.com
               </a>
               <a href="https://t.me/QRix2020" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2.5 transition-colors"
                 style={{ color: "var(--text-muted)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#F58F20")}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#e1ff04")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
-                <FiSend size={14} style={{ color: "#F58F20" }} /> @QRix2020
+                <FiSend size={14} style={{ color: "#e1ff04" }} /> @QRix2020
               </a>
             </div>
             {/* CTA mini */}
@@ -801,7 +801,7 @@ export default function HomePage() {
         <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3"
           style={{ borderTop: "1px solid rgba(255,255,255,.06)" }}>
           <div className="text-[12px]" style={{ color: "var(--text-faint)" }}>
-            © 2026 <span style={{ color: "#F58F20" }}>QRix</span>. {t.rights}
+            © 2026 <span style={{ color: "#e1ff04" }}>QRix</span>. {t.rights}
           </div>
           <div className="flex items-center gap-3.5 text-[12px]" style={{ color: "var(--text-faint)" }}>
             <Link href="/about" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>About</Link>
