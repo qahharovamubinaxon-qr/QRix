@@ -58,11 +58,12 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
           let dx = (cr.left + cr.width / 2 - cx) / half;
           dx = Math.max(-1, Math.min(1, dx));
           const abs = Math.abs(dx);
-          const scale = 1.06 - abs * 0.36;
-          const ry = dx * -34;
-          const tz = -abs * 150;
+          // calmer premium coverflow: gentle scale/tilt, side cards stay readable
+          const scale = 1.04 - abs * 0.2;
+          const ry = dx * -18;
+          const tz = -abs * 80;
           card.style.transform = `translateZ(${tz.toFixed(1)}px) rotateY(${ry.toFixed(1)}deg) scale(${scale.toFixed(3)})`;
-          card.style.opacity = (1 - abs * 0.5).toFixed(2);
+          card.style.opacity = (1 - abs * 0.25).toFixed(2);
           card.style.zIndex = String(Math.round((1 - abs) * 100));
         }
       }
@@ -160,8 +161,8 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
         .qx-mq-3dbg::before {
           content: ""; position: absolute; left: -20%; right: -20%; top: 40%; bottom: -35%;
           background-image:
-            linear-gradient(rgba(245,143,32,0.14) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(124,58,237,0.14) 1px, transparent 1px);
+            linear-gradient(rgba(245,143,32,0.09) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(124,58,237,0.09) 1px, transparent 1px);
           background-size: 52px 52px;
           transform: perspective(650px) rotateX(62deg);
           transform-origin: top center;
@@ -201,97 +202,145 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
         @keyframes qxMqLeft  { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
         @keyframes qxMqRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
 
-        /* ===== Fireship-style solid color card ===== */
+        /* ===== Premium aurora glass card =====
+           Neutral glass base + hairline border; the tool color lives in a
+           soft aurora glow, the icon tile, and a rotating conic ring on hover. */
+        @property --qxa { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+
         .qx-mqcard {
           flex: 0 0 auto;
           width: 172px; height: 218px;
           border-radius: 20px;
-          padding: 14px;
+          padding: 16px 14px 14px;
           position: relative;
           display: flex; flex-direction: column; gap: 12px;
           text-decoration: none;
           transform-style: preserve-3d;
           transform: translateZ(0) scale(1);
-          transition: transform .4s cubic-bezier(.22,.9,.3,1.1), box-shadow .3s ease, border-color .3s ease;
+          transition: transform .35s cubic-bezier(.22,.9,.3,1.1), box-shadow .3s ease;
           will-change: transform, opacity;
-          background: linear-gradient(160deg, rgba(255,255,255,0.10), rgba(18,18,26,0.55));
+          background:
+            radial-gradient(120% 90% at 50% -20%, color-mix(in srgb, var(--c1) 16%, transparent), transparent 55%),
+            linear-gradient(165deg, rgba(255,255,255,0.06), rgba(14,15,22,0.82));
           backdrop-filter: blur(14px) saturate(150%);
           -webkit-backdrop-filter: blur(14px) saturate(150%);
-          border: 1.5px solid var(--c1);
-          box-shadow:
-            0 0 18px -3px var(--c1),
-            0 0 46px -14px var(--c1),
-            0 12px 30px rgba(0,0,0,0.5),
-            inset 0 1px 0 rgba(255,255,255,0.12);
+          border: 1px solid rgba(255,255,255,0.10);
+          box-shadow: 0 10px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.07);
           overflow: hidden;
           isolation: isolate;
         }
         html.light .qx-mqcard {
-          background: linear-gradient(160deg, rgba(255,255,255,0.85), rgba(245,245,250,0.6));
+          background:
+            radial-gradient(120% 90% at 50% -20%, color-mix(in srgb, var(--c1) 14%, transparent), transparent 55%),
+            linear-gradient(165deg, rgba(255,255,255,0.95), rgba(246,246,251,0.8));
+          border-color: rgba(20,20,30,0.09);
+          box-shadow: 0 8px 26px rgba(60,50,30,0.12), inset 0 1px 0 rgba(255,255,255,0.85);
         }
-        .qx-mqcard::before { display: none; }
-        /* subtle top gloss */
-        .qx-mqcard::after {
-          content: ""; position: absolute; inset: 0; z-index: 0;
-          background: linear-gradient(160deg, rgba(255,255,255,.18), transparent 42%);
+
+        /* rotating conic ring — revealed on hover */
+        .qx-mqcard::before {
+          content: ""; position: absolute; inset: 0; z-index: 2;
+          border-radius: inherit; padding: 1.5px;
+          background: conic-gradient(from var(--qxa),
+            transparent 0deg, transparent 70deg,
+            var(--c1) 130deg,
+            color-mix(in srgb, var(--c1) 40%, #fff) 160deg,
+            var(--c1) 190deg,
+            transparent 250deg, transparent 360deg);
+          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor;
+                  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                  mask-composite: exclude;
+          opacity: 0; transition: opacity .3s ease;
+          animation: qxRingSpin 3.4s linear infinite;
           pointer-events: none;
         }
-        .qx-mqcard > * { position: relative; z-index: 1; }
-        .qx-mqcard-glow { display: none; }
+        @keyframes qxRingSpin { to { --qxa: 360deg; } }
 
-        /* dark logo panel holding the icon */
+        /* diagonal shine sweep on hover (reuses the .qx-mqcard-glow element) */
+        .qx-mqcard-glow {
+          position: absolute; inset: 0; z-index: 1; display: block;
+          background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,0.13) 50%, transparent 58%);
+          transform: translateX(-130%);
+          pointer-events: none;
+        }
+        .qx-mqcard::after { display: none; }
+        .qx-mqcard > * { position: relative; z-index: 3; }
+        .qx-mqcard-glow { z-index: 1; }
+
+        /* aurora zone holding the icon — soft, no hard panel */
         .qx-mqcard-icon-wrap {
           position: relative;
           display: flex;
           align-items: center; justify-content: center;
           width: 100%; height: 96px;
           border-radius: 13px;
-          background: rgba(10,10,16,0.55);
-          border: 1px solid color-mix(in srgb, var(--c1) 35%, transparent);
-          box-shadow: inset 0 1px 0 rgba(255,255,255,.06), inset 0 0 22px -6px var(--c1);
         }
-        .qx-mqcard-icon-halo { display: none; }
+        .qx-mqcard-icon-halo {
+          display: block; position: absolute; width: 84px; height: 84px;
+          border-radius: 50%;
+          background: radial-gradient(circle, color-mix(in srgb, var(--c1) 34%, transparent), transparent 70%);
+          filter: blur(10px);
+          transition: transform .35s ease, opacity .3s ease;
+          opacity: .8;
+        }
         .qx-mqcard-icon {
           position: relative; z-index: 1;
-          width: 50px; height: 50px;
-          border-radius: 14px;
+          width: 52px; height: 52px;
+          border-radius: 15px;
           display: flex; align-items: center; justify-content: center;
           color: #fff;
           background: var(--cgrad);
-          box-shadow: 0 0 16px -2px var(--c1), 0 6px 18px rgba(0,0,0,.5);
+          box-shadow: 0 8px 22px color-mix(in srgb, var(--c1) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.3);
+          transition: transform .35s cubic-bezier(.22,.9,.3,1.2);
         }
         .qx-mqcard-body { display: flex; flex-direction: column; gap: 4px; }
         .qx-mqcard-label {
           display: block;
           font-family: var(--font-display), "Poppins", sans-serif;
-          font-size: 15px; font-weight: 800; line-height: 1.08;
-          text-transform: uppercase; letter-spacing: -.005em;
+          font-size: 14.5px; font-weight: 700; line-height: 1.15;
+          letter-spacing: -.01em;
           color: var(--card-label);
-          text-shadow: 0 0 14px color-mix(in srgb, var(--c1) 45%, transparent);
         }
         .qx-mqcard-desc {
-          display: block; font-size: 11.5px; line-height: 1.3; font-weight: 600;
+          display: block; font-size: 11.5px; line-height: 1.35; font-weight: 500;
           color: var(--card-desc);
         }
+        /* arrow chip slides in on hover */
+        .qx-mqcard-body::after {
+          content: "→";
+          position: absolute; right: 2px; bottom: 0;
+          font-size: 14px; font-weight: 700;
+          color: var(--c1);
+          opacity: 0; transform: translateX(-6px);
+          transition: opacity .25s ease, transform .25s ease;
+        }
         .qx-mqcard-badge {
-          position: absolute; top: 12px; right: 12px; z-index: 3;
-          font-size: 9px; font-weight: 800; letter-spacing: .04em; color: #fff;
-          background: #161208;
-          padding: 3px 9px; border-radius: 8px;
-          box-shadow: 0 2px 6px rgba(0,0,0,.3);
+          position: absolute; top: 10px; right: 10px; z-index: 4;
+          font-size: 9px; font-weight: 800; letter-spacing: .05em; color: #fff;
+          background: color-mix(in srgb, var(--c1) 80%, #000);
+          padding: 3px 8px; border-radius: 99px;
+          box-shadow: 0 2px 8px color-mix(in srgb, var(--c1) 40%, transparent);
         }
 
-        /* HOVER — 3D pop toward the viewer + brighter neon */
+        /* HOVER — lift + ring + shine + icon pop */
         .qx-mqcard:hover, .qx-mqcard:focus-visible {
-          transform: translateZ(70px) translateY(-10px) scale(1.05);
-          border-color: var(--c1);
+          transform: translateZ(60px) translateY(-8px) scale(1.04);
           box-shadow:
-            0 0 26px -2px var(--c1),
-            0 0 64px -12px var(--c1),
-            0 28px 50px rgba(0,0,0,0.5),
-            inset 0 1px 0 rgba(255,255,255,0.14);
+            0 24px 48px rgba(0,0,0,0.5),
+            0 0 40px -10px color-mix(in srgb, var(--c1) 55%, transparent),
+            inset 0 1px 0 rgba(255,255,255,0.1);
           z-index: 6; outline: none;
         }
+        html.light .qx-mqcard:hover, html.light .qx-mqcard:focus-visible {
+          box-shadow: 0 20px 44px rgba(60,50,30,0.2), 0 0 34px -10px color-mix(in srgb, var(--c1) 45%, transparent);
+        }
+        .qx-mqcard:hover::before, .qx-mqcard:focus-visible::before { opacity: 1; }
+        .qx-mqcard:hover .qx-mqcard-glow { animation: qxShine .9s ease .05s; }
+        .qx-mqcard:hover .qx-mqcard-icon { transform: translateY(-4px) scale(1.08) rotate(-3deg); }
+        .qx-mqcard:hover .qx-mqcard-icon-halo { transform: scale(1.25); opacity: 1; }
+        .qx-mqcard:hover .qx-mqcard-body::after { opacity: 1; transform: translateX(0); }
+        @keyframes qxShine { to { transform: translateX(130%); } }
 
         @media (prefers-reduced-motion: reduce) {
           .qx-mq-left, .qx-mq-right { animation: none; }

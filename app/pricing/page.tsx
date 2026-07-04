@@ -43,7 +43,7 @@ export default function PricingPage() {
 
         {/* Pro */}
         <div className="qx-card p-8 flex flex-col relative overflow-hidden" style={{ border: "1.5px solid var(--primary)" }}>
-          <span className="absolute top-5 right-5 text-[10px] font-bold px-2.5 py-1 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>
+          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full text-white" style={{ position: "absolute", top: 20, right: 20, zIndex: 3, background: "var(--grad-primary)", boxShadow: "0 4px 14px rgba(245,143,32,.4)" }}>
             MOST POPULAR
           </span>
           <h2 className="font-display text-2xl font-bold" style={{ color: "var(--text)" }}>Pro</h2>
