@@ -387,11 +387,51 @@ export default function LinkInBioClient() {
           </div>
         </div>
 
-        {/* ── live phone preview ── */}
+        {/* ── live iPhone preview ── */}
         <div className="flex justify-center">
-          <div className="w-full max-w-[340px] rounded-[36px] p-3" style={{ background: "var(--surface-2)", border: "1px solid var(--border)", boxShadow: "0 20px 60px rgba(0,0,0,.35)" }}>
-            <div className="rounded-[28px] overflow-hidden" style={{ background: "var(--bg)", border: "1px solid var(--border)", minHeight: 560 }}>
-              <BioView page={page} />
+          <div className="relative w-full max-w-[320px]">
+            {/* side buttons */}
+            <div className="absolute -left-[3px] top-[110px] w-[3px] h-8 rounded-l" style={{ background: "#3a3d45" }} />
+            <div className="absolute -left-[3px] top-[155px] w-[3px] h-14 rounded-l" style={{ background: "#3a3d45" }} />
+            <div className="absolute -left-[3px] top-[218px] w-[3px] h-14 rounded-l" style={{ background: "#3a3d45" }} />
+            <div className="absolute -right-[3px] top-[170px] w-[3px] h-20 rounded-r" style={{ background: "#3a3d45" }} />
+
+            {/* titanium body */}
+            <div className="rounded-[54px] p-[10px]"
+              style={{
+                background: "linear-gradient(145deg,#4a4d55,#23252b 40%,#3c3f47)",
+                boxShadow: "0 30px 80px rgba(0,0,0,.5), inset 0 1px 1px rgba(255,255,255,.25), inset 0 -1px 1px rgba(0,0,0,.5)",
+              }}>
+              {/* screen */}
+              <div className="relative rounded-[44px] overflow-hidden flex flex-col" style={{ background: "#000", minHeight: 600 }}>
+                {/* status bar */}
+                <div className="absolute top-0 inset-x-0 z-20 flex items-center justify-between px-7 pt-3.5 pointer-events-none">
+                  <span className="text-[13px] font-bold tracking-tight" style={{ color: "#fff", textShadow: "0 1px 3px rgba(0,0,0,.5)" }}>9:41</span>
+                  <span className="flex items-center gap-1.5" style={{ color: "#fff", filter: "drop-shadow(0 1px 2px rgba(0,0,0,.5))" }}>
+                    {/* signal */}
+                    <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><rect x="0" y="7" width="3" height="4" rx="0.8"/><rect x="4.3" y="5" width="3" height="6" rx="0.8"/><rect x="8.6" y="2.5" width="3" height="8.5" rx="0.8"/><rect x="12.9" y="0" width="3" height="11" rx="0.8"/></svg>
+                    {/* wifi */}
+                    <svg width="15" height="11" viewBox="0 0 15 11" fill="currentColor"><path d="M7.5 9.2a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8Z"/><path d="M7.5 5.6c1.5 0 2.9.6 3.9 1.6l-1.3 1.3a3.7 3.7 0 0 0-5.2 0L3.6 7.2a5.5 5.5 0 0 1 3.9-1.6Z"/><path d="M7.5 2c2.5 0 4.8 1 6.5 2.7l-1.3 1.3A7.3 7.3 0 0 0 7.5 3.8c-2 0-3.8.8-5.2 2.2L1 4.7A9.1 9.1 0 0 1 7.5 2Z"/></svg>
+                    {/* battery */}
+                    <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="15" height="8" rx="1.6" fill="currentColor"/><path d="M23 4v4c1-.3 1.6-1 1.6-2S24 4.3 23 4Z" fill="currentColor" opacity=".45"/></svg>
+                  </span>
+                </div>
+
+                {/* dynamic island */}
+                <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-30 w-[102px] h-[26px] rounded-full flex items-center justify-end pr-2"
+                  style={{ background: "#000", boxShadow: "inset 0 0 3px rgba(255,255,255,.12)" }}>
+                  <span className="w-2.5 h-2.5 rounded-full" style={{ background: "radial-gradient(circle at 35% 35%, #1b2b4a, #050508 65%)" }} />
+                </div>
+
+                {/* page content — fills the screen; status bar & island float above it */}
+                <div className="flex-1 flex flex-col [&>div]:flex-1 [&>div]:pt-8" style={{ minHeight: 600 }}>
+                  <BioView page={page} />
+                </div>
+
+                {/* home indicator */}
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 w-[110px] h-[4.5px] rounded-full pointer-events-none"
+                  style={{ background: "rgba(255,255,255,.85)", mixBlendMode: "difference" }} />
+              </div>
             </div>
           </div>
         </div>
