@@ -114,6 +114,25 @@ export default function LinkInBioClient() {
     }
   }
 
+  /** Upload a background photo → downscale to ≤640px JPEG data-URL (lives in the link). */
+  async function uploadBackground(file: File) {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    try {
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+      const MAX = 640;
+      const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+      setBgImage(canvas.toDataURL("image/jpeg", 0.55));
+      trackTool("link-in-bio", { action: "bg-upload" });
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
   const qrTooLong = shareUrl.length > 2800;
 
   function setLink(i: number, patch: Partial<LinkItem>) {
@@ -253,9 +272,24 @@ export default function LinkInBioClient() {
                 </button>
               ))}
             </div>
-            <input value={bgImage} onChange={(e) => setBgImage(e.target.value.slice(0, 300))}
-              placeholder="…or paste a background photo URL (cover + dark overlay)"
-              className="qx-auth-input mt-2.5 !py-2 !text-[12px]" />
+            <div className="flex items-center gap-2.5 mt-2.5">
+              <label className="qx-btn-ghost !text-xs !py-2 cursor-pointer shrink-0">
+                🖼️ Upload background
+                <input type="file" accept="image/*" className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadBackground(f); e.target.value = ""; }} />
+              </label>
+              {bgImage && (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={bgImage} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" style={{ border: "1px solid var(--border)" }} />
+                  <button onClick={() => setBgImage("")} className="qx-btn-ghost !text-xs !py-2 shrink-0">✕ Remove</button>
+                </>
+              )}
+            </div>
+            <input value={bgImage.startsWith("data:") ? "" : bgImage}
+              onChange={(e) => setBgImage(e.target.value.slice(0, 300))}
+              placeholder={bgImage.startsWith("data:") ? "Uploaded background in use" : "…or paste a background photo URL (cover + dark overlay)"}
+              className="qx-auth-input mt-2 !py-2 !text-[12px]" />
           </div>
 
           {/* Socials + avatar photo */}
