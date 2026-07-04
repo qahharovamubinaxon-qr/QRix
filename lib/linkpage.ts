@@ -27,8 +27,31 @@ export type BioPage = {
   bs?: BioButtonStyle;   // button style
   soc?: BioSocials;      // social icon row
   nb?: 1;                // hide the "Made with QRix" badge (Pro)
+  pat?: BioPattern;      // niche background pattern (emoji watermark)
+  bgi?: string;          // custom background image URL (cover + overlay)
   l: LinkItem[];         // links
 };
+
+export type BioPattern = "food" | "beauty" | "music" | "shop" | "fitness" | "travel" | "party" | "work";
+
+/** Niche watermark patterns — tiled emoji over the theme background. */
+export const BIO_PATTERNS: Record<BioPattern, { emoji: string; label: string }> = {
+  food:    { emoji: "🍕", label: "Food" },
+  beauty:  { emoji: "💅", label: "Beauty" },
+  music:   { emoji: "🎵", label: "Music" },
+  shop:    { emoji: "🛍️", label: "Shop" },
+  fitness: { emoji: "💪", label: "Fitness" },
+  travel:  { emoji: "✈️", label: "Travel" },
+  party:   { emoji: "🎉", label: "Party" },
+  work:    { emoji: "💼", label: "Work" },
+};
+
+/** Data-URI SVG tile with the niche emoji at low opacity (self-contained, no assets). */
+export function patternTile(pat: BioPattern): string {
+  const e = BIO_PATTERNS[pat]?.emoji || "✨";
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='96' height='96'><text x='14' y='34' font-size='24' opacity='0.16'>${e}</text><text x='58' y='82' font-size='24' opacity='0.10'>${e}</text></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+}
 
 /** Self-contained page palettes — the public page must not depend on site theme. */
 export const BIO_THEMES: Record<BioTheme, { bg: string; text: string; muted: string; surface: string; label: string }> = {

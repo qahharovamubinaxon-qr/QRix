@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { BioPage, BioSocials } from "@/lib/linkpage";
-import { normalizeUrl, BIO_THEMES, socialHref } from "@/lib/linkpage";
+import { normalizeUrl, BIO_THEMES, socialHref, patternTile } from "@/lib/linkpage";
 import { SiInstagram, SiTelegram, SiWhatsapp, SiYoutube, SiTiktok, SiFacebook } from "react-icons/si";
 
 const SOCIAL_ICONS: { key: keyof BioSocials; icon: React.ReactNode; name: string }[] = [
@@ -24,14 +24,28 @@ export default function BioView({ page }: { page: BioPage }) {
       case "solid":
         return { background: `linear-gradient(140deg, ${a}, ${shade(a)})`, color: pickText(a), border: "none", borderRadius: 16, boxShadow: `0 6px 20px ${a}44` };
       case "pill":
-        return { background: theme.surface, color: theme.text, border: `2px solid ${a}`, borderRadius: 99, boxShadow: `0 4px 16px ${a}22` };
+        return { background: theme.surface, color: tText, border: `2px solid ${a}`, borderRadius: 99, boxShadow: `0 4px 16px ${a}22` };
       default:
-        return { background: theme.surface, color: theme.text, border: `2px solid ${a}`, borderRadius: 16, boxShadow: `0 4px 16px ${a}22` };
+        return { background: theme.surface, color: tText, border: `2px solid ${a}`, borderRadius: 16, boxShadow: `0 4px 16px ${a}22` };
     }
   };
 
+  // layered background: custom photo (with readability overlay) > niche pattern > theme gradient
+  const bgStyle: React.CSSProperties = page.bgi
+    ? {
+        backgroundImage: `linear-gradient(180deg, rgba(8,8,14,0.62), rgba(8,8,14,0.78)), url(${JSON.stringify(page.bgi)})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }
+    : page.pat
+      ? { backgroundImage: `${patternTile(page.pat)}, ${theme.bg}`, backgroundSize: "96px 96px, cover" }
+      : { background: theme.bg };
+  // on a photo background, always use light text for readability
+  const tText = page.bgi ? "#f2f5fb" : theme.text;
+  const tMuted = page.bgi ? "#c4ccda" : theme.muted;
+
   return (
-    <div className="w-full min-h-full" style={{ background: theme.bg }}>
+    <div className="w-full min-h-full" style={bgStyle}>
       <div className="mx-auto w-full max-w-[420px] px-5 py-10 flex flex-col items-center">
         {page.avu ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -45,8 +59,8 @@ export default function BioView({ page }: { page: BioPage }) {
             {page.av || (page.t || "?").slice(0, 1).toUpperCase()}
           </div>
         )}
-        <h1 className="font-display text-2xl font-extrabold text-center" style={{ color: theme.text }}>{page.t || "Your name"}</h1>
-        {page.s && <p className="text-sm text-center mt-2 max-w-[300px]" style={{ color: theme.muted }}>{page.s}</p>}
+        <h1 className="font-display text-2xl font-extrabold text-center" style={{ color: tText }}>{page.t || "Your name"}</h1>
+        {page.s && <p className="text-sm text-center mt-2 max-w-[300px]" style={{ color: tMuted }}>{page.s}</p>}
 
         {/* social icon row */}
         {socials.length > 0 && (
@@ -55,7 +69,7 @@ export default function BioView({ page }: { page: BioPage }) {
               <a key={s.key} href={socialHref(s.key, page.soc![s.key]!) || undefined} target="_blank" rel="noopener noreferrer"
                 aria-label={s.name}
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-transform hover:-translate-y-0.5"
-                style={{ background: theme.surface, color: theme.text, border: `1px solid ${accent}55` }}>
+                style={{ background: theme.surface, color: tText, border: `1px solid ${accent}55` }}>
                 {s.icon}
               </a>
             ))}
@@ -84,10 +98,10 @@ export default function BioView({ page }: { page: BioPage }) {
           <Link
             href="/?utm_source=bio&utm_medium=badge&utm_campaign=powered_by"
             className="mt-10 inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-bold transition-transform hover:-translate-y-0.5"
-            style={{ background: theme.surface, color: theme.muted, border: `1px solid ${theme.muted}33` }}
+            style={{ background: theme.surface, color: tMuted, border: `1px solid ${tMuted}33` }}
           >
             <span aria-hidden style={{ display: "inline-flex", width: 14, height: 14, borderRadius: 4, background: "linear-gradient(135deg,#F58F20,#cc7010)" }} />
-            Made with <span style={{ color: theme.text }}>QRix</span>
+            Made with <span style={{ color: tText }}>QRix</span>
           </Link>
         )}
       </div>

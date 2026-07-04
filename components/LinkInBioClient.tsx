@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiPlus, FiTrash2, FiCopy, FiCheck, FiDownload, FiExternalLink } from "react-icons/fi";
-import { encodeBio, BIO_THEMES, type BioPage, type LinkItem, type BioTheme, type BioButtonStyle, type BioSocials } from "@/lib/linkpage";
+import { encodeBio, BIO_THEMES, BIO_PATTERNS, type BioPage, type LinkItem, type BioTheme, type BioButtonStyle, type BioSocials, type BioPattern } from "@/lib/linkpage";
 import BioView from "@/components/BioView";
 import { trackTool } from "@/lib/track";
 
@@ -14,17 +14,17 @@ const AVATARS = ["😀", "🚀", "🌟", "🎵", "🍕", "💼", "📸", "❤️
 /* Ready-made business templates — one click fills the whole page */
 type Template = { id: string; label: string; emoji: string; page: Omit<BioPage, "l"> & { l: LinkItem[] } };
 const TEMPLATES: Template[] = [
-  { id: "restaurant", label: "Restaurant / Café", emoji: "🍕", page: { t: "Bella Cucina", s: "Fresh pasta & wood-fired pizza — order or book below 👇", av: "🍕", c: "#e05252", th: "sunset", bs: "solid",
+  { id: "restaurant", label: "Restaurant / Café", emoji: "🍕", page: { t: "Bella Cucina", s: "Fresh pasta & wood-fired pizza — order or book below 👇", av: "🍕", c: "#e05252", th: "sunset", bs: "solid", pat: "food",
     l: [{ label: "📖 View our menu", url: "" }, { label: "🛵 Order delivery", url: "" }, { label: "📅 Book a table", url: "" }, { label: "⭐ Leave a review", url: "" }, { label: "📍 Find us on the map", url: "" }] } },
-  { id: "shop", label: "Shop / Store", emoji: "🛍️", page: { t: "Nova Store", s: "New arrivals every week — shop online or visit us 🛍️", av: "🛍️", c: "#7c3aed", th: "dark", bs: "pill",
+  { id: "shop", label: "Shop / Store", emoji: "🛍️", page: { t: "Nova Store", s: "New arrivals every week — shop online or visit us 🛍️", av: "🛍️", c: "#7c3aed", th: "dark", bs: "pill", pat: "shop",
     l: [{ label: "🛒 Shop online", url: "" }, { label: "🔥 This week's deals", url: "" }, { label: "📸 Instagram", url: "" }, { label: "💬 WhatsApp us", url: "" }, { label: "📍 Store location", url: "" }] } },
-  { id: "salon", label: "Salon / Beauty", emoji: "💅", page: { t: "Glow Studio", s: "Hair · nails · lashes — book your slot in seconds ✨", av: "💅", c: "#db2777", th: "light", bs: "pill",
+  { id: "salon", label: "Salon / Beauty", emoji: "💅", page: { t: "Glow Studio", s: "Hair · nails · lashes — book your slot in seconds ✨", av: "💅", c: "#db2777", th: "light", bs: "pill", pat: "beauty",
     l: [{ label: "📅 Book an appointment", url: "" }, { label: "💰 Price list", url: "" }, { label: "📸 Our work (Instagram)", url: "" }, { label: "💬 Ask a question", url: "" }] } },
-  { id: "freelancer", label: "Freelancer", emoji: "💼", page: { t: "Alex Karimov", s: "Web developer & designer — let's build something great", av: "💼", c: "#2563eb", th: "ocean", bs: "solid",
+  { id: "freelancer", label: "Freelancer", emoji: "💼", page: { t: "Alex Karimov", s: "Web developer & designer — let's build something great", av: "💼", c: "#2563eb", th: "ocean", bs: "solid", pat: "work",
     l: [{ label: "🗂️ My portfolio", url: "" }, { label: "💼 LinkedIn", url: "" }, { label: "✉️ Hire me", url: "" }, { label: "📄 Download CV", url: "" }] } },
-  { id: "musician", label: "Musician / Creator", emoji: "🎵", page: { t: "DJ Nightwave", s: "New single out now — stream it everywhere 🎧", av: "🎵", c: "#0891b2", th: "dark", bs: "outline",
+  { id: "musician", label: "Musician / Creator", emoji: "🎵", page: { t: "DJ Nightwave", s: "New single out now — stream it everywhere 🎧", av: "🎵", c: "#0891b2", th: "dark", bs: "outline", pat: "music",
     l: [{ label: "🎧 Spotify", url: "" }, { label: "▶️ YouTube", url: "" }, { label: "🎬 TikTok", url: "" }, { label: "🎟️ Upcoming shows", url: "" }] } },
-  { id: "event", label: "Event / Wedding", emoji: "🎉", page: { t: "Aziza & Timur", s: "We're getting married! All the details below 💍", av: "🎉", c: "#F58F20", th: "light", bs: "solid",
+  { id: "event", label: "Event / Wedding", emoji: "🎉", page: { t: "Aziza & Timur", s: "We're getting married! All the details below 💍", av: "🎉", c: "#F58F20", th: "light", bs: "solid", pat: "party",
     l: [{ label: "📅 Save the date", url: "" }, { label: "📍 Venue & directions", url: "" }, { label: "✅ RSVP", url: "" }, { label: "🎁 Gift registry", url: "" }] } },
 ];
 
@@ -41,6 +41,8 @@ export default function LinkInBioClient() {
   const [btnStyle, setBtnStyle] = useState<BioButtonStyle>("outline");
   const [socials, setSocials] = useState<BioSocials>({});
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [pattern, setPattern] = useState<BioPattern | "">("");
+  const [bgImage, setBgImage] = useState("");
   const [hideBadge, setHideBadge] = useState(false);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
@@ -56,18 +58,20 @@ export default function LinkInBioClient() {
       c: accent, th: theme, bs: btnStyle,
       soc: Object.keys(soc).length ? soc : undefined,
       nb: hideBadge ? 1 : undefined,
+      pat: pattern || undefined,
+      bgi: bgImage.trim() || undefined,
       l: links,
     };
-  }, [title, subtitle, avatar, avatarUrl, accent, theme, btnStyle, socials, hideBadge, links]);
+  }, [title, subtitle, avatar, avatarUrl, accent, theme, btnStyle, socials, hideBadge, pattern, bgImage, links]);
 
   const shareUrl = useMemo(() => {
     if (!origin) return "";
     return `${origin}/p?d=${encodeBio(page)}`;
   }, [origin, page]);
 
-  // live QR of the share URL
+  // live QR of the share URL (skipped when the URL is too dense for a scannable QR)
   useEffect(() => {
-    if (!shareUrl) return;
+    if (!shareUrl || shareUrl.length > 2800) return;
     let cancelled = false;
     (async () => {
       const mod = await import("qr-code-styling");
@@ -89,6 +93,28 @@ export default function LinkInBioClient() {
     })();
     return () => { cancelled = true; };
   }, [shareUrl, accent]);
+
+  /** Upload a photo → center-crop to 96×96 JPEG data-URL (small enough to live in the link). */
+  async function uploadAvatar(file: File) {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    try {
+      await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+      const S = 96;
+      const canvas = document.createElement("canvas");
+      canvas.width = S; canvas.height = S;
+      const ctx = canvas.getContext("2d")!;
+      const scale = Math.max(S / img.width, S / img.height);
+      const w = img.width * scale, h = img.height * scale;
+      ctx.drawImage(img, (S - w) / 2, (S - h) / 2, w, h);
+      setAvatarUrl(canvas.toDataURL("image/jpeg", 0.62));
+      trackTool("link-in-bio", { action: "avatar-upload" });
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  const qrTooLong = shareUrl.length > 2800;
 
   function setLink(i: number, patch: Partial<LinkItem>) {
     setLinks((ls) => ls.map((l, j) => (j === i ? { ...l, ...patch } : l)));
@@ -126,7 +152,7 @@ export default function LinkInBioClient() {
                   onClick={() => {
                     setTitle(tp.page.t); setSubtitle(tp.page.s || ""); setAvatar(tp.page.av || "🚀");
                     setAccent(tp.page.c || "#F58F20"); setLinks(tp.page.l.map((l) => ({ ...l })));
-                    setTheme(tp.page.th || "dark"); setBtnStyle(tp.page.bs || "outline");
+                    setTheme(tp.page.th || "dark"); setBtnStyle(tp.page.bs || "outline"); setPattern(tp.page.pat || "");
                     trackTool("link-in-bio", { action: "template", id: tp.id });
                   }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12.5px] font-bold transition-all hover:-translate-y-0.5"
@@ -208,6 +234,30 @@ export default function LinkInBioClient() {
             </div>
           </div>
 
+          {/* Background: niche pattern or custom photo */}
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
+              Background — pick your niche
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button onClick={() => setPattern("")}
+                className="px-3 py-2 rounded-xl text-[12px] font-bold"
+                style={{ background: "var(--surface-2)", border: `2px solid ${pattern === "" ? "var(--primary)" : "var(--border)"}`, color: "var(--text)" }}>
+                None
+              </button>
+              {(Object.keys(BIO_PATTERNS) as BioPattern[]).map((p) => (
+                <button key={p} onClick={() => setPattern(p)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-bold transition-transform hover:scale-105"
+                  style={{ background: "var(--surface-2)", border: `2px solid ${pattern === p ? "var(--primary)" : "var(--border)"}`, color: "var(--text)" }}>
+                  {BIO_PATTERNS[p].emoji} {BIO_PATTERNS[p].label}
+                </button>
+              ))}
+            </div>
+            <input value={bgImage} onChange={(e) => setBgImage(e.target.value.slice(0, 300))}
+              placeholder="…or paste a background photo URL (cover + dark overlay)"
+              className="qx-auth-input mt-2.5 !py-2 !text-[12px]" />
+          </div>
+
           {/* Socials + avatar photo */}
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
@@ -220,10 +270,27 @@ export default function LinkInBioClient() {
               </div>
             </div>
             <div className="space-y-3">
-              <label className="block">
-                <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Photo avatar URL (optional)</span>
-                <input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value.slice(0, 300))} placeholder="https://…/photo.jpg" className="qx-auth-input mt-1 !py-2.5" />
-              </label>
+              <div>
+                <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Photo avatar</span>
+                <div className="flex items-center gap-2.5 mt-1.5">
+                  {avatarUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" style={{ border: `2px solid ${accent}` }} />
+                  )}
+                  <label className="qx-btn-ghost !text-xs !py-2 cursor-pointer">
+                    📷 Upload photo
+                    <input type="file" accept="image/*" className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); e.target.value = ""; }} />
+                  </label>
+                  {avatarUrl && (
+                    <button onClick={() => setAvatarUrl("")} className="qx-btn-ghost !text-xs !py-2">✕ Remove</button>
+                  )}
+                </div>
+                <input value={avatarUrl.startsWith("data:") ? "" : avatarUrl}
+                  onChange={(e) => setAvatarUrl(e.target.value.slice(0, 300))}
+                  placeholder={avatarUrl.startsWith("data:") ? "Uploaded photo in use" : "…or paste an image URL"}
+                  className="qx-auth-input mt-2 !py-2 !text-[12px]" />
+              </div>
               <label className="flex items-center gap-2.5 cursor-pointer">
                 <input type="checkbox" checked={hideBadge} onChange={(e) => setHideBadge(e.target.checked)} className="accent-[#F58F20] w-4 h-4" />
                 <span className="text-[12.5px] font-semibold" style={{ color: "var(--text)" }}>Hide “Made with QRix” badge</span>
@@ -257,7 +324,14 @@ export default function LinkInBioClient() {
           <div className="rounded-2xl p-4" style={{ background: "rgba(245,143,32,0.06)", border: "1px solid rgba(245,143,32,0.22)" }}>
             <div className="text-[12px] font-bold mb-2" style={{ color: "var(--text)" }}>Your page link + QR</div>
             <div className="flex flex-col sm:flex-row gap-4 items-start">
-              <div ref={qrMount} className="rounded-xl overflow-hidden shrink-0" style={{ background: "#fff", border: "1px solid var(--border)" }} />
+              <div className="shrink-0">
+                <div ref={qrMount} className="rounded-xl overflow-hidden" style={{ background: "#fff", border: "1px solid var(--border)", display: qrTooLong ? "none" : undefined }} />
+                {qrTooLong && (
+                  <div className="w-[170px] rounded-xl p-3 text-[11px] leading-snug" style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
+                    ⚠️ The uploaded photo makes this link too dense for a scannable QR. Share the link directly, or use a photo <b>URL</b> instead of an upload to keep the QR.
+                  </div>
+                )}
+              </div>
               <div className="flex-1 min-w-0 space-y-2 w-full">
                 <div className="text-[11px] break-all p-2.5 rounded-lg font-mono" style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)", maxHeight: 76, overflow: "hidden" }}>
                   {shareUrl || "…"}
