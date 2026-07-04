@@ -403,7 +403,7 @@ export default function HomePage() {
       `}</style>
 
       {/* ================= HERO ================= */}
-      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-16 pb-16 relative">
+      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-20 pb-24 lg:pb-32 relative">
         <hr className="qx-neon-line mb-12" />
 
         {/* ── TOP: Headline row ── */}
@@ -422,6 +422,20 @@ export default function HomePage() {
             <a href="#why" className="qx-btn-hero-ghost px-6 py-3">
               <FiPlay size={13}/> {t.demo}
             </a>
+          </div>
+
+          {/* Social proof — trust row */}
+          <div className="flex flex-wrap justify-center items-center gap-x-7 gap-y-2 mt-8 text-[12.5px] font-medium" style={{ color: "var(--text-faint)" }}>
+            <span className="inline-flex items-center gap-1.5">
+              <span style={{ color: "#fbbf24" }}>★★★★★</span>
+              {lang==="uz" ? "4.9 рейтинг" : lang==="ru" ? "рейтинг 4.9" : "4.9 rating"}
+            </span>
+            <span className="hidden sm:inline" aria-hidden style={{ opacity: .4 }}>·</span>
+            <span>{lang==="uz" ? "120,000+ QR яратилган" : lang==="ru" ? "Создано 120 000+ QR" : "120,000+ QR codes created"}</span>
+            <span className="hidden sm:inline" aria-hidden style={{ opacity: .4 }}>·</span>
+            <span>{lang==="uz" ? "55+ бепул асбоб" : lang==="ru" ? "55+ бесплатных инструментов" : "55+ free tools"}</span>
+            <span className="hidden sm:inline" aria-hidden style={{ opacity: .4 }}>·</span>
+            <span>{lang==="uz" ? "Рўйхатсиз, ватермарксиз" : lang==="ru" ? "Без регистрации и водяных знаков" : "No signup · No watermark"}</span>
           </div>
         </div>
 
@@ -618,7 +632,7 @@ export default function HomePage() {
       </section>
 
       {/* ================= TOOLS — 3D сузувчи карталар ================= */}
-      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-16">
+      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
         <ToolCards3D
           rows={toolRows}
           heading={lang === "uz" ? "Барча Асбоблар" : lang === "ru" ? "Все Инструменты" : "All Tools"}
@@ -626,7 +640,7 @@ export default function HomePage() {
       </section>
 
       {/* ================= STATS ================= */}
-      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20">
+      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
         <div className="qx-card relative overflow-hidden">
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-0">
             {stats.map((s, i) => (
@@ -659,7 +673,7 @@ export default function HomePage() {
       </section>
 
       {/* ================= WHY QRIX — BENTO GRID ================= */}
-      <section id="why" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20">
+      <section id="why" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
         <hr className="qx-neon-line mb-16" />
         <div className="text-center mb-12">
           <h2 className="qx-section-title justify-center" style={{ color:"var(--text)", fontSize:"clamp(2rem,5vw,3.2rem)", fontWeight:900 }}>

@@ -208,7 +208,7 @@ export default function TopNav() {
                 onMouseLeave={onLeave}>
                 <Link href={l.href}
                   className={`relative flex items-center gap-1 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors ${active ? "qx-nav-active" : ""}`}
-                  style={{ color: active ? "#fff" : "var(--text-muted)" }}>
+                  style={{ color: active ? "var(--text)" : "var(--text-muted)" }}>
                   {l.label}
                   {hasDropdown && <FiChevronDown size={11} style={{ opacity: 0.6, transform: hovered === l.dropdown ? "rotate(180deg)" : "none", transition: "transform .2s" }}/>}
                 </Link>
@@ -287,7 +287,7 @@ export default function TopNav() {
               return (
                 <Link key={l.href} href={l.href} onClick={() => setMobileOpen(false)}
                   className="flex items-center justify-between px-4 py-3 rounded-xl text-[15px] font-semibold"
-                  style={{ background: active ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.18)" }}>
+                  style={{ background: active ? "var(--surface-hover)" : "var(--surface)", color: "var(--text)", border: "1px solid var(--border)" }}>
                   {l.label}
                   <FiChevronDown size={14} style={{ transform: "rotate(-90deg)", opacity: .7 }} />
                 </Link>
@@ -295,8 +295,8 @@ export default function TopNav() {
             })}
             {!user && (
               <div className="grid grid-cols-2 gap-2 mt-2">
-                <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold" style={{ background: "rgba(255,255,255,0.14)", color: "#fff", border: "1px solid rgba(255,255,255,0.28)" }}>{t.signin}</Link>
-                <Link href="/register" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold" style={{ background: "#161208", color: "#fff" }}>{t.signup}</Link>
+                <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold" style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}>{t.signin}</Link>
+                <Link href="/register" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold text-white" style={{ background: "var(--grad-primary)" }}>{t.signup}</Link>
               </div>
             )}
           </nav>

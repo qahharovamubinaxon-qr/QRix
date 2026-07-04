@@ -44,8 +44,8 @@ export default function Logo({
       {mark}
       {wordmark && (
         <span className="flex items-baseline" style={{ letterSpacing: "-0.02em" }}>
-          <span className="text-[24px] font-extrabold" style={{ color: "#fff" }}>QR</span>
-          <span className="text-[24px] font-extrabold" style={{ color: "#161208" }}>ix</span>
+          <span className="text-[24px] font-extrabold" style={{ color: "var(--text)" }}>QR</span>
+          <span className="text-[24px] font-extrabold" style={{ color: "var(--primary-bright)" }}>ix</span>
         </span>
       )}
     </span>
