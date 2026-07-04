@@ -54,6 +54,23 @@ export default function RegisterClient() {
       } catch (err) {
         console.warn("Failed to sync session", err);
       }
+
+      // Claim a referral reward if the visitor arrived via someone's invite link.
+      try {
+        const m = document.cookie.match(/(?:^|; )qrix_ref=([a-z0-9]{4,16})/);
+        if (m) {
+          await fetch("/api/referral/claim", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ code: m[1] }),
+          });
+          document.cookie = "qrix_ref=; path=/; max-age=0";
+        }
+      } catch {
+        /* non-blocking */
+      }
+
       window.location.assign(next);
       return;
     }

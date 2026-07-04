@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import DashboardLinks from "@/components/DashboardLinks";
 import LogoutButton from "@/components/LogoutButton";
+import InviteCard from "@/components/InviteCard";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   ResponsiveContainer, PieChart, Pie, Cell,
@@ -433,6 +434,9 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
               </div>
             ))}
           </div>
+
+          {/* Referral / invite-friends growth card */}
+          <InviteCard />
 
           {/* Scan Analytics + Top Countries + Recent Activity */}
           <div className="grid xl:grid-cols-[1.6fr_1fr_1fr] lg:grid-cols-2 gap-5 mt-6">

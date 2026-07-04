@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import TopNav from "@/components/TopNav";
 import CursorGlow from "@/components/CursorGlow";
 import DotDistortionBackground from "@/components/DotDistortionBackground";
+import ReferralCapture from "@/components/ReferralCapture";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, jsonLd } from "@/lib/seo";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -100,6 +101,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {/* Бутун сайт фони — barcha sahifalarda chiqadi */}
         <DotDistortionBackground />
+        <ReferralCapture />
         <CursorGlow />
         <TopNav />
         {children}
