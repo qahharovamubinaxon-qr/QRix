@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiPlus, FiTrash2, FiCopy, FiCheck, FiDownload, FiExternalLink } from "react-icons/fi";
-import { encodeBio, type BioPage, type LinkItem } from "@/lib/linkpage";
+import { encodeBio, BIO_THEMES, type BioPage, type LinkItem, type BioTheme, type BioButtonStyle, type BioSocials } from "@/lib/linkpage";
 import BioView from "@/components/BioView";
 import { trackTool } from "@/lib/track";
 
@@ -14,17 +14,17 @@ const AVATARS = ["😀", "🚀", "🌟", "🎵", "🍕", "💼", "📸", "❤️
 /* Ready-made business templates — one click fills the whole page */
 type Template = { id: string; label: string; emoji: string; page: Omit<BioPage, "l"> & { l: LinkItem[] } };
 const TEMPLATES: Template[] = [
-  { id: "restaurant", label: "Restaurant / Café", emoji: "🍕", page: { t: "Bella Cucina", s: "Fresh pasta & wood-fired pizza — order or book below 👇", av: "🍕", c: "#e05252",
+  { id: "restaurant", label: "Restaurant / Café", emoji: "🍕", page: { t: "Bella Cucina", s: "Fresh pasta & wood-fired pizza — order or book below 👇", av: "🍕", c: "#e05252", th: "sunset", bs: "solid",
     l: [{ label: "📖 View our menu", url: "" }, { label: "🛵 Order delivery", url: "" }, { label: "📅 Book a table", url: "" }, { label: "⭐ Leave a review", url: "" }, { label: "📍 Find us on the map", url: "" }] } },
-  { id: "shop", label: "Shop / Store", emoji: "🛍️", page: { t: "Nova Store", s: "New arrivals every week — shop online or visit us 🛍️", av: "🛍️", c: "#7c3aed",
+  { id: "shop", label: "Shop / Store", emoji: "🛍️", page: { t: "Nova Store", s: "New arrivals every week — shop online or visit us 🛍️", av: "🛍️", c: "#7c3aed", th: "dark", bs: "pill",
     l: [{ label: "🛒 Shop online", url: "" }, { label: "🔥 This week's deals", url: "" }, { label: "📸 Instagram", url: "" }, { label: "💬 WhatsApp us", url: "" }, { label: "📍 Store location", url: "" }] } },
-  { id: "salon", label: "Salon / Beauty", emoji: "💅", page: { t: "Glow Studio", s: "Hair · nails · lashes — book your slot in seconds ✨", av: "💅", c: "#db2777",
+  { id: "salon", label: "Salon / Beauty", emoji: "💅", page: { t: "Glow Studio", s: "Hair · nails · lashes — book your slot in seconds ✨", av: "💅", c: "#db2777", th: "light", bs: "pill",
     l: [{ label: "📅 Book an appointment", url: "" }, { label: "💰 Price list", url: "" }, { label: "📸 Our work (Instagram)", url: "" }, { label: "💬 Ask a question", url: "" }] } },
-  { id: "freelancer", label: "Freelancer", emoji: "💼", page: { t: "Alex Karimov", s: "Web developer & designer — let's build something great", av: "💼", c: "#2563eb",
+  { id: "freelancer", label: "Freelancer", emoji: "💼", page: { t: "Alex Karimov", s: "Web developer & designer — let's build something great", av: "💼", c: "#2563eb", th: "ocean", bs: "solid",
     l: [{ label: "🗂️ My portfolio", url: "" }, { label: "💼 LinkedIn", url: "" }, { label: "✉️ Hire me", url: "" }, { label: "📄 Download CV", url: "" }] } },
-  { id: "musician", label: "Musician / Creator", emoji: "🎵", page: { t: "DJ Nightwave", s: "New single out now — stream it everywhere 🎧", av: "🎵", c: "#0891b2",
+  { id: "musician", label: "Musician / Creator", emoji: "🎵", page: { t: "DJ Nightwave", s: "New single out now — stream it everywhere 🎧", av: "🎵", c: "#0891b2", th: "dark", bs: "outline",
     l: [{ label: "🎧 Spotify", url: "" }, { label: "▶️ YouTube", url: "" }, { label: "🎬 TikTok", url: "" }, { label: "🎟️ Upcoming shows", url: "" }] } },
-  { id: "event", label: "Event / Wedding", emoji: "🎉", page: { t: "Aziza & Timur", s: "We're getting married! All the details below 💍", av: "🎉", c: "#F58F20",
+  { id: "event", label: "Event / Wedding", emoji: "🎉", page: { t: "Aziza & Timur", s: "We're getting married! All the details below 💍", av: "🎉", c: "#F58F20", th: "light", bs: "solid",
     l: [{ label: "📅 Save the date", url: "" }, { label: "📍 Venue & directions", url: "" }, { label: "✅ RSVP", url: "" }, { label: "🎁 Gift registry", url: "" }] } },
 ];
 
@@ -37,6 +37,11 @@ export default function LinkInBioClient() {
     { label: "My website", url: "" },
     { label: "Instagram", url: "" },
   ]);
+  const [theme, setTheme] = useState<BioTheme>("dark");
+  const [btnStyle, setBtnStyle] = useState<BioButtonStyle>("outline");
+  const [socials, setSocials] = useState<BioSocials>({});
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [hideBadge, setHideBadge] = useState(false);
   const [copied, setCopied] = useState(false);
   const [origin, setOrigin] = useState("");
   const qrMount = useRef<HTMLDivElement>(null);
@@ -44,10 +49,16 @@ export default function LinkInBioClient() {
 
   useEffect(() => { setOrigin(window.location.origin); }, []);
 
-  const page: BioPage = useMemo(
-    () => ({ t: title, s: subtitle || undefined, av: avatar, c: accent, l: links }),
-    [title, subtitle, avatar, accent, links]
-  );
+  const page: BioPage = useMemo(() => {
+    const soc = Object.fromEntries(Object.entries(socials).filter(([, v]) => v && v.trim())) as BioSocials;
+    return {
+      t: title, s: subtitle || undefined, av: avatar, avu: avatarUrl.trim() || undefined,
+      c: accent, th: theme, bs: btnStyle,
+      soc: Object.keys(soc).length ? soc : undefined,
+      nb: hideBadge ? 1 : undefined,
+      l: links,
+    };
+  }, [title, subtitle, avatar, avatarUrl, accent, theme, btnStyle, socials, hideBadge, links]);
 
   const shareUrl = useMemo(() => {
     if (!origin) return "";
@@ -115,6 +126,7 @@ export default function LinkInBioClient() {
                   onClick={() => {
                     setTitle(tp.page.t); setSubtitle(tp.page.s || ""); setAvatar(tp.page.av || "🚀");
                     setAccent(tp.page.c || "#F58F20"); setLinks(tp.page.l.map((l) => ({ ...l })));
+                    setTheme(tp.page.th || "dark"); setBtnStyle(tp.page.bs || "outline");
                     trackTool("link-in-bio", { action: "template", id: tp.id });
                   }}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12.5px] font-bold transition-all hover:-translate-y-0.5"
@@ -160,6 +172,63 @@ export default function LinkInBioClient() {
                 ))}
                 <input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="w-7 h-7 rounded-lg cursor-pointer !p-0 !border-0" />
               </div>
+            </div>
+          </div>
+
+          {/* Theme + button style */}
+          <div className="flex flex-wrap gap-6">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Page theme</div>
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(BIO_THEMES) as BioTheme[]).map((th) => (
+                  <button key={th} onClick={() => setTheme(th)} title={BIO_THEMES[th].label}
+                    className="w-11 h-9 rounded-lg text-[9px] font-bold flex items-end justify-center pb-0.5 transition-transform hover:scale-105"
+                    style={{ background: BIO_THEMES[th].bg, color: BIO_THEMES[th].muted, border: theme === th ? "2px solid var(--primary)" : "1px solid var(--border)" }}>
+                    {BIO_THEMES[th].label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Buttons</div>
+              <div className="flex gap-2">
+                {([["outline", "Outline"], ["solid", "Solid"], ["pill", "Pill"]] as [BioButtonStyle, string][]).map(([v, lbl]) => (
+                  <button key={v} onClick={() => setBtnStyle(v)}
+                    className="px-3 py-2 text-[12px] font-bold transition-all"
+                    style={{
+                      borderRadius: v === "pill" ? 99 : 10,
+                      background: v === "solid" ? (btnStyle === v ? "var(--grad-primary)" : "var(--surface-hover)") : "var(--surface-2)",
+                      color: v === "solid" && btnStyle === v ? "#fff" : "var(--text)",
+                      border: `2px solid ${btnStyle === v ? "var(--primary)" : "var(--border)"}`,
+                    }}>
+                    {lbl}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Socials + avatar photo */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Social icons (optional)</div>
+              <div className="grid grid-cols-2 gap-2">
+                {([["ig", "Instagram @"], ["tg", "Telegram @"], ["wa", "WhatsApp no."], ["yt", "YouTube @"], ["tk", "TikTok @"], ["fb", "Facebook"]] as [keyof BioSocials, string][]).map(([k, ph]) => (
+                  <input key={k} value={socials[k] || ""} onChange={(e) => setSocials((s) => ({ ...s, [k]: e.target.value.slice(0, 60) }))}
+                    placeholder={ph} className="qx-auth-input !py-2 !text-[12.5px]" />
+                ))}
+              </div>
+            </div>
+            <div className="space-y-3">
+              <label className="block">
+                <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Photo avatar URL (optional)</span>
+                <input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value.slice(0, 300))} placeholder="https://…/photo.jpg" className="qx-auth-input mt-1 !py-2.5" />
+              </label>
+              <label className="flex items-center gap-2.5 cursor-pointer">
+                <input type="checkbox" checked={hideBadge} onChange={(e) => setHideBadge(e.target.checked)} className="accent-[#F58F20] w-4 h-4" />
+                <span className="text-[12.5px] font-semibold" style={{ color: "var(--text)" }}>Hide “Made with QRix” badge</span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>PRO</span>
+              </label>
             </div>
           </div>
 

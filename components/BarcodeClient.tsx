@@ -38,6 +38,9 @@ export default function BarcodeClient() {
   const [height, setHeight] = useState(90);
   const [valid, setValid] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [bulk, setBulk] = useState("");
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkDone, setBulkDone] = useState<{ ok: number; fail: number } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
   const validationMsg = useMemo(() => {
@@ -113,6 +116,52 @@ export default function BarcodeClient() {
     setTimeout(() => setCopied(false), 1500);
   }
 
+  /** Bulk: one value per line → ZIP of PNG barcodes in the selected format. */
+  async function generateBulk() {
+    const lines = bulk.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).slice(0, 200);
+    if (!lines.length) return;
+    setBulkBusy(true); setBulkDone(null);
+    trackTool("barcode", { format: format.id, type: "bulk", count: lines.length });
+    try {
+      const [{ default: JsBarcode }, { default: JSZip }] = await Promise.all([import("jsbarcode"), import("jszip")]);
+      const zip = new JSZip();
+      let ok = 0, fail = 0;
+      for (const line of lines) {
+        try {
+          const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          let lineOk = true;
+          JsBarcode(svg, line, {
+            format: format.id, lineColor, background: "#ffffff", height, width: 2, margin: 14,
+            displayValue: showText, font: "monospace", fontSize: 15,
+            valid: (v: boolean) => { lineOk = v; },
+          });
+          if (!lineOk) { fail++; continue; }
+          const xml = new XMLSerializer().serializeToString(svg);
+          const img = new Image();
+          const url = URL.createObjectURL(new Blob([xml], { type: "image/svg+xml" }));
+          await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width * 3; canvas.height = img.height * 3;
+          const ctx = canvas.getContext("2d")!;
+          ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          URL.revokeObjectURL(url);
+          const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, "image/png"));
+          if (blob) { zip.file(`${line.replace(/[^\w.-]+/g, "_").slice(0, 40)}.png`, blob); ok++; }
+          else fail++;
+        } catch { fail++; }
+      }
+      if (ok > 0) {
+        const zipBlob = await zip.generateAsync({ type: "blob" });
+        const { saveBlob } = await import("@/lib/save-file");
+        await saveBlob(zipBlob, `barcodes-${format.id.toLowerCase()}-${ok}.zip`);
+      }
+      setBulkDone({ ok, fail });
+    } finally {
+      setBulkBusy(false);
+    }
+  }
+
   return (
     <div className="qx-card p-6">
       <div className="grid lg:grid-cols-[1fr_420px] gap-8">
@@ -180,6 +229,30 @@ export default function BarcodeClient() {
             <button onClick={copyValue} className="qx-btn-ghost !py-2.5 text-sm">
               {copied ? <FiCheck size={14} /> : <FiCopy size={14} />} Copy value
             </button>
+          </div>
+
+          {/* Bulk generation */}
+          <div className="rounded-2xl p-4 mt-2" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-[12px] font-bold" style={{ color: "var(--text)" }}>Bulk generate (up to 200)</span>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>PRO</span>
+            </div>
+            <textarea value={bulk} onChange={(e) => setBulk(e.target.value)} rows={3}
+              placeholder={"One value per line:\n590123412345\n590123412346"}
+              className="qx-auth-input !py-2 font-mono !text-[12px] w-full resize-y" />
+            <div className="flex items-center gap-3 mt-2.5">
+              <button onClick={generateBulk} disabled={bulkBusy || !bulk.trim()} className="qx-btn !py-2 !text-xs disabled:opacity-40">
+                <FiDownload size={13} /> {bulkBusy ? "Generating…" : "Download ZIP"}
+              </button>
+              {bulkDone && (
+                <span className="text-[12px]" style={{ color: "var(--text-muted)" }}>
+                  ✅ {bulkDone.ok} generated{bulkDone.fail > 0 ? ` · ⚠️ ${bulkDone.fail} invalid skipped` : ""}
+                </span>
+              )}
+            </div>
+            <p className="text-[10.5px] mt-2" style={{ color: "var(--text-faint)" }}>
+              Uses the format, color and size selected above — one PNG per line, zipped.
+            </p>
           </div>
         </div>
 
