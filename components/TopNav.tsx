@@ -21,9 +21,9 @@ const LANGUAGES = [
 ];
 
 const NAV = {
-  en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", pricing: "Pricing", signin: "Sign in", signout: "Sign out", signup: "Sign up" },
-  ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", pricing: "Тарифы", signin: "Войти", signout: "Выйти", signup: "Регистрация" },
-  uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", pricing: "Нархлар", signin: "Кириш", signout: "Чиқиш", signup: "Рўйхатдан ўтиш" },
+  en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", pricing: "Pricing", blog: "Blog", signin: "Sign in", signout: "Sign out", signup: "Sign up" },
+  ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", pricing: "Тарифы", blog: "Блог", signin: "Войти", signout: "Выйти", signup: "Регистрация" },
+  uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", pricing: "Нархлар", blog: "Блог", signin: "Кириш", signout: "Чиқиш", signup: "Рўйхатдан ўтиш" },
 };
 
 const DROPDOWNS: Record<string, { href: string; label: string; desc: string; icon: React.ReactNode; color: string }[]> = {
@@ -175,6 +175,7 @@ export default function TopNav() {
     { href: "/image-tools",label: t.image,     dropdown: "/image-tools" },
     { href: "/dashboard",  label: t.dashboard, dropdown: "/dashboard" },
     { href: "/pricing",    label: t.pricing,   dropdown: null },
+    { href: "/blog",       label: t.blog,      dropdown: null },
   ];
 
   const activeIndex = links.findIndex((l) => (l.href === "/" ? pathname === "/" : pathname.startsWith(l.href)));
