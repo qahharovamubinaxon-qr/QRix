@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import { POSTS } from "@/lib/blog";
+import { AI_TOOLS } from "@/lib/ai-tools-meta";
 
 const PDF_TOOLS = [
   "merge", "split", "compress", "pdf-to-word", "word-to-pdf", "pdf-to-jpg", "jpg-to-pdf",
@@ -26,6 +27,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/link-in-bio", 0.8),
     entry("/qr-tools/decode", 0.8),
     entry("/barcode", 0.8),
+    entry("/ai-tools", 0.9),
+    ...AI_TOOLS.map((t) => entry(`/ai-tools/${t.slug}`, 0.8)),
     entry("/pricing", 0.7, "monthly"),
     entry("/blog", 0.7, "weekly"),
     ...POSTS.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly")),

@@ -21,9 +21,9 @@ const LANGUAGES = [
 ];
 
 const NAV = {
-  en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", pricing: "Pricing", blog: "Blog", signin: "Sign in", signout: "Sign out", signup: "Sign up" },
-  ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", pricing: "Тарифы", blog: "Блог", signin: "Войти", signout: "Выйти", signup: "Регистрация" },
-  uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", pricing: "Нархлар", blog: "Блог", signin: "Кириш", signout: "Чиқиш", signup: "Рўйхатдан ўтиш" },
+  en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", pricing: "Pricing", blog: "Blog", ai: "AI Tools", signin: "Sign in", signout: "Sign out", signup: "Sign up" },
+  ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", pricing: "Тарифы", blog: "Блог", ai: "AI Инструменты", signin: "Войти", signout: "Выйти", signup: "Регистрация" },
+  uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", pricing: "Нархлар", blog: "Блог", ai: "AI Асбоблар", signin: "Кириш", signout: "Чиқиш", signup: "Рўйхатдан ўтиш" },
 };
 
 const DROPDOWNS: Record<string, { href: string; label: string; desc: string; icon: React.ReactNode; color: string }[]> = {
@@ -53,6 +53,16 @@ const DROPDOWNS: Record<string, { href: string; label: string; desc: string; ico
     { href: "/image-tools/compress",     label: "Compress",    desc: "Reduce image size",    icon: <FiMinimize2 size={15}/>,  color: "#16a34a" },
     { href: "/image-tools/resize",       label: "Resize",      desc: "Change dimensions",    icon: <FiMaximize2 size={15}/>,  color: "#2563eb" },
     { href: "/image-tools",              label: "All Image Tools",desc: "10+ tools",          icon: <FiImage size={15}/>,      color: "#e1ff04" },
+  ],
+  "/ai-tools": [
+    { href: "/ai-tools/background-remover", label: "Background Remover", desc: "Transparent PNG in seconds", icon: <FiScissors size={15}/>, color: "#bba9ff" },
+    { href: "/ai-tools/image-upscaler",     label: "Image Upscaler",     desc: "2×–4× enhancement",        icon: <FiZap size={15}/>,       color: "#e1ff04" },
+    { href: "/ai-tools/ocr",                label: "AI OCR",             desc: "Image → text",              icon: <FiType size={15}/>,      color: "#0891b2" },
+    { href: "/ai-tools/speech-to-text",     label: "Speech to Text",     desc: "Live dictation",            icon: <FiCamera size={15}/>,    color: "#dc2626" },
+    { href: "/ai-tools/logo-generator",     label: "Logo Generator",     desc: "Monograms & wordmarks",     icon: <FiImage size={15}/>,     color: "#ea580c" },
+    { href: "/ai-tools/resume-builder",     label: "Resume Builder",     desc: "ATS-friendly PDF",          icon: <FiUser size={15}/>,      color: "#059669" },
+    { href: "/ai-tools/qr-generator",       label: "AI QR",              desc: "Brand-styled QR codes",     icon: <FiGrid size={15}/>,      color: "#84cc16" },
+    { href: "/ai-tools",                    label: "All AI Tools",       desc: "28 tools, one toolbox",     icon: <FiZap size={15}/>,       color: "#e1ff04" },
   ],
   "/dashboard": [
     { href: "/dashboard",          label: "Overview",    desc: "Stats & analytics",    icon: <FiPieChart size={15}/>,   color: "#4f46e5" },
@@ -174,6 +184,7 @@ export default function TopNav() {
     { href: "/qr-tools",   label: t.qr,        dropdown: "/qr-tools" },
     { href: "/pdf-tools",  label: t.pdf,       dropdown: "/pdf-tools" },
     { href: "/image-tools",label: t.image,     dropdown: "/image-tools" },
+    { href: "/ai-tools",   label: t.ai,        dropdown: "/ai-tools" },
     { href: "/dashboard",  label: t.dashboard, dropdown: "/dashboard" },
     { href: "/pricing",    label: t.pricing,   dropdown: null },
     { href: "/blog",       label: t.blog,      dropdown: null },
