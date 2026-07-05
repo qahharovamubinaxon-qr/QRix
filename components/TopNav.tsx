@@ -21,9 +21,9 @@ const LANGUAGES = [
 ];
 
 const NAV = {
-  en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", pricing: "Pricing", blog: "Blog", ai: "AI Tools", signin: "Sign in", signout: "Sign out", signup: "Sign up" },
-  ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", pricing: "Тарифы", blog: "Блог", ai: "AI Инструменты", signin: "Войти", signout: "Выйти", signup: "Регистрация" },
-  uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", pricing: "Нархлар", blog: "Блог", ai: "AI Асбоблар", signin: "Кириш", signout: "Чиқиш", signup: "Рўйхатдан ўтиш" },
+  en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", pricing: "Pricing", blog: "Blog", ai: "AI Tools", video: "Video Tools", signin: "Sign in", signout: "Sign out", signup: "Sign up" },
+  ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", pricing: "Тарифы", blog: "Блог", ai: "AI Инструменты", video: "Видео", signin: "Войти", signout: "Выйти", signup: "Регистрация" },
+  uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", pricing: "Нархлар", blog: "Блог", ai: "AI Асбоблар", video: "Видео Асбоблар", signin: "Кириш", signout: "Чиқиш", signup: "Рўйхатдан ўтиш" },
 };
 
 const DROPDOWNS: Record<string, { href: string; label: string; desc: string; icon: React.ReactNode; color: string }[]> = {
@@ -63,6 +63,16 @@ const DROPDOWNS: Record<string, { href: string; label: string; desc: string; ico
     { href: "/ai-tools/resume-builder",     label: "Resume Builder",     desc: "ATS-friendly PDF",          icon: <FiUser size={15}/>,      color: "#059669" },
     { href: "/ai-tools/qr-generator",       label: "AI QR",              desc: "Brand-styled QR codes",     icon: <FiGrid size={15}/>,      color: "#84cc16" },
     { href: "/ai-tools",                    label: "All AI Tools",       desc: "28 tools, one toolbox",     icon: <FiZap size={15}/>,       color: "#e1ff04" },
+  ],
+  "/video-tools": [
+    { href: "/video-tools/compress-video", label: "Compress",     desc: "Shrink 60-85%",          icon: <FiMinimize2 size={15}/>, color: "#84cc16" },
+    { href: "/video-tools/trim-video",     label: "Trim",         desc: "Timeline handles",       icon: <FiScissors size={15}/>,  color: "#e1ff04" },
+    { href: "/video-tools/merge-videos",   label: "Merge",        desc: "Join clips",             icon: <FiLayers size={15}/>,    color: "#22d3ee" },
+    { href: "/video-tools/video-to-gif",   label: "Video to GIF", desc: "Real GIF encoder",       icon: <FiImage size={15}/>,     color: "#f472b6" },
+    { href: "/video-tools/extract-audio",  label: "Extract Audio",desc: "Video to WAV",           icon: <FiZap size={15}/>,       color: "#a78bfa" },
+    { href: "/video-tools/video-thumbnail",label: "Thumbnail",    desc: "Native-res frame grab",  icon: <FiCamera size={15}/>,    color: "#bba9ff" },
+    { href: "/video-tools/subtitle-editor",label: "SRT Editor",   desc: "Fix text and timing",    icon: <FiType size={15}/>,      color: "#34d399" },
+    { href: "/video-tools",                 label: "All Video Tools", desc: "29 tools, one studio", icon: <FiGrid size={15}/>,      color: "#e1ff04" },
   ],
   "/dashboard": [
     { href: "/dashboard",          label: "Overview",    desc: "Stats & analytics",    icon: <FiPieChart size={15}/>,   color: "#4f46e5" },
@@ -185,6 +195,7 @@ export default function TopNav() {
     { href: "/pdf-tools",  label: t.pdf,       dropdown: "/pdf-tools" },
     { href: "/image-tools",label: t.image,     dropdown: "/image-tools" },
     { href: "/ai-tools",   label: t.ai,        dropdown: "/ai-tools" },
+    { href: "/video-tools",label: t.video,     dropdown: "/video-tools" },
     { href: "/dashboard",  label: t.dashboard, dropdown: "/dashboard" },
     { href: "/pricing",    label: t.pricing,   dropdown: null },
     { href: "/blog",       label: t.blog,      dropdown: null },

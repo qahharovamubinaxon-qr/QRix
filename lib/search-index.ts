@@ -1,12 +1,13 @@
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import { POSTS } from "@/lib/blog";
 import { AI_TOOLS } from "@/lib/ai-tools-meta";
+import { VIDEO_TOOLS } from "@/lib/video-tools-meta";
 
 /** One flat, client-safe index of everything searchable on the site. */
 export type SearchItem = {
   title: string;
   href: string;
-  group: "QR Tools" | "PDF Tools" | "Image Tools" | "AI Tools" | "Pages" | "Blog";
+  group: "QR Tools" | "PDF Tools" | "Image Tools" | "AI Tools" | "Video Tools" | "Pages" | "Blog";
   keywords?: string;
 };
 
@@ -54,6 +55,9 @@ export function buildSearchIndex(): SearchItem[] {
     })),
     ...AI_TOOLS.map((t) => ({
       title: t.title, href: `/ai-tools/${t.slug}`, group: "AI Tools" as const, keywords: t.keywords.join(" "),
+    })),
+    ...VIDEO_TOOLS.map((t) => ({
+      title: t.title, href: `/video-tools/${t.slug}`, group: "Video Tools" as const, keywords: t.keywords.join(" "),
     })),
     ...PAGES,
     ...POSTS.map((p) => ({
