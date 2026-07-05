@@ -912,3 +912,100 @@ html.light .qx-card, html.light .qx-card-glow, html.light .qx-card-premium {
   border-color: rgba(0,0,0,0.16);
   box-shadow: 0 10px 40px rgba(0,0,0,0.10);
 }
+
+/* ============================================================
+   PREMIUM MOTION SYSTEM (MotionLayer.tsx)
+   ============================================================ */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition:
+    opacity .7s cubic-bezier(.22,.6,.28,1) var(--rv-delay, 0ms),
+    transform .7s cubic-bezier(.22,.6,.28,1) var(--rv-delay, 0ms),
+    filter .7s cubic-bezier(.22,.6,.28,1) var(--rv-delay, 0ms);
+  will-change: opacity, transform;
+}
+[data-reveal="left"]  { transform: translateX(-28px); }
+[data-reveal="right"] { transform: translateX(28px); }
+[data-reveal="scale"] { transform: scale(.94); }
+[data-reveal="blur"]  { transform: none; filter: blur(10px); }
+[data-reveal].rv-in {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] { opacity: 1 !important; transform: none !important; filter: none !important; transition: none !important; }
+}
+
+/* mouse-follow spotlight on cards (uses --mx/--my set by MotionLayer) */
+.qx-card::before,
+.qx-card-glow::before,
+.qx-card-premium::before {
+  background:
+    radial-gradient(340px circle at var(--mx, 50%) var(--my, 0%),
+      color-mix(in srgb, var(--primary) 9%, transparent), transparent 65%),
+    var(--card-sheen);
+}
+
+/* magnetic elements move via inline transform — keep their own transition */
+[data-magnetic] { transition: transform .18s cubic-bezier(.22,.6,.28,1); display: inline-flex; }
+
+/* ── trusted-by marquee ── */
+.qx-logos-track {
+  display: flex; gap: 3.5rem; width: max-content;
+  animation: qxLogos 36s linear infinite;
+}
+.qx-logos-mask {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+          mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+.qx-logos-mask:hover .qx-logos-track { animation-play-state: paused; }
+@keyframes qxLogos { to { transform: translateX(-50%); } }
+.qx-logo-item {
+  font-family: var(--font-display);
+  font-weight: 800; font-size: 1.15rem; letter-spacing: -.01em;
+  color: var(--text-faint);
+  filter: grayscale(1);
+  opacity: .7;
+  transition: color .25s, opacity .25s, filter .25s, transform .25s;
+  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: .45rem;
+}
+.qx-logo-item:hover { color: var(--text); filter: none; opacity: 1; transform: translateY(-2px); }
+
+/* ── FAQ accordion ── */
+.qx-faq-item { border-bottom: 1px solid var(--border); }
+.qx-faq-q {
+  width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: 1.1rem .25rem; cursor: pointer; text-align: left;
+  font-weight: 700; font-size: .95rem; color: var(--text);
+  background: none; border: none;
+}
+.qx-faq-q svg { transition: transform .3s cubic-bezier(.22,.6,.28,1); flex-shrink: 0; color: var(--primary-bright); }
+.qx-faq-item[data-open="true"] .qx-faq-q svg { transform: rotate(45deg); }
+.qx-faq-a {
+  display: grid; grid-template-rows: 0fr;
+  transition: grid-template-rows .35s cubic-bezier(.22,.6,.28,1);
+}
+.qx-faq-item[data-open="true"] .qx-faq-a { grid-template-rows: 1fr; }
+.qx-faq-a > div { overflow: hidden; }
+.qx-faq-a p { padding: 0 .25rem 1.1rem; font-size: .875rem; line-height: 1.65; color: var(--text-muted); }
+
+/* ── route transition: soft fade+rise on every page mount ── */
+@keyframes qxPageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.qx-page-in { animation: qxPageIn .45s cubic-bezier(.22,.6,.28,1) both; }
+@media (prefers-reduced-motion: reduce) { .qx-page-in { animation: none; } }
+
+/* ── top loading bar shimmer ── */
+@keyframes qxBar { from { transform: translateX(-100%);} to { transform: translateX(320%);} }
+.qx-loadbar {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 100; overflow: hidden;
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+}
+.qx-loadbar::after {
+  content: ""; position: absolute; inset-block: 0; width: 34%;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  animation: qxBar 1s ease-in-out infinite;
+}

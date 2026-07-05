@@ -7,6 +7,10 @@ import ReviewsSection from "@/components/ReviewsSection";
 import { trackTool } from "@/lib/track";
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import ToolCards3D from "@/components/ToolCards3D";
+import TrustedBy from "@/components/TrustedBy";
+import HomeFaq from "@/components/HomeFaq";
+import LatestPosts from "@/components/LatestPosts";
+import NewsletterSection from "@/components/NewsletterSection";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
@@ -416,7 +420,7 @@ export default function HomePage() {
           </h1>
           <p className="text-[15px] lg:text-[17px] leading-relaxed max-w-xl mx-auto mb-7" style={{ color:"var(--text-muted)" }}>{t.sub}</p>
           <div className="flex flex-wrap justify-center items-center gap-3">
-            <a href="#generator" className="qx-btn-hero px-7 py-3">
+            <a href="#generator" className="qx-btn-hero px-7 py-3" data-magnetic>
               {t.cta} <FiArrowRight size={15}/>
             </a>
             <a href="#why" className="qx-btn-hero-ghost px-6 py-3">
@@ -684,7 +688,8 @@ export default function HomePage() {
         </div>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {features.map((f, i) => (
-            <div key={f.title} className={`qx-bento qx-rise qx-rise-${i+1}`}>
+            <div key={f.title} className={`qx-bento qx-rise qx-rise-${i+1}`} data-reveal="scale"
+              style={{ ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
               {/* icon color glow */}
               <div className="absolute inset-0 opacity-40 pointer-events-none"
                 style={{ background:`radial-gradient(circle at 28% 24%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#e1ff04"}26 0%, transparent 58%)` }}/>
@@ -701,6 +706,34 @@ export default function HomePage() {
 
       {/* ================= REVIEWS ================= */}
       <ReviewsSection lang={lang} />
+
+      {/* ================= TRUSTED BY ================= */}
+      <TrustedBy heading={lang === "uz" ? "Жаҳон жамоалари ишонган воситалар тоифаси" : lang === "ru" ? "Инструменты уровня мировых команд" : "The tool quality world-class teams expect"} />
+
+      {/* ================= FAQ ================= */}
+      <HomeFaq lang={lang} />
+
+      {/* ================= LATEST BLOG ================= */}
+      <LatestPosts
+        heading={lang === "uz" ? "Сўнгги қўлланмалар" : lang === "ru" ? "Свежие гайды" : "Latest guides"}
+        cta={lang === "uz" ? "Барчаси" : lang === "ru" ? "Все статьи" : "View all"}
+      />
+
+      {/* ================= NEWSLETTER ================= */}
+      <NewsletterSection lang={lang} />
+
+      {/* ================= FINAL CTA ================= */}
+      <section className="max-w-3xl mx-auto px-5 pb-24 lg:pb-32 text-center" data-reveal="scale">
+        <h2 className="font-display text-3xl lg:text-5xl font-extrabold leading-tight" style={{ color: "var(--text)" }}>
+          {lang === "uz" ? "Бугуноқ бошланг — бепул" : lang === "ru" ? "Начните сегодня — бесплатно" : "Start creating today — free"}
+        </h2>
+        <p className="mt-4 text-[15px] max-w-md mx-auto" style={{ color: "var(--text-muted)" }}>
+          {lang === "uz" ? "Рўйхатсиз. Ватермарксиз. 55+ асбоб — браузерингизда." : lang === "ru" ? "Без регистрации. Без водяных знаков. 55+ инструментов в браузере." : "No signup. No watermark. 55+ tools right in your browser."}
+        </p>
+        <a href="#generator" className="qx-btn-hero inline-flex mt-8" data-magnetic>
+          {t.cta} <FiArrowRight size={15} />
+        </a>
+      </section>
 
       {/* ================= FOOTER ================= */}
       <footer className="mt-10 relative overflow-hidden">
