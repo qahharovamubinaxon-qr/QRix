@@ -6,7 +6,6 @@ import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import ReviewsSection from "@/components/ReviewsSection";
 import { trackTool } from "@/lib/track";
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
-import ToolCards3D from "@/components/ToolCards3D";
 import CategoryShowcase from "@/components/CategoryShowcase";
 import TrustedBy from "@/components/TrustedBy";
 import HomeFaq from "@/components/HomeFaq";
@@ -340,41 +339,6 @@ export default function HomePage() {
     { id: "telegram", label: "Telegram", icon: <FiSend size={14} /> },
   ];
 
-  // 1-қатор — QR функциялари
-  const qrRow = [
-    { href: "/qr-tools/url", label: "URL QR", desc: lang === "uz" ? "Ҳар қандай ссилка" : lang === "ru" ? "Любая ссылка" : "Any link", icon: <FiLink size={20} />, grad: "linear-gradient(135deg,#4f46e5,#3b82f6)" },
-    { href: "/qr-tools/wifi", label: "WiFi QR", desc: lang === "uz" ? "WiFi улашиш" : lang === "ru" ? "Поделиться WiFi" : "Share WiFi", icon: <FiWifi size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
-    { href: "/qr-tools/vcard", label: "vCard / NFC", desc: lang === "uz" ? "Рақамли визитка" : lang === "ru" ? "Визитка" : "Business card", icon: <FiUser size={20} />, grad: "linear-gradient(135deg,#d97706,#fbbf24)" },
-    { href: "/qr-tools/whatsapp", label: "WhatsApp QR", desc: lang === "uz" ? "Чатга тўғридан" : lang === "ru" ? "Прямо в чат" : "Straight to chat", icon: <FiMessageCircle size={20} />, grad: "linear-gradient(135deg,#16a34a,#86efac)", badge: "New" },
-    { href: "/qr-tools/telegram", label: "Telegram QR", desc: lang === "uz" ? "Каналлар учун" : lang === "ru" ? "Для каналов" : "Channels & bots", icon: <FiSend size={20} />, grad: "linear-gradient(135deg,#0284c7,#38bdf8)" },
-    { href: "/qr-tools", label: lang === "uz" ? "Барчаси +25" : lang === "ru" ? "Все +25" : "All +25", desc: lang === "uz" ? "QR турлари" : lang === "ru" ? "Типы QR" : "QR types", icon: <FiGrid size={20} />, grad: "linear-gradient(135deg,#bba9ff,#6366f1)" },
-  ];
-
-  // 2-қатор — PDF функциялари
-  const pdfRow = [
-    { href: "/pdf-tools/merge", label: "Merge PDF", desc: lang === "uz" ? "Бирлаштириш" : lang === "ru" ? "Объединить" : "Combine files", icon: <FiLayers size={20} />, grad: "linear-gradient(135deg,#4f46e5,#818cf8)" },
-    { href: "/pdf-tools/split", label: "Split PDF", desc: lang === "uz" ? "Ажратиш" : lang === "ru" ? "Разделить" : "Split pages", icon: <FiScissors size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)" },
-    { href: "/pdf-tools/compress", label: "Compress", desc: lang === "uz" ? "Сиқиш" : lang === "ru" ? "Сжать" : "Reduce size", icon: <FiMinimize2 size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
-    { href: "/pdf-tools/protect", label: "Protect PDF", desc: lang === "uz" ? "Парол қўйиш" : lang === "ru" ? "Пароль" : "Password", icon: <FiLock size={20} />, grad: "linear-gradient(135deg,#6366f1,#8b5cf6)", badge: "New" },
-    { href: "/pdf-tools/watermark", label: "Watermark", desc: lang === "uz" ? "Сув белгиси" : lang === "ru" ? "Водяной знак" : "Watermark", icon: <FiDroplet size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)" },
-    { href: "/pdf-tools", label: lang === "uz" ? "Барчаси +8" : lang === "ru" ? "Все +8" : "All +8", desc: lang === "uz" ? "PDF асбоблари" : lang === "ru" ? "PDF инструменты" : "PDF tools", icon: <FiFileText size={20} />, grad: "linear-gradient(135deg,#ea580c,#fb923c)" },
-  ];
-
-  // 3-қатор — Image функциялари
-  const imageRow = [
-    { href: "/image-tools/remove-bg", label: "Remove BG", desc: lang === "uz" ? "Фон ўчириш" : lang === "ru" ? "Удалить фон" : "Remove background", icon: <FiScissors size={20} />, grad: "linear-gradient(135deg,#bba9ff,#a855f7)", badge: "AI" },
-    { href: "/image-tools/image-to-text", label: "Image to Text", desc: lang === "uz" ? "Матн олиш" : lang === "ru" ? "Текст из фото" : "Extract text", icon: <FiType size={20} />, grad: "linear-gradient(135deg,#0891b2,#22d3ee)", badge: "AI" },
-    { href: "/image-tools/upscale", label: "Enhancer", desc: lang === "uz" ? "Сифат ошириш" : lang === "ru" ? "Улучшить" : "Upscale", icon: <FiZap size={20} />, grad: "linear-gradient(135deg,#f59e0b,#fbbf24)", badge: "New" },
-    { href: "/image-tools/compress", label: "Compress", desc: lang === "uz" ? "Сиқиш" : lang === "ru" ? "Сжать" : "Reduce size", icon: <FiMinimize2 size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
-    { href: "/image-tools/resize", label: "Resize", desc: lang === "uz" ? "Ўлчам" : lang === "ru" ? "Размер" : "Resize", icon: <FiMaximize2 size={20} />, grad: "linear-gradient(135deg,#2563eb,#60a5fa)" },
-    { href: "/image-tools", label: lang === "uz" ? "Барчаси" : lang === "ru" ? "Все" : "All tools", desc: lang === "uz" ? "Расм асбоблари" : lang === "ru" ? "Фото инструменты" : "Image tools", icon: <FiImage size={20} />, grad: "linear-gradient(135deg,#9333ea,#d946ef)" },
-  ];
-
-  const toolRows = [
-    { title: lang === "uz" ? "QR Код Асбоблари" : lang === "ru" ? "QR Инструменты" : "QR Code Tools", href: "/qr-tools", items: qrRow },
-    { title: lang === "uz" ? "PDF Асбоблари" : lang === "ru" ? "PDF Инструменты" : "PDF Tools", href: "/pdf-tools", items: pdfRow },
-    { title: lang === "uz" ? "Расм Асбоблари" : lang === "ru" ? "Инструменты Изображений" : "Image Tools", href: "/image-tools", items: imageRow },
-  ];
 
   const stats = [
     { end: 1000000, suffix: "+", label: t.statQr, icon: <FiGrid />, color: "#a78bfa" },
@@ -638,14 +602,6 @@ export default function HomePage() {
 
       {/* ================= PREMIUM CATEGORY SHOWCASE ================= */}
       <CategoryShowcase />
-
-      {/* ================= TOOLS — 3D сузувчи карталар ================= */}
-      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
-        <ToolCards3D
-          rows={toolRows}
-          heading={lang === "uz" ? "Барча Асбоблар" : lang === "ru" ? "Все Инструменты" : "All Tools"}
-        />
-      </section>
 
       {/* ================= STATS ================= */}
       <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
