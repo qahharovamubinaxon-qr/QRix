@@ -7,6 +7,7 @@ import ReviewsSection from "@/components/ReviewsSection";
 import { trackTool } from "@/lib/track";
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import ToolCards3D from "@/components/ToolCards3D";
+import CategoryShowcase from "@/components/CategoryShowcase";
 import TrustedBy from "@/components/TrustedBy";
 import HomeFaq from "@/components/HomeFaq";
 import LatestPosts from "@/components/LatestPosts";
@@ -634,6 +635,9 @@ export default function HomePage() {
 
         </div>{/* closes 3-col grid */}
       </section>
+
+      {/* ================= PREMIUM CATEGORY SHOWCASE ================= */}
+      <CategoryShowcase />
 
       {/* ================= TOOLS — 3D сузувчи карталар ================= */}
       <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
