@@ -51,8 +51,9 @@ const DROPDOWNS: Record<string, { href: string; label: string; desc: string; ico
     { href: "/image-tools/image-to-text",label: "Image to Text",desc: "Extract text (OCR)",  icon: <FiType size={15}/>,       color: "#0891b2" },
     { href: "/image-tools/upscale",      label: "AI Upscale",  desc: "Enhance resolution",   icon: <FiZap size={15}/>,        color: "#d97706" },
     { href: "/image-tools/compress",     label: "Compress",    desc: "Reduce image size",    icon: <FiMinimize2 size={15}/>,  color: "#16a34a" },
-    { href: "/image-tools/resize",       label: "Resize",      desc: "Change dimensions",    icon: <FiMaximize2 size={15}/>,  color: "#2563eb" },
-    { href: "/image-tools",              label: "All Image Tools",desc: "10+ tools",          icon: <FiImage size={15}/>,      color: "#e1ff04" },
+    { href: "/image-tools/crop-image",   label: "Crop Image",  desc: "Crop with presets",    icon: <FiMaximize2 size={15}/>,  color: "#84cc16" },
+    { href: "/image-tools/social-media-resize", label: "Social Resize", desc: "Every platform size", icon: <FiImage size={15}/>, color: "#db2777" },
+    { href: "/image-tools",              label: "All Image Tools",desc: "70+ tools",          icon: <FiImage size={15}/>,      color: "#e1ff04" },
   ],
   "/ai-tools": [
     { href: "/ai-tools/background-remover", label: "Background Remover", desc: "Transparent PNG in seconds", icon: <FiScissors size={15}/>, color: "#bba9ff" },

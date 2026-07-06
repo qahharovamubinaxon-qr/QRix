@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import ImageExpansionGrid from "@/components/image/ImageExpansionGrid";
 import {
   FiScissors, FiType, FiMinimize2, FiMaximize2, FiRefreshCw,
   FiImage, FiShield, FiZap, FiCheckCircle, FiArrowRight,
@@ -116,6 +117,8 @@ export default function ImageToolsPage() {
             </Link>
           ))}
         </div>
+
+        <ImageExpansionGrid />
       </main>
     </div>
   );

@@ -2,6 +2,7 @@ import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import { POSTS } from "@/lib/blog";
 import { AI_TOOLS } from "@/lib/ai-tools-meta";
 import { VIDEO_TOOLS } from "@/lib/video-tools-meta";
+import { IMAGE_TOOLS as IMG_EXP } from "@/lib/image-tools-meta";
 
 /** One flat, client-safe index of everything searchable on the site. */
 export type SearchItem = {
@@ -58,6 +59,9 @@ export function buildSearchIndex(): SearchItem[] {
     })),
     ...VIDEO_TOOLS.map((t) => ({
       title: t.title, href: `/video-tools/${t.slug}`, group: "Video Tools" as const, keywords: t.keywords.join(" "),
+    })),
+    ...IMG_EXP.map((t) => ({
+      title: t.title, href: `/image-tools/${t.slug}`, group: "Image Tools" as const, keywords: t.keywords.join(" "),
     })),
     ...PAGES,
     ...POSTS.map((p) => ({
