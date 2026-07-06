@@ -11,7 +11,7 @@ import {
   FiLink, FiWifi, FiUser, FiMessageCircle, FiType, FiRefreshCw,
   FiLayers, FiScissors, FiMinimize2, FiLock, FiDroplet,
   FiZap, FiBarChart2, FiCamera, FiImage, FiMaximize2,
-  FiGrid, FiPieChart, FiSettings,
+  FiGrid, FiPieChart, FiSettings, FiHeart, FiClock,
 } from "react-icons/fi";
 
 const LANGUAGES = [
@@ -130,6 +130,7 @@ export default function TopNav() {
   const [langOpen, setLangOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userOpen, setUserOpen] = useState(false);
   const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // sliding glass pill behind the nav items
@@ -273,27 +274,48 @@ export default function TopNav() {
             )}
           </div>
 
-          {/* Auth */}
-          {user ? (
-            <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl"
-                style={{ background: "var(--surface-hover)", border: "1px solid var(--border)" }}>
-                <span className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold uppercase shrink-0"
-                  style={{ background: "var(--grad-primary)" }}>
-                  {(user.email || "U").slice(0, 2)}
-                </span>
-                <span className="text-xs font-medium max-w-[160px] truncate" style={{ color: "var(--text)" }}>{user.email}</span>
+          {/* Account menu — always available (favorites/history/settings work for guests too) */}
+          <div className="relative" onMouseLeave={() => setUserOpen(false)}>
+            <button onClick={() => setUserOpen((v) => !v)} className="flex items-center gap-2 rounded-xl px-2 py-1.5"
+              style={{ background: "var(--surface-hover)", border: "1px solid var(--border)" }} aria-haspopup="true" aria-expanded={userOpen} aria-label="Account menu">
+              <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold uppercase shrink-0"
+                style={{ background: "var(--grad-primary)", color: "#0b0b0b" }}>
+                {user ? (user.email || "U").slice(0, 2) : <FiUser size={13} />}
+              </span>
+              {user && <span className="text-xs font-medium max-w-[130px] truncate hidden lg:inline" style={{ color: "var(--text)" }}>{user.email}</span>}
+              <FiChevronDown size={11} style={{ color: "var(--text-faint)", transform: userOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }} />
+            </button>
+            {userOpen && (
+              <div className="absolute right-0 top-full mt-2 w-56 rounded-xl overflow-hidden z-50"
+                style={{ background: "var(--surface-solid)", border: "1px solid var(--border)", boxShadow: "var(--shadow-pop)" }}>
+                {user && <div className="px-4 py-3 text-[12px] truncate" style={{ borderBottom: "1px solid var(--border)", color: "var(--text-muted)" }}>{user.email}</div>}
+                {[
+                  { href: "/dashboard", label: t.dashboard, icon: <FiPieChart size={15} /> },
+                  { href: "/account", label: "Account", icon: <FiUser size={15} /> },
+                  { href: "/favorites", label: "Favorites", icon: <FiHeart size={15} /> },
+                  { href: "/history", label: "History", icon: <FiClock size={15} /> },
+                  { href: "/settings", label: "Settings", icon: <FiSettings size={15} /> },
+                ].map((m) => (
+                  <Link key={m.href + m.label} href={m.href} onClick={() => setUserOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold transition-colors"
+                    style={{ color: "var(--text)" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-hover)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
+                    <span style={{ color: "var(--text-faint)" }}>{m.icon}</span>{m.label}
+                  </Link>
+                ))}
+                <div style={{ borderTop: "1px solid var(--border)" }}>
+                  {user
+                    ? <button onClick={() => { setUserOpen(false); signOut(); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold" style={{ color: "var(--danger)" }}><FiLogOut size={15} /> {t.signout}</button>
+                    : <div className="grid grid-cols-2 gap-2 p-3">
+                        <Link href="/login" onClick={() => setUserOpen(false)} className="qx-btn-ghost !py-2 !text-[12px] justify-center">{t.signin}</Link>
+                        <Link href="/register" onClick={() => setUserOpen(false)} className="qx-btn !py-2 !text-[12px] justify-center">{t.signup}</Link>
+                      </div>}
+                </div>
               </div>
-              <button onClick={signOut} className="qx-btn-ghost !p-2.5" title={t.signout} aria-label={t.signout}>
-                <FiLogOut size={14}/>
-              </button>
-            </div>
-          ) : (
-            <>
-              <Link href="/login" className="qx-btn-ghost !py-2 !px-4 text-[13px] font-semibold hidden sm:inline-flex">{t.signin}</Link>
-              <Link href="/register" className="qx-btn !py-2 !px-4 text-[13px] font-bold hidden sm:inline-flex">{t.signup}</Link>
-            </>
-          )}
+            )}
+          </div>
+          {!user && <Link href="/register" className="qx-btn !py-2 !px-4 text-[13px] font-bold hidden lg:inline-flex">{t.signup}</Link>}
 
           {/* Hamburger — mobile only */}
           <button onClick={() => setMobileOpen((v) => !v)} className="qx-btn-ghost !p-2.5 md:hidden" aria-label="Menu">
@@ -317,7 +339,25 @@ export default function TopNav() {
                 </Link>
               );
             })}
-            {!user && (
+            {/* Account section */}
+            <div className="mt-2 pt-2 grid grid-cols-2 gap-1" style={{ borderTop: "1px solid var(--border)" }}>
+              {[
+                { href: "/dashboard", label: t.dashboard, icon: <FiPieChart size={16} /> },
+                { href: "/account", label: "Account", icon: <FiUser size={16} /> },
+                { href: "/favorites", label: "Favorites", icon: <FiHeart size={16} /> },
+                { href: "/history", label: "History", icon: <FiClock size={16} /> },
+                { href: "/settings", label: "Settings", icon: <FiSettings size={16} /> },
+              ].map((m) => (
+                <Link key={m.href} href={m.href} onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-[14px] font-semibold"
+                  style={{ background: "var(--surface)", color: "var(--text)", border: "1px solid var(--border)" }}>
+                  <span style={{ color: "var(--text-faint)" }}>{m.icon}</span>{m.label}
+                </Link>
+              ))}
+            </div>
+            {user
+              ? <button onClick={() => { setMobileOpen(false); signOut(); }} className="flex items-center justify-center gap-2 px-4 py-3 mt-1 rounded-xl text-[14px] font-bold" style={{ background: "var(--surface-2)", color: "var(--danger)", border: "1px solid var(--border)" }}><FiLogOut size={15} /> {t.signout}</button>
+              : (
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold" style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}>{t.signin}</Link>
                 <Link href="/register" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold text-white" style={{ background: "var(--grad-primary)" }}>{t.signup}</Link>
