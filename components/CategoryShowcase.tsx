@@ -73,66 +73,138 @@ const FEATURES = [
   { icon: <FiGlobe size={18} />, title: "Works Everywhere", sub: "All devices and browsers." },
 ];
 
-/* ── themed preview mocks ─────────────────────────────────── */
+/* ── themed preview mocks — each slide is a DIFFERENT tool preview ── */
+function Lbl({ t }: { t: string }) {
+  return <span style={{ position: "absolute", bottom: 8, left: 8, fontSize: 9, fontWeight: 800, letterSpacing: ".02em", padding: "3px 7px", borderRadius: 99, background: "rgba(0,0,0,.55)", color: "#fff", backdropFilter: "blur(4px)" }}>{t}</span>;
+}
+function qrCode(accent: string, rounded: boolean, logo: boolean, seed: number) {
+  const cells = [];
+  for (let y = 0; y < 11; y++) for (let x = 0; x < 11; x++) {
+    const fnd = (x < 3 && y < 3) || (x > 7 && y < 3) || (x < 3 && y > 7);
+    const mid = logo && x > 3 && x < 7 && y > 3 && y < 7;
+    if (fnd || mid) continue;
+    if ((x * 7 + y * 13 + seed * 17) % 3 === 0) cells.push(<rect key={`${x}-${y}`} x={x * 8 + 6} y={y * 8 + 6} width="6" height="6" rx={rounded ? 3 : 1} fill={rounded ? accent : "#0e0e0e"} />);
+  }
+  return (
+    <svg viewBox="0 0 100 100" width="72%" height="72%">
+      {[[6, 6], [70, 6], [6, 70]].map(([fx, fy], i) => (<g key={i}><rect x={fx} y={fy} width="24" height="24" rx={rounded ? 8 : 5} fill="none" stroke={rounded ? accent : "#0e0e0e"} strokeWidth="5" /><rect x={fx + 8} y={fy + 8} width="8" height="8" rx="2" fill={accent} /></g>))}
+      {cells}
+      {logo && <circle cx="50" cy="50" r="12" fill={accent} />}
+    </svg>
+  );
+}
+
 function Mock({ kind, v, c1, c2 }: { kind: Cat["key"]; v: number; c1: string; c2: string }) {
+  /* ── QR: Generator · Scan · Customizer ── */
   if (kind === "qr") {
-    const cells = [];
-    for (let y = 0; y < 11; y++) for (let x = 0; x < 11; x++) {
-      const finder = (x < 3 && y < 3) || (x > 7 && y < 3) || (x < 3 && y > 7);
-      if (finder) continue;
-      if ((x * 7 + y * 13 + v * 17) % 3 === 0) cells.push(<rect key={`${x}-${y}`} x={x * 8 + 6} y={y * 8 + 6} width="6" height="6" rx="1.5" fill="#0e0e0e" />);
-    }
-    return (
-      <div className="qx-mk" style={{ background: "#fff" }}>
-        <svg viewBox="0 0 100 100" width="72%" height="72%">
-          {[[6, 6], [70, 6], [6, 70]].map(([fx, fy], i) => (
-            <g key={i}><rect x={fx} y={fy} width="24" height="24" rx="5" fill="none" stroke="#0e0e0e" strokeWidth="5" /><rect x={fx + 8} y={fy + 8} width="8" height="8" rx="2" fill={c1} /></g>
+    if (v === 0) return <div className="qx-mk" style={{ background: "#fff", position: "relative" }}>{qrCode(c1, false, false, 1)}<Lbl t="Generator" /></div>;
+    if (v === 1) return (
+      <div className="qx-mk" style={{ background: "#0c1220", position: "relative", overflow: "hidden" }}>
+        <div style={{ width: "58%", height: "62%", position: "relative", background: "#fff", borderRadius: 8 }}>{qrCode("#0e0e0e", false, false, 2)}
+          {["-1px -1px", "-1px auto -1px -1px", "auto -1px -1px auto", "-1px auto auto -1px"].map((_, i) => (
+            <span key={i} style={{ position: "absolute", width: 14, height: 14, borderColor: c1, borderStyle: "solid", borderWidth: i === 0 ? "3px 0 0 3px" : i === 1 ? "3px 3px 0 0" : i === 2 ? "0 3px 3px 0" : "0 0 3px 3px", top: i < 2 ? -3 : "auto", bottom: i >= 2 ? -3 : "auto", left: i % 3 === 0 ? -3 : "auto", right: i % 3 !== 0 ? -3 : "auto" }} />
           ))}
-          {cells}
-        </svg>
+        </div>
+        <div style={{ position: "absolute", left: "18%", right: "18%", height: 2, background: c1, boxShadow: `0 0 12px 2px ${c1}`, top: "50%" }} />
+        <Lbl t="Scanner" />
+      </div>
+    );
+    return (
+      <div className="qx-mk" style={{ background: "#fff", position: "relative" }}>{qrCode(c1, true, true, 3)}
+        <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 3 }}>{[c1, c2, "#e1ff04"].map((c) => <span key={c} style={{ width: 8, height: 8, borderRadius: "50%", background: c }} />)}</div>
+        <Lbl t="Customizer" />
       </div>
     );
   }
+  /* ── PDF: Merge · Compress · To Word ── */
   if (kind === "pdf") {
-    return (
-      <div className="qx-mk" style={{ background: "linear-gradient(160deg,#1a2440,#0f1830)" }}>
-        <div style={{ width: "54%", background: "#fff", borderRadius: 10, padding: "14px 12px", boxShadow: "0 12px 30px rgba(0,0,0,.4)", position: "relative" }}>
-          <span style={{ position: "absolute", top: 10, right: 10, background: "#e0392b", color: "#fff", fontSize: 8, fontWeight: 800, padding: "2px 6px", borderRadius: 4 }}>PDF</span>
-          {[70, 90, 60, 82].map((w, i) => <div key={i} style={{ height: 5, borderRadius: 3, background: "#d5dae5", width: `${w}%`, marginBottom: 6 }} />)}
-        </div>
+    const doc = (bg: string, badge?: string, badgeC = "#e0392b") => (
+      <div style={{ width: 62, height: 80, background: bg, borderRadius: 7, padding: "10px 8px", position: "relative", boxShadow: "0 10px 24px rgba(0,0,0,.4)" }}>
+        {badge && <span style={{ position: "absolute", top: 7, right: 7, background: badgeC, color: "#fff", fontSize: 7, fontWeight: 800, padding: "2px 5px", borderRadius: 3 }}>{badge}</span>}
+        {[70, 88, 58].map((w, i) => <div key={i} style={{ height: 4, borderRadius: 2, background: "#d5dae5", width: `${w}%`, marginBottom: 5 }} />)}
       </div>
     );
+    if (v === 0) return <div className="qx-mk" style={{ background: "linear-gradient(160deg,#1a2440,#0f1830)", position: "relative", gap: 8 }}>
+      <div style={{ position: "relative", width: 40 }}>{doc("#fff", "PDF")}<div style={{ position: "absolute", top: 6, left: 10, opacity: .6 }}>{doc("#eef")}</div></div>
+      <span style={{ color: c1, fontSize: 20, fontWeight: 900 }}>→</span>{doc("#fff", "PDF")}<Lbl t="Merge" /></div>;
+    if (v === 1) return <div className="qx-mk" style={{ background: "linear-gradient(160deg,#1a2440,#0f1830)", position: "relative" }}>{doc("#fff", "PDF")}
+      <div style={{ position: "absolute", right: "24%", top: "50%", transform: "translateY(-50%)", textAlign: "center" }}><div style={{ color: c1, fontSize: 22, fontWeight: 900 }}>↓</div><div style={{ color: c1, fontSize: 11, fontWeight: 800 }}>−78%</div></div><Lbl t="Compress" /></div>;
+    return <div className="qx-mk" style={{ background: "linear-gradient(160deg,#1a2440,#0f1830)", position: "relative", gap: 8 }}>{doc("#fff", "PDF")}<span style={{ color: c1, fontSize: 20, fontWeight: 900 }}>→</span>{doc("#fff", "W", "#2563eb")}<Lbl t="To Word" /></div>;
   }
+  /* ── IMAGE: Remove BG · Upscale · Compress ── */
   if (kind === "image") {
+    if (v === 0) return (
+      <div className="qx-mk" style={{ position: "relative", overflow: "hidden", background: "repeating-conic-gradient(#e5e5e5 0 25%, #fafafa 0 50%) 0 0/22px 22px" }}>
+        <svg viewBox="0 0 100 100" width="70%" height="90%" style={{ display: "block" }}><circle cx="50" cy="34" r="17" fill={c2} /><path d="M22 92 Q22 58 50 58 Q78 58 78 92 Z" fill={c1} /></svg>
+        <Lbl t="Remove BG" />
+      </div>
+    );
+    if (v === 1) return (
+      <div className="qx-mk" style={{ background: "#0f172a", position: "relative", gap: 10 }}>
+        <div style={{ width: 30, height: 30, borderRadius: 5, background: `linear-gradient(135deg,${c1},${c2})`, filter: "blur(1.5px)", imageRendering: "pixelated" }} />
+        <span style={{ color: c1, fontSize: 18, fontWeight: 900 }}>→</span>
+        <div style={{ width: 60, height: 60, borderRadius: 8, background: `linear-gradient(135deg,${c1},${c2})` }} />
+        <span style={{ position: "absolute", top: 10, right: 10, background: c1, color: "#0b0b0b", fontSize: 10, fontWeight: 900, padding: "2px 7px", borderRadius: 99 }}>4×</span>
+        <Lbl t="Upscale" />
+      </div>
+    );
     return (
-      <div className="qx-mk" style={{ position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg,#334155,#0f172a)", filter: "grayscale(1)" }} />
-        <div style={{ position: "absolute", inset: 0, clipPath: "inset(0 0 0 52%)", background: `linear-gradient(160deg, ${c1}, ${c2})` }} />
-        <svg viewBox="0 0 100 60" preserveAspectRatio="none" style={{ position: "absolute", bottom: 0, width: "100%", height: "55%" }}>
-          <polygon points="0,60 25,25 45,60" fill="rgba(0,0,0,.35)" /><polygon points="30,60 60,15 90,60" fill="rgba(0,0,0,.28)" />
-        </svg>
-        <div style={{ position: "absolute", inset: 0, left: "52%", width: 2, background: c1, boxShadow: `0 0 10px ${c1}` }} />
-        <div style={{ position: "absolute", top: "50%", left: "52%", transform: "translate(-50%,-50%)", width: 22, height: 22, borderRadius: "50%", background: c1, display: "flex", alignItems: "center", justifyContent: "center", color: "#0b0b0b", fontSize: 12, fontWeight: 900 }}>↔</div>
+      <div className="qx-mk" style={{ background: "#0f172a", position: "relative", flexDirection: "column", gap: 8 }}>
+        <div style={{ width: 64, height: 44, borderRadius: 8, background: `linear-gradient(135deg,${c1},${c2})` }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 10, fontWeight: 800 }}><span style={{ color: "var(--text-faint)" }}>5 MB</span><span style={{ color: c1 }}>→</span><span style={{ color: c1 }}>0.9 MB</span></div>
+        <Lbl t="Compress" />
       </div>
     );
   }
+  /* ── AI: Logo Maker · Image Gen · Prompt ── */
   if (kind === "ai") {
-    return (
-      <div className="qx-mk" style={{ background: "#0c0f1c", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, backgroundImage: "radial-gradient(rgba(255,255,255,.08) 1px, transparent 1px)", backgroundSize: "12px 12px" }} />
-        <div style={{ width: 84, height: 84, borderRadius: "50%", background: `radial-gradient(circle at 35% 30%, ${c1}, ${c2} 70%)`, boxShadow: `0 0 40px -6px ${c1}`, position: "relative" }}>
-          <span style={{ position: "absolute", top: -6, right: -6, fontSize: 18 }}>✨</span>
+    if (v === 0) return (
+      <div className="qx-mk" style={{ background: "#0c0f1c", position: "relative", flexDirection: "column", gap: 8 }}>
+        <div style={{ width: 52, height: 52, borderRadius: 15, background: `linear-gradient(135deg,${c1},${c2})`, display: "flex", alignItems: "center", justifyContent: "center", color: "#0b0b0b", fontSize: 26, fontWeight: 900, boxShadow: `0 10px 26px -4px ${c1}` }}>Q</div>
+        <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(255,255,255,.25)" }} />
+        <Lbl t="Logo Maker" />
+      </div>
+    );
+    if (v === 1) return (
+      <div className="qx-mk" style={{ background: "#0c0f1c", position: "relative", padding: 14 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, width: "78%" }}>
+          {[[c1, c2], [c2, c1], ["#38bdf8", c1], [c1, "#f472b6"]].map(([a, b], i) => <div key={i} style={{ aspectRatio: "1", borderRadius: 7, background: `radial-gradient(circle at 30% 30%, ${a}, ${b})` }} />)}
         </div>
+        <span style={{ position: "absolute", top: 8, left: 10, fontSize: 14 }}>✨</span>
+        <Lbl t="Image Gen" />
+      </div>
+    );
+    return (
+      <div className="qx-mk" style={{ background: "#0c0f1c", position: "relative", flexDirection: "column", alignItems: "stretch", padding: 14, gap: 7 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ fontSize: 13 }}>🧠</span><span style={{ fontSize: 9, fontWeight: 700, color: "var(--text-faint)" }}>PROMPT</span></div>
+        {[92, 74].map((w, i) => <div key={i} style={{ height: 6, borderRadius: 3, background: `linear-gradient(90deg, ${c1}, ${c2})`, width: `${w}%`, opacity: .85 }} />)}
+        <div style={{ height: 6, width: "40%", borderRadius: 3, background: "rgba(255,255,255,.2)", position: "relative" }}><span style={{ position: "absolute", right: -4, top: -2, width: 2, height: 10, background: c1 }} /></div>
+        <Lbl t="Prompt" />
       </div>
     );
   }
-  // video
+  /* ── VIDEO: Compressor · Trim · GIF ── */
+  if (v === 0) return (
+    <div className="qx-mk" style={{ background: `linear-gradient(150deg, ${c1}, ${c2})`, position: "relative", flexDirection: "column", gap: 8 }}>
+      <div style={{ width: 42, height: 42, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "flex", alignItems: "center", justifyContent: "center" }}><div style={{ width: 0, height: 0, borderLeft: "14px solid #0b0b0b", borderTop: "9px solid transparent", borderBottom: "9px solid transparent", marginLeft: 4 }} /></div>
+      <span style={{ background: "rgba(0,0,0,.4)", color: "#fff", fontSize: 10, fontWeight: 900, padding: "2px 8px", borderRadius: 99 }}>−70% size</span>
+      <Lbl t="Compress" />
+    </div>
+  );
+  if (v === 1) return (
+    <div className="qx-mk" style={{ background: "#111827", position: "relative", flexDirection: "column", padding: 12, gap: 8 }}>
+      <div style={{ display: "flex", gap: 3, width: "88%" }}>{[c1, c2, c1, c2, c1].map((c, i) => <div key={i} style={{ flex: 1, height: 26, borderRadius: 3, background: c, opacity: .8 }} />)}</div>
+      <div style={{ position: "relative", width: "88%", height: 10, borderRadius: 4, background: "rgba(255,255,255,.12)" }}>
+        <div style={{ position: "absolute", left: "22%", right: "22%", top: 0, bottom: 0, background: `${c1}55`, borderLeft: `3px solid ${c1}`, borderRight: `3px solid ${c1}`, borderRadius: 3 }} />
+      </div>
+      <Lbl t="Trim" />
+    </div>
+  );
   return (
     <div className="qx-mk" style={{ background: `linear-gradient(150deg, ${c1}, ${c2})`, position: "relative" }}>
-      <div style={{ width: 46, height: 46, borderRadius: "50%", background: "rgba(255,255,255,.92)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 8px 24px rgba(0,0,0,.4)" }}>
-        <div style={{ width: 0, height: 0, borderLeft: "16px solid #0b0b0b", borderTop: "10px solid transparent", borderBottom: "10px solid transparent", marginLeft: 4 }} />
-      </div>
-      <div style={{ position: "absolute", bottom: 12, left: 14, right: 14, height: 4, borderRadius: 3, background: "rgba(255,255,255,.35)" }}><div style={{ width: `${34 + v * 22}%`, height: "100%", borderRadius: 3, background: "#fff" }} /></div>
+      <span style={{ fontSize: 26, fontWeight: 900, color: "#fff", letterSpacing: "-.02em", textShadow: "0 4px 12px rgba(0,0,0,.4)" }}>GIF</span>
+      <div style={{ position: "absolute", bottom: 12, left: 14, right: 14, display: "flex", gap: 4 }}>{[0, 1, 2, 3].map((i) => <div key={i} style={{ flex: 1, height: 6, borderRadius: 2, background: i === (v % 4) ? "#fff" : "rgba(255,255,255,.4)" }} />)}</div>
+      <Lbl t="GIF Maker" />
     </div>
   );
 }
