@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { FiArrowRight, FiClock, FiChevronRight } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME } from "@/lib/seo";
 import { getPost, getPost as _get, POSTS } from "@/lib/blog";
+import BookmarkButton from "@/components/BookmarkButton";
 
 export function generateStaticParams() {
   return POSTS.map((p) => ({ slug: p.slug }));
@@ -66,10 +67,12 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
 
       <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>{post.category}</span>
       <h1 className="font-display text-3xl lg:text-4xl font-extrabold mt-4" style={{ color: "var(--text)" }}>{post.title}</h1>
-      <div className="flex items-center gap-3 mt-3 text-[12px]" style={{ color: "var(--text-faint)" }}>
+      <div className="flex items-center gap-3 mt-3 text-[12px] flex-wrap" style={{ color: "var(--text-faint)" }}>
         <span className="inline-flex items-center gap-1"><FiClock size={12} /> {post.readMins} min read</span>
         <span>·</span>
         <time dateTime={post.date}>{new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</time>
+        <span className="flex-1" />
+        <BookmarkButton item={{ href: `/blog/${post.slug}`, title: post.title, group: "Blog" }} />
       </div>
 
       <p className="text-lg leading-relaxed mt-6" style={{ color: "var(--text-muted)" }}>{post.intro}</p>

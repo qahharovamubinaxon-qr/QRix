@@ -4,6 +4,14 @@ import Link from "next/link";
 import { FiChevronRight, FiInfo, FiCheckCircle } from "react-icons/fi";
 import GlobalFileDrop from "@/components/GlobalFileDrop";
 import AdSlot from "@/components/AdSlot";
+import FavoriteButton from "@/components/FavoriteButton";
+import RecordVisit from "@/components/RecordVisit";
+import { usePathname } from "next/navigation";
+
+function ToolFavorite({ title, group }: { title: string; group: string }) {
+  const pathname = usePathname();
+  return <FavoriteButton tool={{ href: pathname || "", title, group }} />;
+}
 
 type Step = { title: string; desc: string };
 
@@ -31,6 +39,7 @@ export default function ToolPageShell({
   return (
     <div className="max-w-6xl mx-auto p-5 lg:p-8">
       <GlobalFileDrop />
+      <RecordVisit title={title} group={category} />
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs mb-5" style={{ color: "var(--text-muted)" }}>
         <Link href="/dashboard" className="hover:opacity-80">Dashboard</Link>
@@ -49,10 +58,11 @@ export default function ToolPageShell({
             style={{ background: grad, boxShadow: "0 12px 32px rgba(124,58,237,.35)" }}>
             {emoji}
           </span>
-          <div>
+          <div className="flex-1">
             <h1 className="font-display text-3xl lg:text-4xl font-bold" style={{ color: "var(--text)" }}>{title}</h1>
             <p className="mt-2 text-sm max-w-xl" style={{ color: "var(--text-muted)" }}>{intro}</p>
           </div>
+          <ToolFavorite title={title} group={category} />
         </div>
       </div>
 

@@ -40,9 +40,13 @@ export default function MotionLayer() {
     const attach = () => {
       if (!reduced) revealEls().forEach((el) => io.observe(el));
     };
-    attach();
+    // Wait one frame so React finishes hydrating page subtrees before the
+    // observer can add rv-in (prevents hydration-attribute mismatches).
     const mo = new MutationObserver(() => attach());
-    mo.observe(document.body, { childList: true, subtree: true });
+    const raf = window.setTimeout(() => {
+      attach();
+      mo.observe(document.body, { childList: true, subtree: true });
+    }, 180);
 
     /* ── mouse-follow glow on cards ───────────────────────────── */
     const onMove = (ev: PointerEvent) => {
@@ -73,6 +77,7 @@ export default function MotionLayer() {
       document.addEventListener("pointerout", onLeave, { passive: true });
     }
     return () => {
+      clearTimeout(raf);
       io.disconnect();
       mo.disconnect();
       document.removeEventListener("pointermove", onMove);

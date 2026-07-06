@@ -6,6 +6,7 @@ import DotDistortionBackground from "@/components/DotDistortionBackground";
 import ReferralCapture from "@/components/ReferralCapture";
 import MotionLayer from "@/components/MotionLayer";
 import CommandSearch from "@/components/CommandSearch";
+import Toaster from "@/components/Toaster";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, jsonLd } from "@/lib/seo";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -87,7 +88,7 @@ export default function RootLayout({
         <script
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem("theme")!=="dark"){document.documentElement.classList.add("light")}}catch(e){document.documentElement.classList.add("light")}`,
+            __html: `try{if(localStorage.getItem("theme")!=="dark"){document.documentElement.classList.add("light")}var s=JSON.parse(localStorage.getItem("qrix_settings")||"{}");if(s.performance||s.animations===false){document.documentElement.classList.add("qx-perf")}}catch(e){document.documentElement.classList.add("light")}`,
           }}
         />
         {/* Organization + WebSite structured data */}
@@ -106,6 +107,7 @@ export default function RootLayout({
         <ReferralCapture />
         <MotionLayer />
         <CommandSearch />
+        <Toaster />
         <CursorGlow />
         <TopNav />
         {children}

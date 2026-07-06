@@ -66,4 +66,13 @@ export async function finishSave(target: SaveTarget, blob: Blob, suggestedName: 
 export async function saveBlob(blob: Blob, suggestedName: string): Promise<void> {
   const t = await pickSave(suggestedName);
   await finishSave(t, blob, suggestedName);
+  if (t.kind !== "cancelled") {
+    try {
+      const { logJob } = await import("@/lib/user-prefs");
+      const tool = typeof document !== "undefined" ? (document.querySelector("h1")?.textContent || "QRix") : "QRix";
+      logJob({ tool, file: suggestedName, href: typeof location !== "undefined" ? location.pathname : undefined, status: "done" });
+      const { toast } = await import("@/lib/toast");
+      toast.success(`Downloaded ${suggestedName}`);
+    } catch { /* non-blocking */ }
+  }
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import DashboardLinks from "@/components/DashboardLinks";
 import LogoutButton from "@/components/LogoutButton";
 import InviteCard from "@/components/InviteCard";
+import DashboardExtras from "@/components/DashboardExtras";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   ResponsiveContainer, PieChart, Pie, Cell,
@@ -436,6 +437,7 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
           </div>
 
           {/* Referral / invite-friends growth card */}
+          <DashboardExtras />
           <InviteCard />
 
           {/* Scan Analytics + Top Countries + Recent Activity */}

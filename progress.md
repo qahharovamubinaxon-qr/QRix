@@ -7,6 +7,9 @@
 - **Premium SaaS layer** — CoolM5 reskin, MotionLayer (scroll-reveal/stagger/magnetic/spotlight), Cmd+K CommandSearch, TrustedBy marquee, HomeFaq, LatestPosts, Newsletter, route transitions, loading bar.
 - **Mission 1 — AI Tools** (`e184f18`): 28 tools at `/ai-tools`, config-driven, on-device engines + cloud connector.
 - **Mission 2 — Video Tools** (`48911ab`): 29 tools at `/video-tools`, canvas→MediaRecorder pipeline + gifenc + Web Speech + connector.
+- **Mission 3 — Image Tools Expansion** (`4ccd65b`): +65 config-driven on-device image tools at `/image-tools/[slug]`.
+- **Mission 4 — Premium Homepage** (`328660e`): 5-category showcase with coverflow tool previews + features strip; removed marquee.
+- **Mission 5 — Premium SaaS Experience**: favorites, recent tools, download history, bookmarks, settings, account pages; toast center; enhanced Cmd+K (commands/theme/lang/favorites/recents); dashboard widgets; skeletons. localStorage via `lib/user-prefs.ts`.
 
 ## Current Mission
 None — awaiting next mission.
