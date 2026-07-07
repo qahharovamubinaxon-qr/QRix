@@ -291,6 +291,7 @@ export default function TopNav() {
                 {user && <div className="px-4 py-3 text-[12px] truncate" style={{ borderBottom: "1px solid var(--border)", color: "var(--text-muted)" }}>{user.email}</div>}
                 {[
                   { href: "/dashboard", label: t.dashboard, icon: <FiPieChart size={15} /> },
+                  { href: "/workspace", label: "Workspace", icon: <FiGrid size={15} /> },
                   { href: "/account", label: "Account", icon: <FiUser size={15} /> },
                   { href: "/favorites", label: "Favorites", icon: <FiHeart size={15} /> },
                   { href: "/history", label: "History", icon: <FiClock size={15} /> },

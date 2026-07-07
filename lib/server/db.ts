@@ -100,6 +100,13 @@ export const db = {
   creditLedger: new Collection<import("./credits").CreditEntry>([]),
   creditCosts: new Collection<{ action: string; cost: number }>([]),
   sessions: new Collection<import("./models").DeviceSession>([]),
+  workspaces: new Collection<import("./workspaces").Workspace>([]),
+  wsMembers: new Collection<import("./workspaces").Member>([]),
+  wsInvites: new Collection<import("./workspaces").Invite>([]),
+  wsRoles: new Collection<import("./workspaces").CustomRole>([]),
+  wsProjects: new Collection<import("./workspaces").WsProject>([]),
+  wsComments: new Collection<import("./workspaces").WsComment>([]),
+  wsActivity: new Collection<import("./workspaces").WsActivity>([]),
 };
 
 export const dbDriver = serverConfig.db.driver;

@@ -82,6 +82,16 @@ export const GET = handler(async ({ req, params }) => {
     }
     case "credits":
       return ok(creditStats());
+    case "workspaces": {
+      let rows = db.workspaces.all();
+      if (q) rows = rows.filter((w) => w.name.toLowerCase().includes(q.toLowerCase()) || w.slug.includes(q.toLowerCase()));
+      return ok(paginate(rows.map((w) => ({
+        ...w,
+        members: db.wsMembers.count((m) => m.workspaceId === w.id && m.status === "active"),
+        projects: db.wsProjects.count((p) => p.workspaceId === w.id),
+        pendingInvites: db.wsInvites.count((i) => i.workspaceId === w.id && i.status === "pending"),
+      })), page, limit));
+    }
     default:
       throw notFound("unknown section");
   }
@@ -151,6 +161,17 @@ export const POST = handler(async ({ req, params, user }) => {
         apiKey: typeof body.apiKey === "string" ? (body.apiKey || null) : undefined,
       });
       return ok((await providerStatus()).find((p) => p.id === id));
+    }
+    case "workspaces": {
+      // Admin: change plan / credit pool / kind of any workspace.
+      const wsId = String(body.id || "");
+      const patch: Record<string, unknown> = {};
+      if (body.plan && ["FREE", "PRO", "BUSINESS", "ENTERPRISE"].includes(String(body.plan))) patch.plan = body.plan;
+      if (typeof body.creditPool === "number") patch.creditPool = Math.max(0, body.creditPool);
+      if (body.kind && ["personal", "team", "organization", "enterprise"].includes(String(body.kind))) patch.kind = body.kind;
+      const updated = db.workspaces.update((w) => w.id === wsId, patch);
+      if (!updated) throw notFound("workspace not found");
+      return ok(updated);
     }
     case "cleanup":
       return ok({ purged: await cleanupExpired(), by: user!.email });

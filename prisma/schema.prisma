@@ -350,6 +350,123 @@ model AuditLog {
   @@index([createdAt])
 }
 
+// ─────────────────────────── Workspaces (Mission 9) ────────────────────────────
+
+model Workspace {
+  id             String   @id @default(cuid())
+  kind           String   @default("team") // personal | team | organization | enterprise
+  name           String
+  slug           String   @unique
+  ownerId        String
+  logo           String?
+  brandColor     String?
+  profile        Json?
+  plan           Plan     @default(FREE)
+  creditPool     Int      @default(0)
+  storageQuotaMb Int      @default(5000)
+  settings       Json?
+  createdAt      DateTime @default(now())
+
+  members  WorkspaceMember[]
+  invites  WorkspaceInvite[]
+  roles    WorkspaceRole[]
+  projects WorkspaceProject[]
+
+  @@index([ownerId])
+}
+
+model WorkspaceMember {
+  id          String    @id @default(cuid())
+  workspaceId String
+  userId      String
+  email       String
+  role        String    @default("editor")
+  status      String    @default("active") // active | suspended
+  joinedAt    DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+}
+
+model WorkspaceInvite {
+  id          String    @id @default(cuid())
+  workspaceId String
+  email       String
+  role        String
+  token       String    @unique
+  invitedBy   String
+  status      String    @default("pending")
+  createdAt   DateTime  @default(now())
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([email])
+}
+
+model WorkspaceRole {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  permissions Json
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, name])
+}
+
+model WorkspaceProject {
+  id          String    @id @default(cuid())
+  workspaceId String
+  name        String
+  kind        String
+  data        Json?
+  shared      Json?
+  createdBy   String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  versions    ProjectVersion[]
+  comments    WorkspaceComment[]
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+}
+
+model ProjectVersion {
+  id        String   @id @default(cuid())
+  projectId String
+  v         Int
+  data      Json?
+  by        String
+  note      String?
+  createdAt DateTime @default(now())
+  project   WorkspaceProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, v])
+}
+
+model WorkspaceComment {
+  id        String   @id @default(cuid())
+  projectId String
+  parentId  String?
+  authorId  String
+  body      String
+  mentions  String[]
+  createdAt DateTime @default(now())
+  project   WorkspaceProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model WorkspaceActivity {
+  id          String   @id @default(cuid())
+  workspaceId String
+  actorId     String
+  action      String
+  target      String?
+  createdAt   DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
+}
+
 // ─────────────────────────── Enums ────────────────────────────
 
 enum Role {

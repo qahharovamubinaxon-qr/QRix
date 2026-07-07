@@ -25,6 +25,7 @@ const TABS = [
   { id: "payments", label: "Payments", icon: <FiCreditCard size={14} /> },
   { id: "posts", label: "Articles", icon: <FiFileText size={14} /> },
   { id: "tools", label: "Tools", icon: <FiZap size={14} /> },
+  { id: "workspaces", label: "Workspaces", icon: <FiUsers size={14} /> },
   { id: "ai-providers", label: "AI", icon: <FiSliders size={14} /> },
   { id: "flags", label: "Flags", icon: <FiFlag size={14} /> },
   { id: "logs", label: "Logs", icon: <FiList size={14} /> },
@@ -247,6 +248,19 @@ export default function AdminPanel() {
 
       {tab === "tools" && (
         <Table cols={["Tool", "Uses (90d)"]} rows={items.map((t) => [String(t.tool), Number(t.count)])} />
+      )}
+
+      {tab === "workspaces" && (
+        <Table cols={["Workspace", "Kind", "Plan", "Members", "Projects", "Invites", ""]}
+          rows={items.map((w) => [
+            String(w.name), String(w.kind),
+            <Badge key="p" tone={w.plan === "FREE" ? "default" : "good"}>{String(w.plan)}</Badge>,
+            String(w.members), String(w.projects), String(w.pendingInvites),
+            <button key="a" className="text-[11px] font-bold" style={{ color: "var(--primary-bright)" }}
+              onClick={() => mutate("workspaces", { id: w.id, plan: w.plan === "FREE" ? "BUSINESS" : "FREE" })}>
+              {w.plan === "FREE" ? "Grant Business" : "Set Free"}
+            </button>,
+          ])} />
       )}
 
       {tab === "ai-providers" && Array.isArray(data) && (
