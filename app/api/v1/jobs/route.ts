@@ -1,6 +1,7 @@
 import { handler, ok, validate, forbidden, pagination, paginate } from "@/lib/server/api";
 import { enqueue, listJobs } from "@/lib/server/queue";
 import { checkJobQuota } from "@/lib/server/billing";
+import { chargeCredits } from "@/lib/server/credits";
 import { track } from "@/lib/server/analytics";
 import type { JobKind } from "@/lib/server/models";
 
@@ -22,7 +23,13 @@ export const POST = handler(async ({ req, user }) => {
   });
   const quota = checkJobQuota(user!.id, user!.plan);
   if (!quota.ok) throw forbidden(`daily job limit reached (${quota.limit})`);
-  const job = enqueue(body.kind as JobKind, body.tool, raw.input ?? null, user!.id);
+  // Credit engine — meters AI/video jobs; blocks only when CREDITS_ENFORCED=1.
+  if (body.kind === "AI" || body.kind === "VIDEO") {
+    const charge = chargeCredits(user!.id, body.kind === "AI" ? "ai-text" : "ai-video", user!.plan);
+    if (!charge.ok) throw forbidden(`insufficient credits (${charge.balance}/${charge.cost})`);
+  }
+  // Paid plans get priority processing.
+  const job = enqueue(body.kind as JobKind, body.tool, raw.input ?? null, user!.id, user!.plan === "FREE" ? "normal" : "high");
   track("tool_use", { userId: user!.id, tool: body.tool });
   return ok(job);
 }, { auth: true, rateLimit: { max: 30 } });

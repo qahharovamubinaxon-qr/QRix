@@ -43,7 +43,7 @@ async function run(id: string) {
     const attempts = fresh.attempts + 1;
     if (attempts < serverConfig.queue.maxAttempts) {
       db.jobs.update((j) => j.id === id, { status: "QUEUED", attempts, error: res.error, updatedAt: helpers.now() });
-      setTimeout(() => run(id), 500 * attempts); // backoff
+      setTimeout(() => schedule(id, "low"), 500 * 2 ** attempts); // exponential backoff, retries yield to fresh jobs
     } else {
       db.jobs.update((j) => j.id === id, { status: "FAILED", attempts, error: res.error, progress: 100, updatedAt: helpers.now() });
     }
@@ -53,8 +53,30 @@ async function run(id: string) {
   track("job_done", { userId: job.userId, tool: job.tool });
 }
 
-/** Enqueue a job; returns immediately with a QUEUED record. */
-export function enqueue(kind: JobKind, tool: string, input: unknown, userId?: string | null): Job {
+// ── Priority scheduler with bounded concurrency ─────────────────────────
+type Priority = "high" | "normal" | "low";
+const waiting: { id: string; priority: Priority }[] = [];
+let active = 0;
+
+function schedule(id: string, priority: Priority = "normal") {
+  waiting.push({ id, priority });
+  pump();
+}
+
+function pump() {
+  while (active < serverConfig.queue.concurrency && waiting.length) {
+    // high → normal → low, FIFO within a class
+    waiting.sort((a, b) => rank(a.priority) - rank(b.priority));
+    const next = waiting.shift()!;
+    active++;
+    run(next.id).finally(() => { active--; pump(); });
+  }
+}
+const rank = (p: Priority) => (p === "high" ? 0 : p === "normal" ? 1 : 2);
+
+/** Enqueue a job; returns immediately with a QUEUED record.
+    Priority: paid plans run "high" (priority processing). */
+export function enqueue(kind: JobKind, tool: string, input: unknown, userId?: string | null, priority: Priority = "normal"): Job {
   const job: Job = {
     id: uid("job"), userId: userId ?? null, kind, tool, status: "QUEUED", progress: 0,
     input, output: null, error: null, attempts: 0, provider: providerFor(kind),
@@ -62,9 +84,22 @@ export function enqueue(kind: JobKind, tool: string, input: unknown, userId?: st
   };
   db.jobs.insert(job);
   track("job_queued", { userId, tool });
-  // In-process driver: kick off async processing without blocking the request.
-  if (serverConfig.queue.driver === "memory") setTimeout(() => run(job.id), 0);
+  if (serverConfig.queue.driver === "memory") schedule(job.id, priority);
   return job;
+}
+
+/** Queue depth + outcomes for monitoring and the admin dashboard. */
+export function queueStats() {
+  const all = db.jobs.all();
+  const by = (s: string) => all.filter((j) => j.status === s).length;
+  return {
+    driver: serverConfig.queue.driver,
+    concurrency: serverConfig.queue.concurrency,
+    active, waiting: waiting.length,
+    queued: by("QUEUED"), processing: by("PROCESSING"),
+    done: by("DONE"), failed: by("FAILED"), canceled: by("CANCELED"),
+    total: all.length,
+  };
 }
 
 function providerFor(kind: JobKind): string {
@@ -88,6 +123,6 @@ export function retryJob(id: string): boolean {
   const job = db.jobs.find((j) => j.id === id);
   if (!job || job.status !== "FAILED") return false;
   db.jobs.update((j) => j.id === id, { status: "QUEUED", attempts: 0, error: null, progress: 0, updatedAt: helpers.now() });
-  if (serverConfig.queue.driver === "memory") setTimeout(() => run(id), 0);
+  if (serverConfig.queue.driver === "memory") schedule(id);
   return true;
 }

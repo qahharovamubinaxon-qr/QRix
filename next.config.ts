@@ -19,6 +19,7 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   poweredByHeader: false, // hide "X-Powered-By: Next.js"
   compress: true,
+  output: process.env.DOCKER_BUILD ? "standalone" : undefined, // Docker image runs standalone server.js
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

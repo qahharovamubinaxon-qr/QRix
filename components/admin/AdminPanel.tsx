@@ -294,6 +294,10 @@ export default function AdminPanel() {
                 </button>
                 <button onClick={() => mutate("ai-providers", { id: p.id, primary: !p.primary })} className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg" style={{ background: "var(--surface-2)", color: p.primary ? "var(--primary-bright)" : "var(--text-muted)" }}>Primary</button>
                 <button onClick={() => mutate("ai-providers", { id: p.id, backup: !p.backup })} className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg" style={{ background: "var(--surface-2)", color: p.backup ? "var(--primary-bright)" : "var(--text-muted)" }}>Backup</button>
+                <button onClick={async () => {
+                  const r = await fetchJson(`/api/v1/admin/ai-providers`, { method: "POST", body: JSON.stringify({ id: p.id, test: true }) });
+                  alert(r ? `${p.name}: ${r.test}${r.latencyMs ? ` (${r.latencyMs}ms)` : ""}${r.error ? ` — ${r.error}` : ""}` : "test failed");
+                }} className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg" style={{ background: "var(--surface-2)", color: "var(--text-muted)" }}>Test</button>
                 <form className="flex-1 min-w-[180px] flex gap-1.5" onSubmit={(e) => {
                   e.preventDefault();
                   const inp = (e.currentTarget.elements.namedItem("k") as HTMLInputElement);
@@ -361,6 +365,64 @@ export default function AdminPanel() {
             ))}
             <button onClick={() => mutate("cleanup", {})} className="qx-btn-ghost !py-2 !px-3 text-[12px] font-bold mt-2">Purge expired uploads</button>
           </div>
+
+          {/* Production health snapshot */}
+          {!!data.health && (() => {
+            const h = data.health as Json;
+            const comp = (h.components as Record<string, Json>) || {};
+            const env = h.env as { ok: boolean; issues: string[] };
+            const stats = h.stats as Json;
+            const credits = (stats?.credits as Json) || {};
+            const subs = (stats?.subscriptions as Record<string, number>) || {};
+            const queue = (comp.queue as Json) || {};
+            return (
+              <>
+                <div className="qx-card p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-faint)" }}>
+                    System health — <Badge tone={h.overall === "ok" ? "good" : h.overall === "degraded" ? "warn" : "bad"}>{String(h.overall)}</Badge>
+                  </p>
+                  {Object.entries(comp).map(([k, v]) => (
+                    <div key={k} className="flex items-center justify-between py-1.5 text-[13px]" style={{ borderBottom: "1px solid var(--border)" }}>
+                      <span className="font-semibold capitalize" style={{ color: "var(--text)" }}>{k}</span>
+                      <span className="flex items-center gap-2">
+                        {!!v.note && <span className="text-[10px]" style={{ color: "var(--text-faint)" }}>{String(v.note)}</span>}
+                        <Badge tone={v.state === "ok" ? "good" : v.state === "degraded" ? "warn" : "bad"}>{String(v.state)}</Badge>
+                      </span>
+                    </div>
+                  ))}
+                  {env && !env.ok && (
+                    <div className="mt-3 text-[11px]" style={{ color: "#fbbf24" }}>
+                      {env.issues.map((i) => <p key={i}>⚠ {i}</p>)}
+                    </div>
+                  )}
+                  <p className="text-[11px] mt-3" style={{ color: "var(--text-muted)" }}>
+                    Queue: {String(queue.processing ?? 0)} processing · {String(queue.queued ?? 0)} queued · {String(queue.failed ?? 0)} failed / {String(queue.done ?? 0)} done
+                  </p>
+                </div>
+                <div className="qx-card p-5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-3" style={{ color: "var(--text-faint)" }}>
+                    Credits — <Badge tone={credits.enforced ? "good" : "warn"}>{credits.enforced ? "enforced" : "metering only"}</Badge>
+                  </p>
+                  <div className="grid grid-cols-3 gap-2 text-center mb-3">
+                    {([["Accounts", credits.accounts], ["Balance", credits.totalBalance], ["Spent today", credits.spentToday]] as [string, unknown][]).map(([l, v]) => (
+                      <div key={l} className="rounded-lg py-2" style={{ background: "var(--surface-2)" }}>
+                        <p className="text-[9px] font-bold uppercase" style={{ color: "var(--text-faint)" }}>{l}</p>
+                        <p className="text-[14px] font-bold" style={{ color: "var(--text)" }}>{String(v ?? 0)}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[10px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Subscriptions</p>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {Object.entries(subs).map(([k, v]) => (
+                      <span key={k} className="text-[11px] font-bold px-2.5 py-1 rounded-lg" style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}>
+                        {k}: {v}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
         </div>
       )}
     </main>

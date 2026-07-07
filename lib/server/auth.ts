@@ -41,15 +41,29 @@ export async function getSession(): Promise<SessionUser | null> {
     } catch { /* fall through to mock */ }
   }
 
-  // Mock path: signed session cookie -> in-memory user.
+  // Mock path: signed session cookie -> device session -> user.
   const jar = await cookies();
   const raw = jar.get(COOKIE)?.value;
   if (!raw) return null;
   const parsed = await verifyCookie(raw);
   if (!parsed) return null;
-  const user = db.users.find((u) => u.id === parsed.id);
+  // Revocable device session: the cookie is only valid while its session row lives.
+  const session = db.sessions.find((s) => s.token === parsed.id);
+  if (!session || session.expiresAt < helpers.now()) return null;
+  const user = db.users.find((u) => u.id === session.userId);
   if (!user) return null;
   return { id: user.id, email: user.email, name: user.name, role: user.role, plan: user.plan };
+}
+
+// ── Device sessions ─────────────────────────────────────────────────────
+export function listSessions(userId: string) {
+  return db.sessions.filter((s) => s.userId === userId).map(({ token, ...s }) => { void token; return s; });
+}
+export function revokeSession(userId: string, sessionId: string): boolean {
+  return db.sessions.remove((s) => s.userId === userId && s.id === sessionId) > 0;
+}
+export function revokeOtherSessions(userId: string, keepToken?: string): number {
+  return db.sessions.remove((s) => s.userId === userId && s.token !== keepToken);
 }
 
 export async function requireUser(): Promise<SessionUser> {
@@ -78,9 +92,16 @@ async function verifyCookie(raw: string): Promise<{ id: string } | null> {
   return { id: payload.split(".")[0] };
 }
 
-async function setSessionCookie(userId: string, rememberMe: boolean) {
+async function setSessionCookie(userId: string, rememberMe: boolean, meta?: { ip?: string; userAgent?: string }) {
+  // Create a revocable device session; the cookie carries its token, signed.
+  const token = randomToken(16);
+  db.sessions.insert({
+    id: uid("ses"), userId, token, ip: meta?.ip ?? null, userAgent: meta?.userAgent ?? null,
+    rememberMe, createdAt: helpers.now(),
+    expiresAt: helpers.daysAhead(rememberMe ? serverConfig.auth.sessionDays : 1),
+  });
   const jar = await cookies();
-  jar.set(COOKIE, await signCookie(userId), {
+  jar.set(COOKIE, await signCookie(token), {
     httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production",
     path: "/", maxAge: rememberMe ? serverConfig.auth.sessionDays * 86400 : undefined,
   });
@@ -137,5 +158,10 @@ export function consumeToken(token: string, purpose: string): string | null {
 
 export async function logout() {
   const jar = await cookies();
+  const raw = jar.get(COOKIE)?.value;
+  if (raw) {
+    const parsed = await verifyCookie(raw);
+    if (parsed) db.sessions.remove((s) => s.token === parsed.id);
+  }
   jar.delete(COOKIE);
 }

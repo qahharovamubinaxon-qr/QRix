@@ -9,6 +9,9 @@ import { videoProviderStatus } from "@/lib/server/providers/video";
 import { imageProviderStatus } from "@/lib/server/providers/image";
 import { serverConfig, isLive } from "@/lib/server/config";
 import { cleanupExpired } from "@/lib/server/storage";
+import { systemHealth } from "@/lib/server/monitor";
+import { creditStats, setCost, grantCredits } from "@/lib/server/credits";
+import { refundOrder } from "@/lib/server/billing";
 import type { Plan, Role } from "@/lib/server/models";
 
 export const runtime = "nodejs";
@@ -62,7 +65,8 @@ export const GET = handler(async ({ req, params }) => {
       return ok(paginate(db.jobs.all(), page, limit));
     case "keys":
       return ok(paginate(db.apiKeys.all().map(({ hash, ...k }) => { void hash; return k; }), page, limit));
-    case "status":
+    case "status": {
+      const health = await systemHealth();
       return ok({
         drivers: {
           db: serverConfig.db.driver, cache: serverConfig.cache.driver, queue: serverConfig.queue.driver,
@@ -73,7 +77,11 @@ export const GET = handler(async ({ req, params }) => {
         storage: { uploads: db.uploads.count(), bytes: db.uploads.all().reduce((s, u) => s + u.size, 0) },
         apiUsage: { keys: db.apiKeys.count(), requests: db.apiKeys.all().reduce((s, k) => s + k.requests, 0) },
         uptime: process.uptime(),
+        health,
       });
+    }
+    case "credits":
+      return ok(creditStats());
     default:
       throw notFound("unknown section");
   }
@@ -110,9 +118,31 @@ export const POST = handler(async ({ req, params, user }) => {
       if (!body.title || !body.slug) throw badRequest("title + slug required");
       return ok(await createPost(body as never & { title: string; slug: string }));
     }
+    case "credits": {
+      // Admin-tunable credit costs + manual grants.
+      if (body.action && typeof body.cost === "number") { setCost(String(body.action), Math.max(0, body.cost)); return ok(creditStats()); }
+      if (body.userId && typeof body.grant === "number") return ok({ balance: grantCredits(String(body.userId), body.grant, "admin-grant") });
+      throw badRequest("action+cost or userId+grant required");
+    }
+    case "payments": {
+      if (body.refund && body.orderId) return ok({ refunded: refundOrder(String(body.orderId)) });
+      throw badRequest("refund+orderId required");
+    }
     case "ai-providers": {
       const id = String(body.id || "") as ProviderId;
       if (!PROVIDERS[id]) throw badRequest("unknown provider");
+      // Connection test: fire a tiny prompt through this provider only.
+      if (body.test) {
+        const t0 = Date.now();
+        try {
+          const key = process.env[PROVIDERS[id].envKey]?.trim();
+          if (!key) return ok({ id, test: "no_key" });
+          await PROVIDERS[id].call(PROVIDERS[id].capabilities[0], { prompt: "ping", maxTokens: 8 }, key);
+          return ok({ id, test: "ok", latencyMs: Date.now() - t0 });
+        } catch (e) {
+          return ok({ id, test: "failed", error: e instanceof Error ? e.message.slice(0, 160) : "error", latencyMs: Date.now() - t0 });
+        }
+      }
       await updateProviderSettings(id, {
         enabled: typeof body.enabled === "boolean" ? body.enabled : undefined,
         primary: typeof body.primary === "boolean" ? body.primary : undefined,

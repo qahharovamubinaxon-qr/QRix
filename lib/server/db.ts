@@ -96,6 +96,10 @@ export const db = {
   templates: new Collection<SavedTemplate>([]),
   bookmarks: new Collection<BlogBookmark>([]),
   aiProviders: new Collection<import("./ai/manager").ProviderSettings>([]),
+  credits: new Collection<import("./credits").CreditAccount>([]),
+  creditLedger: new Collection<import("./credits").CreditEntry>([]),
+  creditCosts: new Collection<{ action: string; cost: number }>([]),
+  sessions: new Collection<import("./models").DeviceSession>([]),
 };
 
 export const dbDriver = serverConfig.db.driver;

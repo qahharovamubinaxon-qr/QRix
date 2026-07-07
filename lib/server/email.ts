@@ -17,18 +17,76 @@ async function sendViaResend(mail: Mail): Promise<boolean> {
   return res.ok;
 }
 
+async function sendViaMailgun(mail: Mail): Promise<boolean> {
+  const domain = process.env.MAILGUN_DOMAIN?.trim();
+  const key = process.env.MAILGUN_API_KEY?.trim();
+  if (!domain || !key) return false;
+  const form = new URLSearchParams({ from: serverConfig.email.from, to: mail.to, subject: mail.subject, html: mail.html, ...(mail.text ? { text: mail.text } : {}) });
+  const res = await fetch(`https://api.mailgun.net/v3/${domain}/messages`, {
+    method: "POST",
+    headers: { Authorization: `Basic ${Buffer.from(`api:${key}`).toString("base64")}`, "Content-Type": "application/x-www-form-urlencoded" },
+    body: form,
+  });
+  return res.ok;
+}
+
+/** Minimal SMTP over implicit TLS (port 465) — zero-dependency.
+    EMAIL_SERVER=smtps://user:pass@host:465 */
+async function sendViaSmtp(mail: Mail): Promise<boolean> {
+  const url = serverConfig.email.smtp;
+  if (!url) return false;
+  try {
+    const u = new URL(url);
+    const tls = await import("tls");
+    const sock = tls.connect({ host: u.hostname, port: Number(u.port || 465), servername: u.hostname });
+    const read = () => new Promise<string>((res, rej) => {
+      sock.once("data", (d) => res(d.toString()));
+      sock.once("error", rej);
+      setTimeout(() => rej(new Error("smtp_timeout")), 10_000);
+    });
+    const send = async (line: string) => { sock.write(line + "\r\n"); return read(); };
+    await new Promise<void>((res, rej) => { sock.once("secureConnect", () => res()); sock.once("error", rej); });
+    await read(); // banner
+    await send(`EHLO qrix`);
+    await send(`AUTH LOGIN`);
+    await send(Buffer.from(decodeURIComponent(u.username)).toString("base64"));
+    const auth = await send(Buffer.from(decodeURIComponent(u.password)).toString("base64"));
+    if (!auth.startsWith("235")) throw new Error("smtp_auth_failed");
+    const fromAddr = serverConfig.email.from.match(/<(.+)>/)?.[1] || serverConfig.email.from;
+    await send(`MAIL FROM:<${fromAddr}>`);
+    await send(`RCPT TO:<${mail.to}>`);
+    await send(`DATA`);
+    const body = [
+      `From: ${serverConfig.email.from}`, `To: ${mail.to}`, `Subject: ${mail.subject}`,
+      `MIME-Version: 1.0`, `Content-Type: text/html; charset=utf-8`, ``,
+      mail.html.replace(/^\./gm, ".."), `.`,
+    ].join("\r\n");
+    const done = await send(body);
+    sock.end();
+    return done.startsWith("250");
+  } catch (e) {
+    console.error("[email:smtp]", e);
+    return false;
+  }
+}
+
 export async function sendMail(mail: Mail): Promise<boolean> {
   switch (serverConfig.email.driver) {
     case "resend": return sendViaResend(mail);
-    case "smtp":
-      // Real impl: nodemailer transport from EMAIL_SERVER. Falls through to log in mock.
-      console.log(`[email:smtp] ${mail.to} — ${mail.subject}`);
-      return true;
+    case "mailgun": return sendViaMailgun(mail);
+    case "smtp": return sendViaSmtp(mail);
     default:
       console.log(`[email] → ${mail.to}\n  ${mail.subject}`);
       return true;
   }
 }
+
+/** Health flag for monitoring. */
+export const emailReady = () =>
+  serverConfig.email.driver !== "console" &&
+  (serverConfig.email.driver !== "resend" || !!serverConfig.email.resendKey) &&
+  (serverConfig.email.driver !== "mailgun" || (!!process.env.MAILGUN_DOMAIN && !!process.env.MAILGUN_API_KEY)) &&
+  (serverConfig.email.driver !== "smtp" || !!serverConfig.email.smtp);
 
 // ── Templates ───────────────────────────────────────────────────────────
 const shell = (title: string, body: string, cta?: { label: string; url: string }) => `

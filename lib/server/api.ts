@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { rateLimit } from "./security";
 import { getSession, type SessionUser } from "./auth";
 import { audit } from "./analytics";
+import { log } from "./logger";
 
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message?: string) {
@@ -101,7 +102,7 @@ export function handler(fn: Handler, opts: Options = {}) {
       return res;
     } catch (e) {
       if (e instanceof ApiError) return fail(e);
-      console.error("[api]", e);
+      log.error("api_unhandled", { path: req.nextUrl.pathname, error: e instanceof Error ? e.message : String(e) });
       return fail(new ApiError(500, "server_error"));
     }
   };

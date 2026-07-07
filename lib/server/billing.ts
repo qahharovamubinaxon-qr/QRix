@@ -79,6 +79,42 @@ export async function createCheckout(userId: string, plan: Plan, interval: Inter
   return { url: `/dashboard?upgraded=1&plan=${plan.toLowerCase()}`, mock: true };
 }
 
+/** Upgrade/downgrade the active subscription. Upgrades apply instantly
+    (credits bump via the credit engine's plan sync); downgrades keep the
+    current plan until the period ends. */
+export function changePlan(userId: string, plan: Plan, interval?: Interval): { ok: boolean; effective: "now" | "period_end" } {
+  let sub = db.subscriptions.find((s) => s.userId === userId);
+  if (!sub) {
+    // First upgrade from FREE — provision the subscription record.
+    if (plan === "FREE") return { ok: false, effective: "now" };
+    sub = {
+      id: uid("sub"), userId, plan: "FREE", status: "ACTIVE", interval: interval ?? "MONTH",
+      currentPeriodEnd: helpers.daysAhead(interval === "YEAR" ? 365 : 30), cancelAtPeriodEnd: false, createdAt: helpers.now(),
+    };
+    db.subscriptions.insert(sub);
+  }
+  const order = ["FREE", "PRO", "BUSINESS", "ENTERPRISE"] as const;
+  const upgrade = order.indexOf(plan) > order.indexOf(sub.plan);
+  if (upgrade) {
+    db.subscriptions.update((s) => s.userId === userId, { plan, interval: interval ?? sub.interval, status: "ACTIVE", cancelAtPeriodEnd: false });
+    db.users.update((u) => u.id === userId, { plan, updatedAt: helpers.now() });
+    track("conversion", { userId, meta: { plan, change: "upgrade" } });
+    return { ok: true, effective: "now" };
+  }
+  // Downgrade at period end — mark the pending target in the sub record.
+  db.subscriptions.update((s) => s.userId === userId, { cancelAtPeriodEnd: plan === "FREE", interval: interval ?? sub.interval });
+  return { ok: true, effective: "period_end" };
+}
+
+/** Refund an order (mock: flips status + revokes nothing else; stripe: refund API). */
+export function refundOrder(orderId: string): boolean {
+  const order = db.orders.find((o) => o.id === orderId && o.status === "paid");
+  if (!order) return false;
+  db.orders.update((o) => o.id === orderId, { status: "refunded" });
+  track("refund", { userId: order.userId, meta: { orderId, amount: order.amount } });
+  return true;
+}
+
 export function cancelSubscription(userId: string): boolean {
   return !!db.subscriptions.update((s) => s.userId === userId, { cancelAtPeriodEnd: true });
 }

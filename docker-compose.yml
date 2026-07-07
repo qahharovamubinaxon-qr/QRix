@@ -1,0 +1,49 @@
+# QRix production stack: app + PostgreSQL + Redis + MinIO (S3-compatible).
+# Copy .env.production.example to .env and fill the secrets first.
+services:
+  app:
+    build: .
+    ports: ["3000:3000"]
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://qrix:${POSTGRES_PASSWORD:-qrix}@db:5432/qrix
+      REDIS_URL: redis://redis:6379
+      STORAGE_DRIVER: s3
+      S3_ENDPOINT: http://minio:9000
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY_ID: ${MINIO_USER:-qrix}
+      S3_SECRET_ACCESS_KEY: ${MINIO_PASSWORD:-qrix-secret}
+      STORAGE_BUCKET: qrix-uploads
+    depends_on: [db, redis, minio]
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: qrix
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-qrix}
+      POSTGRES_DB: qrix
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U qrix"], interval: 10s, retries: 5 }
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes: [redisdata:/data]
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER:-qrix}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-qrix-secret}
+    volumes: [miniodata:/data]
+    ports: ["9001:9001"]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
