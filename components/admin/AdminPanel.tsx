@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   FiUsers, FiCreditCard, FiFileText, FiFlag, FiList, FiActivity,
-  FiCpu, FiSearch, FiRefreshCw, FiTrendingUp, FiHardDrive, FiKey, FiZap, FiMail,
+  FiCpu, FiSearch, FiRefreshCw, FiTrendingUp, FiHardDrive, FiKey, FiZap, FiMail, FiSliders,
 } from "react-icons/fi";
 
 /* QRix admin dashboard — client shell over /api/v1/admin/{section}.
@@ -25,6 +25,7 @@ const TABS = [
   { id: "payments", label: "Payments", icon: <FiCreditCard size={14} /> },
   { id: "posts", label: "Articles", icon: <FiFileText size={14} /> },
   { id: "tools", label: "Tools", icon: <FiZap size={14} /> },
+  { id: "ai-providers", label: "AI", icon: <FiSliders size={14} /> },
   { id: "flags", label: "Flags", icon: <FiFlag size={14} /> },
   { id: "logs", label: "Logs", icon: <FiList size={14} /> },
   { id: "status", label: "System", icon: <FiCpu size={14} /> },
@@ -246,6 +247,67 @@ export default function AdminPanel() {
 
       {tab === "tools" && (
         <Table cols={["Tool", "Uses (90d)"]} rows={items.map((t) => [String(t.tool), Number(t.count)])} />
+      )}
+
+      {tab === "ai-providers" && Array.isArray(data) && (
+        <div className="grid md:grid-cols-2 gap-3">
+          {(data as unknown as Json[]).map((p) => (
+            <div key={String(p.id)} className="qx-card p-5">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-display font-extrabold text-[15px]" style={{ color: "var(--text)" }}>{String(p.name)}</span>
+                {!!p.free && <Badge tone="good">free</Badge>}
+                {!!p.primary && <Badge tone="warn">primary</Badge>}
+                {!!p.backup && <Badge>backup</Badge>}
+                {!!p.coolingDown && <Badge tone="bad">cooldown</Badge>}
+                <span className="flex-1" />
+                <Badge tone={p.hasKey ? "good" : "default"}>{p.hasKey ? `key: ${p.keySource}` : "no key"}</Badge>
+              </div>
+              <p className="text-[11px] mt-1.5" style={{ color: "var(--text-faint)" }}>{(p.capabilities as string[]).join(" · ")}</p>
+
+              <div className="grid grid-cols-3 gap-2 mt-3 text-center">
+                {[
+                  ["Success", p.successRate === null ? "—" : `${p.successRate}%`],
+                  ["Avg latency", p.avgLatencyMs === null ? "—" : `${p.avgLatencyMs}ms`],
+                  ["Today", String(p.dailyRequests ?? 0)],
+                  ["Tokens", String(p.tokens ?? 0)],
+                  ["Est. cost", `$${Number(p.costUsd || 0).toFixed(4)}`],
+                  ["Rate-limited", String(p.rateLimited ?? 0)],
+                ].map(([l, v]) => (
+                  <div key={l as string} className="rounded-lg py-1.5" style={{ background: "var(--surface-2)" }}>
+                    <p className="text-[9px] font-bold uppercase" style={{ color: "var(--text-faint)" }}>{l}</p>
+                    <p className="text-[12px] font-bold" style={{ color: "var(--text)" }}>{v}</p>
+                  </div>
+                ))}
+              </div>
+
+              {!!(p.lastRequestAt || p.lastError) && (
+                <p className="text-[11px] mt-2 line-clamp-1" style={{ color: p.lastError ? "#f87171" : "var(--text-muted)" }}>
+                  {p.lastError ? `Last error: ${p.lastError}` : `Last request: ${new Date(String(p.lastRequestAt)).toLocaleTimeString()}`}
+                </p>
+              )}
+
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
+                <button onClick={() => mutate("ai-providers", { id: p.id, enabled: !p.enabled })}
+                  className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg"
+                  style={p.enabled ? { background: "rgba(34,197,94,.12)", color: "#22c55e" } : { background: "var(--surface-2)", color: "var(--text-faint)" }}>
+                  {p.enabled ? "Enabled" : "Disabled"}
+                </button>
+                <button onClick={() => mutate("ai-providers", { id: p.id, primary: !p.primary })} className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg" style={{ background: "var(--surface-2)", color: p.primary ? "var(--primary-bright)" : "var(--text-muted)" }}>Primary</button>
+                <button onClick={() => mutate("ai-providers", { id: p.id, backup: !p.backup })} className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg" style={{ background: "var(--surface-2)", color: p.backup ? "var(--primary-bright)" : "var(--text-muted)" }}>Backup</button>
+                <form className="flex-1 min-w-[180px] flex gap-1.5" onSubmit={(e) => {
+                  e.preventDefault();
+                  const inp = (e.currentTarget.elements.namedItem("k") as HTMLInputElement);
+                  if (inp.value.trim()) { mutate("ai-providers", { id: p.id, apiKey: inp.value.trim() }); inp.value = ""; }
+                }}>
+                  <input name="k" type="password" placeholder="Set API key…" autoComplete="off"
+                    className="flex-1 px-2.5 py-1.5 rounded-lg text-[11px] outline-none"
+                    style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }} />
+                  <button className="text-[11px] font-bold px-2.5 rounded-lg" style={{ background: "var(--grad-primary)", color: "#0b0b0b" }}>Save</button>
+                </form>
+              </div>
+            </div>
+          ))}
+        </div>
       )}
 
       {tab === "flags" && Array.isArray(data) && (

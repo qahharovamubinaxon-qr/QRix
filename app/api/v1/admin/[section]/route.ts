@@ -2,7 +2,9 @@ import { handler, ok, notFound, badRequest, pagination, paginate } from "@/lib/s
 import { db, helpers } from "@/lib/server/db";
 import { overview, series, topTools } from "@/lib/server/analytics";
 import { listPosts, createPost, updatePost, deletePost, categories } from "@/lib/server/cms";
-import { aiProviderStatus } from "@/lib/server/providers/ai";
+import { providerStatus, updateProviderSettings } from "@/lib/server/ai/manager";
+import type { ProviderId } from "@/lib/server/ai/providers";
+import { PROVIDERS } from "@/lib/server/ai/providers";
 import { videoProviderStatus } from "@/lib/server/providers/video";
 import { imageProviderStatus } from "@/lib/server/providers/image";
 import { serverConfig, isLive } from "@/lib/server/config";
@@ -49,6 +51,8 @@ export const GET = handler(async ({ req, params }) => {
     }
     case "flags":
       return ok(db.flags.all());
+    case "ai-providers":
+      return ok(await providerStatus());
     case "logs": {
       let rows = db.audit.all();
       if (q) rows = rows.filter((l) => match(l.action) || match(l.target || ""));
@@ -65,7 +69,7 @@ export const GET = handler(async ({ req, params }) => {
           storage: serverConfig.storage.driver, billing: serverConfig.billing.driver, email: serverConfig.email.driver,
         },
         live: isLive,
-        providers: { ai: aiProviderStatus(), video: videoProviderStatus(), image: imageProviderStatus() },
+        providers: { ai: await providerStatus(), video: videoProviderStatus(), image: imageProviderStatus() },
         storage: { uploads: db.uploads.count(), bytes: db.uploads.all().reduce((s, u) => s + u.size, 0) },
         apiUsage: { keys: db.apiKeys.count(), requests: db.apiKeys.all().reduce((s, k) => s + k.requests, 0) },
         uptime: process.uptime(),
@@ -105,6 +109,18 @@ export const POST = handler(async ({ req, params, user }) => {
       }
       if (!body.title || !body.slug) throw badRequest("title + slug required");
       return ok(await createPost(body as never & { title: string; slug: string }));
+    }
+    case "ai-providers": {
+      const id = String(body.id || "") as ProviderId;
+      if (!PROVIDERS[id]) throw badRequest("unknown provider");
+      await updateProviderSettings(id, {
+        enabled: typeof body.enabled === "boolean" ? body.enabled : undefined,
+        primary: typeof body.primary === "boolean" ? body.primary : undefined,
+        backup: typeof body.backup === "boolean" ? body.backup : undefined,
+        // apiKey is encrypted at rest and never echoed back
+        apiKey: typeof body.apiKey === "string" ? (body.apiKey || null) : undefined,
+      });
+      return ok((await providerStatus()).find((p) => p.id === id));
     }
     case "cleanup":
       return ok({ purged: await cleanupExpired(), by: user!.email });

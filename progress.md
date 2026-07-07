@@ -11,6 +11,7 @@
 - **Mission 4 — Premium Homepage** (`328660e`): 5-category showcase with coverflow tool previews + features strip.
 - **Mission 5 — Premium SaaS Experience** (`4a9fa1a`, `d59f6cb`): favorites, recents, history, bookmarks, settings, account; toasts; enhanced Cmd+K; TopNav account dropdown. localStorage via `lib/user-prefs.ts`.
 - **Mission 6 — Backend + Cloud Platform** (`00b457d`, `3b9db62`): Prisma schema + `lib/server/*` (env-gated drivers with working mocks: db/auth/RBAC/security/cache/storage/queue/billing/email/cms/api-keys/analytics/providers ai·video·image), REST API `/api/v1/**` (auth incl. magic-link/reset/verify, me + collections, settings, keys, jobs, billing, track, uploads, admin, cron), `/admin` panel (charts, users, subs, payments, article CMS, flags, logs, system status). Homepage polish: two-row infinite testimonial marquee near footer, premium partner logos.
+- **Mission 7 — AI Provider Manager**: `lib/server/ai/providers.ts` (11 pluggable adapters with real HTTP calls: Gemini, Groq, OpenRouter, Cloudflare Workers AI, HuggingFace, OpenAI, Anthropic, Replicate, Fal.ai, Stability, Custom; env keys `<PROVIDER>_API_KEY`) + `lib/server/ai/manager.ts` (single entry `runAiTask`: smart per-task routing, primary/backup overrides, automatic fallback chain, rate-limit detection with 60s cooldown, response cache, per-provider health/latency/tokens/cost stats, AES-GCM-encrypted admin-stored keys). Free providers first: gemini→groq→openrouter→cloudflare. All AI surfaces route through the manager: `/api/ai/process` (client connector), job queue (`runAi` shim), image `ai` provider. Admin: `AI` tab (enable/disable, primary/backup, masked key entry, success rate, avg latency, daily usage, tokens, est. cost, last error/request) via `/api/v1/admin/ai-providers`. Verified live end-to-end (fallback walked to first keyed provider; cache dedupe confirmed).
 
 ## Current Mission
 None — awaiting next mission.
@@ -31,7 +32,7 @@ Next.js App Router + TS + Tailwind v4, CoolM5 palette. Tool categories follow on
 QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools (+ Barcode, Link-in-Bio, Blog).
 
 ## Last Commit Hash
-`3b9db62` (before CLAUDE.md/progress.md spec commit).
+`(updated on Mission 7 commit — see git log)`
 
 ## Current Git Branch
 `claude/relaxed-turing-bbc58e` (pushed to origin; main checkout `D:\Projects\QRix` must `git checkout` this branch or merge it to see recent work).
@@ -43,7 +44,8 @@ QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools (+ Barcode, Link
 - Admin access: emails in `ADMIN_EMAILS` (default musarasulzada@gmail.com); sign in at `/admin` via magic link (console email driver logs the URL in dev).
 
 ## Known Limitations
-- S3/Supabase storage drivers and OpenAI/Gemini/Replicate/Cloudflare adapters are wired stubs — env keys switch them on, real API calls need finishing when keys exist.
+- S3/Supabase storage drivers are wired stubs — env keys switch them on, real API calls need finishing when keys exist. (AI providers are REAL since Mission 7 — any `<PROVIDER>_API_KEY` goes live instantly.)
+- AI provider health/stats are in-memory (reset on deploy); persist to Redis/DB when those drivers go live.
 - Mock billing activates plans instantly (no real charge) until Stripe keys are set.
 - Reviews table needs Supabase migration (falls back to localStorage).
 

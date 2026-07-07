@@ -1,71 +1,49 @@
 /**
- * AI provider abstraction. One `runAi(tool, input)` call routes to whichever
- * engine is configured via AI_PROVIDER: openai | gemini | replicate |
- * cloudflare | local. No paid API is required — unconfigured providers return a
- * structured "preview" result so the on-device UI fallback stays in control.
- * SERVER ONLY.
+ * Legacy AI adapter surface — now a thin shim over the AI Provider Manager
+ * (lib/server/ai/manager.ts). Tools and the job queue keep calling
+ * `runAi(tool, input)`; routing, fallback, caching and health tracking all
+ * happen inside the manager. Never call providers directly. SERVER ONLY.
  */
-import { serverConfig, type AiProvider } from "../config";
+import { runAiTask, providerStatus } from "../ai/manager";
+import type { AiTaskKind, AiInput } from "../ai/providers";
+import { serverConfig } from "../config";
 
-export interface AiProviderAdapter {
-  name: AiProvider;
-  ready: boolean;
-  run(tool: string, input: unknown): Promise<unknown>;
+/** Map tool/task names coming from clients and the queue to task kinds. */
+export function toTaskKind(tool: string): AiTaskKind {
+  const t = tool.toLowerCase();
+  if (/(generate|imagegen|text-to-image|poster|art)/.test(t)) return "image-generate";
+  if (/(ocr|image-to-text|extract-text)/.test(t)) return "ocr";
+  if (/(describe|caption|analyz|vision|detect)/.test(t)) return "image-analyze";
+  if (/(translate)/.test(t)) return "translate";
+  if (/(summar|tldr)/.test(t)) return "summarize";
+  if (/(code|regex|sql|script)/.test(t)) return "code";
+  if (/(transcribe|speech|audio)/.test(t)) return "transcribe";
+  return "text";
 }
 
-const preview = (provider: AiProvider, tool: string, extra?: object) => ({
-  provider, tool, status: "preview" as const,
-  note: `${provider} not configured — using on-device fallback`, ...extra,
-});
+function toInput(input: unknown): AiInput {
+  const o = (typeof input === "object" && input !== null ? input : {}) as Record<string, unknown>;
+  return {
+    prompt: String(o.prompt ?? o.text ?? o.query ?? ""),
+    image: typeof o.image === "string" ? o.image : undefined,
+    targetLang: typeof o.targetLang === "string" ? o.targetLang : undefined,
+    system: typeof o.system === "string" ? o.system : undefined,
+    maxTokens: typeof o.maxTokens === "number" ? o.maxTokens : undefined,
+  };
+}
 
-class OpenAiAdapter implements AiProviderAdapter {
-  name: AiProvider = "openai";
-  ready = !!serverConfig.providers.keys.openai;
-  async run(tool: string, input: unknown) {
-    if (!this.ready) return preview("openai", tool);
-    // Real impl: call OpenAI images/chat with serverConfig.providers.keys.openai.
-    return { provider: "openai", tool, status: "ok", input };
-  }
-}
-class GeminiAdapter implements AiProviderAdapter {
-  name: AiProvider = "gemini";
-  ready = !!serverConfig.providers.keys.gemini;
-  async run(tool: string, input: unknown) {
-    if (!this.ready) return preview("gemini", tool);
-    return { provider: "gemini", tool, status: "ok", input };
-  }
-}
-class ReplicateAdapter implements AiProviderAdapter {
-  name: AiProvider = "replicate";
-  ready = !!serverConfig.providers.keys.replicate;
-  async run(tool: string, input: unknown) {
-    if (!this.ready) return preview("replicate", tool);
-    return { provider: "replicate", tool, status: "ok", input };
-  }
-}
-class CloudflareAdapter implements AiProviderAdapter {
-  name: AiProvider = "cloudflare";
-  ready = !!serverConfig.providers.keys.cloudflare && !!serverConfig.providers.keys.cloudflareAccount;
-  async run(tool: string, input: unknown) {
-    if (!this.ready) return preview("cloudflare", tool);
-    return { provider: "cloudflare", tool, status: "ok", input };
-  }
-}
-/** Local = signals the client to run the on-device engine (WASM/canvas). */
-class LocalAdapter implements AiProviderAdapter {
-  name: AiProvider = "local";
-  ready = true;
-  async run(tool: string, input: unknown) {
-    return { provider: "local", tool, status: "on-device", input };
+/** Unified AI entry — routes through the Provider Manager with fallback.
+    When no provider is configured, returns the on-device signal so client
+    tools keep their local fallbacks (never an error to the user). */
+export async function runAi(tool: string, input: unknown) {
+  const task = toTaskKind(tool);
+  try {
+    const res = await runAiTask(task, toInput(input));
+    return { provider: res.provider, tool, task, status: "ok" as const, text: res.text, imageUrl: res.imageUrl, cached: res.cached, latencyMs: res.latencyMs };
+  } catch {
+    return { provider: serverConfig.providers.ai, tool, task, status: "on-device" as const, note: "no cloud provider available — using on-device fallback", input };
   }
 }
 
-const adapters: Record<AiProvider, AiProviderAdapter> = {
-  openai: new OpenAiAdapter(), gemini: new GeminiAdapter(), replicate: new ReplicateAdapter(),
-  cloudflare: new CloudflareAdapter(), local: new LocalAdapter(),
-};
-
-export const aiAdapter = (): AiProviderAdapter => adapters[serverConfig.providers.ai] ?? adapters.local;
-export const runAi = (tool: string, input: unknown) => aiAdapter().run(tool, input);
-export const aiProviderStatus = () =>
-  (Object.values(adapters)).map((a) => ({ name: a.name, ready: a.ready, active: a.name === serverConfig.providers.ai }));
+/** Admin status (legacy shape kept for the System tab). */
+export const aiProviderStatus = () => providerStatus();

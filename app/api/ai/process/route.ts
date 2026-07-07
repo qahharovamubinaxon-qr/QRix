@@ -1,22 +1,25 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { runAiTask } from "@/lib/server/ai/manager";
+import { toTaskKind } from "@/lib/server/providers/ai";
+import { rateLimit } from "@/lib/server/security";
+import { track } from "@/lib/server/analytics";
+import type { AiInput } from "@/lib/server/ai/providers";
 
 export const runtime = "nodejs";
 
 /**
  * Server side of the QRix AI connector (lib/ai-connector.ts).
- *
- * When a cloud engine is configured (AI_ENGINE_URL + AI_ENGINE_KEY, plus
- * NEXT_PUBLIC_AI_ENGINE=1 so clients know), this route forwards tasks to it.
- * Until then it answers 503 so client tools use their on-device fallbacks.
+ * Every AI tool routes here; the Provider Manager picks the best available
+ * provider (free first), falls back on failure and caches where sensible.
+ * With zero providers configured it answers 503 so client tools use their
+ * on-device fallbacks — exactly the pre-Mission-7 contract.
  */
-export async function POST(request: Request) {
-  const url = process.env.AI_ENGINE_URL;
-  const key = process.env.AI_ENGINE_KEY;
-  if (!url || !key) {
-    return NextResponse.json({ ok: false, error: "ai_engine_not_configured" }, { status: 503 });
-  }
+export async function POST(request: NextRequest) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "0.0.0.0";
+  const rl = await rateLimit(`${ip}:/api/ai/process`, { max: 30 });
+  if (!rl.ok) return NextResponse.json({ ok: false, error: "rate_limited" }, { status: 429 });
 
-  let body: { task?: string; payload?: unknown };
+  let body: { task?: string; payload?: Record<string, unknown> };
   try {
     body = await request.json();
   } catch {
@@ -26,15 +29,23 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: "missing_task" }, { status: 400 });
   }
 
+  const p = body.payload ?? {};
+  const input: AiInput = {
+    prompt: String(p.prompt ?? p.text ?? ""),
+    image: typeof p.image === "string" ? p.image : undefined,
+    targetLang: typeof p.targetLang === "string" ? p.targetLang : undefined,
+    maxTokens: typeof p.maxTokens === "number" ? Math.min(p.maxTokens, 4096) : undefined,
+  };
+
   try {
-    const upstream = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
-      body: JSON.stringify(body),
+    const result = await runAiTask(toTaskKind(body.task), input);
+    track("tool_use", { tool: `ai:${body.task}` });
+    return NextResponse.json({
+      ok: true, task: body.task, provider: result.provider, cached: result.cached,
+      latencyMs: result.latencyMs, text: result.text, imageUrl: result.imageUrl,
     });
-    const data = await upstream.json().catch(() => ({}));
-    return NextResponse.json(data, { status: upstream.status });
   } catch {
-    return NextResponse.json({ ok: false, error: "engine_unreachable" }, { status: 502 });
+    // No configured provider (or all failed) — client falls back on-device.
+    return NextResponse.json({ ok: false, error: "ai_engine_not_configured" }, { status: 503 });
   }
 }

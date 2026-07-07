@@ -95,6 +95,7 @@ export const db = {
   audit: new Collection<AuditLog>([]),
   templates: new Collection<SavedTemplate>([]),
   bookmarks: new Collection<BlogBookmark>([]),
+  aiProviders: new Collection<import("./ai/manager").ProviderSettings>([]),
 };
 
 export const dbDriver = serverConfig.db.driver;
