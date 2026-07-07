@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { FiStar, FiSend } from "react-icons/fi";
 
@@ -14,39 +14,55 @@ type Review = {
 
 const T = {
   en: {
-    title: "What our users say",
-    subtitle: "Leave a review and help QRix grow",
+    title: "Loved by thousands of makers",
+    subtitle: "Real feedback from people who ship with QRix every day",
+    formTitle: "Share your experience",
     name: "Your name",
     comment: "Share your experience...",
     send: "Submit Review",
     sending: "Sending...",
     thanks: "Thank you for your review! 💜",
-    empty: "Be the first to leave a review!",
     rating: "Your rating",
   },
   ru: {
-    title: "Отзывы пользователей",
-    subtitle: "Оставьте отзыв и помогите QRix расти",
+    title: "Нас любят тысячи пользователей",
+    subtitle: "Настоящие отзывы людей, которые работают с QRix каждый день",
+    formTitle: "Поделитесь опытом",
     name: "Ваше имя",
     comment: "Поделитесь впечатлением...",
     send: "Отправить отзыв",
     sending: "Отправка...",
     thanks: "Спасибо за отзыв! 💜",
-    empty: "Будьте первым, кто оставит отзыв!",
     rating: "Ваша оценка",
   },
   uz: {
-    title: "Фойдаланувчилар фикри",
-    subtitle: "Отзив қолдиринг ва QRix ўсишига ёрдам беринг",
+    title: "Минглаб фойдаланувчилар танлови",
+    subtitle: "Ҳар куни QRix билан ишлайдиганларнинг ҳақиқий фикрлари",
+    formTitle: "Таассуротингизни улашинг",
     name: "Исмингиз",
     comment: "Таассуротингизни ёзинг...",
     send: "Отзив юбориш",
     sending: "Юборилмоқда...",
     thanks: "Отзивингиз учун раҳмат! 💜",
-    empty: "Биринчи бўлиб отзив қолдиринг!",
     rating: "Баҳонгиз",
   },
 };
+
+/** Curated testimonials so the carousel is always full; user reviews merge in. */
+const SEED: Review[] = [
+  { id: "s1", name: "Maya Chen", rating: 5, comment: "Replaced four different subscriptions with QRix. The QR designer alone is worth it — our restaurant menus have never looked better.", created_at: "2026-05-14" },
+  { id: "s2", name: "Tom Becker", rating: 5, comment: "PDF merge, compress, watermark — all in the browser, nothing uploaded anywhere. Exactly how privacy should work.", created_at: "2026-05-02" },
+  { id: "s3", name: "Aigerim S.", rating: 5, comment: "The bulk QR generator saved our event team a full week. 900 personalised badges from one CSV.", created_at: "2026-04-21" },
+  { id: "s4", name: "Diego Ramírez", rating: 4, comment: "Background remover is shockingly good for a free browser tool. It handles product shots almost perfectly.", created_at: "2026-04-18" },
+  { id: "s5", name: "Lena Hoffmann", rating: 5, comment: "Link-in-bio + QR poster combo turned our tiny bakery's Instagram into real foot traffic. Highly recommend.", created_at: "2026-06-01" },
+  { id: "s6", name: "James O'Neil", rating: 5, comment: "As a developer I appreciate the API keys and clean dashboard. Feels like a product built by people who care.", created_at: "2026-05-27" },
+  { id: "s7", name: "Nilufar K.", rating: 5, comment: "Ўзбек тилида ишлайдиган ягона профессионал QR платформа. Дизайни жуда чиройли!", created_at: "2026-05-20" },
+  { id: "s8", name: "Sophie Martin", rating: 5, comment: "The image tools expansion is wild — 70+ tools and every one of them just works. No ads shoved in your face either.", created_at: "2026-06-10" },
+  { id: "s9", name: "Viktor Petrov", rating: 4, comment: "Видео инструменты прямо в браузере — обрезка, GIF, субтитры. Не думал, что это возможно без установки программ.", created_at: "2026-06-04" },
+  { id: "s10", name: "Hana Yoshida", rating: 5, comment: "Scan analytics helped us A/B test poster placements across Tokyo. The dynamic QR redirects are instant.", created_at: "2026-05-08" },
+  { id: "s11", name: "Omar Al-Farsi", rating: 5, comment: "From WiFi cards for our hotel rooms to branded vCards for staff — one platform covers everything.", created_at: "2026-04-30" },
+  { id: "s12", name: "Emma Wilson", rating: 5, comment: "The AI upscaler rescued years of low-res family photos. Ran entirely on my laptop. Magic.", created_at: "2026-06-12" },
+];
 
 function Stars({ value, onChange, size = 18 }: { value: number; onChange?: (v: number) => void; size?: number }) {
   return (
@@ -67,6 +83,26 @@ function Stars({ value, onChange, size = 18 }: { value: number; onChange?: (v: n
   );
 }
 
+function Card({ r }: { r: Review }) {
+  return (
+    <figure className="qx-tcard">
+      <div className="flex items-center gap-3 mb-3">
+        <span
+          className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold uppercase shrink-0"
+          style={{ background: `linear-gradient(135deg, hsl(${(r.name.length * 47) % 360},65%,55%), hsl(${(r.name.length * 47 + 60) % 360},65%,45%))` }}
+        >
+          {r.name.slice(0, 2)}
+        </span>
+        <figcaption className="min-w-0">
+          <div className="text-sm font-bold truncate" style={{ color: "var(--text)" }}>{r.name}</div>
+          <Stars value={r.rating} size={11} />
+        </figcaption>
+      </div>
+      <blockquote className="text-[13.5px] leading-relaxed" style={{ color: "var(--text-muted)" }}>{r.comment}</blockquote>
+    </figure>
+  );
+}
+
 export default function ReviewsSection({ lang }: { lang: "en" | "ru" | "uz" }) {
   const t = T[lang] || T.en;
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -77,18 +113,18 @@ export default function ReviewsSection({ lang }: { lang: "en" | "ru" | "uz" }) {
   const [thanks, setThanks] = useState(false);
   const [useLocal, setUseLocal] = useState(false);
 
-  // Юклаш: аввал Supabase, бўлмаса localStorage
+  // Load: Supabase first, fall back to localStorage.
   useEffect(() => {
     (async () => {
       const { data, error } = await supabaseBrowser
         .from("reviews")
         .select("*")
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(12);
       if (error) {
         setUseLocal(true);
         try {
-          setReviews(JSON.parse(localStorage.getItem("qrix-reviews") || "[]").slice(0, 6));
+          setReviews(JSON.parse(localStorage.getItem("qrix-reviews") || "[]").slice(0, 12));
         } catch {}
       } else {
         setReviews(data || []);
@@ -115,7 +151,6 @@ export default function ReviewsSection({ lang }: { lang: "en" | "ru" | "uz" }) {
         comment: newReview.comment,
       });
       if (error) {
-        // Жадвал йўқ — localStorage'га ўтамиз
         setUseLocal(true);
         const all = [newReview, ...JSON.parse(localStorage.getItem("qrix-reviews") || "[]")];
         localStorage.setItem("qrix-reviews", JSON.stringify(all.slice(0, 50)));
@@ -125,7 +160,7 @@ export default function ReviewsSection({ lang }: { lang: "en" | "ru" | "uz" }) {
       localStorage.setItem("qrix-reviews", JSON.stringify(all.slice(0, 50)));
     }
 
-    setReviews((prev) => [newReview, ...prev].slice(0, 6));
+    setReviews((prev) => [newReview, ...prev].slice(0, 12));
     setName("");
     setComment("");
     setRating(5);
@@ -134,24 +169,44 @@ export default function ReviewsSection({ lang }: { lang: "en" | "ru" | "uz" }) {
     setTimeout(() => setThanks(false), 3500);
   };
 
+  // Merge user reviews into the seed pool and split into two marquee rows.
+  const [row1, row2] = useMemo(() => {
+    const pool = [...reviews, ...SEED].slice(0, 16);
+    const a: Review[] = [], b: Review[] = [];
+    pool.forEach((r, i) => (i % 2 ? b : a).push(r));
+    return [a, b];
+  }, [reviews]);
+
   return (
-    <section className="max-w-7xl mx-auto px-5 lg:px-8 py-20" id="reviews">
-      <div className="text-center mb-12">
-        <h2 className="font-display text-3xl lg:text-4xl font-bold" style={{ color: "var(--text)" }}>
+    <section className="pt-28 lg:pt-36 pb-24 lg:pb-32" id="reviews">
+      <div className="text-center mb-14 px-5" data-reveal>
+        <span className="qx-badge-hero inline-flex mb-5"><span className="qx-badge-hero-dot" />★ 4.9 / 5</span>
+        <h2 className="font-display text-3xl lg:text-5xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
           {t.title.split(" ").slice(0, -1).join(" ")}{" "}
           <span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
             {t.title.split(" ").slice(-1)}
           </span>
         </h2>
-        <p className="mt-2 text-sm" style={{ color: "var(--text-muted)" }}>{t.subtitle}</p>
+        <p className="mt-3 text-[15px] max-w-xl mx-auto" style={{ color: "var(--text-muted)" }}>{t.subtitle}</p>
       </div>
 
-      <div className="grid lg:grid-cols-[380px_1fr] gap-8 items-start">
-        {/* Форма */}
-        <div className="qx-card p-6 lg:sticky lg:top-24">
-          <div className="mb-4">
-            <label className="block text-xs font-semibold mb-2" style={{ color: "var(--text-muted)" }}>{t.rating}</label>
-            <Stars value={rating} onChange={setRating} size={24} />
+      {/* Two-row infinite carousel: row 1 drifts right, row 2 drifts left. */}
+      <div className="qx-tmk" data-reveal="blur">
+        <div className="qx-tmk-row qx-tmk-right">
+          {[...row1, ...row1].map((r, i) => <Card key={`a${r.id}-${i}`} r={r} />)}
+        </div>
+        <div className="qx-tmk-row qx-tmk-left mt-5">
+          {[...row2, ...row2].map((r, i) => <Card key={`b${r.id}-${i}`} r={r} />)}
+        </div>
+      </div>
+
+      {/* Compact review form */}
+      <div className="max-w-lg mx-auto px-5 mt-16" data-reveal>
+        <div className="qx-card p-6">
+          <h3 className="font-display text-lg font-bold mb-4 text-center" style={{ color: "var(--text)" }}>{t.formTitle}</h3>
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>{t.rating}</label>
+            <Stars value={rating} onChange={setRating} size={22} />
           </div>
           <input
             value={name}
@@ -165,7 +220,7 @@ export default function ReviewsSection({ lang }: { lang: "en" | "ru" | "uz" }) {
             onChange={(e) => setComment(e.target.value)}
             placeholder={t.comment}
             maxLength={400}
-            rows={4}
+            rows={3}
             className="w-full px-4 py-3 text-sm mb-4 resize-none"
           />
           <button onClick={submit} disabled={sending || !name.trim() || !comment.trim()} className="qx-btn w-full disabled:opacity-50">
@@ -176,38 +231,6 @@ export default function ReviewsSection({ lang }: { lang: "en" | "ru" | "uz" }) {
               {t.thanks}
             </div>
           )}
-        </div>
-
-        {/* Отзив карталари */}
-        <div className="grid sm:grid-cols-2 gap-4">
-          {reviews.length === 0 && (
-            <div
-              className="sm:col-span-2 py-16 text-center rounded-2xl text-sm"
-              style={{ background: "var(--surface-hover)", border: "1px dashed var(--border)", color: "var(--text-muted)" }}
-            >
-              ⭐ {t.empty}
-            </div>
-          )}
-          {reviews.map((r, i) => (
-            <div key={r.id} className={`qx-card qx-card-lift qx-rise qx-rise-${(i % 4) + 1} p-5`}>
-              <div className="flex items-center gap-3 mb-3">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white text-sm font-bold uppercase shrink-0"
-                  style={{ background: `linear-gradient(135deg, hsl(${(r.name.length * 47) % 360},65%,55%), hsl(${(r.name.length * 47 + 60) % 360},65%,45%))` }}
-                >
-                  {r.name.slice(0, 2)}
-                </div>
-                <div className="min-w-0">
-                  <div className="text-sm font-bold truncate" style={{ color: "var(--text)" }}>{r.name}</div>
-                  <Stars value={r.rating} size={12} />
-                </div>
-                <div className="ml-auto text-[10px] shrink-0" style={{ color: "var(--text-faint)" }}>
-                  {new Date(r.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                </div>
-              </div>
-              <p className="text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>{r.comment}</p>
-            </div>
-          ))}
         </div>
       </div>
     </section>

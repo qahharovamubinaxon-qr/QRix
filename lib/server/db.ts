@@ -8,7 +8,7 @@ import { serverConfig } from "./config";
 import type {
   User, Subscription, Order, ApiKey, Job, Notification, Settings, Favorite,
   HistoryItem, RecentTool, Download, Upload, Project, EventRow, FeatureFlag,
-  Post, AuditLog,
+  Post, AuditLog, SavedTemplate, BlogBookmark,
 } from "./models";
 
 export const uid = (p = "id") => `${p}_${Math.random().toString(36).slice(2, 10)}${Date.now().toString(36).slice(-4)}`;
@@ -17,7 +17,7 @@ const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString
 const daysAhead = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString();
 
 /** Minimal typed in-memory collection with the query surface the app needs. */
-class Collection<T extends { id?: string }> {
+class Collection<T> {
   private rows: T[] = [];
   constructor(seed: T[] = []) { this.rows = seed; }
   all() { return [...this.rows]; }
@@ -93,6 +93,8 @@ export const db = {
   ]),
   posts: new Collection<Post>([]),
   audit: new Collection<AuditLog>([]),
+  templates: new Collection<SavedTemplate>([]),
+  bookmarks: new Collection<BlogBookmark>([]),
 };
 
 export const dbDriver = serverConfig.db.driver;

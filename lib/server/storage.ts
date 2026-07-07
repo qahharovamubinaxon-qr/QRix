@@ -96,9 +96,9 @@ export async function removeUpload(id: string): Promise<void> {
 /** Purge expired temporary uploads. Call from a cron / edge scheduled job. */
 export async function cleanupExpired(): Promise<number> {
   const now = helpers.now();
-  const expired = db.uploads.filter((u) => u.temporary && u.expiresAt !== null && u.expiresAt < now);
+  const expired = db.uploads.filter((u) => u.temporary && u.expiresAt != null && u.expiresAt < now);
   await Promise.all(expired.map((u) => storageDriver.delete(u.key)));
-  db.uploads.remove((u) => u.temporary && u.expiresAt !== null && u.expiresAt < now);
+  db.uploads.remove((u) => u.temporary && u.expiresAt != null && u.expiresAt < now);
   return expired.length;
 }
 

@@ -9,18 +9,17 @@
 - **Mission 2 — Video Tools** (`48911ab`): 29 tools at `/video-tools`, canvas→MediaRecorder pipeline + gifenc + Web Speech + connector.
 - **Mission 3 — Image Tools Expansion** (`4ccd65b`): +65 config-driven on-device image tools at `/image-tools/[slug]`.
 - **Mission 4 — Premium Homepage** (`328660e`): 5-category showcase with coverflow tool previews + features strip; removed marquee.
-- **Mission 5 — Premium SaaS Experience**: favorites, recent tools, download history, bookmarks, settings, account pages; toast center; enhanced Cmd+K (commands/theme/lang/favorites/recents); dashboard widgets; skeletons. localStorage via `lib/user-prefs.ts`.
+- **Mission 5 — Premium SaaS Experience** (`4a9fa1a` + `d59f6cb`): favorites, recent tools, download history, bookmarks, settings, account pages; toast center; enhanced Cmd+K; TopNav account dropdown. localStorage via `lib/user-prefs.ts`.
+- **Mission 6 — Backend + Cloud Platform**: `prisma/schema.prisma` (users/sessions/subs/orders/favorites/history/uploads/projects/api-keys/jobs/posts/events/flags/audit) + `lib/server/*` — env-gated drivers with working mocks: config, db (in-memory seeded), cache, security (PBKDF2/CSRF/rate-limit/sanitize), auth (credentials/OAuth/magic-link/reset/verify, Supabase-aware, RBAC), analytics, storage (local/S3/supabase + TTL cleanup), queue (retry/cancel/progress), billing (4 plans, coupons, trials, quotas, webhooks), email (console/resend/smtp + templates), cms (seeded from blog), api-keys, providers (ai: openai/gemini/replicate/cloudflare/local · video: ffmpeg/cloud/local · image: local/ai/cloud). REST API `/api/v1/*`: auth, me (+generic collections), settings, keys, jobs, billing, track, uploads, admin, cron cleanup. Admin panel `/admin` (magic-link gate; overview charts, users, subs, payments, articles CMS, tools, flags, logs, system status). Homepage polish: two-row infinite testimonial marquee moved near footer, premium partner logos.
 
 ## Current Mission
 None — awaiting next mission.
 
 ## Remaining Missions
-- Connect real cloud AI/video engine (env only: AI colorize/inpaint/translate/imagegen, video MP4 export/long reverse/SRT auto-translate).
-- Add "Video Tools" + "AI Tools" cards to Homepage category section.
+- Wire real drivers via env (DATABASE_URL + prisma generate, REDIS_URL, S3 keys, Stripe keys, RESEND_API_KEY, OPENAI/GEMINI/REPLICATE/CLOUDFLARE keys, VIDEO_ENCODER_URL).
 - Blog articles for AI + Video tools.
-- Dashboard integration (recent files, favorites).
 - i18n localized URLs.
-- Deploy to Vercel.
+- Deploy to Vercel (add cron for /api/cron/cleanup).
 
 ## Important Notes
 - Local machine low-RAM: `next build` may OOM at trace step; code is fine, verify via `tsc --noEmit` + preview server. Vercel builds clean.

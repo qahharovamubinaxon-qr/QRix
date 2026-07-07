@@ -664,9 +664,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ================= REVIEWS ================= */}
-      <ReviewsSection lang={lang} />
-
       {/* ================= TRUSTED BY ================= */}
       <TrustedBy heading={lang === "uz" ? "Жаҳон жамоалари ишонган воситалар тоифаси" : lang === "ru" ? "Инструменты уровня мировых команд" : "The tool quality world-class teams expect"} />
 
@@ -678,6 +675,9 @@ export default function HomePage() {
         heading={lang === "uz" ? "Сўнгги қўлланмалар" : lang === "ru" ? "Свежие гайды" : "Latest guides"}
         cta={lang === "uz" ? "Барчаси" : lang === "ru" ? "Все статьи" : "View all"}
       />
+
+      {/* ================= REVIEWS ================= */}
+      <ReviewsSection lang={lang} />
 
       {/* ================= NEWSLETTER ================= */}
       <NewsletterSection lang={lang} />

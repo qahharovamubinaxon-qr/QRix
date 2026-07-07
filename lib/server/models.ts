@@ -102,6 +102,8 @@ export interface RecentTool { id: string; userId: string; href: string; title: s
 export interface Download { id: string; userId: string; name: string; tool?: string | null; size: number; createdAt: string; }
 export interface Upload { id: string; userId: string; key: string; name: string; mime: string; size: number; temporary: boolean; expiresAt?: string | null; createdAt: string; }
 export interface Project { id: string; userId: string; name: string; kind: string; data?: unknown; createdAt: string; updatedAt: string; }
+export interface SavedTemplate { id: string; userId: string; kind: string; name: string; data: unknown; createdAt: string; }
+export interface BlogBookmark { id: string; userId: string; slug: string; title: string; createdAt: string; }
 export interface EventRow { id: string; name: string; userId?: string | null; tool?: string | null; meta?: unknown; createdAt: string; }
 export interface FeatureFlag { key: string; enabled: boolean; rollout: number; updatedAt: string; }
 export interface Post { id: string; slug: string; title: string; excerpt?: string | null; body?: string | null; category?: string | null; tags: string[]; status: string; featured: boolean; seoTitle?: string | null; seoDesc?: string | null; publishedAt?: string | null; createdAt: string; updatedAt: string; }
