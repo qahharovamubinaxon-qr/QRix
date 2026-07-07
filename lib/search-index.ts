@@ -36,6 +36,7 @@ const PAGES: SearchItem[] = [
   { title: "QR Decoder", href: "/qr-tools/decode", group: "Pages", keywords: "read scan from image" },
   { title: "QR Scanner", href: "/scanner", group: "Pages", keywords: "camera scan" },
   { title: "Pricing", href: "/pricing", group: "Pages", keywords: "pro plan subscription narx" },
+  { title: "Developer API", href: "/developers", group: "Pages", keywords: "api sdk webhooks rest openapi developer integration" },
   { title: "Blog", href: "/blog", group: "Pages", keywords: "guides articles" },
   { title: "Dashboard", href: "/dashboard", group: "Pages", keywords: "analytics my qr codes" },
 ];

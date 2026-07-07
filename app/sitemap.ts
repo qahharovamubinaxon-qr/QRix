@@ -34,6 +34,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/video-tools", 0.9),
     ...VIDEO_TOOLS.map((t) => entry(`/video-tools/${t.slug}`, 0.8)),
     entry("/pricing", 0.7, "monthly"),
+    entry("/developers", 0.7, "monthly"),
     entry("/blog", 0.7, "weekly"),
     ...POSTS.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly")),
     ...QR_TOOLS.map((t) => entry(`/qr-tools/${t.slug}`, 0.8)),

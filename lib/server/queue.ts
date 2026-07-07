@@ -7,6 +7,7 @@
 import { serverConfig } from "./config";
 import { db, uid, helpers } from "./db";
 import { track } from "./analytics";
+import { emitEvent } from "./webhooks";
 import { runAi } from "./providers/ai";
 import { runVideo } from "./providers/video";
 import { runImage } from "./providers/image";
@@ -46,11 +47,13 @@ async function run(id: string) {
       setTimeout(() => schedule(id, "low"), 500 * 2 ** attempts); // exponential backoff, retries yield to fresh jobs
     } else {
       db.jobs.update((j) => j.id === id, { status: "FAILED", attempts, error: res.error, progress: 100, updatedAt: helpers.now() });
+      emitEvent("job.failed", { jobId: id, tool: job.tool, error: res.error }, job.userId);
     }
     return;
   }
   db.jobs.update((j) => j.id === id, { status: "DONE", progress: 100, output: res.output, error: null, updatedAt: helpers.now() });
   track("job_done", { userId: job.userId, tool: job.tool });
+  emitEvent("job.completed", { jobId: id, tool: job.tool, kind: job.kind }, job.userId);
 }
 
 // ── Priority scheduler with bounded concurrency ─────────────────────────

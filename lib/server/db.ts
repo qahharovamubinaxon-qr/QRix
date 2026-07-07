@@ -107,6 +107,8 @@ export const db = {
   wsProjects: new Collection<import("./workspaces").WsProject>([]),
   wsComments: new Collection<import("./workspaces").WsComment>([]),
   wsActivity: new Collection<import("./workspaces").WsActivity>([]),
+  webhooks: new Collection<import("./webhooks").Webhook>([]),
+  webhookDeliveries: new Collection<import("./webhooks").WebhookDelivery>([]),
 };
 
 export const dbDriver = serverConfig.db.driver;

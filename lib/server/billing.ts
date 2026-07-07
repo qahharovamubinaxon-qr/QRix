@@ -8,6 +8,7 @@ import { serverConfig } from "./config";
 import { db, uid, helpers } from "./db";
 import { emails } from "./email";
 import { track } from "./analytics";
+import { emitEvent } from "./webhooks";
 import type { Plan, Interval, Subscription } from "./models";
 
 // ── Plans & limits ──────────────────────────────────────────────────────
@@ -76,6 +77,8 @@ export async function createCheckout(userId: string, plan: Plan, interval: Inter
   const user = db.users.find((u) => u.id === userId);
   if (user) { emails.subscriptionStarted(user.email, PLANS[plan].name); emails.invoice(user.email, amount); }
   track("conversion", { userId, meta: { plan, interval } });
+  emitEvent("subscription.created", { userId, plan, interval }, userId);
+  emitEvent("payment.succeeded", { userId, amount, currency: "usd" }, userId);
   return { url: `/dashboard?upgraded=1&plan=${plan.toLowerCase()}`, mock: true };
 }
 
@@ -112,6 +115,7 @@ export function refundOrder(orderId: string): boolean {
   if (!order) return false;
   db.orders.update((o) => o.id === orderId, { status: "refunded" });
   track("refund", { userId: order.userId, meta: { orderId, amount: order.amount } });
+  emitEvent("payment.refunded", { orderId, userId: order.userId, amount: order.amount }, order.userId);
   return true;
 }
 

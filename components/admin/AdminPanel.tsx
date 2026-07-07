@@ -26,6 +26,7 @@ const TABS = [
   { id: "posts", label: "Articles", icon: <FiFileText size={14} /> },
   { id: "tools", label: "Tools", icon: <FiZap size={14} /> },
   { id: "workspaces", label: "Workspaces", icon: <FiUsers size={14} /> },
+  { id: "api", label: "API", icon: <FiKey size={14} /> },
   { id: "ai-providers", label: "AI", icon: <FiSliders size={14} /> },
   { id: "flags", label: "Flags", icon: <FiFlag size={14} /> },
   { id: "logs", label: "Logs", icon: <FiList size={14} /> },
@@ -261,6 +262,27 @@ export default function AdminPanel() {
               {w.plan === "FREE" ? "Grant Business" : "Set Free"}
             </button>,
           ])} />
+      )}
+
+      {tab === "api" && data && (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+            <Stat label="API keys" value={String(data.activeKeys ?? 0)} sub={`${data.keys} total`} />
+            <Stat label="Requests" value={String(data.requests ?? 0)} />
+            <Stat label="Webhooks" value={String(data.activeWebhooks ?? 0)} sub={`${data.webhooks} total`} />
+            <Stat label="Deliveries" value={String((data.deliveries as Json)?.success ?? 0)} sub={`${(data.deliveries as Json)?.failed ?? 0} failed`} />
+          </div>
+          <div className="grid md:grid-cols-2 gap-3">
+            <Table cols={["Key", "Name", "Requests", "Last used"]}
+              rows={((data.topKeys as Json[]) || []).map((k) => [String(k.prefix), String(k.name), String(k.requests), fmtDate(k.lastUsedAt as string)])} />
+            <Table cols={["Event", "Status", "HTTP", "Attempts"]}
+              rows={((data.recent as Json[]) || []).map((d) => [
+                String(d.event),
+                <Badge key="s" tone={d.status === "success" ? "good" : d.status === "failed" ? "bad" : "warn"}>{String(d.status)}</Badge>,
+                String(d.httpStatus ?? "—"), String(d.attempts),
+              ])} />
+          </div>
+        </>
       )}
 
       {tab === "ai-providers" && Array.isArray(data) && (

@@ -8,6 +8,8 @@ import { rateLimit } from "./security";
 import { getSession, type SessionUser } from "./auth";
 import { audit } from "./analytics";
 import { log } from "./logger";
+import { authenticateApiKey } from "./api-keys";
+import { db } from "./db";
 
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message?: string) {
@@ -88,10 +90,28 @@ export function handler(fn: Handler, opts: Options = {}) {
   return async (req: NextRequest, context: { params?: Promise<Record<string, string>> }) => {
     try {
       const ip = clientIp(req);
-      const rl = await rateLimit(`${ip}:${req.nextUrl.pathname}`, opts.rateLimit);
+
+      // Public API: `Authorization: Bearer qrix_live_…` authenticates as the
+      // key's owner. Rate limits then apply per key (and per workspace when
+      // an X-Workspace-Id header is present) instead of per IP.
+      let apiUser: SessionUser | null = null;
+      let rlId = `${ip}:${req.nextUrl.pathname}`;
+      const bearer = req.headers.get("authorization")?.match(/^Bearer\s+(qrix_live_\w+)$/i)?.[1];
+      if (bearer) {
+        const scope: "read" | "write" = ["GET", "HEAD"].includes(req.method) ? "read" : "write";
+        const key = await authenticateApiKey(bearer, scope);
+        if (!key) throw unauthorized("invalid api key");
+        const owner = db.users.find((u) => u.id === key.userId);
+        if (!owner) throw unauthorized("key owner missing");
+        apiUser = { id: owner.id, email: owner.email, name: owner.name, role: owner.role, plan: owner.plan };
+        const wsId = req.headers.get("x-workspace-id");
+        rlId = wsId ? `ws:${wsId}` : `key:${key.id}`;
+      }
+
+      const rl = await rateLimit(rlId, opts.rateLimit);
       if (!rl.ok) throw tooMany();
 
-      const user = await getSession();
+      const user = apiUser ?? (await getSession());
       if ((opts.auth || opts.admin) && !user) throw unauthorized();
       if (opts.admin && user?.role !== "ADMIN") throw forbidden("admin only");
 

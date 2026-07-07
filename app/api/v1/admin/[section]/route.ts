@@ -65,6 +65,18 @@ export const GET = handler(async ({ req, params }) => {
       return ok(paginate(db.jobs.all(), page, limit));
     case "keys":
       return ok(paginate(db.apiKeys.all().map(({ hash, ...k }) => { void hash; return k; }), page, limit));
+    case "api": {
+      const keys = db.apiKeys.all();
+      const deliveries = db.webhookDeliveries.all();
+      return ok({
+        keys: keys.length, requests: keys.reduce((s, k) => s + k.requests, 0),
+        activeKeys: keys.filter((k) => !k.revoked).length,
+        webhooks: db.webhooks.count(), activeWebhooks: db.webhooks.count((w) => w.active),
+        deliveries: { total: deliveries.length, success: deliveries.filter((d) => d.status === "success").length, failed: deliveries.filter((d) => d.status === "failed").length },
+        recent: deliveries.slice(0, 25),
+        topKeys: keys.sort((a, b) => b.requests - a.requests).slice(0, 10).map((k) => ({ prefix: k.prefix, name: k.name, requests: k.requests, lastUsedAt: k.lastUsedAt })),
+      });
+    }
     case "status": {
       const health = await systemHealth();
       return ok({
