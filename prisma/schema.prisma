@@ -1,0 +1,393 @@
+// QRix — canonical production data model.
+//
+// This schema is the single source of truth for the backend. The app ships
+// with a mock in-memory driver (lib/server/db.ts) so everything runs with zero
+// configuration; set DATABASE_URL and run `prisma generate && prisma db push`
+// to switch the same repositories onto a real PostgreSQL database.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────── Auth / Users ────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  image         String?
+  role          Role      @default(USER)
+  passwordHash  String?
+  emailVerified DateTime?
+  plan          Plan      @default(FREE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  subscription  Subscription?
+  orders        Order[]
+  favorites     Favorite[]
+  history       HistoryItem[]
+  recentTools   RecentTool[]
+  downloads     Download[]
+  uploads       Upload[]
+  projects      Project[]
+  apiKeys       ApiKey[]
+  notifications Notification[]
+  settings      Settings?
+  bookmarks     BlogBookmark[]
+  templates     SavedTemplate[]
+  jobs          Job[]
+
+  @@index([plan])
+  @@index([role])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  provider          String // credentials | google | github | email(magic-link)
+  providerAccountId String
+  type              String // oauth | email | credentials
+  accessToken       String?
+  refreshToken      String?
+  expiresAt         Int?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  token        String   @unique
+  ip           String?
+  userAgent    String?
+  rememberMe   Boolean  @default(false)
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  purpose    String // verify-email | reset-password | magic-link
+  expiresAt  DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─────────────────────────── Billing ────────────────────────────
+
+model Subscription {
+  id                 String    @id @default(cuid())
+  userId             String    @unique
+  plan               Plan
+  status             SubStatus @default(ACTIVE)
+  interval           Interval  @default(MONTH)
+  stripeCustomerId   String?
+  stripeSubId        String?
+  currentPeriodEnd   DateTime?
+  trialEnd           DateTime?
+  cancelAtPeriodEnd  Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int // cents
+  currency    String   @default("usd")
+  status      String // paid | refunded | pending
+  invoiceUrl  String?
+  couponCode  String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Coupon {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  percentOff  Int?
+  amountOff   Int?
+  maxRedeem   Int?
+  redeemed    Int      @default(0)
+  expiresAt   DateTime?
+  active      Boolean  @default(true)
+}
+
+// ─────────────────────────── User data ────────────────────────────
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  href      String
+  title     String
+  group     String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, href])
+  @@index([userId])
+}
+
+model HistoryItem {
+  id        String   @id @default(cuid())
+  userId    String
+  tool      String
+  file      String?
+  href      String?
+  status    String   @default("done") // done | error | processing
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model RecentTool {
+  id        String   @id @default(cuid())
+  userId    String
+  href      String
+  title     String
+  group     String?
+  usedAt    DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, href])
+  @@index([userId, usedAt])
+}
+
+model Download {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  tool      String?
+  size      Int      @default(0)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Upload {
+  id        String   @id @default(cuid())
+  userId    String
+  key       String // storage key
+  name      String
+  mime      String
+  size      Int
+  temporary Boolean  @default(true)
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  kind      String // qr | pdf | image | video | ai
+  data      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  prefix      String // shown to user, e.g. qrix_live_ab12
+  hash        String // sha-256 of the full key
+  scopes      String[] // read | write | admin
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  requests    Int       @default(0)
+  revoked     Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([prefix])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String // system | billing | job | security
+  title     String
+  body      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+}
+
+model Settings {
+  userId       String  @id
+  theme        String  @default("system")
+  language     String  @default("en")
+  animations   Boolean @default(true)
+  performance  Boolean @default(false)
+  notifications Boolean @default(true)
+  reduceData   Boolean @default(false)
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BlogBookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  slug      String
+  title     String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, slug])
+}
+
+model SavedTemplate {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String
+  name      String
+  data      Json
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ─────────────────────────── Jobs / processing ────────────────────────────
+
+model Job {
+  id         String    @id @default(cuid())
+  userId     String?
+  kind       JobKind
+  tool       String
+  status     JobStatus @default(QUEUED)
+  progress   Int       @default(0)
+  input      Json?
+  output     Json?
+  error      String?
+  attempts   Int       @default(0)
+  provider   String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([userId])
+}
+
+// ─────────────────────────── Blog CMS ────────────────────────────
+
+model Post {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  excerpt     String?
+  body        String?
+  category    String?
+  tags        String[]
+  status      String   @default("draft") // draft | published
+  featured    Boolean  @default(false)
+  seoTitle    String?
+  seoDesc     String?
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([status])
+}
+
+// ─────────────────────────── Analytics / ops ────────────────────────────
+
+model Event {
+  id        String   @id @default(cuid())
+  name      String // tool_use | download | signup | conversion | page_view
+  userId    String?
+  tool      String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+}
+
+model FeatureFlag {
+  key       String   @id
+  enabled   Boolean  @default(false)
+  rollout   Int      @default(0) // 0-100 %
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  action    String
+  target    String?
+  ip        String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+// ─────────────────────────── Enums ────────────────────────────
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+  ENTERPRISE
+}
+
+enum Interval {
+  MONTH
+  YEAR
+}
+
+enum SubStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+}
+
+enum JobKind {
+  IMAGE
+  VIDEO
+  AI
+  PDF
+  QR
+}
+
+enum JobStatus {
+  QUEUED
+  PROCESSING
+  DONE
+  FAILED
+  CANCELED
+}
