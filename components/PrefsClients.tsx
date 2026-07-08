@@ -4,6 +4,7 @@
    backed via lib/user-prefs. Premium empty states + suggested tools. */
 
 import Link from "next/link";
+import Illustration from "@/components/Illustrations";
 import { useEffect, useState } from "react";
 import {
   FiHeart, FiClock, FiTrash2, FiDownload, FiArrowRight, FiSettings, FiUser,
@@ -35,9 +36,11 @@ function PageHead({ icon, title, sub }: { icon: React.ReactNode; title: string; 
 }
 
 function EmptyState({ emoji, title, desc, cta, href }: { emoji: string; title: string; desc: string; cta: string; href: string }) {
+  // Illustration system (Mission 18): consistent art instead of a lone emoji.
+  const art = emoji.includes("❤") || emoji.includes("⭐") ? "empty" : emoji.includes("🕘") || emoji.includes("🕐") || emoji.includes("📜") ? "analytics" : "empty";
   return (
     <div className="qx-card p-10 text-center" data-reveal="scale">
-      <div className="text-6xl mb-4">{emoji}</div>
+      <Illustration name={art as "empty"} size={130} className="mx-auto mb-4" />
       <h2 className="font-display text-xl font-bold" style={{ color: "var(--text)" }}>{title}</h2>
       <p className="text-sm mt-2 max-w-sm mx-auto" style={{ color: "var(--text-muted)" }}>{desc}</p>
       <Link href={href} className="qx-btn-hero inline-flex mt-6" data-magnetic>{cta} <FiArrowRight size={15} /></Link>

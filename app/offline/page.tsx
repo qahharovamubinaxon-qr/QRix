@@ -8,11 +8,13 @@ export const metadata: Metadata = pageMeta({
   noindex: true,
 });
 
+import Illustration from "@/components/Illustrations";
+
 /** Offline fallback served by the service worker when the network is down. */
 export default function OfflinePage() {
   return (
     <main className="max-w-md mx-auto px-5 py-32 text-center">
-      <p className="text-5xl mb-4" role="img" aria-label="offline">📡</p>
+      <Illustration name="offline" size={130} className="mx-auto mb-4" />
       <h1 className="font-display text-2xl font-extrabold" style={{ color: "var(--text)" }}>You’re offline</h1>
       <p className="text-sm mt-3" style={{ color: "var(--text-muted)" }}>
         QRix works best online, but pages you visited recently are still available.
