@@ -16,6 +16,7 @@ export interface User {
   role: Role;
   passwordHash?: string | null;
   emailVerified?: string | null;
+  banned?: boolean;
   plan: Plan;
   createdAt: string;
   updatedAt: string;

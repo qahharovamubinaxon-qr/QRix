@@ -2,6 +2,7 @@ import { handler, ok, validate } from "@/lib/server/api";
 import { registerWithPassword, loginWithPassword, issueToken } from "@/lib/server/auth";
 import { emails } from "@/lib/server/email";
 import { track } from "@/lib/server/analytics";
+import { tgEvents } from "@/lib/server/telegram/notify";
 import { SITE_URL } from "@/lib/seo";
 
 export const runtime = "nodejs";
@@ -17,6 +18,7 @@ export const POST = handler(async ({ req }) => {
   await emails.welcome(user.email, user.name ?? undefined);
   await emails.verify(user.email, `${SITE_URL}/api/v1/auth/verify?token=${token}`);
   track("signup", { userId: user.id });
+  tgEvents.newUser(user.email);
   await loginWithPassword(body.email, body.password, true);
   return ok({ id: user.id, email: user.email });
 }, { rateLimit: { max: 10 } });

@@ -8,6 +8,7 @@ import { serverConfig } from "./config";
 import { db, uid, helpers } from "./db";
 import { track } from "./analytics";
 import { emitEvent } from "./webhooks";
+import { tgEvents } from "./telegram/notify";
 import { runAi } from "./providers/ai";
 import { runVideo } from "./providers/video";
 import { runImage } from "./providers/image";
@@ -48,6 +49,7 @@ async function run(id: string) {
     } else {
       db.jobs.update((j) => j.id === id, { status: "FAILED", attempts, error: res.error, progress: 100, updatedAt: helpers.now() });
       emitEvent("job.failed", { jobId: id, tool: job.tool, error: res.error }, job.userId);
+      tgEvents.jobFailed(job.tool, res.error || "unknown");
     }
     return;
   }

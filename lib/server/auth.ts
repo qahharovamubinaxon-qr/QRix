@@ -51,7 +51,7 @@ export async function getSession(): Promise<SessionUser | null> {
   const session = db.sessions.find((s) => s.token === parsed.id);
   if (!session || session.expiresAt < helpers.now()) return null;
   const user = db.users.find((u) => u.id === session.userId);
-  if (!user) return null;
+  if (!user || user.banned) return null; // banned accounts lose every session
   return { id: user.id, email: user.email, name: user.name, role: user.role, plan: user.plan };
 }
 
@@ -123,6 +123,7 @@ export async function registerWithPassword(email: string, password: string, name
 export async function loginWithPassword(email: string, password: string, rememberMe = false): Promise<SessionUser> {
   const user = db.users.find((u) => u.email === email.toLowerCase());
   if (!user || !user.passwordHash || !(await verifyPassword(password, user.passwordHash))) throw new Error("invalid_credentials");
+  if (user.banned) throw new Error("account_banned");
   await setSessionCookie(user.id, rememberMe);
   return { id: user.id, email: user.email, name: user.name, role: user.role, plan: user.plan };
 }

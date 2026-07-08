@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { handler, ok, validate, badRequest } from "@/lib/server/api";
 import { issueToken, consumeToken, loginWithProvider } from "@/lib/server/auth";
 import { emails } from "@/lib/server/email";
+import { tgEvents } from "@/lib/server/telegram/notify";
 import { SITE_URL } from "@/lib/seo";
 
 export const runtime = "nodejs";
@@ -19,6 +20,7 @@ export const GET = handler(async ({ req }) => {
   const token = req.nextUrl.searchParams.get("token") || "";
   const email = consumeToken(token, "magic-link");
   if (!email) throw badRequest("invalid or expired link");
-  await loginWithProvider("email", email);
+  const user = await loginWithProvider("email", email);
+  if (user.role === "ADMIN") tgEvents.adminLogin(email, req.headers.get("x-forwarded-for") || undefined);
   return NextResponse.redirect(new URL("/dashboard", SITE_URL));
 });

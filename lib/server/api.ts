@@ -10,6 +10,7 @@ import { audit } from "./analytics";
 import { log } from "./logger";
 import { authenticateApiKey } from "./api-keys";
 import { db } from "./db";
+import { tgEvents } from "./telegram/notify";
 
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message?: string) {
@@ -122,7 +123,10 @@ export function handler(fn: Handler, opts: Options = {}) {
       return res;
     } catch (e) {
       if (e instanceof ApiError) return fail(e);
-      log.error("api_unhandled", { path: req.nextUrl.pathname, error: e instanceof Error ? e.message : String(e) });
+      const msg = e instanceof Error ? e.message : String(e);
+      log.error("api_unhandled", { path: req.nextUrl.pathname, error: msg });
+      audit(null, "api.error", req.nextUrl.pathname);
+      tgEvents.serverError(req.nextUrl.pathname, msg);
       return fail(new ApiError(500, "server_error"));
     }
   };

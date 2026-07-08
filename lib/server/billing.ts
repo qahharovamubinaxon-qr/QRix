@@ -9,6 +9,7 @@ import { db, uid, helpers } from "./db";
 import { emails } from "./email";
 import { track } from "./analytics";
 import { emitEvent } from "./webhooks";
+import { tgEvents } from "./telegram/notify";
 import type { Plan, Interval, Subscription } from "./models";
 
 // ── Plans & limits ──────────────────────────────────────────────────────
@@ -79,6 +80,7 @@ export async function createCheckout(userId: string, plan: Plan, interval: Inter
   track("conversion", { userId, meta: { plan, interval } });
   emitEvent("subscription.created", { userId, plan, interval }, userId);
   emitEvent("payment.succeeded", { userId, amount, currency: "usd" }, userId);
+  if (user) { tgEvents.newSubscription(user.email, PLANS[plan].name); tgEvents.paymentSuccess(user.email, amount); }
   return { url: `/dashboard?upgraded=1&plan=${plan.toLowerCase()}`, mock: true };
 }
 
@@ -116,6 +118,7 @@ export function refundOrder(orderId: string): boolean {
   db.orders.update((o) => o.id === orderId, { status: "refunded" });
   track("refund", { userId: order.userId, meta: { orderId, amount: order.amount } });
   emitEvent("payment.refunded", { orderId, userId: order.userId, amount: order.amount }, order.userId);
+  tgEvents.paymentRefunded(orderId, order.amount);
   return true;
 }
 

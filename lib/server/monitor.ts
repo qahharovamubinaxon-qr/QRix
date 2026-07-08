@@ -12,6 +12,7 @@ import { emailReady } from "./email";
 import { creditStats } from "./credits";
 import { db } from "./db";
 import { dbHealthy } from "./prisma";
+import { telegramConfigured, telegramMissing, tgConfig } from "./telegram/config";
 
 export type HealthState = "ok" | "degraded" | "down";
 
@@ -50,6 +51,11 @@ export async function systemHealth() {
     aiProviders: { state: (aiReady ? "ok" : "degraded") as HealthState, ready: providers.filter((p) => p.ready).length, total: providers.length },
     billing: { driver: serverConfig.billing.driver, state: "ok" as HealthState },
     email: { driver: serverConfig.email.driver, state: (emailReady() ? "ok" : "degraded") as HealthState, note: emailReady() ? undefined : "console driver (dev)" },
+    telegram: {
+      driver: telegramConfigured() ? `@${tgConfig.username}` : "off",
+      state: (telegramConfigured() ? "ok" : "degraded") as HealthState,
+      note: telegramConfigured() ? undefined : `Missing Configuration: ${telegramMissing().join(", ")}`,
+    },
   };
 
   const states = Object.values(components).map((c) => c.state);
