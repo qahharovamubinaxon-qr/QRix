@@ -27,6 +27,8 @@
 
 - **Missions 16-19 — Design V2 + v1.0.0 release** (branch `design-v2`): unified design tokens (`app/design-v2.css`: spacing/radius/blur/elevation/motion/category accents); homepage hero with aurora + light rays + orbiting icons + floating QR platform + animated counters + trust badges; glass navbar with scroll shrink; premium button (sweep/ripple/focus/disabled) and card (tilt/elevation) systems; bento feature grid; alternating section backdrops; motion system (9 reveal variants, parallax, 3D tilt, hydration-safe start-after-load engine); SVG illustration system (14 subjects) powering redesigned 404/error/offline/loading/empty states; CRO pricing (monthly/yearly toggle, recommended spotlight, trust strip, FAQ schema); CHANGELOG.md + README rewrite; version 1.0.0 tagged.
 
+- **Mission 20 — Creative Director Homepage Rebuild**: cinematic full-viewport hero (86svh, mega editorial type clamp→6.8rem, scroll cue), cursor-reactive spotlight (root --px/--py fed by MotionLayer → .qx-hero-light), 6 drifting CSS particles, scroll storytelling (sheet bridges layering sections as continuous story), unique reveals per section (depth/left/rotate/perspective added), pricing teaser with animated conic border placed directly under testimonials (trust→pricing adjacency), 3D studio rebuilt Tripo-style (three-panel workspace, PMREM+ACES lighting, topology stats, env swatches, HD smoothed heightfield mesh, React.lazy fix for never-mounting client).
+
 ## Current Mission
 None — v1.0.0 released. All 19 missions complete.
 

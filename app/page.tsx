@@ -377,17 +377,17 @@ export default function HomePage() {
         {/* Design V2: living background — aurora orbs + light rays + deco depth */}
         <div className="qx-aurora-bg" aria-hidden />
         <div className="qx-rays" aria-hidden />
+        <div className="qx-hero-light" aria-hidden />
+        <div className="qx-particles" aria-hidden><i/><i/><i/><i/><i/><i/></div>
         <OrbitIcons />
         <span suppressHydrationWarning className="qx-deco qx-deco-ring hidden lg:block" data-parallax="0.18" style={{ top: "12%", left: "4%" }} aria-hidden />
         <span suppressHydrationWarning className="qx-deco qx-deco-cube hidden lg:block" data-parallax="0.1" style={{ top: "30%", right: "6%" }} aria-hidden />
-        <hr className="qx-neon-line mb-12" />
-
-        {/* ── TOP: Headline row ── */}
-        <div className="text-center mb-12 relative z-10">
+        {/* ── Cinematic full-viewport hero ── */}
+        <div className="min-h-[86svh] flex flex-col items-center justify-center text-center relative z-10 py-10">
           <span className="qx-badge-hero inline-flex mb-6">
             <span className="qx-badge-hero-dot" />{t.badge}
           </span>
-          <h1 className="qx-headline-main qx-aurora text-[42px] sm:text-[54px] lg:text-[66px] leading-[1.18] pb-1 mb-5 tracking-tight">
+          <h1 className="qx-headline-main qx-aurora qx-hero-mega pb-2 mb-6">
             {t.h1a} {t.h1b} {t.h1c}
           </h1>
           <p className="text-[15px] lg:text-[17px] leading-relaxed max-w-xl mx-auto mb-7" style={{ color:"var(--text-muted)" }}>{t.sub}</p>
@@ -434,6 +434,12 @@ export default function HomePage() {
               </span>
             ))}
           </div>
+
+          {/* scroll cue — invites the story to continue */}
+          <a href="#generator" className="qx-scroll-cue mt-14" aria-label="Scroll to the generator">
+            {lang==="uz" ? "Пастга" : lang==="ru" ? "Ниже" : "Scroll"}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
+          </a>
         </div>
 
         {/* ── BOTTOM: 3 equal cards ── */}
@@ -632,7 +638,9 @@ export default function HomePage() {
       </section>
 
       {/* ================= PREMIUM CATEGORY SHOWCASE ================= */}
-      <CategoryShowcase />
+      <div className="qx-sheet pt-6" data-reveal="depth">
+        <CategoryShowcase />
+      </div>
 
       {/* ================= STATS ================= */}
       <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
@@ -709,16 +717,50 @@ export default function HomePage() {
       </div>
 
       {/* ================= LATEST BLOG ================= */}
+      <div data-reveal="left">
       <LatestPosts
         heading={lang === "uz" ? "Сўнгги қўлланмалар" : lang === "ru" ? "Свежие гайды" : "Latest guides"}
         cta={lang === "uz" ? "Барчаси" : lang === "ru" ? "Все статьи" : "View all"}
       />
+      </div>
 
       {/* ================= REVIEWS ================= */}
       <ReviewsSection lang={lang} />
 
+      {/* ================= PRICING TEASER (trust sits right above) ================= */}
+      <section className="max-w-4xl mx-auto px-5 pb-24" data-reveal="perspective" aria-label="Pricing">
+        <div className="text-center mb-8">
+          <h2 className="font-display text-3xl lg:text-4xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
+            {lang === "uz" ? "Оддий нархлар" : lang === "ru" ? "Простые тарифы" : "Simple pricing"}
+          </h2>
+          <p className="mt-2 text-[14px]" style={{ color: "var(--text-muted)" }}>
+            {lang === "uz" ? "Ҳаммаси бепул бошланади — керак бўлгандагина Pro" : lang === "ru" ? "Всё начинается бесплатно — Pro только когда нужно" : "Everything starts free — go Pro only when you need scale"}
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {[
+            { n: "Free", p: "$0", d: lang === "uz" ? "185+ асбоб, абадий" : lang === "ru" ? "185+ инструментов навсегда" : "185+ tools, forever", hot: false },
+            { n: "Pro", p: "$4", d: lang === "uz" ? "1000 AI кредит · чексиз динамик QR" : lang === "ru" ? "1000 AI кредитов · безлимит QR" : "1,000 AI credits · unlimited dynamic QR", hot: true },
+            { n: "Business", p: "$40", d: lang === "uz" ? "Жамоа · API · 5000 кредит" : lang === "ru" ? "Команда · API · 5000 кредитов" : "Teams · API · 5,000 credits", hot: false },
+          ].map((t) => (
+            <Link key={t.n} href="/pricing"
+              className={`qx-card qx-card-lift p-6 text-center rounded-2xl${t.hot ? " qx-border-anim" : ""}`}
+              style={t.hot ? { border: "1.5px solid var(--primary)" } : undefined}>
+              <span className="block font-display text-lg font-extrabold" style={{ color: "var(--text)" }}>{t.n}</span>
+              <span className="block font-display text-4xl font-extrabold mt-2 qx-stat-num" style={{ color: "var(--text)" }}>{t.p}<span className="text-sm font-semibold" style={{ color: "var(--text-faint)" }}>/mo</span></span>
+              <span className="block text-[12.5px] mt-2 leading-relaxed" style={{ color: "var(--text-muted)" }}>{t.d}</span>
+              <span className="inline-flex items-center gap-1 text-[12px] font-bold mt-4" style={{ color: "var(--primary-bright)" }}>
+                {lang === "uz" ? "Батафсил" : lang === "ru" ? "Подробнее" : "See plans"} <FiArrowRight size={12} />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* ================= NEWSLETTER ================= */}
+      <div data-reveal="rotate">
       <NewsletterSection lang={lang} />
+      </div>
 
       {/* ================= FINAL CTA ================= */}
       <section className="max-w-3xl mx-auto px-5 pb-24 lg:pb-32 text-center" data-reveal="scale">

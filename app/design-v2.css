@@ -202,3 +202,82 @@ html.qx-perf .qx-aurora-bg, html.qx-perf .qx-rays, html.qx-perf .qx-orbit { disp
   .qx-ripple { display: none; }
   [data-parallax] { transform: none !important; }
 }
+
+/* ════════════════════════════════════════════════════════════
+   MISSION 20 — cinematic homepage language
+   ════════════════════════════════════════════════════════════ */
+
+/* massive editorial hero type */
+.qx-hero-mega {
+  font-size: clamp(3rem, 8.5vw, 6.8rem);
+  line-height: 0.99;
+  letter-spacing: -0.035em;
+  font-weight: 800;
+}
+
+/* cursor spotlight — root vars --px/--py fed by MotionLayer */
+.qx-hero-light {
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: radial-gradient(560px circle at var(--px, 50%) var(--py, 35%),
+    color-mix(in srgb, var(--primary) 9%, transparent), transparent 70%);
+  transition: background .15s linear;
+}
+html.light .qx-hero-light {
+  background: radial-gradient(560px circle at var(--px, 50%) var(--py, 35%),
+    rgba(91,70,214,.10), transparent 70%);
+}
+
+/* soft floating particles (pure CSS, 6 dots) */
+.qx-particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.qx-particles i {
+  position: absolute; width: 5px; height: 5px; border-radius: 50%;
+  background: color-mix(in srgb, var(--primary) 70%, transparent);
+  opacity: .35; animation: qxDrift 14s var(--ease-in-out) infinite;
+}
+.qx-particles i:nth-child(2) { left: 18%; top: 68%; width: 3px; height: 3px; background: var(--accent); animation-duration: 18s; animation-delay: 2s; }
+.qx-particles i:nth-child(3) { left: 82%; top: 24%; animation-duration: 16s; animation-delay: 4s; }
+.qx-particles i:nth-child(4) { left: 68%; top: 76%; width: 4px; height: 4px; background: var(--cat-3d); animation-duration: 20s; animation-delay: 1s; }
+.qx-particles i:nth-child(5) { left: 8%;  top: 30%; width: 3px; height: 3px; animation-duration: 22s; animation-delay: 6s; }
+.qx-particles i:nth-child(6) { left: 46%; top: 12%; width: 4px; height: 4px; background: var(--accent); animation-duration: 17s; animation-delay: 3s; }
+.qx-particles i:nth-child(1) { left: 30%; top: 20%; }
+@keyframes qxDrift {
+  0%, 100% { transform: translate3d(0,0,0); opacity: .35; }
+  50% { transform: translate3d(14px, -26px, 0); opacity: .7; }
+}
+
+/* scroll cue — bouncing chevron */
+.qx-scroll-cue {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+  color: var(--text-faint); font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase;
+}
+.qx-scroll-cue svg { animation: qxCue 1.8s var(--ease-in-out) infinite; }
+@keyframes qxCue { 0%, 100% { transform: translateY(0); opacity: .5; } 50% { transform: translateY(6px); opacity: 1; } }
+
+/* scroll storytelling: sections layer onto each other as sheets */
+.qx-sheet {
+  position: relative; z-index: 2;
+  border-radius: 44px 44px 0 0;
+  margin-top: -44px;
+  background: color-mix(in srgb, var(--bg) 72%, transparent);
+  border-top: 1px solid var(--border-glass);
+  box-shadow: 0 -24px 60px -30px rgba(0,0,0,.55);
+  backdrop-filter: blur(4px);
+}
+html.light .qx-sheet { box-shadow: 0 -18px 44px -26px rgba(40,30,80,.18); }
+
+/* animated conic border for spotlight cards */
+.qx-border-anim { position: relative; }
+.qx-border-anim::before {
+  content: ""; position: absolute; inset: -1.5px; border-radius: inherit; z-index: -1;
+  background: conic-gradient(from var(--ba, 0deg), transparent 0 40deg,
+    color-mix(in srgb, var(--primary) 85%, transparent) 90deg, transparent 140deg 360deg);
+  animation: qxBorderSpin 5s linear infinite;
+}
+@property --ba { syntax: "<angle>"; initial-value: 0deg; inherits: false; }
+@keyframes qxBorderSpin { to { --ba: 360deg; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .qx-particles, .qx-hero-light { display: none; }
+  .qx-scroll-cue svg, .qx-border-anim::before { animation: none; }
+}
+html.qx-perf .qx-particles, html.qx-perf .qx-hero-light { display: none; }

@@ -57,8 +57,12 @@ export default function MotionLayer() {
     if (document.readyState === "complete") start();
     else window.addEventListener("load", start, { once: true });
 
-    /* ── mouse-follow glow on cards ───────────────────────────── */
+    /* ── mouse-follow glow on cards + global cursor spotlight ──── */
+    const root = document.documentElement;
     const onMove = (ev: PointerEvent) => {
+      // Root-level cursor vars drive the hero spotlight (.qx-hero-light).
+      root.style.setProperty("--px", `${ev.clientX}px`);
+      root.style.setProperty("--py", `${ev.clientY}px`);
       const card = (ev.target as HTMLElement).closest?.(".qx-card, .qx-card-glow, .qx-card-premium") as HTMLElement | null;
       if (!card) return;
       const r = card.getBoundingClientRect();
