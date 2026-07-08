@@ -43,12 +43,19 @@ export default function MotionLayer() {
     // Wait one frame so React finishes hydrating page subtrees before the
     // observer can add rv-in (prevents hydration-attribute mismatches).
     const mo = new MutationObserver(() => attach());
-    const raf = window.setTimeout(() => {
-      attach();
-      mo.observe(document.body, { childList: true, subtree: true });
-      parallaxReady = true;
-      onParallax();
-    }, 180);
+    // Start only after the document fully loads (+ a settle beat) so React has
+    // finished hydrating every streamed subtree — fixed 180ms raced slow loads.
+    let raf = 0;
+    const start = () => {
+      raf = window.setTimeout(() => {
+        attach();
+        mo.observe(document.body, { childList: true, subtree: true });
+        parallaxReady = true;
+        onParallax();
+      }, 250);
+    };
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
 
     /* ── mouse-follow glow on cards ───────────────────────────── */
     const onMove = (ev: PointerEvent) => {
@@ -130,6 +137,7 @@ export default function MotionLayer() {
     }
     return () => {
       clearTimeout(raf);
+      window.removeEventListener("load", start);
       io.disconnect();
       mo.disconnect();
       document.removeEventListener("pointermove", onMove);
