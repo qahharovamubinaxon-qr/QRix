@@ -1072,3 +1072,18 @@ html.light .qx-card, html.light .qx-card-glow, html.light .qx-card-premium {
 /* performance mode — kill decorative animations */
 html.qx-perf .qx-cs-card, html.qx-perf [class*="qx-mq"], html.qx-perf .qx-logos-track { animation: none !important; }
 html.qx-perf .qx-cs-card::after { display: none; }
+
+/* ── accessibility: skip link + high contrast (Mission 13) ── */
+.qx-skip-link {
+  position: fixed; top: -48px; left: 12px; z-index: 300;
+  background: var(--primary); color: #0b0b0b;
+  font-weight: 800; font-size: .8rem;
+  padding: .6rem 1rem; border-radius: 0 0 .75rem .75rem;
+  transition: top .2s;
+}
+.qx-skip-link:focus-visible { top: 0; }
+
+@media (prefers-contrast: more) {
+  :root { --text-muted: var(--text); --text-faint: var(--text); --border: color-mix(in srgb, var(--text) 45%, transparent); }
+  .qx-card { backdrop-filter: none; }
+}

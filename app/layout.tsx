@@ -7,6 +7,7 @@ import ReferralCapture from "@/components/ReferralCapture";
 import MotionLayer from "@/components/MotionLayer";
 import CommandSearch from "@/components/CommandSearch";
 import Toaster from "@/components/Toaster";
+import PwaVitals from "@/components/PwaVitals";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, jsonLd } from "@/lib/seo";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -102,6 +103,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
+        <a href="#main" className="qx-skip-link">Skip to content</a>
         {/* Бутун сайт фони — barcha sahifalarda chiqadi */}
         <DotDistortionBackground />
         <ReferralCapture />
@@ -109,8 +111,9 @@ export default function RootLayout({
         <CommandSearch />
         <Toaster />
         <CursorGlow />
+        <PwaVitals />
         <TopNav />
-        {children}
+        <div id="main" className="contents">{children}</div>
         <Analytics />
         <SpeedInsights />
       </body>
