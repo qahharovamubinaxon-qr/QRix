@@ -4,6 +4,7 @@ import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import { POSTS } from "@/lib/blog";
 import { AI_TOOLS } from "@/lib/ai-tools-meta";
 import { VIDEO_TOOLS } from "@/lib/video-tools-meta";
+import { THREE_TOOLS } from "@/lib/three-tools-meta";
 import { IMAGE_TOOLS as IMG_EXP } from "@/lib/image-tools-meta";
 
 const PDF_TOOLS = [
@@ -33,6 +34,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...AI_TOOLS.map((t) => entry(`/ai-tools/${t.slug}`, 0.8)),
     entry("/video-tools", 0.9),
     ...VIDEO_TOOLS.map((t) => entry(`/video-tools/${t.slug}`, 0.8)),
+    entry("/3d-tools", 0.9),
+    ...THREE_TOOLS.map((t) => entry(`/3d-tools/${t.slug}`, 0.8)),
     entry("/pricing", 0.7, "monthly"),
     entry("/developers", 0.7, "monthly"),
     entry("/blog", 0.7, "weekly"),

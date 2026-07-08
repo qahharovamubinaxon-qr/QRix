@@ -91,12 +91,14 @@ function ledger(userId: string, action: string, amount: number, balance: number)
   db.creditLedger.insert({ id: uid("cr"), userId, action, amount, balance, createdAt: helpers.now() });
 }
 
-/** THE entry point premium features call. Deducts (when enforced) and records. */
-export function chargeCredits(userId: string, action: string, plan: Plan = "FREE"): { ok: boolean; cost: number; balance: number; enforced: boolean } {
+/** THE entry point premium features call. Deducts (when enforced) and records.
+    `opts.force` enforces deduction regardless of the global flag — used by
+    premium-only features like 3D generation after the free allowance. */
+export function chargeCredits(userId: string, action: string, plan: Plan = "FREE", opts: { force?: boolean } = {}): { ok: boolean; cost: number; balance: number; enforced: boolean } {
   const cost = costOf(action);
   const acc = getAccount(userId, plan);
 
-  if (!creditsEnforced()) {
+  if (!creditsEnforced() && !opts.force) {
     // Metering only: record usage, never block, never deduct.
     ledger(userId, `${action} (metered)`, 0, acc.balance);
     track("credit_use", { userId, tool: action, meta: { cost, enforced: false } });

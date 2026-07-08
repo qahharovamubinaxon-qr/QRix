@@ -9,7 +9,7 @@
 export type AiTaskKind =
   | "text" | "summarize" | "translate" | "code"
   | "image-generate" | "image-analyze" | "ocr"
-  | "transcribe";
+  | "transcribe" | "3d-generate";
 
 export type ProviderId =
   | "gemini" | "groq" | "openrouter" | "cloudflare" | "huggingface"
@@ -188,9 +188,17 @@ const anthropic: ProviderDef = {
 
 const replicate: ProviderDef = {
   id: "replicate", name: "Replicate", envKey: "REPLICATE_API_KEY", free: false,
-  capabilities: ["image-generate"],
+  capabilities: ["image-generate", "3d-generate"],
   costPerUnit: 0.003,
-  async call(_task, input, apiKey) {
+  async call(task, input, apiKey) {
+    if (task === "3d-generate") {
+      // Image → 3D mesh (GLB) via TripoSR.
+      const j = await post("https://api.replicate.com/v1/models/camenduru/tripo-sr/predictions",
+        { input: { image_path: input.image } },
+        { Authorization: `Bearer ${apiKey}`, Prefer: "wait" });
+      const out = j.output as string | string[] | undefined;
+      return { imageUrl: Array.isArray(out) ? out[0] : out, raw: j };
+    }
     const j = await post("https://api.replicate.com/v1/models/black-forest-labs/flux-schnell/predictions",
       { input: { prompt: input.prompt } },
       { Authorization: `Bearer ${apiKey}`, Prefer: "wait" });
@@ -201,9 +209,17 @@ const replicate: ProviderDef = {
 
 const fal: ProviderDef = {
   id: "fal", name: "Fal.ai", envKey: "FAL_API_KEY", free: false,
-  capabilities: ["image-generate"],
+  capabilities: ["image-generate", "3d-generate"],
   costPerUnit: 0.003,
-  async call(_task, input, apiKey) {
+  async call(task, input, apiKey) {
+    if (task === "3d-generate") {
+      // Image → 3D mesh (GLB) via TripoSR on fal.
+      const j = await post("https://fal.run/fal-ai/triposr",
+        { image_url: input.image, output_format: "glb" },
+        { Authorization: `Key ${apiKey}` });
+      const mesh = (j.model_mesh as { url?: string } | undefined)?.url || (j.mesh as { url?: string } | undefined)?.url;
+      return { imageUrl: mesh, raw: j };
+    }
     const j = await post("https://fal.run/fal-ai/flux/schnell",
       { prompt: input.prompt },
       { Authorization: `Key ${apiKey}` });
@@ -264,4 +280,5 @@ export const TASK_ROUTES: Record<AiTaskKind, ProviderId[]> = {
   "image-analyze":  ["gemini", "anthropic", "custom"],
   "ocr":            ["gemini", "anthropic", "custom"],
   "transcribe":     ["custom", "gemini"],
+  "3d-generate":    ["fal", "replicate", "openai", "huggingface", "openrouter", "custom"],
 };

@@ -110,7 +110,7 @@ export function analyticsDashboard(f: AnalyticsFilters = {}) {
   // Per-category usage from tool href prefixes.
   const catOf = (t: string) => t.startsWith("/qr") || t.startsWith("/barcode") || t.startsWith("/bulk-qr") || t.startsWith("/poster") ? "QR"
     : t.startsWith("/pdf") ? "PDF" : t.startsWith("/image") ? "Image" : t.startsWith("/video") ? "Video"
-    : t.startsWith("/ai") || t.startsWith("ai:") ? "AI" : "Other";
+    : t.startsWith("/ai") || t.startsWith("ai:") ? "AI" : t.startsWith("/3d") ? "3D" : "Other";
   const byCategory = new Map<string, number>();
   for (const e of toolUses) if (e.tool) byCategory.set(catOf(e.tool), (byCategory.get(catOf(e.tool)) || 0) + 1);
 

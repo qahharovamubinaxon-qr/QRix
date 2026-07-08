@@ -3,6 +3,7 @@ import { POSTS } from "@/lib/blog";
 import { AI_TOOLS } from "@/lib/ai-tools-meta";
 import { VIDEO_TOOLS } from "@/lib/video-tools-meta";
 import { IMAGE_TOOLS as IMG_EXP } from "@/lib/image-tools-meta";
+import { THREE_TOOLS } from "@/lib/three-tools-meta";
 
 /** One flat, client-safe index of everything searchable on the site. */
 export type SearchGroup =
@@ -51,6 +52,7 @@ const CATEGORIES: SearchItem[] = [
   { title: "All Image Tools", href: "/image-tools", group: "Categories", keywords: "image photo editor category" },
   { title: "All Video Tools", href: "/video-tools", group: "Categories", keywords: "video trim gif subtitles category" },
   { title: "All AI Tools", href: "/ai-tools", group: "Categories", keywords: "artificial intelligence category" },
+  { title: "All 3D Tools", href: "/3d-tools", group: "Categories", keywords: "3d model mesh category" },
 ];
 
 const DOCS: SearchItem[] = [
@@ -95,6 +97,9 @@ export function buildSearchIndex(): SearchItem[] {
     })),
     ...IMG_EXP.map((t) => ({
       title: t.title, href: `/image-tools/${t.slug}`, group: "Image Tools" as const, keywords: t.keywords.join(" "),
+    })),
+    ...THREE_TOOLS.map((t) => ({
+      title: t.title, href: `/3d-tools/${t.slug}`, group: "Pages" as const, keywords: t.keywords.join(" "),
     })),
     ...PAGES,
     ...CATEGORIES,

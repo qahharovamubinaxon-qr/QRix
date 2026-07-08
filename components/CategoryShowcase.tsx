@@ -10,12 +10,12 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
   FiArrowRight, FiChevronLeft, FiChevronRight, FiZap, FiShield, FiGift, FiGlobe,
-  FiGrid, FiFileText, FiImage, FiVideo, FiCpu, FiCheckCircle,
+  FiGrid, FiFileText, FiImage, FiVideo, FiCpu, FiCheckCircle, FiBox,
 } from "react-icons/fi";
 
 type ChipT = { label: string; icon: React.ReactNode };
 type Cat = {
-  key: "qr" | "pdf" | "image" | "ai" | "video";
+  key: "qr" | "pdf" | "image" | "ai" | "video" | "3d";
   label: string; href: string; count: string; tagline: string; desc: string;
   icon: React.ReactNode; c1: string; c2: string;
   slides: string[];       // preview carousel labels (3)
@@ -57,6 +57,13 @@ const CATS: Cat[] = [
     icon: <FiVideo size={22} />, c1: "#f472b6", c2: "#db2777",
     slides: ["Compressor", "Trim", "GIF Maker"],
     chips: [{ label: "Compress", icon: <FiVideo size={16} /> }, { label: "Trim", icon: <FiZap size={16} /> }, { label: "GIF", icon: <FiImage size={16} /> }],
+  },
+  {
+    key: "3d", label: "3D Tools", href: "/3d-tools", count: "New", tagline: "Image → 3D",
+    desc: "Turn one photo into a textured 3D model — preview and export GLB, OBJ, STL, USDZ.",
+    icon: <FiBox size={22} />, c1: "#22d3ee", c2: "#0e7490",
+    slides: ["Image to 3D", "3D Preview", "AR Export"],
+    chips: [{ label: "Image to 3D", icon: <FiBox size={16} /> }, { label: "Preview", icon: <FiImage size={16} /> }, { label: "Export", icon: <FiZap size={16} /> }],
   },
 ];
 
@@ -180,6 +187,41 @@ function Mock({ kind, v, c1, c2 }: { kind: Cat["key"]; v: number; c1: string; c2
         {[92, 74].map((w, i) => <div key={i} style={{ height: 6, borderRadius: 3, background: `linear-gradient(90deg, ${c1}, ${c2})`, width: `${w}%`, opacity: .85 }} />)}
         <div style={{ height: 6, width: "40%", borderRadius: 3, background: "rgba(255,255,255,.2)", position: "relative" }}><span style={{ position: "absolute", right: -4, top: -2, width: 2, height: 10, background: c1 }} /></div>
         <Lbl t="Prompt" />
+      </div>
+    );
+  }
+  /* ── 3D: Image to 3D · Preview · AR Export ── */
+  if (kind === "3d") {
+    const cube = (spin: boolean) => (
+      <svg viewBox="0 0 100 100" width="62%" height="62%" style={spin ? { animation: "qx-float 4s ease-in-out infinite" } : undefined}>
+        <polygon points="50,12 88,32 50,52 12,32" fill={c1} opacity=".9" />
+        <polygon points="12,32 50,52 50,92 12,72" fill={c2} opacity=".85" />
+        <polygon points="88,32 50,52 50,92 88,72" fill="#0e3a47" opacity=".9" />
+        <polyline points="50,12 88,32 88,72 50,92 12,72 12,32 50,12" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1.5" />
+      </svg>
+    );
+    if (v === 0) return (
+      <div className="qx-mk" style={{ background: "#0c1220", position: "relative", gap: 6 }}>
+        <div style={{ width: 34, height: 34, borderRadius: 6, background: `linear-gradient(150deg,${c1},${c2})` }} />
+        <span style={{ color: "#fff", fontWeight: 900, fontSize: 16 }}>→</span>
+        {cube(false)}
+        <Lbl t="Image to 3D" />
+      </div>
+    );
+    if (v === 1) return (
+      <div className="qx-mk" style={{ background: "radial-gradient(ellipse at 50% 30%, #17173a, #0a0a14)", position: "relative" }}>
+        {cube(true)}
+        <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: 4 }}>
+          {["#fff", c1, c2].map((c) => <span key={c} style={{ width: 8, height: 8, borderRadius: "50%", background: c, opacity: .8 }} />)}
+        </div>
+        <Lbl t="3D Preview" />
+      </div>
+    );
+    return (
+      <div className="qx-mk" style={{ background: `linear-gradient(150deg, ${c1}, ${c2})`, position: "relative", flexDirection: "column", gap: 6 }}>
+        <span style={{ fontSize: 22, fontWeight: 900, color: "#fff", textShadow: "0 4px 12px rgba(0,0,0,.4)" }}>GLB · USDZ</span>
+        <span style={{ background: "rgba(0,0,0,.4)", color: "#fff", fontSize: 10, fontWeight: 900, padding: "2px 8px", borderRadius: 99 }}>AR ready</span>
+        <Lbl t="AR Export" />
       </div>
     );
   }

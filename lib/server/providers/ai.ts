@@ -11,6 +11,7 @@ import { serverConfig } from "../config";
 /** Map tool/task names coming from clients and the queue to task kinds. */
 export function toTaskKind(tool: string): AiTaskKind {
   const t = tool.toLowerCase();
+  if (/(3d|mesh|tripo)/.test(t)) return "3d-generate";
   if (/(generate|imagegen|text-to-image|poster|art)/.test(t)) return "image-generate";
   if (/(ocr|image-to-text|extract-text)/.test(t)) return "ocr";
   if (/(describe|caption|analyz|vision|detect)/.test(t)) return "image-analyze";
