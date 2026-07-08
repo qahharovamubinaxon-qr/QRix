@@ -382,7 +382,7 @@ export default function HomePage() {
       `}</style>
 
       {/* ================= HERO ================= */}
-      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-20 pb-24 lg:pb-32 relative">
+      <section data-scrollbg="#080808" className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-20 pb-24 lg:pb-32 relative">
         {/* Mission 22: Mockit-language hero — near-black, one hot accent, giant condensed caps */}
         <div className="qx-dotgrid" aria-hidden />
         <div className="qx-hero-light" aria-hidden />
@@ -616,12 +616,12 @@ export default function HomePage() {
       } />
 
       {/* ================= PREMIUM CATEGORY SHOWCASE ================= */}
-      <div className="qx-sheet pt-6" data-reveal="depth">
+      <div className="qx-sheet pt-6" data-reveal="depth" data-scrollbg="#041c37">
         <CategoryShowcase />
       </div>
 
       {/* ================= STATS ================= */}
-      <section className="relative overflow-hidden py-24 lg:py-32">
+      <section data-scrollbg="#082142" className="relative overflow-hidden py-24 lg:py-32">
         <div className="max-w-[1400px] mx-auto px-5 lg:px-8 relative z-10">
         <div className="qx-card relative overflow-hidden">
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-0">
@@ -656,7 +656,7 @@ export default function HomePage() {
       </section>
 
       {/* ================= WHY QRIX — BENTO GRID ================= */}
-      <section id="why" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
+      <section id="why" data-scrollbg="#0d1932" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
         <hr className="qx-neon-line mb-16" />
         <div className="text-center mb-12" data-reveal="perspective">
           <h2 className="qx-section-title justify-center" style={{ color:"var(--text)", fontSize:"clamp(2rem,5vw,3.2rem)", fontWeight:900 }}>
@@ -687,17 +687,17 @@ export default function HomePage() {
       </section>
 
       {/* ================= TRUSTED BY ================= */}
-      <div className="qx-sec-glass">
+      <div className="qx-sec-glass" data-scrollbg="#001a24">
         <TrustedBy heading={lang === "uz" ? "Жаҳон жамоалари ишонган воситалар тоифаси" : lang === "ru" ? "Инструменты уровня мировых команд" : "The tool quality world-class teams expect"} />
       </div>
 
       {/* ================= FAQ ================= */}
-      <div className="qx-sec-mesh" data-reveal="mask">
+      <div className="qx-sec-mesh" data-reveal="mask" data-scrollbg="#0d1428">
         <HomeFaq lang={lang} />
       </div>
 
       {/* ================= LATEST BLOG ================= */}
-      <div data-reveal="left">
+      <div data-reveal="left" data-scrollbg="#100d1c">
       <LatestPosts
         heading={lang === "uz" ? "Сўнгги қўлланмалар" : lang === "ru" ? "Свежие гайды" : "Latest guides"}
         cta={lang === "uz" ? "Барчаси" : lang === "ru" ? "Все статьи" : "View all"}
@@ -705,10 +705,10 @@ export default function HomePage() {
       </div>
 
       {/* ================= REVIEWS ================= */}
-      <ReviewsSection lang={lang} />
+      <div data-scrollbg="#160d12"><ReviewsSection lang={lang} /></div>
 
       {/* ================= PRICING TEASER (trust sits right above) ================= */}
-      <section className="max-w-4xl mx-auto px-5 pb-24" data-reveal="perspective" aria-label="Pricing">
+      <section data-scrollbg="#080808" className="max-w-4xl mx-auto px-5 pb-24" data-reveal="perspective" aria-label="Pricing">
         <div className="text-center mb-8">
           <h2 className="font-display text-3xl lg:text-4xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
             {lang === "uz" ? "Оддий нархлар" : lang === "ru" ? "Простые тарифы" : "Simple pricing"}
@@ -889,7 +889,7 @@ function CinematicStatement({ text }: { text: string }) {
   const y = useTransform(smooth, [0, 1], [60, -120]);
   const opacity = useTransform(smooth, [0.28, 0.48], [0, 1]);
   return (
-    <section ref={ref} className="min-h-[90vh] flex items-center justify-center relative overflow-hidden px-6 sm:px-12"
+    <section ref={ref} data-scrollbg="#00172d" className="min-h-[90vh] flex items-center justify-center relative overflow-hidden px-6 sm:px-12"
       style={{ perspective: 400 }}>
       <motion.p className="qx-statement max-w-5xl text-center select-none relative z-20"
         style={{ rotateX: 24, y, opacity, translateZ: 15 }}>

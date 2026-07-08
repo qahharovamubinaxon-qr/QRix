@@ -49,6 +49,7 @@ export default function MotionLayer() {
     const start = () => {
       raf = window.setTimeout(() => {
         attach();
+        attachBg();
         mo.observe(document.body, { childList: true, subtree: true });
         parallaxReady = true;
         onParallax();
@@ -83,6 +84,27 @@ export default function MotionLayer() {
       const el = (ev.target as HTMLElement).closest?.("[data-magnetic]") as HTMLElement | null;
       if (el) el.style.transform = "";
     };
+
+    /* ── scroll-adaptive background: sections declare data-scrollbg="#hex";
+       the page background cross-fades to whichever section currently crosses
+       the viewport center (nixtio-style). Direct scroll listener — no IO, so
+       it works for sections of any height. Dark theme only. ── */
+    let lastBg = "";
+    const updateScrollBg = () => {
+      if (document.documentElement.classList.contains("light")) return;
+      const mid = window.innerHeight / 2;
+      let bg = "";
+      document.querySelectorAll<HTMLElement>("[data-scrollbg]").forEach((el) => {
+        const r = el.getBoundingClientRect();
+        if (r.top <= mid && r.bottom >= mid) bg = el.dataset.scrollbg || bg;
+      });
+      if (bg && bg !== lastBg) {
+        lastBg = bg;
+        document.documentElement.style.setProperty("--bg", bg);
+        document.body.style.backgroundColor = bg;
+      }
+    };
+    const attachBg = () => updateScrollBg();
 
     /* ── 3D tilt: [data-tilt] cards follow the cursor in perspective ── */
     const onTiltMove = (ev: PointerEvent) => {
@@ -137,6 +159,7 @@ export default function MotionLayer() {
       document.addEventListener("pointerout", onTiltLeave, { passive: true });
       document.addEventListener("pointerdown", onRipple, { passive: true });
       window.addEventListener("scroll", onParallax, { passive: true });
+      window.addEventListener("scroll", updateScrollBg, { passive: true });
       onParallax();
     }
     return () => {
@@ -151,6 +174,7 @@ export default function MotionLayer() {
       document.removeEventListener("pointerout", onTiltLeave);
       document.removeEventListener("pointerdown", onRipple);
       window.removeEventListener("scroll", onParallax);
+      window.removeEventListener("scroll", updateScrollBg);
     };
   }, []);
 

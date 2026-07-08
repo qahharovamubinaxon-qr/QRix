@@ -21,6 +21,9 @@ export default function PwaVitals() {
   useEffect(() => {
     if (!pathname || pathname === last.current) return;
     last.current = pathname;
+    // Reset any scroll-adaptive background left by the previous page.
+    document.documentElement.style.removeProperty("--bg");
+    document.body.style.removeProperty("background-color");
     try {
       const s = JSON.parse(localStorage.getItem("qrix_settings") || "{}");
       if (s.reduceData) return;
