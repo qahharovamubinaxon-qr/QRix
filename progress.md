@@ -20,8 +20,11 @@
 - **Mission 11 — Global Search Platform**: full-text multi-token ranked search across every module (tools, AI, blog, docs, FAQ, categories, pages) in `lib/search-index.ts` with group filters + "did you mean" suggestions; ⌘K palette upgraded (`components/CommandSearch.tsx`): 120ms debounced instant results, Tab-cycled filter chips (All/Tools/AI/Blog/Docs/Pages), trending searches + popular tools from `/api/v1/search` analytics, pinned commands (star any result), no-result suggestions, Web Speech voice search, favorites/recents/recent-searches, full keyboard nav, ARIA roles.
 - **Mission 10 — Developer Platform**: public REST API — any `/api/v1/*` route accepts `Authorization: Bearer qrix_live_…` (scoped read/write, per-key + per-workspace `X-Workspace-Id` rate limits); OpenAPI 3.1 at `/api/v1/openapi.json` (`lib/server/openapi.ts`); webhooks (`lib/server/webhooks.ts`: HMAC `X-QRix-Signature`, retry ×3 with backoff, delivery history, auto-disable after 10 failures, events: job.completed/failed, subscription.created, payment.succeeded/refunded, …) + `/api/v1/webhooks/**`; `/developers` portal (interactive docs from the spec, quick start/auth/rate-limits/error codes, API-key manager with rotate/revoke, webhook manager + test deliveries, live playground request builder, SDK snippets JS/TS/Python/PHP/cURL); downloadable SDK `public/sdk/qrix.js` (jobs, waitForJob, uploads, webhooks, workspaces); admin API tab (key usage, webhook delivery monitoring).
 
+- **Mission 13 — Performance + SEO + Production** (`4b9e751`): PWA (service worker: cache-first statics, network-first pages, `/offline` fallback; prod-only registration in `components/PwaVitals.tsx`), route-change page-view analytics (idle-deferred, respects reduce-data), root `global-error.tsx`, skip-to-content link, `prefers-contrast` tokens. Existing SEO/OG/JSON-LD/sitemap/robots/RSS/404/500/loading/dark-mode/reduced-motion preserved.
+- **Mission 14 — 3D Tools Platform** (`28dc69a`): new category via `lib/three-tools-meta.ts` → `/3d-tools` landing + `[slug]` SSG (full SEO). Image-to-3D: AI manager `3d-generate` task (Fal.ai TripoSR + Replicate, smart routing/fallback), queue jobs with progress/ETA/cancel, R3F viewer (orbit/zoom, 3 lighting rigs) with on-device textured-relief fallback, GLB/OBJ/STL/USDZ exports (three exporters), history/favorites. Credits: 3 free per account, then 20 credits force-enforced (`/api/v1/3d`). Registered: TopNav EN/RU/UZ, homepage showcase card (3D mocks), search, sitemap, analytics categories.
+
 ## Current Mission
-None — Mission 12 complete; awaiting orchestrator PART 3 (Missions 13–14).
+None — Missions 1–14 complete + final audit passed. Awaiting orchestrator PART 4 (Telegram Admin Bot).
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
@@ -32,13 +35,13 @@ None — Mission 12 complete; awaiting orchestrator PART 3 (Missions 13–14).
 Next.js App Router + TS + Tailwind v4, CoolM5 palette. Tool categories follow one pattern: `lib/<x>-tools-meta.ts` registry → `app/<x>-tools/page.tsx` landing + `[slug]/page.tsx` SSG → `components/<x>/<X>EngineRegistry.tsx` lazy-maps engine keys to clients. Shared primitives in `components/ai/AiKit.tsx`; SEO in `lib/seo.ts`; motion via `data-reveal`/`data-magnetic`. Backend: `prisma/schema.prisma` + `lib/server/*` mock-first env-gated drivers, REST at `app/api/v1/**`, admin at `/admin`. Register new tools in TopNav + search-index + sitemap. Supabase auth/backend, Stripe billing, all env-gated.
 
 ## Current Tool Count
-~185 tools: QR 30+ · PDF 21 · Image 72 · AI 28 · Video 29 · Barcode 10 formats (+ Link-in-Bio, Poster, Bulk QR).
+~186 tools: QR 30+ · PDF 21 · Image 72 · AI 28 · Video 29 · 3D 1 · Barcode 10 formats (+ Link-in-Bio, Poster, Bulk QR).
 
 ## Current Categories
-QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools (+ Barcode, Link-in-Bio, Blog).
+QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ Barcode, Link-in-Bio, Blog).
 
 ## Last Commit Hash
-`(updated on Mission 7 commit — see git log)`
+`QRix Final Production` commit — see git log (M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`).
 
 ## Current Git Branch
 `claude/relaxed-turing-bbc58e` (pushed to origin; main checkout `D:\Projects\QRix` must `git checkout` this branch or merge it to see recent work).
