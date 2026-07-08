@@ -1,6 +1,7 @@
+import { NextResponse } from "next/server";
 import { handler, ok, notFound, badRequest, pagination, paginate } from "@/lib/server/api";
 import { db, helpers } from "@/lib/server/db";
-import { overview, series, topTools } from "@/lib/server/analytics";
+import { overview, series, topTools, analyticsDashboard, analyticsExportRows, type AnalyticsFilters } from "@/lib/server/analytics";
 import { listPosts, createPost, updatePost, deletePost, categories } from "@/lib/server/cms";
 import { providerStatus, updateProviderSettings } from "@/lib/server/ai/manager";
 import type { ProviderId } from "@/lib/server/ai/providers";
@@ -16,6 +17,49 @@ import type { Plan, Role } from "@/lib/server/models";
 
 export const runtime = "nodejs";
 
+/** Analytics export: csv | excel | json | pdf (minimal hand-built PDF). */
+function exportAnalytics(format: string, filters: AnalyticsFilters): NextResponse {
+  const rows = analyticsExportRows(filters);
+  const stamp = new Date().toISOString().slice(0, 10);
+  const name = `qrix-analytics-${stamp}`;
+
+  if (format === "json") {
+    return new NextResponse(JSON.stringify(Object.fromEntries(rows.slice(1)), null, 2), {
+      headers: { "Content-Type": "application/json", "Content-Disposition": `attachment; filename="${name}.json"` },
+    });
+  }
+  if (format === "csv" || format === "excel") {
+    const csv = rows.map(([k, v]) => `"${String(k).replace(/"/g, '""')}",${typeof v === "number" ? v : `"${String(v).replace(/"/g, '""')}"`}`).join("\r\n");
+    return new NextResponse(`﻿${csv}`, {
+      headers: format === "excel"
+        ? { "Content-Type": "application/vnd.ms-excel", "Content-Disposition": `attachment; filename="${name}.xls"` }
+        : { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="${name}.csv"` },
+    });
+  }
+  if (format === "pdf") {
+    // Minimal single-page PDF (Helvetica text lines) — no dependencies.
+    const lines = [`QRix Analytics — ${stamp} (last ${filters.days ?? 30} days)`, "", ...rows.slice(1).map(([k, v]) => `${k}: ${v}`)].slice(0, 60);
+    const content = `BT /F1 10 Tf 40 800 Td 14 TL ${lines.map((l) => `(${l.replace(/[\\()]/g, "\\$&")}) Tj T*`).join(" ")} ET`;
+    const objs = [
+      "<< /Type /Catalog /Pages 2 0 R >>",
+      "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+      "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+      `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+    ];
+    let pdf = "%PDF-1.4\n";
+    const offsets: number[] = [];
+    objs.forEach((o, i) => { offsets.push(pdf.length); pdf += `${i + 1} 0 obj\n${o}\nendobj\n`; });
+    const xref = pdf.length;
+    pdf += `xref\n0 ${objs.length + 1}\n0000000000 65535 f \n${offsets.map((o) => `${String(o).padStart(10, "0")} 00000 n \n`).join("")}`;
+    pdf += `trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    return new NextResponse(pdf, {
+      headers: { "Content-Type": "application/pdf", "Content-Disposition": `attachment; filename="${name}.pdf"` },
+    });
+  }
+  return NextResponse.json({ ok: false, error: "unknown_format" }, { status: 400 });
+}
+
 /** Admin API — GET /api/v1/admin/{section}. RBAC enforced by the wrapper. */
 export const GET = handler(async ({ req, params }) => {
   const { page, limit, q } = pagination(req);
@@ -30,6 +74,20 @@ export const GET = handler(async ({ req, params }) => {
         downloads: series("download", 30),
         topTools: topTools(8),
       });
+    case "analytics": {
+      const sp = req.nextUrl.searchParams;
+      const filters: AnalyticsFilters = {
+        days: Math.min(365, Math.max(1, Number(sp.get("days") || 30))),
+        country: sp.get("country") || undefined,
+        device: sp.get("device") || undefined,
+        plan: sp.get("plan") || undefined,
+        tool: sp.get("tool") || undefined,
+        userId: sp.get("user") || undefined,
+      };
+      const format = sp.get("format");
+      if (format) return exportAnalytics(format, filters);
+      return ok(analyticsDashboard(filters));
+    }
     case "users": {
       let rows = db.users.all();
       if (q) rows = rows.filter((u) => match(u.email) || match(u.name || ""));

@@ -57,13 +57,27 @@ const seedOrders: Order[] = [
 ];
 
 function seedEvents(): EventRow[] {
-  const tools = ["/qr-tools/url", "/pdf-tools/merge", "/image-tools/remove-bg", "/ai-tools/image-upscaler", "/video-tools/trim"];
+  const tools = ["/qr-tools/url", "/pdf-tools/merge", "/image-tools/remove-bg", "/ai-tools/image-upscaler", "/video-tools/trim", "/qr-tools/wifi", "/pdf-tools/compress"];
   const names = ["tool_use", "download", "page_view", "signup", "conversion"];
+  const countries = ["US", "DE", "UZ", "RU", "IN", "BR", "GB", "JP", "FR", "TR"];
+  const devices = ["desktop", "mobile", "mobile", "desktop", "tablet"];
+  const browsers = ["Chrome", "Chrome", "Safari", "Firefox", "Edge"];
+  const referrers = ["google", "direct", "direct", "twitter", "producthunt", "reddit"];
   const out: EventRow[] = [];
   for (let d = 29; d >= 0; d--) {
     const volume = 40 + Math.round(Math.sin(d / 4) * 20) + (29 - d);
     for (let i = 0; i < volume; i++) {
-      out.push({ id: uid("evt"), name: names[i % (i % 7 === 0 ? 5 : 3)], tool: tools[i % tools.length], createdAt: daysAgo(d), userId: seedUsers[i % seedUsers.length].id });
+      out.push({
+        id: uid("evt"), name: names[i % (i % 7 === 0 ? 5 : 3)], tool: tools[i % tools.length],
+        createdAt: daysAgo(d), userId: seedUsers[i % seedUsers.length].id,
+        meta: {
+          country: countries[(i * 7 + d) % countries.length],
+          device: devices[(i * 3 + d) % devices.length],
+          browser: browsers[(i * 5 + d) % browsers.length],
+          referrer: referrers[(i * 11 + d) % referrers.length],
+          hour: (i * 13 + d * 5) % 24,
+        },
+      });
     }
   }
   return out;

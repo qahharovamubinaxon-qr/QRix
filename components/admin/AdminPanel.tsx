@@ -1,10 +1,17 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   FiUsers, FiCreditCard, FiFileText, FiFlag, FiList, FiActivity,
   FiCpu, FiSearch, FiRefreshCw, FiTrendingUp, FiHardDrive, FiKey, FiZap, FiMail, FiSliders,
 } from "react-icons/fi";
+
+// Heavy charts board is code-split — loaded only when the tab opens.
+const AnalyticsBoard = dynamic(() => import("./AnalyticsBoard"), {
+  ssr: false,
+  loading: () => <p className="text-sm py-10 text-center" style={{ color: "var(--text-muted)" }}>Loading analytics…</p>,
+});
 
 /* QRix admin dashboard — client shell over /api/v1/admin/{section}.
    RBAC lives on the server; this UI only renders what the API allows. */
@@ -20,6 +27,7 @@ const fetchJson = async (url: string, init?: RequestInit): Promise<Json | null> 
 
 const TABS = [
   { id: "overview", label: "Overview", icon: <FiActivity size={14} /> },
+  { id: "analytics", label: "Analytics", icon: <FiTrendingUp size={14} /> },
   { id: "users", label: "Users", icon: <FiUsers size={14} /> },
   { id: "subscriptions", label: "Subscriptions", icon: <FiTrendingUp size={14} /> },
   { id: "payments", label: "Payments", icon: <FiCreditCard size={14} /> },
@@ -116,7 +124,7 @@ export default function AdminPanel() {
   }, []);
 
   useEffect(() => {
-    if (me?.role === "ADMIN") load(tab, q);
+    if (me?.role === "ADMIN" && tab !== "analytics") load(tab, q); // analytics board self-fetches with filters
   }, [me, tab, q, load]);
 
   const mutate = useCallback(async (section: string, body: Json) => {
@@ -199,6 +207,8 @@ export default function AdminPanel() {
             rows={((data.topTools as { tool: string; count: number }[]) || []).map((t) => [t.tool, t.count])} />
         </>
       )}
+
+      {tab === "analytics" && <AnalyticsBoard />}
 
       {tab === "users" && (
         <Table cols={["Email", "Name", "Plan", "Role", "Joined", ""]}

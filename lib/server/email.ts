@@ -75,9 +75,12 @@ export async function sendMail(mail: Mail): Promise<boolean> {
     case "resend": return sendViaResend(mail);
     case "mailgun": return sendViaMailgun(mail);
     case "smtp": return sendViaSmtp(mail);
-    default:
-      console.log(`[email] → ${mail.to}\n  ${mail.subject}`);
+    default: {
+      // Dev driver: log the action link too so magic-link/reset flows are usable.
+      const link = mail.html.match(/href="([^"]+)"/)?.[1];
+      console.log(`[email] → ${mail.to}\n  ${mail.subject}${link ? `\n  ${link}` : ""}`);
       return true;
+    }
   }
 }
 
