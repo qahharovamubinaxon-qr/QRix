@@ -1,0 +1,166 @@
+/* ════════════════════════════════════════════════════════════
+   DESIGN V2 — unified token system (Mission 16)
+   Spacing · radius · shadow · blur · border · motion · elevation
+   ════════════════════════════════════════════════════════════ */
+:root {
+  /* spacing scale (4px rhythm) */
+  --sp-1: .25rem; --sp-2: .5rem; --sp-3: .75rem; --sp-4: 1rem;
+  --sp-6: 1.5rem; --sp-8: 2rem; --sp-12: 3rem; --sp-16: 4rem; --sp-24: 6rem;
+  /* radius scale */
+  --r-s: 10px; --r-m: 16px; --r-l: 24px; --r-xl: 32px; --r-full: 999px;
+  /* blur scale */
+  --blur-s: 8px; --blur-m: 16px; --blur-l: 28px;
+  /* elevation */
+  --el-1: 0 2px 10px rgba(0,0,0,.25);
+  --el-2: 0 8px 30px rgba(0,0,0,.35);
+  --el-3: 0 18px 60px rgba(0,0,0,.5);
+  --el-glow: 0 0 44px rgba(225,255,4,.16);
+  /* motion tokens */
+  --dur-xs: 120ms; --dur-s: 200ms; --dur-m: 350ms; --dur-l: 600ms; --dur-xl: 1000ms;
+  --ease-out: cubic-bezier(.22,.6,.28,1);
+  --ease-spring: cubic-bezier(.34,1.56,.64,1);
+  --ease-in-out: cubic-bezier(.65,0,.35,1);
+  /* category accents — each product area owns a hue */
+  --cat-qr: #4ade80; --cat-pdf: #38bdf8; --cat-image: #bba9ff;
+  --cat-video: #f472b6; --cat-ai: #fbbf24; --cat-3d: #22d3ee;
+}
+
+/* ── aurora / mesh background system ── */
+.qx-aurora-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.qx-aurora-bg::before, .qx-aurora-bg::after {
+  content: ""; position: absolute; width: 60vw; height: 60vw; max-width: 900px; max-height: 900px;
+  border-radius: 50%; filter: blur(90px); opacity: .32; will-change: transform;
+}
+.qx-aurora-bg::before {
+  background: radial-gradient(circle at 30% 30%, rgba(225,255,4,.5), rgba(187,169,255,.35) 55%, transparent 75%);
+  top: -22%; left: -12%;
+  animation: qxOrbA 26s var(--ease-in-out) infinite alternate;
+}
+.qx-aurora-bg::after {
+  background: radial-gradient(circle at 70% 70%, rgba(34,211,238,.4), rgba(187,169,255,.3) 55%, transparent 75%);
+  bottom: -25%; right: -14%;
+  animation: qxOrbB 32s var(--ease-in-out) infinite alternate;
+}
+@keyframes qxOrbA { to { transform: translate3d(9vw, 7vh, 0) scale(1.15); } }
+@keyframes qxOrbB { to { transform: translate3d(-8vw, -6vh, 0) scale(1.12); } }
+html.light .qx-aurora-bg::before, html.light .qx-aurora-bg::after { opacity: .2; }
+
+/* light rays sweeping very slowly across the hero */
+.qx-rays {
+  position: absolute; inset: -20% -10%; pointer-events: none; z-index: 0; opacity: .10;
+  background: conic-gradient(from 200deg at 50% -10%, transparent 0deg, rgba(225,255,4,.9) 8deg, transparent 18deg, transparent 40deg, rgba(187,169,255,.8) 48deg, transparent 60deg, transparent 360deg);
+  animation: qxRays 40s linear infinite;
+  mask-image: linear-gradient(to bottom, #000 0%, transparent 70%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 70%);
+}
+@keyframes qxRays { to { transform: rotate(14deg); } }
+html.light .qx-rays { opacity: .06; }
+
+/* ── premium button system: light sweep + press + states ── */
+.qx-btn, .qx-btn-hero, .qx-btn-ghost, .qx-btn-hero-ghost {
+  position: relative; overflow: hidden; isolation: isolate;
+  transition: transform var(--dur-s) var(--ease-out), box-shadow var(--dur-s) var(--ease-out), filter var(--dur-s);
+}
+.qx-btn-hero::before, .qx-btn::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(115deg, transparent 30%, rgba(255,255,255,.35) 48%, transparent 62%);
+  transform: translateX(-120%); transition: transform var(--dur-l) var(--ease-out);
+}
+.qx-btn-hero:hover::before, .qx-btn:hover::before { transform: translateX(120%); }
+.qx-btn-hero:hover { box-shadow: 0 14px 44px rgba(0,0,0,.4), var(--el-glow); }
+.qx-btn:active, .qx-btn-hero:active { transform: scale(.97); }
+.qx-btn:disabled, .qx-btn-hero:disabled { filter: grayscale(.6); opacity: .55; cursor: not-allowed; }
+.qx-btn:focus-visible, .qx-btn-hero:focus-visible, .qx-btn-ghost:focus-visible {
+  outline: 2px solid var(--primary-bright); outline-offset: 2px;
+}
+
+/* ── card system v2: elevation + 3D tilt scaffolding ── */
+.qx-card { transition: transform var(--dur-m) var(--ease-out), box-shadow var(--dur-m) var(--ease-out), border-color var(--dur-m); }
+.qx-card-lift:hover { box-shadow: var(--el-3), var(--el-glow); }
+[data-tilt] { transform-style: preserve-3d; will-change: transform; }
+
+/* ── hero centerpiece: floating platform + orbiting icons ── */
+.qx-float-stage { position: relative; perspective: 1000px; }
+.qx-float-panel {
+  animation: qxFloatY 7s var(--ease-in-out) infinite;
+  box-shadow: var(--el-3), 0 30px 60px -30px rgba(225,255,4,.25);
+}
+@keyframes qxFloatY {
+  0%, 100% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
+  50% { transform: translateY(-10px) rotateX(1.2deg) rotateY(-1.5deg); }
+}
+.qx-float-panel::after { /* soft reflection under the panel */
+  content: ""; position: absolute; left: 8%; right: 8%; bottom: -26px; height: 26px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(225,255,4,.28), transparent 70%);
+  filter: blur(10px); opacity: .8;
+}
+.qx-orbit { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
+.qx-orbit-ring {
+  position: absolute; top: 50%; left: 50%; border-radius: 50%;
+  border: 1px dashed color-mix(in srgb, var(--primary) 22%, transparent);
+  transform: translate(-50%, -50%);
+  animation: qxSpin 60s linear infinite;
+}
+.qx-orbit-ring.r2 { animation-duration: 90s; animation-direction: reverse; border-color: color-mix(in srgb, var(--accent) 25%, transparent); }
+@keyframes qxSpin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+.qx-orbit-icon {
+  position: absolute; top: -17px; left: 50%; margin-left: -17px;
+  width: 34px; height: 34px; border-radius: 12px;
+  display: grid; place-items: center; font-size: 15px;
+  background: var(--surface-solid); border: 1px solid var(--border-glass);
+  box-shadow: var(--el-1);
+  animation: qxCounterSpin 60s linear infinite; /* stay upright */
+}
+.r2 .qx-orbit-icon { animation-duration: 90s; animation-direction: reverse; }
+@keyframes qxCounterSpin { to { transform: rotate(-360deg); } }
+
+/* ── floating deco objects — subtle 3D depth, never busy ── */
+.qx-deco { position: absolute; pointer-events: none; opacity: .5; will-change: transform; }
+.qx-deco-ring { width: 90px; height: 90px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--accent) 40%, transparent); animation: qxFloatY 9s var(--ease-in-out) infinite; }
+.qx-deco-cube { width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 30%, transparent), transparent); border: 1px solid var(--border-glass); transform: rotate(14deg); animation: qxFloatY 11s var(--ease-in-out) infinite 1.2s; }
+
+/* ── navbar scroll states: transparent → floating glass ── */
+.qx-nav { transition: background var(--dur-m) var(--ease-out), box-shadow var(--dur-m), padding var(--dur-m) var(--ease-out); }
+html[data-scrolled="1"] .qx-nav {
+  background: color-mix(in srgb, var(--surface-solid) 82%, transparent);
+  backdrop-filter: blur(var(--blur-l)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--blur-l)) saturate(160%);
+  box-shadow: var(--el-2);
+  border-bottom: 1px solid var(--border-glass);
+}
+html[data-scrolled="1"] .qx-nav-inner { padding-top: .35rem; padding-bottom: .35rem; }
+.qx-nav-inner { transition: padding var(--dur-m) var(--ease-out); }
+
+/* animated nav underline */
+.qx-navlink { position: relative; }
+.qx-navlink::after {
+  content: ""; position: absolute; left: 12%; right: 12%; bottom: 2px; height: 2px; border-radius: 2px;
+  background: var(--grad-primary); transform: scaleX(0); transform-origin: left;
+  transition: transform var(--dur-m) var(--ease-out);
+}
+.qx-navlink:hover::after, .qx-navlink[data-active="true"]::after { transform: scaleX(1); }
+
+/* ── section background alternation ── */
+.qx-sec-glass { position: relative; }
+.qx-sec-glass::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--surface-solid) 55%, transparent) 18%, color-mix(in srgb, var(--surface-solid) 55%, transparent) 82%, transparent);
+  border-block: 1px solid var(--border);
+}
+.qx-sec-mesh { position: relative; }
+.qx-sec-mesh::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: .5;
+  background:
+    radial-gradient(ellipse 45% 60% at 18% 20%, color-mix(in srgb, var(--cat-image) 12%, transparent), transparent),
+    radial-gradient(ellipse 40% 55% at 85% 65%, color-mix(in srgb, var(--cat-3d) 10%, transparent), transparent);
+}
+
+/* animated count-up stats */
+.qx-stat-num { font-variant-numeric: tabular-nums; text-shadow: 0 0 24px color-mix(in srgb, var(--primary) 30%, transparent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .qx-aurora-bg::before, .qx-aurora-bg::after, .qx-rays, .qx-float-panel,
+  .qx-orbit-ring, .qx-orbit-icon, .qx-deco-ring, .qx-deco-cube { animation: none !important; }
+  .qx-btn-hero::before, .qx-btn::before { display: none; }
+}
+html.qx-perf .qx-aurora-bg, html.qx-perf .qx-rays, html.qx-perf .qx-orbit { display: none; }

@@ -12,6 +12,7 @@ import HomeFaq from "@/components/HomeFaq";
 import LatestPosts from "@/components/LatestPosts";
 import NewsletterSection from "@/components/NewsletterSection";
 import QRDesignStudio from "@/components/QRDesignStudio";
+import { OrbitIcons } from "@/components/HeroMotion";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -373,6 +374,12 @@ export default function HomePage() {
 
       {/* ================= HERO ================= */}
       <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-20 pb-24 lg:pb-32 relative">
+        {/* Design V2: living background — aurora orbs + light rays + deco depth */}
+        <div className="qx-aurora-bg" aria-hidden />
+        <div className="qx-rays" aria-hidden />
+        <OrbitIcons />
+        <span className="qx-deco qx-deco-ring hidden lg:block" style={{ top: "12%", left: "4%" }} aria-hidden />
+        <span className="qx-deco qx-deco-cube hidden lg:block" style={{ top: "30%", right: "6%" }} aria-hidden />
         <hr className="qx-neon-line mb-12" />
 
         {/* ── TOP: Headline row ── */}
@@ -393,18 +400,39 @@ export default function HomePage() {
             </a>
           </div>
 
-          {/* Social proof — trust row */}
-          <div className="flex flex-wrap justify-center items-center gap-x-7 gap-y-2 mt-8 text-[12.5px] font-medium" style={{ color: "var(--text-faint)" }}>
+          {/* Social proof — animated live statistics */}
+          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 mt-9 text-[12.5px] font-medium" style={{ color: "var(--text-faint)" }}>
             <span className="inline-flex items-center gap-1.5">
               <span style={{ color: "#fbbf24" }}>★★★★★</span>
               {lang==="uz" ? "4.9 рейтинг" : lang==="ru" ? "рейтинг 4.9" : "4.9 rating"}
             </span>
-            <span className="hidden sm:inline" aria-hidden style={{ opacity: .4 }}>·</span>
-            <span>{lang==="uz" ? "120,000+ QR яратилган" : lang==="ru" ? "Создано 120 000+ QR" : "120,000+ QR codes created"}</span>
-            <span className="hidden sm:inline" aria-hidden style={{ opacity: .4 }}>·</span>
-            <span>{lang==="uz" ? "55+ бепул асбоб" : lang==="ru" ? "55+ бесплатных инструментов" : "55+ free tools"}</span>
-            <span className="hidden sm:inline" aria-hidden style={{ opacity: .4 }}>·</span>
-            <span>{lang==="uz" ? "Рўйхатсиз, ватермарксиз" : lang==="ru" ? "Без регистрации и водяных знаков" : "No signup · No watermark"}</span>
+            <span className="inline-flex items-baseline gap-1.5">
+              <b className="text-[17px] font-extrabold" style={{ color: "var(--text)" }}><CountUp end={120000} suffix="+" /></b>
+              {lang==="uz" ? "QR яратилган" : lang==="ru" ? "QR создано" : "QR codes created"}
+            </span>
+            <span className="inline-flex items-baseline gap-1.5">
+              <b className="text-[17px] font-extrabold" style={{ color: "var(--text)" }}><CountUp end={185} suffix="+" /></b>
+              {lang==="uz" ? "бепул асбоб" : lang==="ru" ? "инструментов" : "free tools"}
+            </span>
+            <span className="inline-flex items-baseline gap-1.5">
+              <b className="text-[17px] font-extrabold" style={{ color: "var(--text)" }}><CountUp end={40} suffix="+" /></b>
+              {lang==="uz" ? "мамлакат" : lang==="ru" ? "стран" : "countries"}
+            </span>
+          </div>
+
+          {/* Trust badges */}
+          <div className="flex flex-wrap justify-center gap-2 mt-5">
+            {[
+              lang==="uz" ? "🔒 Файллар қурилмада қолади" : lang==="ru" ? "🔒 Файлы остаются на устройстве" : "🔒 Files never leave your device",
+              lang==="uz" ? "⚡ Рўйхатсиз" : lang==="ru" ? "⚡ Без регистрации" : "⚡ No signup",
+              lang==="uz" ? "✦ Ватермарксиз" : lang==="ru" ? "✦ Без водяных знаков" : "✦ No watermark",
+              "🛡 GDPR-ready",
+            ].map((b) => (
+              <span key={b} className="text-[11px] font-bold px-3 py-1.5 rounded-full"
+                style={{ background: "var(--surface)", border: "1px solid var(--border-glass)", color: "var(--text-muted)", backdropFilter: "blur(8px)" }}>
+                {b}
+              </span>
+            ))}
           </div>
         </div>
 
@@ -559,12 +587,15 @@ export default function HomePage() {
             <div className="qx-fcard-panel flex flex-col flex-1 p-4">
             <div className="flex-1 flex flex-col items-center justify-center py-2">
               <div ref={qrBoxRef} onMouseMove={onTilt} onMouseLeave={()=>setTilt({x:0,y:0})}
-                className="flex items-center justify-center w-full" style={{ perspective:700 }}>
-                <div ref={canvasWrapRef} className="p-4 rounded-2xl transition-transform duration-150"
-                  style={{ background:bg, transform:`rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-                    boxShadow:"0 16px 40px rgba(0,0,0,.4), 0 0 0 1px rgba(255,255,255,0.06)" }}>
-                  <QRCodeCanvas value={qrValue} size={180} bgColor={bg} fgColor={fg} level={level} marginSize={1}
-                    imageSettings={logo?{src:logo,height:Math.round(qrSize*.2),width:Math.round(qrSize*.2),excavate:true}:undefined}/>
+                className="qx-float-stage flex items-center justify-center w-full" style={{ perspective:700 }}>
+                {/* floating platform: gentle levitation + reflection; cursor tilt on the tile inside */}
+                <div className="qx-float-panel relative rounded-2xl">
+                  <div ref={canvasWrapRef} className="p-4 rounded-2xl transition-transform duration-150"
+                    style={{ background:bg, transform:`rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                      boxShadow:"0 0 0 1px rgba(255,255,255,0.06)" }}>
+                    <QRCodeCanvas value={qrValue} size={180} bgColor={bg} fgColor={fg} level={level} marginSize={1}
+                      imageSettings={logo?{src:logo,height:Math.round(qrSize*.2),width:Math.round(qrSize*.2),excavate:true}:undefined}/>
+                  </div>
                 </div>
               </div>
               <div id="qrix-svg-hidden" style={{ display:"none" }}>
@@ -646,9 +677,12 @@ export default function HomePage() {
           </h2>
           <p className="mt-4 text-[16px] max-w-[520px] mx-auto" style={{ color:"var(--text-muted)" }}>{t.whySub}</p>
         </div>
+        {/* Bento composition: hero cell + varied spans — no two rows identical */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {features.map((f, i) => (
-            <div key={f.title} className={`qx-bento qx-rise qx-rise-${i+1}`} data-reveal="scale"
+            <div key={f.title}
+              className={`qx-bento qx-rise qx-rise-${i+1}${i === 0 ? " lg:col-span-2" : ""}${i === 3 ? " sm:col-span-2 lg:col-span-1" : ""}${i === 5 ? " lg:col-span-2" : ""}`}
+              data-reveal="scale"
               style={{ ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
               {/* icon color glow */}
               <div className="absolute inset-0 opacity-40 pointer-events-none"
@@ -665,10 +699,14 @@ export default function HomePage() {
       </section>
 
       {/* ================= TRUSTED BY ================= */}
-      <TrustedBy heading={lang === "uz" ? "Жаҳон жамоалари ишонган воситалар тоифаси" : lang === "ru" ? "Инструменты уровня мировых команд" : "The tool quality world-class teams expect"} />
+      <div className="qx-sec-glass">
+        <TrustedBy heading={lang === "uz" ? "Жаҳон жамоалари ишонган воситалар тоифаси" : lang === "ru" ? "Инструменты уровня мировых команд" : "The tool quality world-class teams expect"} />
+      </div>
 
       {/* ================= FAQ ================= */}
-      <HomeFaq lang={lang} />
+      <div className="qx-sec-mesh">
+        <HomeFaq lang={lang} />
+      </div>
 
       {/* ================= LATEST BLOG ================= */}
       <LatestPosts

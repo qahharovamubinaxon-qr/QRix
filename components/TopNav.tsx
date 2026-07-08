@@ -213,9 +213,17 @@ export default function TopNav() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, lang]);
 
+  // Transparent at top → floating glass after scroll (Design V2).
+  useEffect(() => {
+    const onScroll = () => document.documentElement.setAttribute("data-scrolled", window.scrollY > 24 ? "1" : "0");
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="qx-topnav sticky top-0 z-50 px-5 lg:px-10">
-      <div className="max-w-[1400px] mx-auto h-[68px] flex items-center gap-6">
+    <header className="qx-topnav qx-nav sticky top-0 z-50 px-5 lg:px-10">
+      <div className="qx-nav-inner max-w-[1400px] mx-auto h-[68px] flex items-center gap-6">
         {/* Logo */}
         <Link href="/" className="shrink-0" aria-label="QRix home">
           <Logo size={30} />
