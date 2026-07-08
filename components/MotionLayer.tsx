@@ -46,6 +46,8 @@ export default function MotionLayer() {
     const raf = window.setTimeout(() => {
       attach();
       mo.observe(document.body, { childList: true, subtree: true });
+      parallaxReady = true;
+      onParallax();
     }, 180);
 
     /* ── mouse-follow glow on cards ───────────────────────────── */
@@ -71,10 +73,60 @@ export default function MotionLayer() {
       if (el) el.style.transform = "";
     };
 
+    /* ── 3D tilt: [data-tilt] cards follow the cursor in perspective ── */
+    const onTiltMove = (ev: PointerEvent) => {
+      const el = (ev.target as HTMLElement).closest?.("[data-tilt]") as HTMLElement | null;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const rx = ((ev.clientY - r.top) / r.height - 0.5) * -7;
+      const ry = ((ev.clientX - r.left) / r.width - 0.5) * 9;
+      el.style.transform = `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateZ(0)`;
+    };
+    const onTiltLeave = (ev: PointerEvent) => {
+      const el = (ev.target as HTMLElement).closest?.("[data-tilt]") as HTMLElement | null;
+      if (el && !el.contains(ev.relatedTarget as Node)) el.style.transform = "";
+    };
+
+    /* ── parallax: [data-parallax="0.15"] drifts against scroll ── */
+    let ticking = false;
+    let parallaxReady = false; // gated until hydration settles (see timeout below)
+    const onParallax = () => {
+      if (ticking || !parallaxReady) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const vh = window.innerHeight;
+        document.querySelectorAll<HTMLElement>("[data-parallax]").forEach((el) => {
+          const speed = Number(el.dataset.parallax) || 0.12;
+          const r = el.getBoundingClientRect();
+          const delta = (r.top + r.height / 2 - vh / 2) * -speed;
+          el.style.transform = `translate3d(0, ${delta.toFixed(1)}px, 0)`;
+        });
+      });
+    };
+
+    /* ── ripple on primary buttons ── */
+    const onRipple = (ev: PointerEvent) => {
+      const btn = (ev.target as HTMLElement).closest?.(".qx-btn, .qx-btn-hero") as HTMLElement | null;
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      const d = Math.max(r.width, r.height);
+      const span = document.createElement("span");
+      span.className = "qx-ripple";
+      span.style.cssText = `width:${d}px;height:${d}px;left:${ev.clientX - r.left - d / 2}px;top:${ev.clientY - r.top - d / 2}px`;
+      btn.appendChild(span);
+      setTimeout(() => span.remove(), 700);
+    };
+
     if (!reduced) {
       document.addEventListener("pointermove", onMove, { passive: true });
       document.addEventListener("pointermove", onMagnet, { passive: true });
+      document.addEventListener("pointermove", onTiltMove, { passive: true });
       document.addEventListener("pointerout", onLeave, { passive: true });
+      document.addEventListener("pointerout", onTiltLeave, { passive: true });
+      document.addEventListener("pointerdown", onRipple, { passive: true });
+      window.addEventListener("scroll", onParallax, { passive: true });
+      onParallax();
     }
     return () => {
       clearTimeout(raf);
@@ -82,7 +134,11 @@ export default function MotionLayer() {
       mo.disconnect();
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointermove", onMagnet);
+      document.removeEventListener("pointermove", onTiltMove);
       document.removeEventListener("pointerout", onLeave);
+      document.removeEventListener("pointerout", onTiltLeave);
+      document.removeEventListener("pointerdown", onRipple);
+      window.removeEventListener("scroll", onParallax);
     };
   }, []);
 

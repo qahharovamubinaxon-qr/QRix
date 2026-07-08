@@ -378,8 +378,8 @@ export default function HomePage() {
         <div className="qx-aurora-bg" aria-hidden />
         <div className="qx-rays" aria-hidden />
         <OrbitIcons />
-        <span className="qx-deco qx-deco-ring hidden lg:block" style={{ top: "12%", left: "4%" }} aria-hidden />
-        <span className="qx-deco qx-deco-cube hidden lg:block" style={{ top: "30%", right: "6%" }} aria-hidden />
+        <span suppressHydrationWarning className="qx-deco qx-deco-ring hidden lg:block" data-parallax="0.18" style={{ top: "12%", left: "4%" }} aria-hidden />
+        <span suppressHydrationWarning className="qx-deco qx-deco-cube hidden lg:block" data-parallax="0.1" style={{ top: "30%", right: "6%" }} aria-hidden />
         <hr className="qx-neon-line mb-12" />
 
         {/* ── TOP: Headline row ── */}
@@ -670,7 +670,7 @@ export default function HomePage() {
       {/* ================= WHY QRIX — BENTO GRID ================= */}
       <section id="why" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
         <hr className="qx-neon-line mb-16" />
-        <div className="text-center mb-12">
+        <div className="text-center mb-12" data-reveal="perspective">
           <h2 className="qx-section-title justify-center" style={{ color:"var(--text)", fontSize:"clamp(2rem,5vw,3.2rem)", fontWeight:900 }}>
             {t.whyTitle}{" "}
             <span className="qx-headline-neon-orange">QRix</span>?
@@ -681,7 +681,7 @@ export default function HomePage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {features.map((f, i) => (
             <div key={f.title}
-              className={`qx-bento qx-rise qx-rise-${i+1}${i === 0 ? " lg:col-span-2" : ""}${i === 3 ? " sm:col-span-2 lg:col-span-1" : ""}${i === 5 ? " lg:col-span-2" : ""}`}
+              data-tilt className={`qx-bento qx-rise qx-rise-${i+1}${i === 0 ? " lg:col-span-2" : ""}${i === 3 ? " sm:col-span-2 lg:col-span-1" : ""}${i === 5 ? " lg:col-span-2" : ""}`}
               data-reveal="scale"
               style={{ ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
               {/* icon color glow */}
@@ -704,7 +704,7 @@ export default function HomePage() {
       </div>
 
       {/* ================= FAQ ================= */}
-      <div className="qx-sec-mesh">
+      <div className="qx-sec-mesh" data-reveal="mask">
         <HomeFaq lang={lang} />
       </div>
 

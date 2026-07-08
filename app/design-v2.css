@@ -164,3 +164,41 @@ html[data-scrolled="1"] .qx-nav-inner { padding-top: .35rem; padding-bottom: .35
   .qx-btn-hero::before, .qx-btn::before { display: none; }
 }
 html.qx-perf .qx-aurora-bg, html.qx-perf .qx-rays, html.qx-perf .qx-orbit { display: none; }
+
+/* ════════════════════════════════════════════════════════════
+   MOTION V2 (Mission 17) — new reveal variants, tilt, ripple,
+   parallax scaffolding. One motion language, token-driven.
+   ════════════════════════════════════════════════════════════ */
+
+/* extra reveal variants — every section can enter differently */
+[data-reveal="mask"] {
+  transform: none;
+  clip-path: inset(0 100% 0 0 round 16px);
+  transition: clip-path var(--dur-xl) var(--ease-out), opacity var(--dur-l) var(--ease-out) !important;
+}
+[data-reveal="mask"].rv-in { clip-path: inset(0 0 0 0 round 16px); }
+
+[data-reveal="perspective"] {
+  transform: perspective(900px) rotateX(10deg) translateY(28px);
+  transform-origin: 50% 100%;
+}
+[data-reveal="rotate"] { transform: rotate(-2.5deg) scale(.96); }
+[data-reveal="depth"] { transform: translateY(36px) scale(.92); filter: blur(4px); }
+
+/* button ripple (spawned by MotionLayer on pointerdown) */
+.qx-ripple {
+  position: absolute; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255,255,255,.5) 0%, transparent 70%);
+  transform: scale(0); opacity: .8;
+  animation: qxRipple var(--dur-l) var(--ease-out) forwards;
+}
+@keyframes qxRipple { to { transform: scale(2.6); opacity: 0; } }
+
+/* parallax elements move via inline transform — hint the compositor */
+[data-parallax] { will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal="mask"] { clip-path: none !important; }
+  .qx-ripple { display: none; }
+  [data-parallax] { transform: none !important; }
+}
