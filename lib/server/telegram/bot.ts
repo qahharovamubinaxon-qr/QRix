@@ -146,8 +146,9 @@ export function startPollingIfDev() {
   polling = true;
   log.info("telegram_polling_started", { bot: tgConfig.username });
   (async function loop() {
-    // Ensure no webhook blocks getUpdates in dev.
-    await tg.deleteWebhook();
+    // Ensure no webhook blocks getUpdates; KEEP pending updates so a /start
+    // sent before the server booted still gets answered.
+    await tg.deleteWebhook(false);
     let offset = 0;
     for (;;) {
       if (!polling) return;

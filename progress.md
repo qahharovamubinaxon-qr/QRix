@@ -29,6 +29,8 @@
 
 - **Mission 20 — Creative Director Homepage Rebuild**: cinematic full-viewport hero (86svh, mega editorial type clamp→6.8rem, scroll cue), cursor-reactive spotlight (root --px/--py fed by MotionLayer → .qx-hero-light), 6 drifting CSS particles, scroll storytelling (sheet bridges layering sections as continuous story), unique reveals per section (depth/left/rotate/perspective added), pricing teaser with animated conic border placed directly under testimonials (trust→pricing adjacency), 3D studio rebuilt Tripo-style (three-panel workspace, PMREM+ACES lighting, topology stats, env swatches, HD smoothed heightfield mesh, React.lazy fix for never-mounting client).
 
+- **Mission 21 — Cinematic Editorial Homepage** (taste-skill pass): SynapseX-inspired rework — full-viewport mouse-scrubbed film hero (delta-based seek chained on `seeked`), corner-anchored Space Mono headlines with ScrambleIn terminal decode (components/Scramble.tsx), difference-blend text for readability over any frame, Anton SC giant watermark + 24px dot-grid, hero decluttered to 4 elements per taste rules (counters/badges/cue removed — stats live in the strip), loop-video backdrops on cinematic statement (rotateX scroll-scrub via motion/react useScroll+useSpring) and stats sections, licensed CloudFront films wired via components/CinemaVideo.tsx.
+
 ## Current Mission
 None — v1.0.0 released. All 19 missions complete.
 

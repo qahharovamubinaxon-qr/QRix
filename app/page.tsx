@@ -13,6 +13,9 @@ import LatestPosts from "@/components/LatestPosts";
 import NewsletterSection from "@/components/NewsletterSection";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
+import { ScrambleIn } from "@/components/Scramble";
+import { ScrubVideo, LoopVideo } from "@/components/CinemaVideo";
+import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -170,6 +173,11 @@ function CountUp({ end, suffix = "" }: { end: number; suffix?: string }) {
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>("en");
   const t = T[lang];
+  // Mission 21: scramble entrance + corner-anchored headline pairs
+  const [entrance, setEntrance] = useState(false);
+  useEffect(() => { const id = setTimeout(() => setEntrance(true), 250); return () => clearTimeout(id); }, []);
+  const heroWords = `${t.h1a} ${t.h1b} ${t.h1c}`.split(/(?<=\.)\s+/);
+  const [heroL1, heroL2, heroR1, heroR2] = [heroWords[0] ?? "", heroWords[1] ?? "", heroWords[2] ?? "", heroWords[3] ?? "QRix"];
 
   /* ===== Tabs & forms ===== */
   const [tab, setTab] = useState("url");
@@ -374,72 +382,42 @@ export default function HomePage() {
 
       {/* ================= HERO ================= */}
       <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-20 pb-24 lg:pb-32 relative">
-        {/* Design V2: living background — aurora orbs + light rays + deco depth */}
-        <div className="qx-aurora-bg" aria-hidden />
-        <div className="qx-rays" aria-hidden />
+        {/* Mission 21: cinematic backdrop — mouse-scrubbed film + cursor light */}
+        <div className="absolute inset-0 overflow-hidden" aria-hidden>
+          <ScrubVideo src={"https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_083515_290e5a10-0b95-41af-a5e2-32b6389baa4d.mp4"} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--bg) 0%, transparent 34%), linear-gradient(to bottom, color-mix(in srgb, var(--bg) 55%, transparent), transparent 26%)" }} />
+        </div>
         <div className="qx-hero-light" aria-hidden />
-        <div className="qx-particles" aria-hidden><i/><i/><i/><i/><i/><i/></div>
-        <OrbitIcons />
-        <span suppressHydrationWarning className="qx-deco qx-deco-ring hidden lg:block" data-parallax="0.18" style={{ top: "12%", left: "4%" }} aria-hidden />
-        <span suppressHydrationWarning className="qx-deco qx-deco-cube hidden lg:block" data-parallax="0.1" style={{ top: "30%", right: "6%" }} aria-hidden />
-        {/* ── Cinematic full-viewport hero ── */}
-        <div className="min-h-[86svh] flex flex-col items-center justify-center text-center relative z-10 py-10">
-          <span className="qx-badge-hero inline-flex mb-6">
-            <span className="qx-badge-hero-dot" />{t.badge}
-          </span>
-          <h1 className="qx-headline-main qx-aurora qx-hero-mega pb-2 mb-6">
-            {t.h1a} {t.h1b} {t.h1c}
-          </h1>
-          <p className="text-[15px] lg:text-[17px] leading-relaxed max-w-xl mx-auto mb-7" style={{ color:"var(--text-muted)" }}>{t.sub}</p>
-          <div className="flex flex-wrap justify-center items-center gap-3">
-            <a href="#generator" className="qx-btn-hero px-7 py-3" data-magnetic>
-              {t.cta} <FiArrowRight size={15}/>
-            </a>
-            <a href="#why" className="qx-btn-hero-ghost px-6 py-3">
-              <FiPlay size={13}/> {t.demo}
-            </a>
+        {/* ── Cinematic editorial hero (Mission 21) ── */}
+        <span className="qx-watermark" aria-hidden>QRIX</span>
+        <div className="qx-dotgrid" aria-hidden />
+        <div className="min-h-[86svh] flex flex-col relative z-10 pt-10 pb-6">
+          <div className="flex-1" />
+          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+            {/* left column: headline + description + CTAs */}
+            <div className="flex flex-col gap-5">
+              <h1 className="qx-mono-hero">
+                <ScrambleIn text={heroL1} delay={200} triggered={entrance} /><br />
+                <ScrambleIn text={heroL2} delay={520} triggered={entrance} />
+              </h1>
+              <p className="qx-hero-desc max-w-sm text-[13px] sm:text-[15px] leading-relaxed">
+                {t.sub}
+              </p>
+              <div className="flex flex-wrap items-center gap-3 mt-1">
+                <a href="#generator" className="qx-btn-hero px-7 py-3 qx-mono text-[13px]" data-magnetic>
+                  {t.cta} <FiArrowRight size={14}/>
+                </a>
+                <a href="#why" className="qx-btn-hero-ghost px-6 py-3 qx-mono text-[13px]">
+                  <FiPlay size={12}/> {t.demo}
+                </a>
+              </div>
+            </div>
+            {/* right column: counter-headline */}
+            <h1 className="qx-mono-hero text-left md:text-right">
+              <ScrambleIn text={heroR1} delay={780} triggered={entrance} /><br />
+              <ScrambleIn text={heroR2} delay={1040} triggered={entrance} />
+            </h1>
           </div>
-
-          {/* Social proof — animated live statistics */}
-          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-3 mt-9 text-[12.5px] font-medium" style={{ color: "var(--text-faint)" }}>
-            <span className="inline-flex items-center gap-1.5">
-              <span style={{ color: "#fbbf24" }}>★★★★★</span>
-              {lang==="uz" ? "4.9 рейтинг" : lang==="ru" ? "рейтинг 4.9" : "4.9 rating"}
-            </span>
-            <span className="inline-flex items-baseline gap-1.5">
-              <b className="text-[17px] font-extrabold" style={{ color: "var(--text)" }}><CountUp end={120000} suffix="+" /></b>
-              {lang==="uz" ? "QR яратилган" : lang==="ru" ? "QR создано" : "QR codes created"}
-            </span>
-            <span className="inline-flex items-baseline gap-1.5">
-              <b className="text-[17px] font-extrabold" style={{ color: "var(--text)" }}><CountUp end={185} suffix="+" /></b>
-              {lang==="uz" ? "бепул асбоб" : lang==="ru" ? "инструментов" : "free tools"}
-            </span>
-            <span className="inline-flex items-baseline gap-1.5">
-              <b className="text-[17px] font-extrabold" style={{ color: "var(--text)" }}><CountUp end={40} suffix="+" /></b>
-              {lang==="uz" ? "мамлакат" : lang==="ru" ? "стран" : "countries"}
-            </span>
-          </div>
-
-          {/* Trust badges */}
-          <div className="flex flex-wrap justify-center gap-2 mt-5">
-            {[
-              lang==="uz" ? "🔒 Файллар қурилмада қолади" : lang==="ru" ? "🔒 Файлы остаются на устройстве" : "🔒 Files never leave your device",
-              lang==="uz" ? "⚡ Рўйхатсиз" : lang==="ru" ? "⚡ Без регистрации" : "⚡ No signup",
-              lang==="uz" ? "✦ Ватермарксиз" : lang==="ru" ? "✦ Без водяных знаков" : "✦ No watermark",
-              "🛡 GDPR-ready",
-            ].map((b) => (
-              <span key={b} className="text-[11px] font-bold px-3 py-1.5 rounded-full"
-                style={{ background: "var(--surface)", border: "1px solid var(--border-glass)", color: "var(--text-muted)", backdropFilter: "blur(8px)" }}>
-                {b}
-              </span>
-            ))}
-          </div>
-
-          {/* scroll cue — invites the story to continue */}
-          <a href="#generator" className="qx-scroll-cue mt-14" aria-label="Scroll to the generator">
-            {lang==="uz" ? "Пастга" : lang==="ru" ? "Ниже" : "Scroll"}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M6 9l6 6 6-6"/></svg>
-          </a>
         </div>
 
         {/* ── BOTTOM: 3 equal cards ── */}
@@ -637,13 +615,25 @@ export default function HomePage() {
         </div>{/* closes 3-col grid */}
       </section>
 
+      {/* ================= CINEMATIC STATEMENT (Mission 21) ================= */}
+      <CinematicStatement text={
+        lang === "uz"
+          ? "QRix — браузерингизда ишлайдиган ягона ижодий қатлам. Ҳар бир QR, PDF, расм ва видео қурилмангизни тарк этмайди. Ҳар бир скан ўлчанади, ҳар бир натижа сизники."
+          : lang === "ru"
+          ? "QRix — единый творческий слой, работающий в вашем браузере. Каждый QR, PDF, изображение и видео не покидает устройство. Каждое сканирование измеримо, каждый результат — ваш."
+          : "QRix is a single creative layer that runs in your browser. Every QR, PDF, image and video never leaves your device. Every scan becomes measurable. Every result stays yours."
+      } />
+
       {/* ================= PREMIUM CATEGORY SHOWCASE ================= */}
       <div className="qx-sheet pt-6" data-reveal="depth">
         <CategoryShowcase />
       </div>
 
       {/* ================= STATS ================= */}
-      <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
+      <section className="relative overflow-hidden py-24 lg:py-32">
+        <LoopVideo src={"https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_095810_ecea3dd2-fc5e-4e41-8696-4219290b6589.mp4"} className="opacity-70" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, var(--bg) 0%, transparent 30%, transparent 70%, var(--bg) 100%)" }} aria-hidden />
+        <div className="max-w-[1400px] mx-auto px-5 lg:px-8 relative z-10">
         <div className="qx-card relative overflow-hidden">
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-0">
             {stats.map((s, i) => (
@@ -672,6 +662,7 @@ export default function HomePage() {
               <div className="text-[11px] mt-1 font-medium" style={{ color:"var(--text-muted)" }}>{t.statUptime}</div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 
@@ -897,5 +888,27 @@ export default function HomePage() {
         />
       )}
     </div>
+  );
+}
+
+
+/* Cinematic 3D statement — scroll-scrubbed perspective text (Mission 21). */
+function CinematicStatement({ text }: { text: string }) {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const smooth = useSpring(scrollYProgress, { stiffness: 15, damping: 32, mass: 1.8 });
+  const y = useTransform(smooth, [0, 1], [60, -120]);
+  const opacity = useTransform(smooth, [0.28, 0.48], [0, 1]);
+  return (
+    <section ref={ref} className="min-h-[90vh] flex items-center justify-center relative overflow-hidden px-6 sm:px-12"
+      style={{ perspective: 400 }}>
+      <LoopVideo src={"https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_092455_089c54f8-3b03-4966-9df1-e9746063d0ef.mp4"} />
+      <div className="absolute inset-x-0 top-0 h-[180px] z-10" style={{ background: "linear-gradient(to bottom, var(--bg), transparent)" }} aria-hidden />
+      <div className="absolute inset-x-0 bottom-0 h-[180px] z-10" style={{ background: "linear-gradient(to top, var(--bg), transparent)" }} aria-hidden />
+      <motion.p className="qx-statement max-w-5xl text-center select-none relative z-20"
+        style={{ rotateX: 24, y, opacity, translateZ: 15 }}>
+        {text}
+      </motion.p>
+    </section>
   );
 }

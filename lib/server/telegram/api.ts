@@ -50,7 +50,7 @@ export const tg = {
   setWebhook: (url: string) =>
     call<boolean>("setWebhook", { url, secret_token: tgConfig.secretToken, allowed_updates: ["message", "callback_query"], drop_pending_updates: true }),
 
-  deleteWebhook: () => call<boolean>("deleteWebhook", { drop_pending_updates: true }),
+  deleteWebhook: (dropPending = true) => call<boolean>("deleteWebhook", { drop_pending_updates: dropPending }),
 
   getWebhookInfo: () => call<{ url: string; pending_update_count: number; last_error_message?: string }>("getWebhookInfo"),
 
