@@ -118,7 +118,7 @@ function Mock({ kind, v, c1, c2 }: { kind: Cat["key"]; v: number; c1: string; c2
     );
     return (
       <div className="qx-mk" style={{ background: "#fff", position: "relative" }}>{qrCode(c1, true, true, 3)}
-        <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 3 }}>{[c1, c2, "#e1ff04"].map((c) => <span key={c} style={{ width: 8, height: 8, borderRadius: "50%", background: c }} />)}</div>
+        <div style={{ position: "absolute", top: 8, right: 8, display: "flex", gap: 3 }}>{[c1, c2, "#ff4d1c"].map((c) => <span key={c} style={{ width: 8, height: 8, borderRadius: "50%", background: c }} />)}</div>
         <Lbl t="Customizer" />
       </div>
     );

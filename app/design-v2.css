@@ -14,7 +14,7 @@
   --el-1: 0 2px 10px rgba(0,0,0,.25);
   --el-2: 0 8px 30px rgba(0,0,0,.35);
   --el-3: 0 18px 60px rgba(0,0,0,.5);
-  --el-glow: 0 0 44px rgba(225,255,4,.16);
+  --el-glow: 0 0 44px rgba(255,77,28,.16);
   /* motion tokens */
   --dur-xs: 120ms; --dur-s: 200ms; --dur-m: 350ms; --dur-l: 600ms; --dur-xl: 1000ms;
   --ease-out: cubic-bezier(.22,.6,.28,1);
@@ -32,7 +32,7 @@
   border-radius: 50%; filter: blur(90px); opacity: .32; will-change: transform;
 }
 .qx-aurora-bg::before {
-  background: radial-gradient(circle at 30% 30%, rgba(225,255,4,.5), rgba(187,169,255,.35) 55%, transparent 75%);
+  background: radial-gradient(circle at 30% 30%, rgba(255,77,28,.5), rgba(187,169,255,.35) 55%, transparent 75%);
   top: -22%; left: -12%;
   animation: qxOrbA 26s var(--ease-in-out) infinite alternate;
 }
@@ -48,7 +48,7 @@ html.light .qx-aurora-bg::before, html.light .qx-aurora-bg::after { opacity: .2;
 /* light rays sweeping very slowly across the hero */
 .qx-rays {
   position: absolute; inset: -20% -10%; pointer-events: none; z-index: 0; opacity: .10;
-  background: conic-gradient(from 200deg at 50% -10%, transparent 0deg, rgba(225,255,4,.9) 8deg, transparent 18deg, transparent 40deg, rgba(187,169,255,.8) 48deg, transparent 60deg, transparent 360deg);
+  background: conic-gradient(from 200deg at 50% -10%, transparent 0deg, rgba(255,77,28,.9) 8deg, transparent 18deg, transparent 40deg, rgba(187,169,255,.8) 48deg, transparent 60deg, transparent 360deg);
   animation: qxRays 40s linear infinite;
   mask-image: linear-gradient(to bottom, #000 0%, transparent 70%);
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 70%);
@@ -83,7 +83,7 @@ html.light .qx-rays { opacity: .06; }
 .qx-float-stage { position: relative; perspective: 1000px; }
 .qx-float-panel {
   animation: qxFloatY 7s var(--ease-in-out) infinite;
-  box-shadow: var(--el-3), 0 30px 60px -30px rgba(225,255,4,.25);
+  box-shadow: var(--el-3), 0 30px 60px -30px rgba(255,77,28,.25);
 }
 @keyframes qxFloatY {
   0%, 100% { transform: translateY(0) rotateX(0deg) rotateY(0deg); }
@@ -91,7 +91,7 @@ html.light .qx-rays { opacity: .06; }
 }
 .qx-float-panel::after { /* soft reflection under the panel */
   content: ""; position: absolute; left: 8%; right: 8%; bottom: -26px; height: 26px;
-  background: radial-gradient(ellipse at 50% 0%, rgba(225,255,4,.28), transparent 70%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(255,77,28,.28), transparent 70%);
   filter: blur(10px); opacity: .8;
 }
 .qx-orbit { position: absolute; inset: 0; pointer-events: none; z-index: 1; }
@@ -325,7 +325,8 @@ html.light .qx-watermark { opacity: 0.07; }
 
 /* cinematic 3D statement */
 .qx-statement {
-  font-family: "Space Mono", monospace;
+  font-family: "Bricolage Grotesque", var(--font-display), sans-serif;
+  font-weight: 500;
   font-size: clamp(20px, 3.4vw, 40px);
   line-height: 1.35; letter-spacing: -0.02em;
   color: var(--text);
@@ -333,4 +334,17 @@ html.light .qx-watermark { opacity: 0.07; }
 
 @media (prefers-reduced-motion: reduce) {
   .qx-watermark { transform: none; }
+}
+
+/* ════════════════════════════════════════════════════════════
+   MISSION 22 — Mockit design language
+   ════════════════════════════════════════════════════════════ */
+.qx-bebas-hero {
+  font-family: "Bebas Neue", "Oswald", var(--font-display), sans-serif;
+  font-weight: 400;
+  font-size: clamp(64px, 12.5vw, 168px);
+  line-height: 0.88;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  color: var(--text);
 }

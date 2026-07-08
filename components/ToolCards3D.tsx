@@ -152,8 +152,8 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
         }
         .qx-mq-rowtitle::before {
           content: ""; width: 22px; height: 3px; border-radius: 99px;
-          background: linear-gradient(90deg, #e1ff04, #bba9ff);
-          box-shadow: 0 0 10px rgba(225,255,4,.6);
+          background: linear-gradient(90deg, #ff4d1c, #bba9ff);
+          box-shadow: 0 0 10px rgba(255,77,28,.6);
         }
 
         /* ===== 3D animated backdrop ===== */
@@ -161,7 +161,7 @@ export default function ToolCards3D({ rows, heading }: { rows: CardRow[]; headin
         .qx-mq-3dbg::before {
           content: ""; position: absolute; left: -20%; right: -20%; top: 40%; bottom: -35%;
           background-image:
-            linear-gradient(rgba(225,255,4,0.09) 1px, transparent 1px),
+            linear-gradient(rgba(255,77,28,0.09) 1px, transparent 1px),
             linear-gradient(90deg, rgba(187,169,255,0.09) 1px, transparent 1px);
           background-size: 52px 52px;
           transform: perspective(650px) rotateX(62deg);

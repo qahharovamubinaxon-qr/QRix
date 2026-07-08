@@ -22,7 +22,7 @@ export default function Logo({
       </defs>
       <rect width="32" height="32" rx="8" fill="url(#qrixGrad)" />
       {/* three QR finder patterns */}
-      <g fill="#e1ff04">
+      <g fill="#ff4d1c">
         <path fillRule="evenodd" clipRule="evenodd" d="M6 6h7v7H6V6Zm2 2v3h3V8H8Z" />
         <path fillRule="evenodd" clipRule="evenodd" d="M19 6h7v7h-7V6Zm2 2v3h3V8h-3Z" />
         <path fillRule="evenodd" clipRule="evenodd" d="M6 19h7v7H6v-7Zm2 2v3h3v-3H8Z" />

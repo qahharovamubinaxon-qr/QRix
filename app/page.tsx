@@ -14,7 +14,6 @@ import NewsletterSection from "@/components/NewsletterSection";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import { ScrambleIn } from "@/components/Scramble";
-import { ScrubVideo, LoopVideo } from "@/components/CinemaVideo";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
@@ -176,8 +175,10 @@ export default function HomePage() {
   // Mission 21: scramble entrance + corner-anchored headline pairs
   const [entrance, setEntrance] = useState(false);
   useEffect(() => { const id = setTimeout(() => setEntrance(true), 250); return () => clearTimeout(id); }, []);
-  const heroWords = `${t.h1a} ${t.h1b} ${t.h1c}`.split(/(?<=\.)\s+/);
-  const [heroL1, heroL2, heroR1, heroR2] = [heroWords[0] ?? "", heroWords[1] ?? "", heroWords[2] ?? "", heroWords[3] ?? "QRix"];
+  const [heroL1, heroL2, heroR1] =
+    lang === "uz" ? ["ҲАВОЛА ТАШЛАНГ.", "QR ОЛИНГ.", "ШУНЧАКИ QRIX."]
+    : lang === "ru" ? ["ВСТАВЬ ССЫЛКУ.", "ПОЛУЧИ QR.", "ПРОСТО QRIX."]
+    : ["DROP A LINK.", "GET YOUR QR.", "JUST QRIX."];
 
   /* ===== Tabs & forms ===== */
   const [tab, setTab] = useState("url");
@@ -376,47 +377,37 @@ export default function HomePage() {
         @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(187,169,255,.35)}50%{box-shadow:0 0 0 14px rgba(187,169,255,0)}}
         .qx-toggle{width:44px;height:24px;border-radius:99px;position:relative;transition:background .25s;cursor:pointer;border:1px solid var(--border)}
         .qx-toggle::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .25s;box-shadow:0 2px 6px rgba(0,0,0,.3)}
-        .qx-toggle.on{background:#e1ff04}.qx-toggle.on::after{transform:translateX(20px)}
+        .qx-toggle.on{background:#ff4d1c}.qx-toggle.on::after{transform:translateX(20px)}
         .qx-toggle.off{background:var(--surface-hover)}
       `}</style>
 
       {/* ================= HERO ================= */}
       <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-20 pb-24 lg:pb-32 relative">
-        {/* Mission 21: cinematic backdrop — mouse-scrubbed film + cursor light */}
-        <div className="absolute inset-0 overflow-hidden" aria-hidden>
-          <ScrubVideo src={"https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_083515_290e5a10-0b95-41af-a5e2-32b6389baa4d.mp4"} />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, var(--bg) 0%, transparent 34%), linear-gradient(to bottom, color-mix(in srgb, var(--bg) 55%, transparent), transparent 26%)" }} />
-        </div>
-        <div className="qx-hero-light" aria-hidden />
-        {/* ── Cinematic editorial hero (Mission 21) ── */}
-        <span className="qx-watermark" aria-hidden>QRIX</span>
+        {/* Mission 22: Mockit-language hero — near-black, one hot accent, giant condensed caps */}
         <div className="qx-dotgrid" aria-hidden />
-        <div className="min-h-[86svh] flex flex-col relative z-10 pt-10 pb-6">
-          <div className="flex-1" />
-          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-            {/* left column: headline + description + CTAs */}
-            <div className="flex flex-col gap-5">
-              <h1 className="qx-mono-hero">
-                <ScrambleIn text={heroL1} delay={200} triggered={entrance} /><br />
-                <ScrambleIn text={heroL2} delay={520} triggered={entrance} />
-              </h1>
-              <p className="qx-hero-desc max-w-sm text-[13px] sm:text-[15px] leading-relaxed">
-                {t.sub}
-              </p>
-              <div className="flex flex-wrap items-center gap-3 mt-1">
-                <a href="#generator" className="qx-btn-hero px-7 py-3 qx-mono text-[13px]" data-magnetic>
-                  {t.cta} <FiArrowRight size={14}/>
-                </a>
-                <a href="#why" className="qx-btn-hero-ghost px-6 py-3 qx-mono text-[13px]">
-                  <FiPlay size={12}/> {t.demo}
-                </a>
-              </div>
-            </div>
-            {/* right column: counter-headline */}
-            <h1 className="qx-mono-hero text-left md:text-right">
-              <ScrambleIn text={heroR1} delay={780} triggered={entrance} /><br />
-              <ScrambleIn text={heroR2} delay={1040} triggered={entrance} />
-            </h1>
+        <div className="qx-hero-light" aria-hidden />
+        <div className="absolute pointer-events-none" aria-hidden
+          style={{ top: "-10%", right: "-6%", width: "55vw", height: "55vw", maxWidth: 780, maxHeight: 780,
+            background: "radial-gradient(circle, rgba(255,77,28,.14) 0%, transparent 62%)", filter: "blur(40px)" }} />
+        <div className="min-h-[82svh] flex flex-col items-center justify-center text-center relative z-10 py-10">
+          <h1 className="qx-bebas-hero">
+            <span className="block"><ScrambleIn text={heroL1} delay={150} triggered={entrance} /></span>
+            <span className="block" style={{ color: "var(--primary-bright)" }}><ScrambleIn text={heroL2} delay={480} triggered={entrance} /></span>
+            <span className="block"><ScrambleIn text={heroR1} delay={820} triggered={entrance} /></span>
+          </h1>
+          <p className="qx-mono text-[11px] sm:text-[12px] tracking-[0.22em] uppercase mt-6" style={{ color: "var(--text-faint)" }}>
+            0.1s {lang==="uz" ? "ўртача яратиш вақти" : lang==="ru" ? "среднее время генерации" : "avg. generate time"} · 185+ {lang==="uz" ? "асбоб" : lang==="ru" ? "инструментов" : "tools"}
+          </p>
+          <p className="max-w-md text-[14px] sm:text-[15px] leading-relaxed mt-4" style={{ color: "var(--text-muted)" }}>
+            {t.sub}
+          </p>
+          <div className="flex flex-wrap justify-center items-center gap-3 mt-8">
+            <a href="#generator" className="qx-btn-hero px-8 py-3.5 text-[14px] font-semibold" data-magnetic>
+              {t.cta} <FiArrowRight size={15}/>
+            </a>
+            <a href="#why" className="qx-btn-hero-ghost px-6 py-3.5 text-[14px]">
+              <FiPlay size={13}/> {t.demo}
+            </a>
           </div>
         </div>
 
@@ -424,7 +415,7 @@ export default function HomePage() {
         <div id="generator" className="grid lg:grid-cols-3 gap-5 items-stretch relative z-10">
 
           {/* LEFT — QR Type selector (Fireship green) */}
-          <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#e1ff04" } as React.CSSProperties}>
+          <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#ff4d1c" } as React.CSSProperties}>
             <div className="px-2 pt-1 pb-3">
               <div className="qx-fcard-title text-[19px]">
                 {lang==="uz"?"QR TURI"  : lang==="ru"?"ТИП QR" : "QR TYPE"}
@@ -438,16 +429,16 @@ export default function HomePage() {
                 <button key={tb.id} onClick={()=>{ setTab(tb.id); setMoreOpen(false); }}
                   className="qx-typerow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-left"
                   style={{
-                    background: tab===tb.id ? "rgba(34,177,76,0.18)" : "transparent",
+                    background: tab===tb.id ? "rgba(255,77,28,0.16)" : "transparent",
                     color: tab===tb.id ? "#fff" : "var(--text-muted)",
                     fontWeight: tab===tb.id ? 700 : 500,
                   }}>
                   <span className="qx-typerow-ico w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: tab===tb.id ? "#22b14c" : "var(--surface-2)", color: tab===tb.id ? "#0e0e0c" : "var(--text-faint)" }}>
+                    style={{ background: tab===tb.id ? "#ff4d1c" : "var(--surface-2)", color: tab===tb.id ? "#0e0e0c" : "var(--text-faint)" }}>
                     {tb.icon}
                   </span>
                   {tb.label}
-                  {tab===tb.id && <FiArrowRight size={12} className="ml-auto" style={{ color:"#22b14c" }}/>}
+                  {tab===tb.id && <FiArrowRight size={12} className="ml-auto" style={{ color:"#ff4d1c" }}/>}
                 </button>
               ))}
 
@@ -526,9 +517,9 @@ export default function HomePage() {
             </div>
 
             {/* PIN */}
-            <div className="mt-4 p-3 rounded-xl" style={{ background:"rgba(225,255,4,0.05)", border:"1px solid rgba(225,255,4,0.18)" }}>
+            <div className="mt-4 p-3 rounded-xl" style={{ background:"rgba(255,77,28,0.05)", border:"1px solid rgba(255,77,28,0.18)" }}>
               <div className="flex items-center gap-2 mb-2">
-                <FiLock size={11} style={{ color:"#e1ff04" }}/>
+                <FiLock size={11} style={{ color:"#ff4d1c" }}/>
                 <span className="text-[11px] font-semibold" style={{ color:"var(--text)" }}>{t.pin}</span>
                 <span className="text-[10px]" style={{ color:"var(--text-faint)" }}>{t.pinOpt}</span>
               </div>
@@ -631,8 +622,6 @@ export default function HomePage() {
 
       {/* ================= STATS ================= */}
       <section className="relative overflow-hidden py-24 lg:py-32">
-        <LoopVideo src={"https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_095810_ecea3dd2-fc5e-4e41-8696-4219290b6589.mp4"} className="opacity-70" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, var(--bg) 0%, transparent 30%, transparent 70%, var(--bg) 100%)" }} aria-hidden />
         <div className="max-w-[1400px] mx-auto px-5 lg:px-8 relative z-10">
         <div className="qx-card relative overflow-hidden">
           <div className="grid grid-cols-2 lg:grid-cols-5 gap-0">
@@ -685,9 +674,9 @@ export default function HomePage() {
               style={{ ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
               {/* icon color glow */}
               <div className="absolute inset-0 opacity-40 pointer-events-none"
-                style={{ background:`radial-gradient(circle at 28% 24%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#e1ff04"}26 0%, transparent 58%)` }}/>
+                style={{ background:`radial-gradient(circle at 28% 24%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#ff4d1c"}26 0%, transparent 58%)` }}/>
               <div className="qx-bento-icon text-white"
-                style={{ background:f.grad, boxShadow:`0 8px 24px ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#e1ff04"}45` }}>
+                style={{ background:f.grad, boxShadow:`0 8px 24px ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#ff4d1c"}45` }}>
                 {f.icon}
               </div>
               <h3 className="font-display text-[17px] font-bold mb-2" style={{ color:"var(--text)" }}>{f.title}</h3>
@@ -772,7 +761,7 @@ export default function HomePage() {
         <hr className="qx-neon-line" />
         {/* Footer bg subtle top glow */}
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(225,255,4,.05) 0%, transparent 60%)" }} />
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,77,28,.05) 0%, transparent 60%)" }} />
 
         <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 pb-10 grid md:grid-cols-[1.6fr_1fr_1fr_1.2fr] gap-12">
           {/* Brand */}
@@ -790,7 +779,7 @@ export default function HomePage() {
               ].map((s) => (
                 <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
                   className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110"
-                  style={{ background: "rgba(225,255,4,.1)", border: "1px solid rgba(225,255,4,.25)", color: "#e1ff04" }}
+                  style={{ background: "rgba(255,77,28,.1)", border: "1px solid rgba(255,77,28,.25)", color: "#ff4d1c" }}
                   aria-label={s.label}>
                   {s.icon}
                 </a>
@@ -810,7 +799,7 @@ export default function HomePage() {
                 <Link key={l.href} href={l.href}
                   className="block transition-all hover:translate-x-1"
                   style={{ color: "var(--text-muted)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#e1ff04")}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#ff4d1c")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
                 >{l.label}</Link>
               ))}
@@ -829,7 +818,7 @@ export default function HomePage() {
                 <Link key={l.href} href={l.href}
                   className="block transition-all hover:translate-x-1"
                   style={{ color: "var(--text-muted)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#e1ff04")}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#ff4d1c")}
                   onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
                 >{l.label}</Link>
               ))}
@@ -842,16 +831,16 @@ export default function HomePage() {
               <a href="mailto:musarasulzada@gmail.com"
                 className="flex items-center gap-2.5 transition-colors"
                 style={{ color: "var(--text-muted)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#e1ff04")}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#ff4d1c")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
-                <FiMail size={14} style={{ color: "#e1ff04" }} /> musarasulzada@gmail.com
+                <FiMail size={14} style={{ color: "#ff4d1c" }} /> musarasulzada@gmail.com
               </a>
               <a href="https://t.me/QRix2020" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-2.5 transition-colors"
                 style={{ color: "var(--text-muted)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#e1ff04")}
+                onMouseEnter={(e) => (e.currentTarget.style.color = "#ff4d1c")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
-                <FiSend size={14} style={{ color: "#e1ff04" }} /> @QRix2020
+                <FiSend size={14} style={{ color: "#ff4d1c" }} /> @QRix2020
               </a>
             </div>
             {/* CTA mini */}
@@ -865,7 +854,7 @@ export default function HomePage() {
         <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3"
           style={{ borderTop: "1px solid rgba(255,255,255,.06)" }}>
           <div className="text-[12px]" style={{ color: "var(--text-faint)" }}>
-            © 2026 <span style={{ color: "#e1ff04" }}>QRix</span>. {t.rights}
+            © 2026 <span style={{ color: "#ff4d1c" }}>QRix</span>. {t.rights}
           </div>
           <div className="flex items-center gap-3.5 text-[12px]" style={{ color: "var(--text-faint)" }}>
             <Link href="/about" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>About</Link>
@@ -902,9 +891,6 @@ function CinematicStatement({ text }: { text: string }) {
   return (
     <section ref={ref} className="min-h-[90vh] flex items-center justify-center relative overflow-hidden px-6 sm:px-12"
       style={{ perspective: 400 }}>
-      <LoopVideo src={"https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260622_092455_089c54f8-3b03-4966-9df1-e9746063d0ef.mp4"} />
-      <div className="absolute inset-x-0 top-0 h-[180px] z-10" style={{ background: "linear-gradient(to bottom, var(--bg), transparent)" }} aria-hidden />
-      <div className="absolute inset-x-0 bottom-0 h-[180px] z-10" style={{ background: "linear-gradient(to top, var(--bg), transparent)" }} aria-hidden />
       <motion.p className="qx-statement max-w-5xl text-center select-none relative z-20"
         style={{ rotateX: 24, y, opacity, translateZ: 15 }}>
         {text}

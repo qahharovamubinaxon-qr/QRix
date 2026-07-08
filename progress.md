@@ -31,6 +31,8 @@
 
 - **Mission 21 — Cinematic Editorial Homepage** (taste-skill pass): SynapseX-inspired rework — full-viewport mouse-scrubbed film hero (delta-based seek chained on `seeked`), corner-anchored Space Mono headlines with ScrambleIn terminal decode (components/Scramble.tsx), difference-blend text for readability over any frame, Anton SC giant watermark + 24px dot-grid, hero decluttered to 4 elements per taste rules (counters/badges/cue removed — stats live in the strip), loop-video backdrops on cinematic statement (rotateX scroll-scrub via motion/react useScroll+useSpring) and stats sections, licensed CloudFront films wired via components/CinemaVideo.tsx.
 
+- **Mission 22 — Mockit design language**: full palette migration to mockit.design's system adapted for QRix — near-black `#080808` base, single hot accent `#ff4d1c` (+`#ff7a50` hover) replacing neon-yellow/lilac across every token, warm off-white text; typography switched to Bebas Neue (giant condensed caps hero: DROP A LINK. / GET YOUR QR. / JUST QRIX. with orange middle line, Oswald cyrillic fallback) + Bricolage Grotesque display/body; hero recomposed centered with mono metric line, llama films removed everywhere; generator 3-cards restyled to hairline dark cards (#141414, white/7% border, Bebas titles with orange tick, #0d0d0d panels); global sweep of all hardcoded neon hexes/rgba in css+components.
+
 ## Current Mission
 None — v1.0.0 released. All 19 missions complete.
 
