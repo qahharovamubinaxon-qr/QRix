@@ -43,8 +43,10 @@
 
 - **Mission 27 — Blacker canvas + side-entering cards + logo partners (`44227ef`)**: samurai removed from hero per user (SamuraiArt export kept); all 3 scenes darkened hard toward black (deep = faint navy over #020203, ember keeps red core on #050101, dusk low warm over #040303); category grid capped at 2 large columns (~670px, 16:9 tiles, 19px titles) with the 6 cards entering one by one on scroll — left column from the left, right column from the right (72px throw via `.qx-cs-item[data-reveal]:not(.rv-in)` override, 180ms alternating stagger); TrustedBy rebuilt with real brand logos (react-icons/si icons + names, 2.35rem, grayscale→brand-color hover; Microsoft/Adobe→YouTube/WhatsApp/PayPal since si lacks those glyphs). Verified via preview harness at 1440px (Chrome extension dropped mid-mission).
 
+- **Mission 28 — Pagoda night scene (`3636ebb`)**: statement text section replaced with `SceneArt.PagodaNight` — hand-built SVG night Japan in the ember palette (stars, moon, Fuji, torii, lit minka village, lanterns, five-story pagoda with rim-lit curved roofs + sorin, mist, warm horizon). `CinematicScene` = full-bleed 74vh section; art drifts/settles/fades in on scroll (motion springs), rising embers on top, masked top+bottom into the black canvas; hidden in light theme. ⚠ Chrome extension AND preview renderer both died mid-mission — verified via tsc + DOM/computed-style probes only; **visual pass pending** (user reviewing; iterate on their screenshot feedback).
+
 ## Current Mission
-Design iteration with the user (katana bg ✓ M24 · scene art ✓ M25 · jitter cards ✓ M26 · blacker+bigger pass ✓ M27). Workflow: every visual change is verified with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
+Design iteration with the user (katana bg ✓ M24 · scene art ✓ M25 · jitter cards ✓ M26 · blacker+bigger ✓ M27 · pagoda scene M28 — awaiting user visual check). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
