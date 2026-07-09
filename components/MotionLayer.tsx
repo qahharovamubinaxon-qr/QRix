@@ -95,7 +95,9 @@ export default function MotionLayer() {
       const mid = window.innerHeight / 2;
       let bg = "";
       let scene = "";
-      document.querySelectorAll<HTMLElement>("[data-scrollbg], [data-scene]").forEach((el) => {
+      // :not(.qx-scene) — the fixed canvas divs carry data-scene themselves
+      // and always straddle the viewport center; only content sections count.
+      document.querySelectorAll<HTMLElement>("[data-scrollbg], [data-scene]:not(.qx-scene)").forEach((el) => {
         const r = el.getBoundingClientRect();
         if (r.top <= mid && r.bottom >= mid) {
           if (el.dataset.scene) scene = el.dataset.scene;

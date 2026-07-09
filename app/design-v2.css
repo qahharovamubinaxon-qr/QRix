@@ -392,3 +392,59 @@ html.light .qx-scenes { display: none; }
   color: var(--text-muted);
 }
 html.light .qx-kstat-num { color: #e2410f; text-shadow: none; }
+
+/* ── Mission 25: katana scene artwork + background motion ────────────── */
+
+/* warrior behind the hero headline */
+.qx-samurai {
+  position: absolute; left: 0; right: 0; margin: 0 auto; top: 4%;
+  width: min(94vw, 980px); aspect-ratio: 1000 / 760;
+  z-index: 1; pointer-events: none; opacity: 0.94;
+  animation: qxBreath 7s ease-in-out infinite alternate;
+}
+@keyframes qxBreath { from { opacity: 0.82; } to { opacity: 1; } }
+html.light .qx-samurai { display: none; }
+
+/* the sword traveling through the ember stats scene */
+.qx-ksword {
+  position: absolute; left: 0; right: 0; margin: 0 auto; top: -10%;
+  width: clamp(120px, 13vw, 185px); aspect-ratio: 220 / 1240;
+  z-index: 1; pointer-events: none;
+}
+html.light .qx-ksword { display: none; }
+
+/* rising embers (GPU transforms only) */
+.qx-embers { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
+.qx-embers i {
+  position: absolute; bottom: -12px; width: 4px; height: 4px; border-radius: 50%;
+  background: #ff8d64; box-shadow: 0 0 8px 1px rgba(255, 106, 58, 0.55);
+  opacity: 0; animation: qxEmberRise 9s linear infinite;
+}
+.qx-embers i:nth-child(1) { left: 8%;  animation-duration: 10s;  animation-delay: 0s; }
+.qx-embers i:nth-child(2) { left: 21%; animation-duration: 12s;  animation-delay: 3.2s; width: 3px; height: 3px; }
+.qx-embers i:nth-child(3) { left: 33%; animation-duration: 8.5s; animation-delay: 1.4s; }
+.qx-embers i:nth-child(4) { left: 44%; animation-duration: 11s;  animation-delay: 5s; width: 5px; height: 5px; }
+.qx-embers i:nth-child(5) { left: 56%; animation-duration: 9s;   animation-delay: 2.2s; width: 3px; height: 3px; }
+.qx-embers i:nth-child(6) { left: 67%; animation-duration: 12.5s;animation-delay: 0.8s; }
+.qx-embers i:nth-child(7) { left: 78%; animation-duration: 8s;   animation-delay: 4.1s; }
+.qx-embers i:nth-child(8) { left: 88%; animation-duration: 10.5s;animation-delay: 6s; width: 3px; height: 3px; }
+.qx-embers i:nth-child(9) { left: 95%; animation-duration: 9.5s; animation-delay: 2.8s; }
+@keyframes qxEmberRise {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  6%   { opacity: 0.75; }
+  70%  { opacity: 0.5; }
+  100% { transform: translate3d(26px, -92vh, 0); opacity: 0; }
+}
+html.light .qx-embers { display: none; }
+
+/* slow drift breathes life into the active scene canvas */
+.qx-scene.on { animation: qxSceneDrift 26s ease-in-out infinite alternate; }
+@keyframes qxSceneDrift {
+  from { transform: scale(1) translateY(0); }
+  to   { transform: scale(1.06) translateY(-1.4%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qx-samurai, .qx-scene.on { animation: none; }
+  .qx-embers { display: none; }
+}

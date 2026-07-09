@@ -14,6 +14,7 @@ import NewsletterSection from "@/components/NewsletterSection";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import { ScrambleIn } from "@/components/Scramble";
+import { KatanaSword, SamuraiArt } from "@/components/SceneArt";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
@@ -397,6 +398,10 @@ export default function HomePage() {
         <div className="absolute pointer-events-none" aria-hidden
           style={{ top: "-10%", right: "-6%", width: "55vw", height: "55vw", maxWidth: 780, maxHeight: 780,
             background: "radial-gradient(circle, rgba(255,77,28,.14) 0%, transparent 62%)", filter: "blur(40px)" }} />
+        {/* katana-style warrior staged behind the headline */}
+        <div className="qx-samurai" aria-hidden data-parallax="0.07" suppressHydrationWarning>
+          <SamuraiArt className="w-full h-full" />
+        </div>
         <div className="min-h-[82svh] flex flex-col items-center justify-center text-center relative z-10 py-10">
           <h1 className="qx-bebas-hero">
             <span className="block"><ScrambleIn text={heroL1} delay={150} triggered={entrance} /></span>
@@ -630,8 +635,13 @@ export default function HomePage() {
 
       {/* ================= STATS — the ember moment (katana-style) ================= */}
       <section data-scene="ember" className="relative overflow-hidden py-28 lg:py-44">
-        <div className="max-w-[1200px] mx-auto px-5 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-16 gap-x-10" data-stagger>
+        {/* the sword travels through the scene on scroll (parallax) */}
+        <div className="qx-ksword" aria-hidden data-parallax="0.16" suppressHydrationWarning>
+          <KatanaSword className="w-full h-full" />
+        </div>
+        <div className="qx-embers" aria-hidden>{Array.from({ length: 9 }).map((_, i) => <i key={i} />)}</div>
+        <div className="max-w-[1240px] mx-auto px-5 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-16 gap-x-10 lg:gap-x-64" data-stagger>
             {stats.map((s) => (
               <div key={s.label} className="qx-kstat" data-reveal>
                 <div className="qx-kstat-num"><CountUp end={s.end} suffix={s.suffix} /></div>
