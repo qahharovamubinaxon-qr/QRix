@@ -53,8 +53,10 @@
 
 - **Mission 32 — User's animated samurai film as hero (`e735e94`)**: user self-animated the neon samurai (mp4 on Desktop); Arena outro ad located frame-by-frame (content → ~9.8s, white ad 10s+) and trimmed via ffmpeg (-t 9.8, -an, h264 CRF25 faststart → 2.3MB `public/scenes/hero-samurai.mp4` + 29KB poster). `<video autoplay muted loop playsinline>` mounted inside the fixed base scene — keeps playing on scroll, cross-fades into other scenes. Ken Burns off for video scenes (`:has`), still-image visor pulse removed, reduced-motion hides video. Note: ffmpeg lives at WinGet Links; watermark/ad-cut recipe = extract frames → Read → trim.
 
+- **Mission 33 — Samurai-game HUD cards + hero mirror (`f4cf230`)**: hero mirrored (headline/sub LEFT, 6 tool chips RIGHT, samurai face clear); category cards rebuilt as game HUD plates (`.qx-gcard`: ember-gradient frame + nested clip-path cut corners, scanline steel, mono `// count` strip + tagline, diamond accent, corner brackets `.qx-gc`, rotated NEW ribbon, hover drop-shadow glow; left/right entrance kept); Why grid `.qx-bento`→`.qx-gpanel` (same HUD language, angular icon chips); partner wordmarks permanently brand-colored (grayscale dropped, hover glow). globals.css needed the watcher nudge again. Verified live in Chrome incl. computed logo color.
+
 ## Current Mission
-Design iteration with the user (M24 katana bg · M25 scene art · M26 jitter cards · M27 blacker+bigger · M28 pagoda · M29 Coverr hero · M30 Gemini scenes · M31 neon samurai hero · M32 hero film ✓). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
+Design iteration with the user (M24–M33: katana scenes → Gemini art → hero film → game HUD cards ✓). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
