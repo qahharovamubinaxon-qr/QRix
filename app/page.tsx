@@ -15,6 +15,7 @@ import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import { ScrambleIn } from "@/components/Scramble";
 import { KatanaSword, PagodaNight } from "@/components/SceneArt";
+import HeroSearch from "@/components/HeroSearch";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
@@ -176,10 +177,11 @@ export default function HomePage() {
   // Mission 21: scramble entrance + corner-anchored headline pairs
   const [entrance, setEntrance] = useState(false);
   useEffect(() => { const id = setTimeout(() => setEntrance(true), 250); return () => clearTimeout(id); }, []);
+  // Coverr-style benefit headline: what the client gets from QRix
   const [heroL1, heroL2, heroR1] =
-    lang === "uz" ? ["ҲАВОЛА ТАШЛАНГ.", "QR ОЛИНГ.", "ШУНЧАКИ QRIX."]
-    : lang === "ru" ? ["ВСТАВЬ ССЫЛКУ.", "ПОЛУЧИ QR.", "ПРОСТО QRIX."]
-    : ["DROP A LINK.", "GET YOUR QR.", "JUST QRIX."];
+    lang === "uz" ? ["QR КОД ЯРАТИНГ.", "ҲАР СКАННИ КУЗАТИНГ.", "185+ БЕПУЛ АСБОБ."]
+    : lang === "ru" ? ["СОЗДАЙ QR КОД.", "ОТСЛЕДИ КАЖДЫЙ СКАН.", "185+ ИНСТРУМЕНТОВ."]
+    : ["CREATE QR CODES.", "TRACK EVERY SCAN.", "185+ FREE TOOLS."];
 
   /* ===== Tabs & forms ===== */
   const [tab, setTab] = useState("url");
@@ -404,19 +406,25 @@ export default function HomePage() {
             <span className="block" style={{ color: "var(--primary-bright)" }}><ScrambleIn text={heroL2} delay={480} triggered={entrance} /></span>
             <span className="block"><ScrambleIn text={heroR1} delay={820} triggered={entrance} /></span>
           </h1>
-          <p className="qx-mono text-[11px] sm:text-[12px] tracking-[0.22em] uppercase mt-6" style={{ color: "var(--text-faint)" }}>
-            0.1s {lang==="uz" ? "ўртача яратиш вақти" : lang==="ru" ? "среднее время генерации" : "avg. generate time"} · 185+ {lang==="uz" ? "асбоб" : lang==="ru" ? "инструментов" : "tools"}
-          </p>
-          <p className="max-w-md text-[14px] sm:text-[15px] leading-relaxed mt-4" style={{ color: "var(--text-muted)" }}>
+          <p className="max-w-md text-[14px] sm:text-[15px] leading-relaxed mt-5" style={{ color: "var(--text-muted)" }}>
             {t.sub}
           </p>
-          <div className="flex flex-wrap justify-center items-center gap-3 mt-8">
-            <a href="#generator" className="qx-btn-hero px-8 py-3.5 text-[14px] font-semibold" data-magnetic>
-              {t.cta} <FiArrowRight size={15}/>
-            </a>
-            <a href="#why" className="qx-btn-hero-ghost px-6 py-3.5 text-[14px]">
-              <FiPlay size={13}/> {t.demo}
-            </a>
+
+          {/* Coverr-style tool finder: type "jpg to pdf" → land on that tool */}
+          <HeroSearch placeholder={
+            lang === "uz" ? "Асбоб қидиринг… (масалан: jpg to pdf)"
+            : lang === "ru" ? "Найдите инструмент… (например: jpg to pdf)"
+            : "Search 185+ tools… (e.g. jpg to pdf)"
+          } />
+
+          {/* category quick links (the "Trending:" row) */}
+          <div className="qx-hcats">
+            <span className="qx-hcats-label">{lang === "uz" ? "Бўлимлар:" : lang === "ru" ? "Разделы:" : "Tools:"}</span>
+            {([["QR Tools", "/qr-tools"], ["PDF Tools", "/pdf-tools"], ["Image Tools", "/image-tools"],
+               ["AI Tools", "/ai-tools"], ["Video Tools", "/video-tools"], ["3D Tools", "/3d-tools"]] as const
+            ).map(([label, href]) => (
+              <Link key={href} href={href} className="qx-hcat">{label}</Link>
+            ))}
           </div>
         </div>
 

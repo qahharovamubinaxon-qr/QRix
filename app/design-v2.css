@@ -448,3 +448,53 @@ html.light .qx-embers { display: none; }
 }
 .qx-pagoda svg { width: 100%; height: 100%; }
 html.light .qx-pagoda-sec { display: none; }
+
+/* ── Mission 29: Coverr-style hero search + category quick links ────── */
+.qx-hsearch { position: relative; width: min(92vw, 620px); margin: 30px auto 0; z-index: 30; }
+.qx-hsearch-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: #fff; border-radius: 999px; padding: 8px 10px 8px 8px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+html.light .qx-hsearch-bar { box-shadow: 0 14px 40px rgba(40, 30, 20, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.07); }
+.qx-hsearch-ic {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+  background: var(--primary-bright); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.qx-hsearch-bar input {
+  flex: 1; min-width: 0; background: transparent; border: 0; outline: 0;
+  color: #141414; font-size: 15.5px; font-weight: 500;
+}
+.qx-hsearch-bar input::placeholder { color: #969696; }
+.qx-hsearch-go {
+  width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0; color: #141414;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.25s, color 0.25s;
+}
+.qx-hsearch-go:hover { background: #141414; color: #fff; }
+.qx-hsearch-drop {
+  position: absolute; top: calc(100% + 10px); left: 0; right: 0;
+  background: var(--surface-solid); border: 1px solid var(--border-glass);
+  border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-pop);
+  text-align: left;
+}
+.qx-hsearch-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  width: 100%; padding: 12px 18px; font-size: 14px; font-weight: 600; color: var(--text);
+}
+.qx-hsearch-row[data-on="true"] { background: color-mix(in srgb, var(--primary) 13%, transparent); }
+.qx-hsearch-grp {
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text-faint); flex-shrink: 0;
+}
+
+.qx-hcats { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 22px; margin-top: 24px; }
+.qx-hcats-label { font-size: 13px; font-weight: 600; color: var(--text-faint); }
+.qx-hcat {
+  font-size: 14px; font-weight: 600; color: var(--text-muted);
+  text-decoration: underline; text-underline-offset: 4px;
+  text-decoration-color: color-mix(in srgb, var(--text-muted) 40%, transparent);
+  transition: color 0.25s, text-decoration-color 0.25s;
+}
+.qx-hcat:hover { color: var(--primary-bright); text-decoration-color: var(--primary-bright); }

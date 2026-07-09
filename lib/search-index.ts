@@ -117,8 +117,14 @@ export function buildSearchIndex(): SearchItem[] {
  * title or keywords; earlier/whole-title matches score higher. Optional
  * group filter powers the palette's category chips.
  */
+/** Query-token synonyms for common shorthand ("remove bg", "img to pdf"…). */
+const TOKEN_ALIAS: Record<string, string> = {
+  bg: "background", img: "image", pic: "image", foto: "photo", vid: "video",
+};
+
 export function searchIndex(q: string, limit = 12, groups?: SearchGroup[]): SearchItem[] {
-  const tokens = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const phrase = q.trim().toLowerCase().replace(/\s+/g, " ");
+  const tokens = phrase.split(" ").filter(Boolean);
   if (!tokens.length) return [];
   const idx = buildSearchIndex();
   const scored: { item: SearchItem; score: number }[] = [];
@@ -131,15 +137,24 @@ export function searchIndex(q: string, limit = 12, groups?: SearchGroup[]): Sear
     let ok = true;
     for (const tok of tokens) {
       const ti = title.indexOf(tok);
+      const alt = TOKEN_ALIAS[tok];
       if (ti >= 0) {
         score += 10 - Math.min(9, ti / 4);            // earlier in title = better
         if (ti === 0) score += 4;                     // prefix bonus
         if (title === tok) score += 8;                // exact title
       } else if (keys.includes(tok)) {
         score += 3;
+      } else if (alt && (title.includes(alt) || keys.includes(alt))) {
+        score += 3;                                   // synonym match
       } else { ok = false; break; }
     }
-    if (ok) scored.push({ item, score });
+    if (ok) {
+      // typing the tool's name in order beats same-token anagrams
+      // ("jpg to pdf" must rank JPG to PDF above PDF to JPG)
+      if (tokens.length > 1 && title.includes(phrase)) score += 25;
+      if (item.group === "Blog") score -= 3;          // tools outrank guides
+      scored.push({ item, score });
+    }
   }
   return scored.sort((a, b) => b.score - a.score).slice(0, limit).map((s) => s.item);
 }
