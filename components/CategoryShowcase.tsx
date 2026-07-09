@@ -1,15 +1,15 @@
 "use client";
 
-/* Homepage — five premium category cards, reference-grade:
-   header (icon+title+arrow) · big coverflow preview carousel (auto + arrows +
-   dots) with a themed mock per slide · 3 highlighted tool chips · count·tagline
-   · description · Explore CTA · a features strip below. Glass + gradient border
-   + float + hover lift; mouse spotlight from MotionLayer. Zero deps. */
+/* Homepage — six tool categories in jitter.video's template-card anatomy
+   (measured live): a flat preview tile (3:2, no border/shadow chrome) with ONE
+   focused mock crossfading through 3 tool previews, caption under the tile on
+   the page canvas (accent dot + bold title + muted meta + hover arrow), "new"
+   badge for fresh categories. Whole item is the link. Zero deps. */
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
-  FiArrowRight, FiChevronLeft, FiChevronRight, FiZap, FiShield, FiGift, FiGlobe,
+  FiArrowRight, FiZap, FiShield, FiGift, FiGlobe,
   FiGrid, FiFileText, FiImage, FiVideo, FiCpu, FiCheckCircle, FiBox,
 } from "react-icons/fi";
 
@@ -65,11 +65,6 @@ const CATS: Cat[] = [
     slides: ["Image to 3D", "3D Preview", "AR Export"],
     chips: [{ label: "Image to 3D", icon: <FiBox size={16} /> }, { label: "Preview", icon: <FiImage size={16} /> }, { label: "Export", icon: <FiZap size={16} /> }],
   },
-];
-
-const BADGES = [
-  { icon: <FiZap size={11} />, label: "Fast" }, { icon: <FiShield size={11} />, label: "Secure" },
-  { icon: <FiGift size={11} />, label: "Free" }, { icon: <FiGlobe size={11} />, label: "Browser" },
 ];
 
 const FEATURES = [
@@ -255,40 +250,36 @@ function Card({ cat, i }: { cat: Cat; i: number }) {
   const [idx, setIdx] = useState(0);
   const hov = useRef(false);
   useEffect(() => {
-    const id = setInterval(() => { if (!hov.current) setIdx((n) => (n + 1) % 3); }, 3200 + i * 250);
+    const id = setInterval(() => { if (!hov.current) setIdx((n) => (n + 1) % 3); }, 3600 + i * 300);
     return () => clearInterval(id);
   }, [i]);
-  const go = (d: number) => setIdx((n) => (n + d + 3) % 3);
 
   return (
-    <div className="qx-cs-card group" onMouseEnter={() => (hov.current = true)} onMouseLeave={() => (hov.current = false)}
-      data-reveal style={{ ["--c1" as string]: cat.c1, ["--c2" as string]: cat.c2, ["--rv-delay" as string]: `${i * 100}ms` } as React.CSSProperties}>
-      {/* Jitter-style: the animated preview IS the tile */}
-      <div className="qx-cs-stage relative z-[2]" aria-hidden>
-        {[0, 1, 2].map((s) => {
-          let pos = s - idx; if (pos > 1) pos -= 3; if (pos < -1) pos += 3;
-          const st: React.CSSProperties = pos === 0
-            ? { transform: "translateX(-50%) scale(1)", opacity: 1, zIndex: 3, filter: "none" }
-            : { transform: `translateX(${pos < 0 ? "-105%" : "5%"}) scale(.8) rotateY(${pos < 0 ? 20 : -20}deg)`, opacity: .4, zIndex: 1, filter: "blur(.5px)" };
-          return <div key={s} className="qx-cs-slide" style={st}><Mock kind={cat.key} v={s} c1={cat.c1} c2={cat.c2} /></div>;
-        })}
-        <button className="qx-cs-nav left-1.5" onClick={() => go(-1)} aria-label="Previous"><FiChevronLeft size={15} /></button>
-        <button className="qx-cs-nav right-1.5" onClick={() => go(1)} aria-label="Next"><FiChevronRight size={15} /></button>
-        <div className="qx-cs-dots">{[0, 1, 2].map((d) => <button key={d} onClick={() => setIdx(d)} className="qx-cs-dot" data-on={d === idx} aria-label={`Slide ${d + 1}`} />)}</div>
+    <Link href={cat.href} className="qx-cs-item group"
+      onMouseEnter={() => (hov.current = true)} onMouseLeave={() => (hov.current = false)}
+      data-reveal style={{ ["--c1" as string]: cat.c1, ["--c2" as string]: cat.c2, ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
+      {/* Jitter anatomy: a flat preview tile — one focused mock, crossfading */}
+      <div className="qx-cs-stage" aria-hidden>
+        {cat.count === "New" && <span className="qx-cs-new">new</span>}
+        {[0, 1, 2].map((s) => (
+          <div key={s} className="qx-cs-slide" data-on={s === idx}>
+            <Mock kind={cat.key} v={s} c1={cat.c1} c2={cat.c2} />
+          </div>
+        ))}
       </div>
 
-      {/* Jitter caption row: title + meta line, arrow on the right */}
-      <Link href={cat.href} className="qx-cs-caption relative z-[2]">
-        <span className="qx-cs-icon">{cat.icon}</span>
+      {/* caption sits under the tile, on the page canvas (no card box) */}
+      <div className="qx-cs-caption">
+        <span className="qx-cs-dotc" aria-hidden />
         <span className="min-w-0 flex-1">
-          <span className="block text-[15px] font-bold leading-tight truncate" style={{ color: "var(--text)" }}>{cat.label}</span>
-          <span className="block text-[11.5px] mt-0.5 truncate" style={{ color: "var(--text-muted)" }}>
+          <span className="block text-[16px] font-bold leading-tight" style={{ color: "var(--text)" }}>{cat.label}</span>
+          <span className="block text-[12px] mt-1 truncate" style={{ color: "var(--text-muted)" }}>
             {cat.count} · {cat.chips.map((ch) => ch.label).join(" · ")}
           </span>
         </span>
-        <FiArrowRight size={16} className="qx-cs-arrow shrink-0" />
-      </Link>
-    </div>
+        <FiArrowRight size={17} className="qx-cs-arrow shrink-0" />
+      </div>
+    </Link>
   );
 }
 
@@ -310,58 +301,44 @@ export default function CategoryShowcase() {
       </div>
 
       <style>{`
-        .qx-cs-grid { display: grid; gap: 20px; grid-template-columns: repeat(1, minmax(0,1fr)); }
+        /* Jitter grid: 3 columns max, big tiles, generous row rhythm */
+        .qx-cs-grid { display: grid; gap: 40px 22px; grid-template-columns: repeat(1, minmax(0,1fr)); }
         @media (min-width: 640px) { .qx-cs-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
         @media (min-width: 1100px) { .qx-cs-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
-        @media (min-width: 1360px) { .qx-cs-grid { grid-template-columns: repeat(5, minmax(0,1fr)); } }
 
-        /* Jitter-style tile: flat, hairline, preview-dominant */
-        .qx-cs-card {
-          position: relative; padding: 0 0 14px; border-radius: 20px; overflow: hidden; isolation: isolate;
-          border: 1px solid rgba(255,255,255,0.07);
-          background: #141414;
-          box-shadow: 0 12px 32px rgba(0,0,0,.35);
-          transition: transform .35s cubic-bezier(.22,.9,.3,1), box-shadow .3s, border-color .3s;
+        /* Jitter anatomy: no card box — a flat tile, caption on the canvas */
+        .qx-cs-item { display: block; text-decoration: none; }
+        .qx-cs-stage {
+          position: relative; aspect-ratio: 3 / 2; border-radius: 12px; overflow: hidden;
+          background: #151515; transition: background .3s;
         }
-        html.light .qx-cs-card { background: #fff; border-color: rgba(0,0,0,.08); box-shadow: 0 10px 28px rgba(60,50,30,.10); }
-        .qx-cs-card:hover { transform: translateY(-5px); border-color: color-mix(in srgb, var(--c1) 45%, rgba(255,255,255,.1)); box-shadow: 0 22px 48px rgba(0,0,0,.45); }
-        .qx-cs-card:hover .qx-cs-slide { scale: 1.02; }
+        html.light .qx-cs-stage { background: #f5f5f5; }
+        .qx-cs-item:hover .qx-cs-stage { background: #1a1a1a; }
+        html.light .qx-cs-item:hover .qx-cs-stage { background: #eeeeee; }
 
-        .qx-cs-caption { display: flex; align-items: center; gap: 11px; padding: 13px 15px 2px; text-decoration: none; }
-        .qx-cs-icon { width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; background: linear-gradient(135deg, var(--c1), var(--c2)); }
-        .qx-cs-arrow { color: var(--text-faint); transition: transform .3s, color .3s; }
-        .qx-cs-card:hover .qx-cs-arrow { color: var(--c1); transform: translateX(4px); }
-
-        /* preview stage fills the tile top, Jitter-like */
-        .qx-cs-stage { height: 190px; perspective: 900px; margin: 0; background: #0d0d0d; border-bottom: 1px solid rgba(255,255,255,.05); }
-        html.light .qx-cs-stage { background: #f2f2f4; border-color: rgba(0,0,0,.05); }
+        /* one focused mock, crossfading in place */
         .qx-cs-slide {
-          position: absolute; top: 20px; left: 50%; width: 62%; height: 150px;
-          transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,0,.2,1), opacity .5s, filter .5s; will-change: transform;
+          position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+          opacity: 0; transform: scale(.96); pointer-events: none;
+          transition: opacity .65s var(--ease-in-out), transform .65s var(--ease-in-out);
         }
-        .qx-mk { width: 100%; height: 100%; border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden;
-          border: 1px solid color-mix(in srgb, var(--c1) 30%, transparent); box-shadow: 0 16px 34px rgba(0,0,0,.45); }
-        .qx-cs-nav {
-          position: absolute; top: 50%; transform: translateY(-50%); z-index: 4; width: 28px; height: 28px; border-radius: 50%;
-          display: flex; align-items: center; justify-content: center; color: var(--text);
-          background: color-mix(in srgb, var(--surface-solid) 80%, transparent); border: 1px solid var(--border-glass);
-          backdrop-filter: blur(6px); opacity: 0; transition: opacity .3s, background .2s;
-        }
-        .qx-cs-card:hover .qx-cs-nav { opacity: 1; }
-        .qx-cs-nav:hover { background: linear-gradient(135deg, var(--c1), var(--c2)); color: #0b0b0b; }
-        .qx-cs-dots { position: absolute; bottom: -2px; left: 0; right: 0; display: flex; justify-content: center; gap: 6px; z-index: 4; }
-        .qx-cs-dot { width: 7px; height: 7px; border-radius: 99px; background: var(--border-glass); transition: width .3s, background .3s; }
-        .qx-cs-dot[data-on="true"] { width: 18px; background: var(--c1); }
+        .qx-cs-slide[data-on="true"] { opacity: 1; transform: scale(1); }
+        .qx-cs-item:hover .qx-cs-slide[data-on="true"] { transform: scale(1.035); }
+        .qx-cs-slide > .qx-mk { width: 56%; height: 62%; }
+        .qx-mk { border-radius: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+          box-shadow: 0 18px 40px rgba(0,0,0,.32); }
+        html.light .qx-mk { box-shadow: 0 14px 32px rgba(40,35,25,.16); }
 
-        .qx-cs-hi { display: flex; flex-direction: column; align-items: center; gap: 5px; text-align: center; font-size: 10.5px; font-weight: 700;
-          padding: 9px 4px; border-radius: 12px; color: var(--text);
-          background: color-mix(in srgb, var(--c1) 8%, var(--surface-2)); border: 1px solid color-mix(in srgb, var(--c1) 22%, transparent);
-          overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: transform .25s, background .25s; }
-        .qx-cs-card:hover .qx-cs-hi { transform: translateY(-2px); }
-        .qx-cs-hi-ic { color: var(--c1); display: flex; }
-        .qx-cs-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 99px; color: var(--text-muted); background: var(--surface); border: 1px solid var(--border); }
-        .qx-cs-cta { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; padding: 11px; border-radius: 14px; font-size: 13px; font-weight: 800; color: var(--c1); text-decoration: none; background: color-mix(in srgb, var(--c1) 10%, transparent); border: 1px solid color-mix(in srgb, var(--c1) 30%, transparent); transition: background .3s, gap .3s, color .3s; }
-        .qx-cs-card:hover .qx-cs-cta { background: linear-gradient(135deg, var(--c1), var(--c2)); color: #0b0b0b; gap: 10px; }
+        .qx-cs-new {
+          position: absolute; top: 10px; right: 10px; z-index: 2;
+          font-size: 10px; font-weight: 800; letter-spacing: .04em; padding: 3px 9px; border-radius: 7px;
+          background: var(--primary-bright); color: #fff;
+        }
+
+        .qx-cs-caption { display: flex; align-items: flex-start; gap: 10px; padding: 14px 2px 0; }
+        .qx-cs-dotc { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); margin-top: 6px; flex-shrink: 0; }
+        .qx-cs-arrow { color: var(--text-faint); opacity: 0; transform: translateX(-6px); margin-top: 3px; transition: opacity .3s, transform .3s, color .3s; }
+        .qx-cs-item:hover .qx-cs-arrow { opacity: 1; transform: none; color: var(--c1); }
 
         .qx-cs-features { margin-top: 22px; padding: 22px 26px; border-radius: 22px; background: var(--card-bg); border: 1px solid var(--border);
           display: grid; gap: 20px 28px; grid-template-columns: repeat(1,1fr); box-shadow: 0 12px 34px rgba(0,0,0,.28); }
