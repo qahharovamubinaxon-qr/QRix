@@ -23,6 +23,7 @@ import {
   FiShield, FiPenTool, FiBarChart2, FiCamera, FiFileText, FiImage,
   FiUpload, FiTrash2, FiCheck,
   FiLayers, FiMinimize2, FiMaximize2, FiDroplet, FiScissors,
+  FiVideo, FiCpu, FiBox,
 } from "react-icons/fi";
 
 type Lang = "en" | "ru" | "uz";
@@ -32,7 +33,7 @@ const T: Record<Lang, Record<string, string>> = {
   en: {
     badge: "🚀 The All-in-One QR Platform",
     h1a: "Generate. Track.", h1b: "Analyze.", h1c: "Grow.",
-    sub: "QRix helps you create powerful QR codes for any purpose, track every scan in real-time, and grow your business smarter.",
+    sub: "185+ free tools in your browser — QR codes with live analytics, PDF & image converters, AI generators, video and 3D. Nothing leaves your device.",
     cta: "Create Your First QR Code", demo: "Watch Demo", rating: "4.9/5 from 2,847+ users",
     cardTitle: "Create Your QR Code", cardSub: "It's fast, easy and free to get started.",
     url: "URL", text: "Text", wifi: "WiFi", vcard: "vCard", more: "More",
@@ -68,7 +69,7 @@ const T: Record<Lang, Record<string, string>> = {
   ru: {
     badge: "🚀 Всё-в-одном QR платформа",
     h1a: "Создавай. Отслеживай.", h1b: "Анализируй.", h1c: "Расти.",
-    sub: "QRix помогает создавать мощные QR коды для любых целей, отслеживать каждое сканирование в реальном времени и развивать бизнес умнее.",
+    sub: "185+ бесплатных инструментов в браузере — QR коды с аналитикой, PDF и фото конвертеры, AI генераторы, видео и 3D. Файлы не покидают устройство.",
     cta: "Создать первый QR код", demo: "Смотреть демо", rating: "4.9/5 от 2,847+ пользователей",
     cardTitle: "Создайте ваш QR код", cardSub: "Быстро, легко и бесплатно.",
     url: "URL", text: "Текст", wifi: "WiFi", vcard: "vCard", more: "Ещё",
@@ -104,7 +105,7 @@ const T: Record<Lang, Record<string, string>> = {
   uz: {
     badge: "🚀 Ҳаммаси-бирда QR платформа",
     h1a: "Яратинг. Кузатинг.", h1b: "Таҳлил қилинг.", h1c: "Ўсинг.",
-    sub: "QRix ҳар қандай мақсад учун кучли QR кодлар яратиш, ҳар бир сканни реал вақтда кузатиш ва бизнесингизни ақлли ўстиришга ёрдам беради.",
+    sub: "Браузерингизда 185+ бепул асбоб — аналитикали QR кодлар, PDF ва расм конвертерлари, AI генераторлар, видео ва 3D. Файллар қурилмангиздан чиқмайди.",
     cta: "Биринчи QR кодингизни яратинг", demo: "Демо кўриш", rating: "4.9/5 — 2,847+ фойдаланувчи",
     cardTitle: "QR кодингизни яратинг", cardSub: "Тез, осон ва бепул.",
     url: "URL", text: "Матн", wifi: "WiFi", vcard: "vCard", more: "Яна",
@@ -176,11 +177,11 @@ export default function HomePage() {
   // Mission 21: scramble entrance + corner-anchored headline pairs
   const [entrance, setEntrance] = useState(false);
   useEffect(() => { const id = setTimeout(() => setEntrance(true), 250); return () => clearTimeout(id); }, []);
-  // Coverr-style benefit headline: what the client gets from QRix
+  // benefit headline covering every tool family
   const [heroL1, heroL2, heroR1] =
-    lang === "uz" ? ["QR КОД ЯРАТИНГ.", "ҲАР СКАННИ КУЗАТИНГ.", "185+ БЕПУЛ АСБОБ."]
-    : lang === "ru" ? ["СОЗДАЙ QR КОД.", "ОТСЛЕДИ КАЖДЫЙ СКАН.", "185+ ИНСТРУМЕНТОВ."]
-    : ["CREATE QR CODES.", "TRACK EVERY SCAN.", "185+ FREE TOOLS."];
+    lang === "uz" ? ["QR КОД ЯРАТИНГ.", "PDF ВА РАСМ ЎЗГАРТИРИНГ.", "AI · ВИДЕО · 3D — БЕПУЛ."]
+    : lang === "ru" ? ["СОЗДАЙ QR КОД.", "КОНВЕРТИРУЙ PDF И ФОТО.", "AI · ВИДЕО · 3D — БЕСПЛАТНО."]
+    : ["CREATE QR CODES.", "CONVERT PDF & IMAGE.", "AI · VIDEO · 3D — FREE."];
 
   /* ===== Tabs & forms ===== */
   const [tab, setTab] = useState("url");
@@ -396,34 +397,56 @@ export default function HomePage() {
         {/* Mission 22: Mockit-language hero — near-black, one hot accent, giant condensed caps */}
         <div className="qx-dotgrid" aria-hidden />
         <div className="qx-hero-light" aria-hidden />
-        <div className="absolute pointer-events-none" aria-hidden
-          style={{ top: "-10%", right: "-6%", width: "55vw", height: "55vw", maxWidth: 780, maxHeight: 780,
-            background: "radial-gradient(circle, rgba(255,77,28,.14) 0%, transparent 62%)", filter: "blur(40px)" }} />
-        <div className="min-h-[82svh] flex flex-col items-center justify-center text-center relative z-10 py-10">
-          <h1 className="qx-bebas-hero">
-            <span className="block"><ScrambleIn text={heroL1} delay={150} triggered={entrance} /></span>
-            <span className="block" style={{ color: "var(--primary-bright)" }}><ScrambleIn text={heroL2} delay={480} triggered={entrance} /></span>
-            <span className="block"><ScrambleIn text={heroR1} delay={820} triggered={entrance} /></span>
-          </h1>
-          <p className="max-w-md text-[14px] sm:text-[15px] leading-relaxed mt-5" style={{ color: "var(--text-muted)" }}>
-            {t.sub}
-          </p>
+        <div className="qx-embers" aria-hidden>{Array.from({ length: 7 }).map((_, i) => <i key={i} />)}</div>
+        <div className="min-h-[88svh] flex flex-col justify-center relative z-10 py-10 gap-8">
+          <div className="flex-1 grid items-center gap-8 lg:grid-cols-[84px_minmax(0,1fr)_minmax(0,590px)]">
+            {/* left: our six tool families standing beside the samurai */}
+            <nav className="qx-htools" aria-label="Tool categories">
+              {([[<FiGrid key="qr" size={22} />, "/qr-tools", "QR Tools", "#22c55e"],
+                 [<FiFileText key="pdf" size={22} />, "/pdf-tools", "PDF Tools", "#60a5fa"],
+                 [<FiImage key="img" size={22} />, "/image-tools", "Image Tools", "#c084fc"],
+                 [<FiCpu key="ai" size={22} />, "/ai-tools", "AI Tools", "#fbbf24"],
+                 [<FiVideo key="vid" size={22} />, "/video-tools", "Video Tools", "#f472b6"],
+                 [<FiBox key="3d" size={22} />, "/3d-tools", "3D Tools", "#22d3ee"]] as const
+              ).map(([icon, href, label, c]) => (
+                <Link key={href} href={href} title={label} aria-label={label} className="qx-htool"
+                  style={{ ["--tc" as string]: c } as React.CSSProperties}>{icon}</Link>
+              ))}
+            </nav>
 
-          {/* Coverr-style tool finder: type "jpg to pdf" → land on that tool */}
-          <HeroSearch placeholder={
-            lang === "uz" ? "Асбоб қидиринг… (масалан: jpg to pdf)"
-            : lang === "ru" ? "Найдите инструмент… (например: jpg to pdf)"
-            : "Search 185+ tools… (e.g. jpg to pdf)"
-          } />
+            {/* the samurai breathes in this gap */}
+            <div className="hidden lg:block" aria-hidden />
 
-          {/* category quick links (the "Trending:" row) */}
-          <div className="qx-hcats">
-            <span className="qx-hcats-label">{lang === "uz" ? "Бўлимлар:" : lang === "ru" ? "Разделы:" : "Tools:"}</span>
-            {([["QR Tools", "/qr-tools"], ["PDF Tools", "/pdf-tools"], ["Image Tools", "/image-tools"],
-               ["AI Tools", "/ai-tools"], ["Video Tools", "/video-tools"], ["3D Tools", "/3d-tools"]] as const
-            ).map(([label, href]) => (
-              <Link key={href} href={href} className="qx-hcat">{label}</Link>
-            ))}
+            {/* right: what the client gets — every tool family */}
+            <div className="text-center lg:text-left">
+              <h1 className="qx-bebas-hero qx-bebas-side">
+                <span className="block"><ScrambleIn text={heroL1} delay={150} triggered={entrance} /></span>
+                <span className="block" style={{ color: "var(--primary-bright)" }}><ScrambleIn text={heroL2} delay={480} triggered={entrance} /></span>
+                <span className="block"><ScrambleIn text={heroR1} delay={820} triggered={entrance} /></span>
+              </h1>
+              <p className="max-w-md text-[14px] sm:text-[15px] leading-relaxed mt-5 mx-auto lg:mx-0" style={{ color: "var(--text-muted)" }}>
+                {t.sub}
+              </p>
+            </div>
+          </div>
+
+          {/* Coverr-style tool finder stays centered: "jpg to pdf" → that tool */}
+          <div>
+            <HeroSearch placeholder={
+              lang === "uz" ? "Асбоб қидиринг… (масалан: jpg to pdf)"
+              : lang === "ru" ? "Найдите инструмент… (например: jpg to pdf)"
+              : "Search 185+ tools… (e.g. jpg to pdf)"
+            } />
+
+            {/* category quick links (the "Trending:" row) */}
+            <div className="qx-hcats">
+              <span className="qx-hcats-label">{lang === "uz" ? "Бўлимлар:" : lang === "ru" ? "Разделы:" : "Tools:"}</span>
+              {([["QR Tools", "/qr-tools"], ["PDF Tools", "/pdf-tools"], ["Image Tools", "/image-tools"],
+                 ["AI Tools", "/ai-tools"], ["Video Tools", "/video-tools"], ["3D Tools", "/3d-tools"]] as const
+              ).map(([label, href]) => (
+                <Link key={href} href={href} className="qx-hcat">{label}</Link>
+              ))}
+            </div>
           </div>
         </div>
 
