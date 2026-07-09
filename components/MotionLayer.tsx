@@ -94,11 +94,21 @@ export default function MotionLayer() {
       if (document.documentElement.classList.contains("light")) return;
       const mid = window.innerHeight / 2;
       let bg = "";
-      document.querySelectorAll<HTMLElement>("[data-scrollbg]").forEach((el) => {
+      let scene = "";
+      document.querySelectorAll<HTMLElement>("[data-scrollbg], [data-scene]").forEach((el) => {
         const r = el.getBoundingClientRect();
-        if (r.top <= mid && r.bottom >= mid) bg = el.dataset.scrollbg || bg;
+        if (r.top <= mid && r.bottom >= mid) {
+          if (el.dataset.scene) scene = el.dataset.scene;
+          else bg = el.dataset.scrollbg || bg;
+        }
       });
-      if (bg && bg !== lastBg) {
+      if (scene && scene !== lastBg) {
+        // Named scene: cross-fade the fixed .qx-scenes canvas (katana-style).
+        lastBg = scene;
+        document.querySelectorAll<HTMLElement>(".qx-scene").forEach((el) =>
+          el.classList.toggle("on", el.dataset.scene === scene));
+      } else if (bg && bg !== lastBg) {
+        // Plain hex: shift the body canvas color.
         lastBg = bg;
         document.documentElement.style.setProperty("--bg", bg);
         document.body.style.backgroundColor = bg;

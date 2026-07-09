@@ -10,7 +10,9 @@ const rand = () => CHARS[Math.floor(Math.random() * CHARS.length)];
 
 /** Entrance reveal: characters decode left→right after `delay` ms. */
 export function ScrambleIn({ text, delay = 0, triggered = true }: { text: string; delay?: number; triggered?: boolean }) {
-  const [out, setOut] = useState(" ");
+  // SSR renders the real text (SEO + no blank hero while hydration runs);
+  // once triggered, the decode animation takes over.
+  const [out, setOut] = useState(text);
   const started = useRef(false);
 
   useEffect(() => {

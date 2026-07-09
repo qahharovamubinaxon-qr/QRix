@@ -1049,7 +1049,9 @@ html.light .qx-card, html.light .qx-card-glow, html.light .qx-card-premium {
 
 /* ── route transition: soft fade+rise on every page mount ── */
 @keyframes qxPageIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-.qx-page-in { animation: qxPageIn .45s cubic-bezier(.22,.6,.28,1) both; }
+/* fill-mode backwards (not both): a persisted transform would turn the wrapper
+   into the containing block for position:fixed children (breaks .qx-scenes) */
+.qx-page-in { animation: qxPageIn .45s cubic-bezier(.22,.6,.28,1) backwards; }
 @media (prefers-reduced-motion: reduce) { .qx-page-in { animation: none; } }
 
 /* ── top loading bar shimmer ── */

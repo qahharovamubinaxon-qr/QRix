@@ -373,6 +373,14 @@ export default function HomePage() {
 
   return (
     <div className="relative overflow-x-clip">
+      {/* Katana-style scroll scenes: fixed full-viewport canvas that cross-fades
+          between rich gradient scenes as sections pass the viewport center. */}
+      <div className="qx-scenes" aria-hidden>
+        <div className="qx-scene on" data-scene="base" />
+        <div className="qx-scene" data-scene="deep" />
+        <div className="qx-scene" data-scene="ember" />
+        <div className="qx-scene" data-scene="dusk" />
+      </div>
       <style>{`
         @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(187,169,255,.35)}50%{box-shadow:0 0 0 14px rgba(187,169,255,0)}}
         .qx-toggle{width:44px;height:24px;border-radius:99px;position:relative;transition:background .25s;cursor:pointer;border:1px solid var(--border)}
@@ -382,7 +390,7 @@ export default function HomePage() {
       `}</style>
 
       {/* ================= HERO ================= */}
-      <section data-scrollbg="#080808" className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-20 pb-24 lg:pb-32 relative">
+      <section data-scene="base" className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-20 pb-24 lg:pb-32 relative">
         {/* Mission 22: Mockit-language hero — near-black, one hot accent, giant condensed caps */}
         <div className="qx-dotgrid" aria-hidden />
         <div className="qx-hero-light" aria-hidden />
@@ -616,47 +624,30 @@ export default function HomePage() {
       } />
 
       {/* ================= PREMIUM CATEGORY SHOWCASE ================= */}
-      <div className="qx-sheet pt-6" data-reveal="depth" data-scrollbg="#041c37">
+      <div className="qx-sheet pt-6" data-reveal="depth" data-scene="deep">
         <CategoryShowcase />
       </div>
 
-      {/* ================= STATS ================= */}
-      <section data-scrollbg="#082142" className="relative overflow-hidden py-24 lg:py-32">
-        <div className="max-w-[1400px] mx-auto px-5 lg:px-8 relative z-10">
-        <div className="qx-card relative overflow-hidden">
-          <div className="grid grid-cols-2 lg:grid-cols-5 gap-0">
-            {stats.map((s, i) => (
-              <div key={s.label} className="flex flex-col items-center justify-center text-center p-7 relative group"
-                style={{ borderRight: i < stats.length - 1 ? "1px solid var(--card-border)" : "none" }}>
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
-                  style={{ background:`radial-gradient(circle at 50% 50%, ${s.color}20 0%, transparent 70%)` }}/>
-                <span className="w-11 h-11 rounded-xl flex items-center justify-center mb-3 text-lg"
-                  style={{ background:`${s.color}15`, color:s.color, boxShadow:`0 0 20px ${s.color}30` }}>
-                  {s.icon}
-                </span>
-                <div className="qx-counter-big" style={{ color:s.color, textShadow:`0 0 30px ${s.color}55` }}>
-                  <CountUp end={s.end} suffix={s.suffix} />
-                </div>
-                <div className="text-[11px] mt-1 font-medium" style={{ color:"var(--text-muted)" }}>{s.label}</div>
+      {/* ================= STATS — the ember moment (katana-style) ================= */}
+      <section data-scene="ember" className="relative overflow-hidden py-28 lg:py-44">
+        <div className="max-w-[1200px] mx-auto px-5 lg:px-8 relative z-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-16 gap-x-10" data-stagger>
+            {stats.map((s) => (
+              <div key={s.label} className="qx-kstat" data-reveal>
+                <div className="qx-kstat-num"><CountUp end={s.end} suffix={s.suffix} /></div>
+                <div className="qx-kstat-lbl">{s.label}</div>
               </div>
             ))}
-            <div className="flex flex-col items-center justify-center text-center p-7 group relative">
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-400 pointer-events-none"
-                style={{ background:"radial-gradient(circle at 50%,rgba(52,211,153,.12) 0%,transparent 70%)" }}/>
-              <span className="w-11 h-11 rounded-xl flex items-center justify-center mb-3 text-lg"
-                style={{ background:"rgba(52,211,153,.12)", color:"#34d399", boxShadow:"0 0 20px rgba(52,211,153,.25)" }}>
-                <FiShield/>
-              </span>
-              <div className="qx-counter-big" style={{ color:"#34d399", textShadow:"0 0 30px rgba(52,211,153,.5)" }}>99.9%</div>
-              <div className="text-[11px] mt-1 font-medium" style={{ color:"var(--text-muted)" }}>{t.statUptime}</div>
-            </div>
           </div>
-        </div>
+          <p className="qx-mono text-center mt-16 text-[11px] tracking-[0.24em] uppercase" data-reveal
+            style={{ color: "var(--text-muted)" }}>
+            <FiShield className="inline -mt-0.5 mr-2" size={12} aria-hidden />99.9% {t.statUptime}
+          </p>
         </div>
       </section>
 
       {/* ================= WHY QRIX — BENTO GRID ================= */}
-      <section id="why" data-scrollbg="#0d1932" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
+      <section id="why" data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
         <hr className="qx-neon-line mb-16" />
         <div className="text-center mb-12" data-reveal="perspective">
           <h2 className="qx-section-title justify-center" style={{ color:"var(--text)", fontSize:"clamp(2rem,5vw,3.2rem)", fontWeight:900 }}>
@@ -687,17 +678,17 @@ export default function HomePage() {
       </section>
 
       {/* ================= TRUSTED BY ================= */}
-      <div className="qx-sec-glass" data-scrollbg="#001a24">
+      <div className="qx-sec-glass" data-scene="deep">
         <TrustedBy heading={lang === "uz" ? "Жаҳон жамоалари ишонган воситалар тоифаси" : lang === "ru" ? "Инструменты уровня мировых команд" : "The tool quality world-class teams expect"} />
       </div>
 
       {/* ================= FAQ ================= */}
-      <div className="qx-sec-mesh" data-reveal="mask" data-scrollbg="#0d1428">
+      <div className="qx-sec-mesh" data-reveal="mask" data-scene="deep">
         <HomeFaq lang={lang} />
       </div>
 
       {/* ================= LATEST BLOG ================= */}
-      <div data-reveal="left" data-scrollbg="#100d1c">
+      <div data-reveal="left" data-scene="deep">
       <LatestPosts
         heading={lang === "uz" ? "Сўнгги қўлланмалар" : lang === "ru" ? "Свежие гайды" : "Latest guides"}
         cta={lang === "uz" ? "Барчаси" : lang === "ru" ? "Все статьи" : "View all"}
@@ -705,10 +696,10 @@ export default function HomePage() {
       </div>
 
       {/* ================= REVIEWS ================= */}
-      <div data-scrollbg="#160d12"><ReviewsSection lang={lang} /></div>
+      <div data-scene="dusk"><ReviewsSection lang={lang} /></div>
 
       {/* ================= PRICING TEASER (trust sits right above) ================= */}
-      <section data-scrollbg="#080808" className="max-w-4xl mx-auto px-5 pb-24" data-reveal="perspective" aria-label="Pricing">
+      <section data-scene="dusk" className="max-w-4xl mx-auto px-5 pb-24" data-reveal="perspective" aria-label="Pricing">
         <div className="text-center mb-8">
           <h2 className="font-display text-3xl lg:text-4xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
             {lang === "uz" ? "Оддий нархлар" : lang === "ru" ? "Простые тарифы" : "Simple pricing"}
@@ -889,7 +880,7 @@ function CinematicStatement({ text }: { text: string }) {
   const y = useTransform(smooth, [0, 1], [60, -120]);
   const opacity = useTransform(smooth, [0.28, 0.48], [0, 1]);
   return (
-    <section ref={ref} data-scrollbg="#00172d" className="min-h-[90vh] flex items-center justify-center relative overflow-hidden px-6 sm:px-12"
+    <section ref={ref} data-scene="deep" className="min-h-[90vh] flex items-center justify-center relative overflow-hidden px-6 sm:px-12"
       style={{ perspective: 400 }}>
       <motion.p className="qx-statement max-w-5xl text-center select-none relative z-20"
         style={{ rotateX: 24, y, opacity, translateZ: 15 }}>
