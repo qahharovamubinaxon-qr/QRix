@@ -41,8 +41,10 @@
 
 - **Mission 26 — True Jitter card anatomy (`04beb13`)**: CategoryShowcase rebuilt against live measurements of jitter.video (358×238 flat tile, zero chrome, caption under the tile). No card box — each item is a flat 3:2 tile (#151515 dark / #f5f5f5 light, 12px radius) with ONE focused mock crossfading through 3 tool previews (coverflow/nav/dots removed, hover pauses + scales 1.035 + lightens tile), caption on the canvas (accent dot + bold title + muted meta + hover slide-in arrow), whole item is the link, orange "new" badge on 3D. Grid capped at 3 columns, 40px row rhythm. Verified in Chrome in both themes.
 
+- **Mission 27 — Blacker canvas + side-entering cards + logo partners (`44227ef`)**: samurai removed from hero per user (SamuraiArt export kept); all 3 scenes darkened hard toward black (deep = faint navy over #020203, ember keeps red core on #050101, dusk low warm over #040303); category grid capped at 2 large columns (~670px, 16:9 tiles, 19px titles) with the 6 cards entering one by one on scroll — left column from the left, right column from the right (72px throw via `.qx-cs-item[data-reveal]:not(.rv-in)` override, 180ms alternating stagger); TrustedBy rebuilt with real brand logos (react-icons/si icons + names, 2.35rem, grayscale→brand-color hover; Microsoft/Adobe→YouTube/WhatsApp/PayPal since si lacks those glyphs). Verified via preview harness at 1440px (Chrome extension dropped mid-mission).
+
 ## Current Mission
-Design iteration with the user (katana bg ✓ M24 · samurai+sword art ✓ M25 · jitter cards ✓ M26). Workflow: every visual change is verified through Claude-in-Chrome screenshots before finishing.
+Design iteration with the user (katana bg ✓ M24 · scene art ✓ M25 · jitter cards ✓ M26 · blacker+bigger pass ✓ M27). Workflow: every visual change is verified with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
