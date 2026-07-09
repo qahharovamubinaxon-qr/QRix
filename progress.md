@@ -47,8 +47,10 @@
 
 - **Mission 29 — Coverr-style hero (`0729394`)**: benefit headline (CREATE QR CODES. / TRACK EVERY SCAN. / 185+ FREE TOOLS., EN/RU/UZ) replaces the wordplay; mono metric line + 2 CTA buttons dropped. `components/HeroSearch.tsx` — white Coverr pill (orange search disc + arrow) with live dropdown over `lib/search-index`; "jpg to pdf" + Enter → /pdf-tools/jpg-to-pdf; keyboard nav. Category quick-links row under the search (QR/PDF/Image/AI/Video/3D → landings). search-index ranking upgraded globally (⌘K too): exact-phrase bonus, token synonyms (bg/img/pic/vid/foto), Blog −3 so tools outrank guides. Verified headlessly (tsx probes + served HTML); Chrome extension down again during visual pass.
 
+- **Mission 30 — Gemini artworks as living scroll scenes (`84c4ec0`)**: user's 5 Gemini images (auto-found in Downloads, sharp→webp 23–35KB each, 141KB total in `public/scenes/`) wired into the scene canvas: base=samurai+planted blade, deep=red-mist pagoda valley, ember=QRIX brush samurai (SVG sword overlay removed from stats — artwork carries it), dusk=neon QR samurai, CinematicScene=pagoda village under Fuji (replaces SVG art, motion kept). "Video" feel without files (image-to-video needs credits, balance=0): Ken Burns 1.02→1.1 diagonal pan 26s on active scene + scroll cross-fades + embers + readability veil (top/bottom gradient + vignette); gradient underlayers show while webp streams. Credits later → swap stills for real AI video loops in the same slots. Verified: assets 200, structure probes; Chrome ext down during visuals.
+
 ## Current Mission
-Design iteration with the user (katana bg ✓ M24 · scene art ✓ M25 · jitter cards ✓ M26 · blacker+bigger ✓ M27 · pagoda M28 · Coverr hero ✓ M29). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
+Design iteration with the user (katana bg ✓ M24 · scene art ✓ M25 · jitter cards ✓ M26 · blacker+bigger ✓ M27 · pagoda M28 · Coverr hero ✓ M29 · Gemini art scenes ✓ M30). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
