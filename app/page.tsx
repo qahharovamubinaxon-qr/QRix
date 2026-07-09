@@ -14,7 +14,6 @@ import NewsletterSection from "@/components/NewsletterSection";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import { ScrambleIn } from "@/components/Scramble";
-import { KatanaSword, PagodaNight } from "@/components/SceneArt";
 import HeroSearch from "@/components/HeroSearch";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import {
@@ -633,10 +632,6 @@ export default function HomePage() {
 
       {/* ================= STATS — the ember moment (katana-style) ================= */}
       <section data-scene="ember" className="relative overflow-hidden py-28 lg:py-44">
-        {/* the sword travels through the scene on scroll (parallax) */}
-        <div className="qx-ksword" aria-hidden data-parallax="0.16" suppressHydrationWarning>
-          <KatanaSword className="w-full h-full" />
-        </div>
         <div className="qx-embers" aria-hidden>{Array.from({ length: 9 }).map((_, i) => <i key={i} />)}</div>
         <div className="max-w-[1240px] mx-auto px-5 lg:px-8 relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-16 gap-x-10 lg:gap-x-64" data-stagger>
@@ -893,7 +888,7 @@ function CinematicScene() {
   return (
     <section ref={ref} data-scene="deep" className="qx-pagoda-sec" aria-hidden>
       <motion.div className="qx-pagoda" style={{ y, scale, opacity }}>
-        <PagodaNight className="w-full h-full block" />
+        <div className="qx-pagoda-img" />
       </motion.div>
       <div className="qx-embers" aria-hidden>{Array.from({ length: 6 }).map((_, i) => <i key={i} />)}</div>
     </section>
