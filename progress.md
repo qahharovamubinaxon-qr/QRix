@@ -39,8 +39,10 @@
 
 - **Mission 25 — Samurai + katana scene art (`497757d`)**: user's M24 verdict — "қани самурай, қани катана". Image-gen MCP has 0 credits, so the reference artwork was rebuilt as hand-tuned SVG (`components/SceneArt.tsx`): `SamuraiArt` (dark armored silhouette behind the hero headline — kabuto, outward kuwagata crescents, glowing visor slits, layered sode, QR chest emblem, ember aura, breathing opacity, 0.07 parallax, bottom-masked) + `KatanaSword` (vertical blade through the ember stats — red crisscross tsuka, tsuba, gradient blade with hamon + etched glowing QR glyph, 0.16 parallax travel). Background motion: 9 rising ember particles, 26s active-scene drift, reduced-motion guarded, light theme hides all art. Fixes: MotionLayer scene query excludes `.qx-scene` canvas divs (they always straddle center → spurious dusk); suppressHydrationWarning on parallax art wrappers. Iterated live in Chrome (first horn pass read as rabbit ears → crescents). If the user later provides image-gen credits or a FAL/Replicate key, the SVGs can be swapped for raster art in one step.
 
+- **Mission 26 — True Jitter card anatomy (`04beb13`)**: CategoryShowcase rebuilt against live measurements of jitter.video (358×238 flat tile, zero chrome, caption under the tile). No card box — each item is a flat 3:2 tile (#151515 dark / #f5f5f5 light, 12px radius) with ONE focused mock crossfading through 3 tool previews (coverflow/nav/dots removed, hover pauses + scales 1.035 + lightens tile), caption on the canvas (accent dot + bold title + muted meta + hover slide-in arrow), whole item is the link, orange "new" badge on 3D. Grid capped at 3 columns, 40px row rhythm. Verified in Chrome in both themes.
+
 ## Current Mission
-Design iteration with the user (katana background ✓ M24; samurai+sword art ✓ M25; next: jitter card polish if the user confirms). Workflow: every visual change is verified through Claude-in-Chrome screenshots before finishing.
+Design iteration with the user (katana bg ✓ M24 · samurai+sword art ✓ M25 · jitter cards ✓ M26). Workflow: every visual change is verified through Claude-in-Chrome screenshots before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
