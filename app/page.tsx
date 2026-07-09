@@ -403,9 +403,24 @@ export default function HomePage() {
         <div className="qx-hero-light" aria-hidden />
         <div className="qx-embers" aria-hidden>{Array.from({ length: 7 }).map((_, i) => <i key={i} />)}</div>
         <div className="min-h-[88svh] flex flex-col justify-center relative z-10 py-10 gap-8">
-          <div className="flex-1 grid items-center gap-8 lg:grid-cols-[84px_minmax(0,1fr)_minmax(0,590px)]">
-            {/* left: our six tool families standing beside the samurai */}
-            <nav className="qx-htools" aria-label="Tool categories">
+          <div className="flex-1 grid items-center gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)_84px]">
+            {/* left: what the client gets — every tool family */}
+            <div className="text-center lg:text-left order-1">
+              <h1 className="qx-bebas-hero qx-bebas-side">
+                <span className="block"><ScrambleIn text={heroL1} delay={150} triggered={entrance} /></span>
+                <span className="block" style={{ color: "var(--primary-bright)" }}><ScrambleIn text={heroL2} delay={480} triggered={entrance} /></span>
+                <span className="block"><ScrambleIn text={heroR1} delay={820} triggered={entrance} /></span>
+              </h1>
+              <p className="max-w-md text-[14px] sm:text-[15px] leading-relaxed mt-5 mx-auto lg:mx-0" style={{ color: "var(--text-muted)" }}>
+                {t.sub}
+              </p>
+            </div>
+
+            {/* the samurai breathes in this gap */}
+            <div className="hidden lg:block order-2" aria-hidden />
+
+            {/* right: our six tool families standing beside the samurai */}
+            <nav className="qx-htools order-3" aria-label="Tool categories">
               {([[<FiGrid key="qr" size={22} />, "/qr-tools", "QR Tools", "#22c55e"],
                  [<FiFileText key="pdf" size={22} />, "/pdf-tools", "PDF Tools", "#60a5fa"],
                  [<FiImage key="img" size={22} />, "/image-tools", "Image Tools", "#c084fc"],
@@ -417,21 +432,6 @@ export default function HomePage() {
                   style={{ ["--tc" as string]: c } as React.CSSProperties}>{icon}</Link>
               ))}
             </nav>
-
-            {/* the samurai breathes in this gap */}
-            <div className="hidden lg:block" aria-hidden />
-
-            {/* right: what the client gets — every tool family */}
-            <div className="text-center lg:text-left">
-              <h1 className="qx-bebas-hero qx-bebas-side">
-                <span className="block"><ScrambleIn text={heroL1} delay={150} triggered={entrance} /></span>
-                <span className="block" style={{ color: "var(--primary-bright)" }}><ScrambleIn text={heroL2} delay={480} triggered={entrance} /></span>
-                <span className="block"><ScrambleIn text={heroR1} delay={820} triggered={entrance} /></span>
-              </h1>
-              <p className="max-w-md text-[14px] sm:text-[15px] leading-relaxed mt-5 mx-auto lg:mx-0" style={{ color: "var(--text-muted)" }}>
-                {t.sub}
-              </p>
-            </div>
           </div>
 
           {/* Coverr-style tool finder stays centered: "jpg to pdf" → that tool */}
@@ -690,13 +690,13 @@ export default function HomePage() {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
           {features.map((f, i) => (
             <div key={f.title}
-              data-tilt className={`qx-bento qx-rise qx-rise-${i+1}${i === 0 ? " lg:col-span-2" : ""}${i === 3 ? " sm:col-span-2 lg:col-span-1" : ""}${i === 5 ? " lg:col-span-2" : ""}`}
+              data-tilt className={`qx-gpanel qx-rise qx-rise-${i+1}${i === 0 ? " lg:col-span-2" : ""}${i === 3 ? " sm:col-span-2 lg:col-span-1" : ""}${i === 5 ? " lg:col-span-2" : ""}`}
               data-reveal="scale"
               style={{ ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
               {/* icon color glow */}
               <div className="absolute inset-0 opacity-40 pointer-events-none"
                 style={{ background:`radial-gradient(circle at 28% 24%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#ff4d1c"}26 0%, transparent 58%)` }}/>
-              <div className="qx-bento-icon text-white"
+              <div className="qx-gpanel-icon text-white"
                 style={{ background:f.grad, boxShadow:`0 8px 24px ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#ff4d1c"}45` }}>
                 {f.icon}
               </div>

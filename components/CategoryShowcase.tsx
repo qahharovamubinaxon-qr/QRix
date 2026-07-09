@@ -1,10 +1,10 @@
 "use client";
 
-/* Homepage — six tool categories in jitter.video's template-card anatomy
-   (measured live): a flat preview tile (3:2, no border/shadow chrome) with ONE
-   focused mock crossfading through 3 tool previews, caption under the tile on
-   the page canvas (accent dot + bold title + muted meta + hover arrow), "new"
-   badge for fresh categories. Whole item is the link. Zero deps. */
+/* Homepage — six tool categories as samurai-game HUD plates: ember-gradient
+   frames with cut corners (clip-path), scanline steel body, mono HUD strip,
+   ONE mock crossfading through 3 tool previews, footer plate with diamond
+   accent + title + mono meta + hover arrow, corner brackets, rotated NEW
+   ribbon. Whole card is the link. Zero deps. */
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -255,30 +255,41 @@ function Card({ cat, i }: { cat: Cat; i: number }) {
   }, [i]);
 
   return (
-    <Link href={cat.href} className="qx-cs-item group"
+    <Link href={cat.href} className="qx-gcard group"
       onMouseEnter={() => (hov.current = true)} onMouseLeave={() => (hov.current = false)}
       data-reveal={i % 2 === 0 ? "left" : "right"}
       style={{ ["--c1" as string]: cat.c1, ["--c2" as string]: cat.c2, ["--rv-delay" as string]: `${(i % 2) * 180}ms` } as React.CSSProperties}>
-      {/* Jitter anatomy: a flat preview tile — one focused mock, crossfading */}
-      <div className="qx-cs-stage" aria-hidden>
-        {cat.count === "New" && <span className="qx-cs-new">new</span>}
-        {[0, 1, 2].map((s) => (
-          <div key={s} className="qx-cs-slide" data-on={s === idx}>
-            <Mock kind={cat.key} v={s} c1={cat.c1} c2={cat.c2} />
-          </div>
-        ))}
-      </div>
+      <div className="qx-gcard-in">
+        {/* HUD strip */}
+        <div className="qx-gcard-top qx-mono">
+          <span>// {cat.count}</span>
+          <span className="qx-gcard-tag">{cat.tagline}</span>
+        </div>
+        {cat.count === "New" && <span className="qx-gcard-new qx-mono">NEW</span>}
 
-      {/* caption sits under the tile, on the page canvas (no card box) */}
-      <div className="qx-cs-caption">
-        <span className="qx-cs-dotc" aria-hidden />
-        <span className="min-w-0 flex-1">
-          <span className="block text-[19px] font-extrabold leading-tight" style={{ color: "var(--text)" }}>{cat.label}</span>
-          <span className="block text-[13px] mt-1 truncate" style={{ color: "var(--text-muted)" }}>
-            {cat.count} · {cat.chips.map((ch) => ch.label).join(" · ")}
+        {/* animated tool previews */}
+        <div className="qx-cs-stage" aria-hidden>
+          {[0, 1, 2].map((s) => (
+            <div key={s} className="qx-cs-slide" data-on={s === idx}>
+              <Mock kind={cat.key} v={s} c1={cat.c1} c2={cat.c2} />
+            </div>
+          ))}
+        </div>
+
+        {/* footer plate */}
+        <div className="qx-gcard-foot">
+          <span className="qx-gcard-dot" aria-hidden />
+          <span className="min-w-0 flex-1">
+            <span className="block text-[19px] font-extrabold leading-tight" style={{ color: "#f2ece5" }}>{cat.label}</span>
+            <span className="qx-mono block text-[11px] mt-1.5 truncate" style={{ color: "var(--text-muted)", letterSpacing: ".08em" }}>
+              {cat.chips.map((ch) => ch.label).join(" · ")}
+            </span>
           </span>
-        </span>
-        <FiArrowRight size={17} className="qx-cs-arrow shrink-0" />
+          <FiArrowRight size={17} className="qx-cs-arrow shrink-0" />
+        </div>
+
+        {/* corner brackets */}
+        <i className="qx-gc qx-gc-tl" aria-hidden /><i className="qx-gc qx-gc-br" aria-hidden />
       </div>
     </Link>
   );
@@ -306,42 +317,59 @@ export default function CategoryShowcase() {
         .qx-cs-grid { display: grid; gap: 48px 28px; grid-template-columns: repeat(1, minmax(0,1fr)); }
         @media (min-width: 768px) { .qx-cs-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 
-        /* Jitter anatomy: no card box — a flat tile, caption on the canvas */
-        .qx-cs-item { display: block; text-decoration: none; }
-        /* stronger entrance: left column slides in from the left, right from the right */
-        .qx-cs-item[data-reveal="left"]:not(.rv-in)  { transform: translateX(-72px); }
-        .qx-cs-item[data-reveal="right"]:not(.rv-in) { transform: translateX(72px); }
-        .qx-cs-stage {
-          position: relative; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden;
-          background: #151515; transition: background .3s;
+        /* ── game/HUD card, cut to match the samurai's armor plates ── */
+        .qx-gcard {
+          display: block; position: relative; text-decoration: none; padding: 1.5px;
+          background: linear-gradient(150deg, rgba(255,77,28,.65), rgba(140,30,15,.25) 36%, rgba(255,255,255,.09) 68%, rgba(255,77,28,.4));
+          clip-path: polygon(0 18px, 18px 0, calc(100% - 34px) 0, 100% 34px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 34px 100%, 0 calc(100% - 18px));
+          transition: transform .35s var(--ease-out), filter .35s;
         }
-        html.light .qx-cs-stage { background: #f5f5f5; }
-        .qx-cs-item:hover .qx-cs-stage { background: #1a1a1a; }
-        html.light .qx-cs-item:hover .qx-cs-stage { background: #eeeeee; }
-
-        /* one focused mock, crossfading in place */
+        .qx-gcard:hover { transform: translateY(-6px); filter: drop-shadow(0 20px 38px rgba(255,60,25,.3)); }
+        .qx-gcard[data-reveal="left"]:not(.rv-in)  { transform: translateX(-72px); }
+        .qx-gcard[data-reveal="right"]:not(.rv-in) { transform: translateX(72px); }
+        .qx-gcard-in {
+          position: relative; overflow: hidden;
+          clip-path: polygon(0 17px, 17px 0, calc(100% - 33px) 0, 100% 33px, 100% calc(100% - 17px), calc(100% - 17px) 100%, 33px 100%, 0 calc(100% - 17px));
+          background:
+            repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 4px),
+            radial-gradient(130% 100% at 50% 0%, #1e0c0d 0%, #120709 46%, #0a0405 100%);
+        }
+        .qx-gcard-top {
+          display: flex; justify-content: space-between; align-items: center; gap: 10px;
+          padding: 13px 34px 11px 26px; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase;
+          color: #ff8d64; border-bottom: 1px solid rgba(255,77,28,.18);
+        }
+        .qx-gcard-tag { color: var(--text-faint); letter-spacing: .14em; }
+        .qx-gcard-new {
+          position: absolute; top: 44px; right: -32px; z-index: 3; transform: rotate(45deg);
+          font-size: 10px; letter-spacing: .3em; padding: 3px 36px;
+          background: var(--primary-bright); color: #fff;
+        }
+        .qx-cs-stage { position: relative; aspect-ratio: 16 / 8.4; overflow: hidden; }
         .qx-cs-slide {
           position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
           opacity: 0; transform: scale(.96); pointer-events: none;
           transition: opacity .65s var(--ease-in-out), transform .65s var(--ease-in-out);
         }
         .qx-cs-slide[data-on="true"] { opacity: 1; transform: scale(1); }
-        .qx-cs-item:hover .qx-cs-slide[data-on="true"] { transform: scale(1.035); }
-        .qx-cs-slide > .qx-mk { width: 44%; height: 66%; min-width: 240px; max-width: 340px; }
-        .qx-mk { border-radius: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden;
-          box-shadow: 0 18px 40px rgba(0,0,0,.32); }
-        html.light .qx-mk { box-shadow: 0 14px 32px rgba(40,35,25,.16); }
+        .qx-gcard:hover .qx-cs-slide[data-on="true"] { transform: scale(1.04); }
+        .qx-cs-slide > .qx-mk { width: 44%; height: 68%; min-width: 240px; max-width: 340px; }
+        .qx-mk { border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden;
+          box-shadow: 0 18px 40px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.06); }
 
-        .qx-cs-new {
-          position: absolute; top: 10px; right: 10px; z-index: 2;
-          font-size: 10px; font-weight: 800; letter-spacing: .04em; padding: 3px 9px; border-radius: 7px;
-          background: var(--primary-bright); color: #fff;
+        .qx-gcard-foot { display: flex; align-items: flex-start; gap: 12px; padding: 4px 26px 20px; }
+        .qx-gcard-dot {
+          width: 10px; height: 10px; flex-shrink: 0; margin-top: 7px; transform: rotate(45deg);
+          background: var(--c1); box-shadow: 0 0 12px var(--c1);
         }
+        .qx-cs-arrow { color: var(--text-faint); opacity: 0; transform: translateX(-6px); margin-top: 4px; transition: opacity .3s, transform .3s, color .3s; }
+        .qx-gcard:hover .qx-cs-arrow { opacity: 1; transform: none; color: #ff7a50; }
 
-        .qx-cs-caption { display: flex; align-items: flex-start; gap: 10px; padding: 14px 2px 0; }
-        .qx-cs-dotc { width: 9px; height: 9px; border-radius: 50%; background: var(--c1); margin-top: 8px; flex-shrink: 0; }
-        .qx-cs-arrow { color: var(--text-faint); opacity: 0; transform: translateX(-6px); margin-top: 3px; transition: opacity .3s, transform .3s, color .3s; }
-        .qx-cs-item:hover .qx-cs-arrow { opacity: 1; transform: none; color: var(--c1); }
+        /* corner brackets, katana-HUD style */
+        .qx-gc { position: absolute; width: 22px; height: 22px; z-index: 3; opacity: .75; transition: opacity .3s; }
+        .qx-gc-tl { top: 9px; left: 9px; border-top: 2px solid #ff5a2b; border-left: 2px solid #ff5a2b; }
+        .qx-gc-br { bottom: 9px; right: 9px; border-bottom: 2px solid #ff5a2b; border-right: 2px solid #ff5a2b; }
+        .qx-gcard:hover .qx-gc { opacity: 1; }
 
         .qx-cs-features { margin-top: 22px; padding: 22px 26px; border-radius: 22px; background: var(--card-bg); border: 1px solid var(--border);
           display: grid; gap: 20px 28px; grid-template-columns: repeat(1,1fr); box-shadow: 0 12px 34px rgba(0,0,0,.28); }
