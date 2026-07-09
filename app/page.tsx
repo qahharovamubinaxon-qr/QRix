@@ -14,7 +14,7 @@ import NewsletterSection from "@/components/NewsletterSection";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import { ScrambleIn } from "@/components/Scramble";
-import { KatanaSword } from "@/components/SceneArt";
+import { KatanaSword, PagodaNight } from "@/components/SceneArt";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
@@ -616,13 +616,7 @@ export default function HomePage() {
       </section>
 
       {/* ================= CINEMATIC STATEMENT (Mission 21) ================= */}
-      <CinematicStatement text={
-        lang === "uz"
-          ? "QRix — браузерингизда ишлайдиган ягона ижодий қатлам. Ҳар бир QR, PDF, расм ва видео қурилмангизни тарк этмайди. Ҳар бир скан ўлчанади, ҳар бир натижа сизники."
-          : lang === "ru"
-          ? "QRix — единый творческий слой, работающий в вашем браузере. Каждый QR, PDF, изображение и видео не покидает устройство. Каждое сканирование измеримо, каждый результат — ваш."
-          : "QRix is a single creative layer that runs in your browser. Every QR, PDF, image and video never leaves your device. Every scan becomes measurable. Every result stays yours."
-      } />
+      <CinematicScene />
 
       {/* ================= PREMIUM CATEGORY SHOWCASE ================= */}
       <div className="qx-sheet pt-6" data-reveal="depth" data-scene="deep">
@@ -879,19 +873,21 @@ export default function HomePage() {
 
 
 /* Cinematic 3D statement — scroll-scrubbed perspective text (Mission 21). */
-function CinematicStatement({ text }: { text: string }) {
+/* Full-bleed night scene of a Japanese pagoda village (katana-style ending
+   art) — gently drifts and breathes in as you scroll through it. */
+function CinematicScene() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const smooth = useSpring(scrollYProgress, { stiffness: 15, damping: 32, mass: 1.8 });
-  const y = useTransform(smooth, [0, 1], [60, -120]);
-  const opacity = useTransform(smooth, [0.28, 0.48], [0, 1]);
+  const y = useTransform(smooth, [0, 1], [46, -46]);
+  const scale = useTransform(smooth, [0, 1], [1.08, 1]);
+  const opacity = useTransform(smooth, [0.08, 0.3], [0, 1]);
   return (
-    <section ref={ref} data-scene="deep" className="min-h-[90vh] flex items-center justify-center relative overflow-hidden px-6 sm:px-12"
-      style={{ perspective: 400 }}>
-      <motion.p className="qx-statement max-w-5xl text-center select-none relative z-20"
-        style={{ rotateX: 24, y, opacity, translateZ: 15 }}>
-        {text}
-      </motion.p>
+    <section ref={ref} data-scene="deep" className="qx-pagoda-sec" aria-hidden>
+      <motion.div className="qx-pagoda" style={{ y, scale, opacity }}>
+        <PagodaNight className="w-full h-full block" />
+      </motion.div>
+      <div className="qx-embers" aria-hidden>{Array.from({ length: 6 }).map((_, i) => <i key={i} />)}</div>
     </section>
   );
 }
