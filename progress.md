@@ -51,8 +51,10 @@
 
 - **Mission 31 — Neon samurai hero, full-quality art (`1c07264`)**: all 5 artworks reprocessed at full 1365×768 q92 (64–101KB) with the Gemini sparkle watermark erased (blurred neighbour-patch composite at its fixed position). Neon QR samurai → hero scene; planted-blade samurai → dusk. Hero recomposed: samurai center (face clear), 6 tool-family chips on his left (`.qx-htool`, category colors, glass, hover glow → landings), headline+sub right covering every family (CREATE QR CODES. / CONVERT PDF & IMAGE. / AI·VIDEO·3D — FREE., 3 langs; subs rewritten), Coverr search + category row centered below. Living: visor pulse overlay (screen-blend 4.6s), hero embers, Ken Burns. Real sword animation still needs image-to-video credits (balance 0) — scene slots video-ready. Verified live in Chrome incl. a mid-scroll cross-fade screenshot.
 
+- **Mission 32 — User's animated samurai film as hero (`e735e94`)**: user self-animated the neon samurai (mp4 on Desktop); Arena outro ad located frame-by-frame (content → ~9.8s, white ad 10s+) and trimmed via ffmpeg (-t 9.8, -an, h264 CRF25 faststart → 2.3MB `public/scenes/hero-samurai.mp4` + 29KB poster). `<video autoplay muted loop playsinline>` mounted inside the fixed base scene — keeps playing on scroll, cross-fades into other scenes. Ken Burns off for video scenes (`:has`), still-image visor pulse removed, reduced-motion hides video. Note: ffmpeg lives at WinGet Links; watermark/ad-cut recipe = extract frames → Read → trim.
+
 ## Current Mission
-Design iteration with the user (M24 katana bg · M25 scene art · M26 jitter cards · M27 blacker+bigger · M28 pagoda · M29 Coverr hero · M30 Gemini scenes · M31 neon samurai hero ✓). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
+Design iteration with the user (M24 katana bg · M25 scene art · M26 jitter cards · M27 blacker+bigger · M28 pagoda · M29 Coverr hero · M30 Gemini scenes · M31 neon samurai hero · M32 hero film ✓). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
