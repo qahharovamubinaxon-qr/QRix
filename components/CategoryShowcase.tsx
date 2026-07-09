@@ -257,7 +257,8 @@ function Card({ cat, i }: { cat: Cat; i: number }) {
   return (
     <Link href={cat.href} className="qx-cs-item group"
       onMouseEnter={() => (hov.current = true)} onMouseLeave={() => (hov.current = false)}
-      data-reveal style={{ ["--c1" as string]: cat.c1, ["--c2" as string]: cat.c2, ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
+      data-reveal={i % 2 === 0 ? "left" : "right"}
+      style={{ ["--c1" as string]: cat.c1, ["--c2" as string]: cat.c2, ["--rv-delay" as string]: `${(i % 2) * 180}ms` } as React.CSSProperties}>
       {/* Jitter anatomy: a flat preview tile — one focused mock, crossfading */}
       <div className="qx-cs-stage" aria-hidden>
         {cat.count === "New" && <span className="qx-cs-new">new</span>}
@@ -272,8 +273,8 @@ function Card({ cat, i }: { cat: Cat; i: number }) {
       <div className="qx-cs-caption">
         <span className="qx-cs-dotc" aria-hidden />
         <span className="min-w-0 flex-1">
-          <span className="block text-[16px] font-bold leading-tight" style={{ color: "var(--text)" }}>{cat.label}</span>
-          <span className="block text-[12px] mt-1 truncate" style={{ color: "var(--text-muted)" }}>
+          <span className="block text-[19px] font-extrabold leading-tight" style={{ color: "var(--text)" }}>{cat.label}</span>
+          <span className="block text-[13px] mt-1 truncate" style={{ color: "var(--text-muted)" }}>
             {cat.count} · {cat.chips.map((ch) => ch.label).join(" · ")}
           </span>
         </span>
@@ -301,15 +302,17 @@ export default function CategoryShowcase() {
       </div>
 
       <style>{`
-        /* Jitter grid: 3 columns max, big tiles, generous row rhythm */
-        .qx-cs-grid { display: grid; gap: 40px 22px; grid-template-columns: repeat(1, minmax(0,1fr)); }
-        @media (min-width: 640px) { .qx-cs-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
-        @media (min-width: 1100px) { .qx-cs-grid { grid-template-columns: repeat(3, minmax(0,1fr)); } }
+        /* two big columns — cards stay large, one enters from each side */
+        .qx-cs-grid { display: grid; gap: 48px 28px; grid-template-columns: repeat(1, minmax(0,1fr)); }
+        @media (min-width: 768px) { .qx-cs-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 
         /* Jitter anatomy: no card box — a flat tile, caption on the canvas */
         .qx-cs-item { display: block; text-decoration: none; }
+        /* stronger entrance: left column slides in from the left, right from the right */
+        .qx-cs-item[data-reveal="left"]:not(.rv-in)  { transform: translateX(-72px); }
+        .qx-cs-item[data-reveal="right"]:not(.rv-in) { transform: translateX(72px); }
         .qx-cs-stage {
-          position: relative; aspect-ratio: 3 / 2; border-radius: 12px; overflow: hidden;
+          position: relative; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden;
           background: #151515; transition: background .3s;
         }
         html.light .qx-cs-stage { background: #f5f5f5; }
@@ -324,7 +327,7 @@ export default function CategoryShowcase() {
         }
         .qx-cs-slide[data-on="true"] { opacity: 1; transform: scale(1); }
         .qx-cs-item:hover .qx-cs-slide[data-on="true"] { transform: scale(1.035); }
-        .qx-cs-slide > .qx-mk { width: 56%; height: 62%; }
+        .qx-cs-slide > .qx-mk { width: 44%; height: 66%; min-width: 240px; max-width: 340px; }
         .qx-mk { border-radius: 14px; display: flex; align-items: center; justify-content: center; overflow: hidden;
           box-shadow: 0 18px 40px rgba(0,0,0,.32); }
         html.light .qx-mk { box-shadow: 0 14px 32px rgba(40,35,25,.16); }
@@ -336,7 +339,7 @@ export default function CategoryShowcase() {
         }
 
         .qx-cs-caption { display: flex; align-items: flex-start; gap: 10px; padding: 14px 2px 0; }
-        .qx-cs-dotc { width: 8px; height: 8px; border-radius: 50%; background: var(--c1); margin-top: 6px; flex-shrink: 0; }
+        .qx-cs-dotc { width: 9px; height: 9px; border-radius: 50%; background: var(--c1); margin-top: 8px; flex-shrink: 0; }
         .qx-cs-arrow { color: var(--text-faint); opacity: 0; transform: translateX(-6px); margin-top: 3px; transition: opacity .3s, transform .3s, color .3s; }
         .qx-cs-item:hover .qx-cs-arrow { opacity: 1; transform: none; color: var(--c1); }
 

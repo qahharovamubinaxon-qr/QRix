@@ -14,7 +14,7 @@ import NewsletterSection from "@/components/NewsletterSection";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import { ScrambleIn } from "@/components/Scramble";
-import { KatanaSword, SamuraiArt } from "@/components/SceneArt";
+import { KatanaSword } from "@/components/SceneArt";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
@@ -398,10 +398,6 @@ export default function HomePage() {
         <div className="absolute pointer-events-none" aria-hidden
           style={{ top: "-10%", right: "-6%", width: "55vw", height: "55vw", maxWidth: 780, maxHeight: 780,
             background: "radial-gradient(circle, rgba(255,77,28,.14) 0%, transparent 62%)", filter: "blur(40px)" }} />
-        {/* katana-style warrior staged behind the headline */}
-        <div className="qx-samurai" aria-hidden data-parallax="0.07" suppressHydrationWarning>
-          <SamuraiArt className="w-full h-full" />
-        </div>
         <div className="min-h-[82svh] flex flex-col items-center justify-center text-center relative z-10 py-10">
           <h1 className="qx-bebas-hero">
             <span className="block"><ScrambleIn text={heroL1} delay={150} triggered={entrance} /></span>

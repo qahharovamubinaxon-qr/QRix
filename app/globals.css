@@ -974,7 +974,7 @@ html.light .qx-card, html.light .qx-card-glow, html.light .qx-card-premium {
 @keyframes qxLogos { to { transform: translateX(-50%); } }
 .qx-logo-item {
   font-family: var(--font-display);
-  font-weight: 800; font-size: 1.9rem; letter-spacing: -.02em;
+  font-weight: 800; font-size: 2.35rem; letter-spacing: -.02em;
   color: var(--text-faint);
   filter: grayscale(1);
   opacity: .55;
@@ -989,7 +989,7 @@ html.light .qx-card, html.light .qx-card-glow, html.light .qx-card-premium {
   transform: translateY(-3px) scale(1.04);
 }
 @media (max-width: 640px) {
-  .qx-logo-item { font-size: 1.35rem; }
+  .qx-logo-item { font-size: 1.6rem; }
   .qx-logos-track { gap: 3.25rem; }
 }
 
