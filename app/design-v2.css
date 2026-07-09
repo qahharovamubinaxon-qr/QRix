@@ -538,11 +538,11 @@ html.light .qx-hsearch-bar { box-shadow: 0 14px 40px rgba(40, 30, 20, 0.16), 0 0
 }
 html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.12); }
 
-/* the samurai lives: his visor + QRix neon breathe */
-.qx-scene[data-scene="base"]::before {
-  content: ""; position: absolute; inset: 0; mix-blend-mode: screen;
-  background: radial-gradient(38% 30% at 50% 30%, rgba(255, 48, 64, 0.30), transparent 72%);
-  animation: qxVisorPulse 4.6s ease-in-out infinite;
+/* Mission 32: the user's own animated samurai runs as the hero scene */
+.qx-scene-video {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; pointer-events: none;
 }
-@keyframes qxVisorPulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .qx-scene[data-scene="base"]::before { animation: none; } }
+/* the film brings its own motion — no Ken Burns on top of it */
+.qx-scene.on:has(.qx-scene-video) { animation: none; }
+@media (prefers-reduced-motion: reduce) { .qx-scene-video { display: none; } }

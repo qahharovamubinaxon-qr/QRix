@@ -379,7 +379,11 @@ export default function HomePage() {
       {/* Katana-style scroll scenes: fixed full-viewport canvas that cross-fades
           between rich gradient scenes as sections pass the viewport center. */}
       <div className="qx-scenes" aria-hidden>
-        <div className="qx-scene on" data-scene="base" />
+        <div className="qx-scene on" data-scene="base">
+          {/* the user's own animated samurai — plays on, fixed, while you scroll */}
+          <video className="qx-scene-video" src="/scenes/hero-samurai.mp4"
+            poster="/scenes/hero-video-poster.webp" autoPlay muted loop playsInline />
+        </div>
         <div className="qx-scene" data-scene="deep" />
         <div className="qx-scene" data-scene="ember" />
         <div className="qx-scene" data-scene="dusk" />
