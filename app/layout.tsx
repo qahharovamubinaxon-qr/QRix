@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import TopNav from "@/components/TopNav";
-import CursorGlow from "@/components/CursorGlow";
 import DotDistortionBackground from "@/components/DotDistortionBackground";
 import ReferralCapture from "@/components/ReferralCapture";
 import MotionLayer from "@/components/MotionLayer";
@@ -110,7 +109,6 @@ export default function RootLayout({
         <MotionLayer />
         <CommandSearch />
         <Toaster />
-        <CursorGlow />
         <PwaVitals />
         <TopNav />
         <div id="main" className="contents">{children}</div>

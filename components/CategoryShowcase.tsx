@@ -1,102 +1,164 @@
 "use client";
 
-/* Homepage — the Tool Galaxy: every function as a panda tile on a draggable
-   3D canvas (shoe-finder interaction adapted): drag to explore, click a panda
-   to zoom in and open the tool. React.lazy keeps three.js off the critical
-   path (next/dynamic never mounts — see ThreeEngineRegistry). */
+/* Homepage — the tool directory, senior-minimal (Vercel/Linear language):
+   a hairline-divided grid of six category cells. Category color appears ONLY
+   as an 8px dot; every function is a real link to its page; one ember accent
+   for the "all tools" action. No cards, no glow, no gimmicks — hierarchy,
+   whitespace and real navigation do the premium work. */
 
-import { Suspense, lazy } from "react";
-import {
-  FiZap, FiShield, FiGift, FiGlobe, FiCheckCircle,
-} from "react-icons/fi";
+import Link from "next/link";
+import { FiArrowRight, FiArrowUpRight } from "react-icons/fi";
 
-const ToolGalaxy = lazy(() => import("./galaxy/ToolGalaxy"));
+type Cat = {
+  name: string; count: string; color: string; href: string;
+  tools: { label: string; href: string }[];
+};
 
-const FEATURES = [
-  { icon: <FiGift size={18} />, title: "100% Free", sub: "Most tools completely free to use." },
-  { icon: <FiZap size={18} />, title: "No Sign Up", sub: "Start instantly without registration." },
-  { icon: <FiShield size={18} />, title: "Secure & Private", sub: "Files stay on your device." },
-  { icon: <FiCheckCircle size={18} />, title: "Fast & Reliable", sub: "Lightning-fast on-device processing." },
-  { icon: <FiGlobe size={18} />, title: "Works Everywhere", sub: "All devices and browsers." },
+const CATS: Cat[] = [
+  {
+    name: "QR Tools", count: "30+", color: "#22c55e", href: "/qr-tools",
+    tools: [
+      { label: "URL QR Code", href: "/url-qr" },
+      { label: "WiFi QR", href: "/qr-tools/wifi" },
+      { label: "vCard QR", href: "/qr-tools/vcard" },
+      { label: "Bulk QR from CSV", href: "/bulk-qr" },
+      { label: "QR Scanner", href: "/scanner" },
+    ],
+  },
+  {
+    name: "PDF Tools", count: "24+", color: "#60a5fa", href: "/pdf-tools",
+    tools: [
+      { label: "Merge PDF", href: "/pdf-tools/merge" },
+      { label: "Compress PDF", href: "/pdf-tools/compress" },
+      { label: "PDF to Word", href: "/pdf-tools/pdf-to-word" },
+      { label: "Split PDF", href: "/pdf-tools/split" },
+      { label: "OCR PDF", href: "/pdf-tools/ocr" },
+    ],
+  },
+  {
+    name: "Image Tools", count: "70+", color: "#c084fc", href: "/image-tools",
+    tools: [
+      { label: "Remove Background", href: "/image-tools/remove-bg" },
+      { label: "Compress Image", href: "/image-tools/compress" },
+      { label: "Crop Image", href: "/image-tools/crop-image" },
+      { label: "Watermark", href: "/image-tools/watermark-image" },
+      { label: "Color Picker", href: "/image-tools/color-picker" },
+    ],
+  },
+  {
+    name: "AI Tools", count: "28+", color: "#fbbf24", href: "/ai-tools",
+    tools: [
+      { label: "Image Upscaler", href: "/ai-tools/image-upscaler" },
+      { label: "AI Background Remover", href: "/ai-tools/background-remover" },
+      { label: "Logo Generator", href: "/ai-tools/logo-generator" },
+      { label: "Colorize Photo", href: "/ai-tools/colorize-photo" },
+      { label: "Face Enhancer", href: "/ai-tools/face-enhancer" },
+    ],
+  },
+  {
+    name: "Video Tools", count: "29+", color: "#f472b6", href: "/video-tools",
+    tools: [
+      { label: "Compress Video", href: "/video-tools/compress-video" },
+      { label: "Trim Video", href: "/video-tools/trim-video" },
+      { label: "GIF Maker", href: "/video-tools/create-gif" },
+      { label: "Merge Videos", href: "/video-tools/merge-videos" },
+      { label: "Resize Video", href: "/video-tools/resize-video" },
+    ],
+  },
+  {
+    name: "3D Tools", count: "New", color: "#22d3ee", href: "/3d-tools",
+    tools: [
+      { label: "Image to 3D Model", href: "/3d-tools/image-to-3d" },
+      { label: "3D Preview & Export", href: "/3d-tools/image-to-3d" },
+      { label: "GLB · OBJ · STL · USDZ", href: "/3d-tools/image-to-3d" },
+    ],
+  },
 ];
 
 export default function CategoryShowcase() {
   return (
-    <section className="pb-16 lg:pb-20" aria-label="Tool categories">
-      <Suspense fallback={<div className="qx-galaxy qx-galaxy-loading qx-mono">LOADING 185+ TOOLS…</div>}>
-        <ToolGalaxy />
-      </Suspense>
+    <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20 lg:pb-24" aria-label="Tool directory">
+      {/* header */}
+      <div className="mb-10 lg:mb-14" data-reveal>
+        <p className="qx-mono text-[11px] tracking-[0.28em] uppercase mb-4" style={{ color: "var(--primary-bright)" }}>
+          185+ tools
+        </p>
+        <h2 className="font-display font-extrabold tracking-tight leading-[1.05]"
+          style={{ color: "var(--text)", fontSize: "clamp(28px, 3.6vw, 46px)" }}>
+          Every tool. One place.
+        </h2>
+      </div>
 
-      {/* features strip */}
-      <div className="max-w-[1400px] mx-auto px-5 lg:px-8">
-        <div className="qx-cs-features" data-reveal>
-          {FEATURES.map((f) => (
-            <div key={f.title} className="flex items-start gap-3">
-              <span className="qx-cs-fic">{f.icon}</span>
-              <span><span className="block text-[13.5px] font-bold" style={{ color: "var(--text)" }}>{f.title}</span><span className="block text-[11.5px] mt-0.5" style={{ color: "var(--text-muted)" }}>{f.sub}</span></span>
+      {/* hairline directory grid */}
+      <div className="qx-dir" role="list">
+        {CATS.map((cat, i) => (
+          <div key={cat.name} className="qx-dir-cell" role="listitem" data-reveal
+            style={{ ["--rv-delay" as string]: `${i * 70}ms` } as React.CSSProperties}>
+            <div className="qx-dir-head">
+              <span className="qx-dir-dot" style={{ background: cat.color }} aria-hidden />
+              <span className="qx-dir-name">{cat.name}</span>
+              <span className="qx-mono qx-dir-count">{cat.count}</span>
             </div>
-          ))}
-        </div>
+            <ul className="qx-dir-list">
+              {cat.tools.map((t) => (
+                <li key={t.label}>
+                  <Link href={t.href} className="qx-dir-link">
+                    <span>{t.label}</span>
+                    <FiArrowUpRight size={13} className="qx-dir-link-ic" aria-hidden />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <Link href={cat.href} className="qx-dir-all">
+              All {cat.name.toLowerCase()} <FiArrowRight size={13} aria-hidden />
+            </Link>
+          </div>
+        ))}
       </div>
 
       <style>{`
-        /* ── Tool Galaxy shell ── */
-        .qx-galaxy {
-          position: relative; height: min(72vh, 720px); min-height: 480px;
-          margin: 0 auto; max-width: 1600px;
+        .qx-dir {
+          display: grid; grid-template-columns: 1fr;
+          border: 1px solid var(--qx-dir-line, rgba(255,255,255,0.07));
+          border-radius: 18px; overflow: hidden;
+          background: var(--qx-dir-bg, rgba(10, 8, 8, 0.42));
+          backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
-        .qx-galaxy canvas { border-radius: 24px; }
-        .qx-galaxy-loading {
-          display: flex; align-items: center; justify-content: center;
-          color: var(--text-faint); font-size: 12px; letter-spacing: .3em;
+        @media (min-width: 680px) { .qx-dir { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1100px) { .qx-dir { grid-template-columns: repeat(3, 1fr); } }
+        .qx-dir-cell {
+          display: flex; flex-direction: column;
+          padding: 30px 32px 26px;
+          border-top: 1px solid var(--qx-dir-line, rgba(255,255,255,0.07));
+          border-left: 1px solid var(--qx-dir-line, rgba(255,255,255,0.07));
+          margin-top: -1px; margin-left: -1px;
+          transition: background 0.3s;
         }
-        .qx-galaxy-hint {
-          position: absolute; top: 14px; left: 50%; transform: translateX(-50%);
-          display: inline-flex; align-items: center; gap: 8px;
-          padding: 8px 16px; border-radius: 999px;
-          font-size: 10.5px; letter-spacing: .24em; color: var(--text-muted);
-          background: rgba(14, 11, 10, 0.6); border: 1px solid rgba(255, 255, 255, 0.08);
-          backdrop-filter: blur(8px); pointer-events: none;
-          transition: opacity .4s;
-        }
-        .qx-galaxy-hint[data-hidden="true"] { opacity: 0; }
-        .qx-galaxy-card {
-          position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%);
-          display: flex; align-items: center; gap: 14px;
-          padding: 12px 14px 12px 20px; border-radius: 999px;
-          background: rgba(16, 13, 12, 0.86);
-          border: 1px solid color-mix(in srgb, var(--gc, #fff) 45%, rgba(255,255,255,.08));
-          box-shadow: 0 18px 44px -10px color-mix(in srgb, var(--gc, #000) 40%, rgba(0,0,0,.5));
-          backdrop-filter: blur(10px);
-          animation: qxCardIn .35s cubic-bezier(.22,.9,.3,1.1);
-        }
-        @keyframes qxCardIn { from { opacity: 0; transform: translateX(-50%) translateY(14px); } }
-        .qx-galaxy-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--gc); box-shadow: 0 0 12px var(--gc); }
-        .qx-galaxy-name { font-family: var(--font-display); font-weight: 800; font-size: 16.5px; color: #f2ece5; white-space: nowrap; }
-        .qx-galaxy-open {
-          display: inline-flex; align-items: center; gap: 7px; white-space: nowrap;
-          padding: 9px 18px; border-radius: 999px; text-decoration: none;
-          font-size: 13px; font-weight: 700; color: #16130f;
-          background: var(--gc, var(--primary-bright));
-          transition: transform .25s, filter .25s;
-        }
-        .qx-galaxy-open:hover { transform: translateY(-2px); filter: brightness(1.08); }
-        .qx-galaxy-close {
-          display: flex; align-items: center; justify-content: center;
-          width: 34px; height: 34px; border-radius: 50%; color: var(--text-muted);
-          background: rgba(255,255,255,.07); transition: background .25s, color .25s;
-        }
-        .qx-galaxy-close:hover { background: rgba(255,255,255,.14); color: #fff; }
-        @media (max-width: 640px) {
-          .qx-galaxy { height: 62vh; min-height: 420px; }
-          .qx-galaxy-name { font-size: 14px; }
-        }
+        .qx-dir-cell:hover { background: rgba(255, 255, 255, 0.018); }
+        html.light .qx-dir { --qx-dir-line: rgba(0,0,0,0.09); --qx-dir-bg: rgba(255,255,255,0.6); }
+        html.light .qx-dir-cell:hover { background: rgba(0, 0, 0, 0.02); }
 
-        .qx-cs-features { margin-top: 34px; padding: 22px 26px; border-radius: 22px; background: var(--card-bg); border: 1px solid var(--border);
-          display: grid; gap: 20px 28px; grid-template-columns: repeat(1,1fr); box-shadow: 0 12px 34px rgba(0,0,0,.28); }
-        @media (min-width: 640px) { .qx-cs-features { grid-template-columns: repeat(2,1fr); } }
-        @media (min-width: 1100px) { .qx-cs-features { grid-template-columns: repeat(5,1fr); } }
-        .qx-cs-fic { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--primary-bright); background: var(--primary-dim); border: 1px solid var(--border-hover); }
+        .qx-dir-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+        .qx-dir-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .qx-dir-name { font-family: var(--font-display); font-weight: 700; font-size: 15.5px; color: var(--text); letter-spacing: -0.01em; }
+        .qx-dir-count { margin-left: auto; font-size: 11px; letter-spacing: 0.12em; color: var(--text-faint); }
+
+        .qx-dir-list { display: flex; flex-direction: column; margin-bottom: 18px; }
+        .qx-dir-link {
+          display: flex; align-items: center; justify-content: space-between; gap: 10px;
+          padding: 7px 0; font-size: 14px; color: var(--text-muted); text-decoration: none;
+          transition: color 0.22s, padding-left 0.22s;
+        }
+        .qx-dir-link:hover { color: var(--text); padding-left: 4px; }
+        .qx-dir-link-ic { opacity: 0; transform: translate(-4px, 4px); transition: opacity 0.22s, transform 0.22s; color: var(--text-faint); flex-shrink: 0; }
+        .qx-dir-link:hover .qx-dir-link-ic { opacity: 1; transform: none; }
+
+        .qx-dir-all {
+          margin-top: auto; display: inline-flex; align-items: center; gap: 7px;
+          font-size: 13px; font-weight: 600; color: var(--primary-bright); text-decoration: none;
+          transition: gap 0.25s;
+        }
+        .qx-dir-all:hover { gap: 11px; }
       `}</style>
     </section>
   );
