@@ -15,7 +15,6 @@ import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import { ScrambleIn } from "@/components/Scramble";
 import HeroSearch from "@/components/HeroSearch";
-import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -635,8 +634,6 @@ export default function HomePage() {
       </section>
 
       {/* ================= CINEMATIC STATEMENT (Mission 21) ================= */}
-      <CinematicScene />
-
       {/* ================= PREMIUM CATEGORY SHOWCASE ================= */}
       <div className="qx-sheet pt-6" data-reveal="depth" data-scene="deep">
         <CategoryShowcase />
@@ -891,21 +888,3 @@ export default function HomePage() {
 
 
 /* Cinematic 3D statement — scroll-scrubbed perspective text (Mission 21). */
-/* Full-bleed night scene of a Japanese pagoda village (katana-style ending
-   art) — gently drifts and breathes in as you scroll through it. */
-function CinematicScene() {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const smooth = useSpring(scrollYProgress, { stiffness: 15, damping: 32, mass: 1.8 });
-  const y = useTransform(smooth, [0, 1], [46, -46]);
-  const scale = useTransform(smooth, [0, 1], [1.08, 1]);
-  const opacity = useTransform(smooth, [0.08, 0.3], [0, 1]);
-  return (
-    <section ref={ref} data-scene="deep" className="qx-pagoda-sec" aria-hidden>
-      <motion.div className="qx-pagoda" style={{ y, scale, opacity }}>
-        <div className="qx-pagoda-img" />
-      </motion.div>
-      <div className="qx-embers" aria-hidden>{Array.from({ length: 6 }).map((_, i) => <i key={i} />)}</div>
-    </section>
-  );
-}

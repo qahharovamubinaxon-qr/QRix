@@ -452,19 +452,6 @@ html.light .qx-embers { display: none; }
   .qx-embers { display: none; }
 }
 
-/* ── Mission 28: pagoda night scene (statement section backdrop) ────── */
-.qx-pagoda-sec { position: relative; height: 74vh; min-height: 460px; overflow: hidden; }
-.qx-pagoda {
-  position: absolute; inset: -6% 0;
-  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 88%, transparent);
-          mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 88%, transparent);
-}
-.qx-pagoda svg { width: 100%; height: 100%; }
-.qx-pagoda-img {
-  position: absolute; inset: 0;
-  background: url("/scenes/village.webp") center / cover no-repeat;
-}
-html.light .qx-pagoda-sec { display: none; }
 
 /* ── Mission 29: Coverr-style hero search + category quick links ────── */
 .qx-hsearch { position: relative; width: min(92vw, 620px); margin: 30px auto 0; z-index: 30; }

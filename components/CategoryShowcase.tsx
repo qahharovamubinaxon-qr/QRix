@@ -51,7 +51,7 @@ const FEATURES = [
 export default function CategoryShowcase() {
   return (
     <section className="pb-16 lg:pb-20" aria-label="Tool categories">
-      <div className="space-y-1.5">
+      <div className="space-y-2.5">
         {ROWS.map((row, i) => (
           <div key={row.href} className="qx-fn-mask" data-reveal={i % 2 ? "right" : "left"}
             style={{ ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
@@ -61,7 +61,8 @@ export default function CategoryShowcase() {
                 <Link key={`${name}-${j}`} href={row.href} className="qx-fn-item" aria-hidden={j >= row.items.length}
                   tabIndex={j >= row.items.length ? -1 : undefined}
                   style={{ ["--fc" as string]: row.color } as React.CSSProperties}>
-                  <span className="qx-fn-ic" aria-hidden>{row.icon}</span>{name}
+                  <span className="qx-fn-ic" aria-hidden>{row.icon}</span>
+                  <span className="qx-fn-name">{name}</span>
                 </Link>
               ))}
             </div>
@@ -82,32 +83,48 @@ export default function CategoryShowcase() {
       </div>
 
       <style>{`
-        /* flowing function rows — partner-marquee language, category colors */
+        /* flowing function rows v2 — glass capsule chips (integration-wall
+           language): neutral text for readability, category color only in the
+           icon tile + hairline; hover lifts the capsule with a soft glow. */
         .qx-fn-mask {
-          overflow: hidden; padding-block: 10px;
-          -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
-                  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+          overflow: hidden; padding-block: 7px;
+          -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+                  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
         }
         .qx-fn-track {
-          display: flex; gap: 3.4rem; width: max-content;
+          display: flex; gap: 14px; width: max-content;
           animation: qxFnFlow var(--dur, 38s) linear infinite;
           will-change: transform;
         }
         .qx-fn-mask:hover .qx-fn-track { animation-play-state: paused; }
         @keyframes qxFnFlow { to { transform: translateX(-50%); } }
         .qx-fn-item {
-          display: inline-flex; align-items: center; gap: .6rem; white-space: nowrap; text-decoration: none;
-          font-family: var(--font-display); font-weight: 800; letter-spacing: -.02em;
-          font-size: clamp(1.35rem, 2.3vw, 2rem);
-          color: var(--fc, var(--text)); opacity: .92;
-          transition: opacity .3s, transform .3s cubic-bezier(.22,.6,.28,1), filter .3s;
+          display: inline-flex; align-items: center; gap: 11px; white-space: nowrap; text-decoration: none;
+          padding: 9px 22px 9px 10px; border-radius: 999px;
+          background: rgba(18, 15, 14, 0.72);
+          border: 1px solid color-mix(in srgb, var(--fc, #fff) 26%, rgba(255, 255, 255, 0.07));
+          backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+          transition: transform .3s cubic-bezier(.22,.6,.28,1), border-color .3s, box-shadow .3s, background .3s;
         }
         .qx-fn-item:hover {
-          opacity: 1; transform: translateY(-2px) scale(1.03);
-          filter: drop-shadow(0 6px 18px color-mix(in srgb, var(--fc, #fff) 50%, transparent));
+          transform: translateY(-3px);
+          border-color: color-mix(in srgb, var(--fc, #fff) 65%, transparent);
+          background: color-mix(in srgb, var(--fc, #fff) 9%, rgba(18, 15, 14, 0.78));
+          box-shadow: 0 12px 30px -8px color-mix(in srgb, var(--fc, #fff) 45%, transparent);
         }
-        .qx-fn-ic { display: flex; opacity: .9; }
-        @media (max-width: 640px) { .qx-fn-track { gap: 2.2rem; } }
+        .qx-fn-ic {
+          display: flex; align-items: center; justify-content: center;
+          width: 34px; height: 34px; border-radius: 999px; flex-shrink: 0;
+          color: var(--fc, var(--text));
+          background: color-mix(in srgb, var(--fc, #fff) 16%, transparent);
+        }
+        .qx-fn-name {
+          font-family: var(--font-display); font-weight: 650; letter-spacing: -.01em;
+          font-size: 15.5px; color: #eae6e0;
+        }
+        html.light .qx-fn-item { background: rgba(255, 255, 255, 0.82); border-color: color-mix(in srgb, var(--fc, #000) 32%, rgba(0, 0, 0, 0.08)); }
+        html.light .qx-fn-name { color: #16130f; }
+        @media (max-width: 640px) { .qx-fn-name { font-size: 14px; } .qx-fn-ic { width: 30px; height: 30px; } }
         @media (prefers-reduced-motion: reduce) { .qx-fn-track { animation: none; flex-wrap: wrap; width: auto; } }
         html.qx-perf .qx-fn-track { animation: none; }
 
