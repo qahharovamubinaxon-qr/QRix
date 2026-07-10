@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+  <g>
+  <!-- ears -->
+  <circle cx="62" cy="66" r="31" fill="#1c1a1a"/>
+  <circle cx="178" cy="66" r="31" fill="#1c1a1a"/>
+  <circle cx="66" cy="70" r="14" fill="#4a4644"/>
+  <circle cx="174" cy="70" r="14" fill="#4a4644"/>
+  <!-- head -->
+  <circle cx="120" cy="130" r="80" fill="#ffffff" stroke="#1c1a1a" stroke-width="7"/>
+  <!-- eye patches -->
+  <ellipse cx="87" cy="122" rx="23" ry="29" fill="#1c1a1a" transform="rotate(-16 87 122)"/>
+  <ellipse cx="153" cy="122" rx="23" ry="29" fill="#1c1a1a" transform="rotate(16 153 122)"/>
+  <!-- eyes -->
+  <circle cx="91" cy="118" r="9.5" fill="#fff"/>
+  <circle cx="149" cy="118" r="9.5" fill="#fff"/>
+  <circle cx="93" cy="119" r="4.6" fill="#1c1a1a"/>
+  <circle cx="147" cy="119" r="4.6" fill="#1c1a1a"/>
+  <circle cx="94.6" cy="117" r="1.7" fill="#fff"/>
+  <circle cx="148.6" cy="117" r="1.7" fill="#fff"/>
+  <!-- cheeks -->
+  <circle cx="66" cy="152" r="9" fill="#ffb9c4" opacity="0.85"/>
+  <circle cx="174" cy="152" r="9" fill="#ffb9c4" opacity="0.85"/>
+  <!-- nose + mouth -->
+  <path d="M112 148 Q120 142 128 148 Q124 158 120 158 Q116 158 112 148 Z" fill="#1c1a1a"/>
+  <path d="M120 158 L120 165 M120 165 Q112 173 105 167 M120 165 Q128 173 135 167"
+    stroke="#1c1a1a" stroke-width="4.6" stroke-linecap="round" fill="none"/>
+    <path d="M52 76 Q120 40 188 76 L184 92 Q120 60 56 92 Z" fill="#f472b6" stroke="#1c1a1a" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M184 84 L216 76 L214 92 L182 96 Z" fill="#f472b6" stroke="#1c1a1a" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="120" cy="70" r="6" fill="#fff"/></g>
+  <circle cx="188" cy="192" r="37" fill="#f472b6" stroke="#ffffff" stroke-width="6"/>
+  <g transform="translate(188 192)" stroke-width="4.6"><path d="M-4 12 V-13 L14 -16 V8" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" fill="none"/><ellipse cx="-9" cy="12" rx="5.5" ry="4.5" fill="#fff"/><ellipse cx="9" cy="8" rx="5.5" ry="4.5" fill="#fff"/></g>
+</svg>
