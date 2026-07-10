@@ -57,8 +57,10 @@
 
 - **Mission 34 — Flowing function rows + editorial why + pro footer (`e9112bb`)**: hero headline compacted to sentence-case display type (`.qx-hero-title`, Bricolage 800, 30–52px) and the 6 tool chips removed; category cards deleted — replaced by six partner-marquee-style function ROWS (each streams that family's tool names + icon in category color; odd rows R→L, even L→R reverse, hover pause, items link to category; CategoryShowcase rewritten ~380→130 lines, Mock/HUD machinery gone); Why QRix = editorial statements landing one after another (mono 01–04 index, ember rules, big display titles, alternating reveals); footer rebuilt (5 columns, mono `//` headers, privacy tag, pulsing "All systems operational" status, i18n); dusk scene now the red-mist valley (bottom samurai removed). Verified via served-HTML probes; Chrome ext offline for visuals — user reviewing.
 
+- **Mission 35 — Village scene removed; capsule function rows (`07eb37d`)**: pagoda-village art section (CinematicScene) deleted end-to-end (usage/component/motion imports/CSS); function rows v2 after self-critique (rainbow text = unstructured, color bands = stripes) → integration-wall glass capsules: dark blur pill per tool name, category-tinted hairline + colored round icon tile, NEUTRAL off-white label, hover lift + category glow; rows tightened; light theme white capsules. Verified via served HTML; Chrome ext offline.
+
 ## Current Mission
-Design iteration with the user (M24–M34: katana scenes → Gemini art → hero film → HUD cards → flowing rows/editorial why/pro footer ✓). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
+Design iteration with the user (M24–M35). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
