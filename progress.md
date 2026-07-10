@@ -59,8 +59,10 @@
 
 - **Mission 35 — Village scene removed; capsule function rows (`07eb37d`)**: pagoda-village art section (CinematicScene) deleted end-to-end (usage/component/motion imports/CSS); function rows v2 after self-critique (rainbow text = unstructured, color bands = stripes) → integration-wall glass capsules: dark blur pill per tool name, category-tinted hairline + colored round icon tile, NEUTRAL off-white label, hover lift + category glow; rows tightened; light theme white capsules. Verified via served HTML; Chrome ext offline.
 
+- **Mission 36 — Panda icons + Tool Galaxy (`07929b2`)**: pdf24 sheep-system analyzed → generative panda pipeline (`panda-icons/generate.mjs`): base panda head + 6 category accessories (QR bandana / held PDF doc / beret / AI antenna / backwards cap / held 3D cube) + ~38 white glyphs on colored badges → 45 icons (SVG+512px PNG+manifest+preview.html) collected in `panda-icons/` for user review; runtime copies in `public/panda/`. Shoe-finder gallery from the user's Drive (Next.js R3F project — Rig/ShoeTile/GridCanvas read fully) adapted as `components/galaxy/*`: GalaxyRig (drag pan+bounds+resistance+velocity tilt+damped zoom, maath now declared), ToolTile (panda texture+Oswald local TTF label+hover lift+idle float+click focus with dim), ToolGalaxy (R3F canvas, fog, drag-hint chip, focus card with "Open tool" link+close, touch-action pan-y). CategoryShowcase → React.lazy galaxy (three off critical path); capsule rows superseded. tsc clean, assets 200, no console errors; both Chrome ext and embedded renderer were frozen → visual pass on user's screen.
+
 ## Current Mission
-Design iteration with the user (M24–M35). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, preview harness fallback) before finishing.
+Design iteration with the user (M24–M36). Workflow: verify visuals with screenshots (Claude-in-Chrome preferred, Browser pane fallback) before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.

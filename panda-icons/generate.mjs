@@ -5,8 +5,8 @@ import sharp from "sharp";
 import { mkdirSync, writeFileSync } from "fs";
 import path from "path";
 
-const ROOT = "D:/Projects/QRix/.claude/worktrees/relaxed-turing-bbc58e";
-const OUT = path.join(ROOT, "panda-icons");
+const ROOT = process.cwd();
+const OUT = path.join(ROOT, "panda-icons"); // run from repo root: node panda-icons/generate.mjs
 mkdirSync(path.join(OUT, "svg"), { recursive: true });
 mkdirSync(path.join(OUT, "png"), { recursive: true });
 
