@@ -23,7 +23,6 @@ import {
   FiShield, FiPenTool, FiBarChart2, FiCamera, FiFileText, FiImage,
   FiUpload, FiTrash2, FiCheck,
   FiLayers, FiMinimize2, FiMaximize2, FiDroplet, FiScissors,
-  FiVideo, FiCpu, FiBox,
 } from "react-icons/fi";
 
 type Lang = "en" | "ru" | "uz";
@@ -177,11 +176,11 @@ export default function HomePage() {
   // Mission 21: scramble entrance + corner-anchored headline pairs
   const [entrance, setEntrance] = useState(false);
   useEffect(() => { const id = setTimeout(() => setEntrance(true), 250); return () => clearTimeout(id); }, []);
-  // benefit headline covering every tool family
+  // benefit headline covering every tool family — compact, sentence case
   const [heroL1, heroL2, heroR1] =
-    lang === "uz" ? ["QR КОД ЯРАТИНГ.", "PDF ВА РАСМ ЎЗГАРТИРИНГ.", "AI · ВИДЕО · 3D — БЕПУЛ."]
-    : lang === "ru" ? ["СОЗДАЙ QR КОД.", "КОНВЕРТИРУЙ PDF И ФОТО.", "AI · ВИДЕО · 3D — БЕСПЛАТНО."]
-    : ["CREATE QR CODES.", "CONVERT PDF & IMAGE.", "AI · VIDEO · 3D — FREE."];
+    lang === "uz" ? ["QR кодлар яратинг.", "PDF ва расмни ўзгартиринг.", "AI · Видео · 3D — бепул."]
+    : lang === "ru" ? ["Создавай QR коды.", "Конвертируй PDF и фото.", "AI · Видео · 3D — бесплатно."]
+    : ["Create QR codes.", "Convert PDF & image.", "AI · Video · 3D — free."];
 
   /* ===== Tabs & forms ===== */
   const [tab, setTab] = useState("url");
@@ -403,10 +402,10 @@ export default function HomePage() {
         <div className="qx-hero-light" aria-hidden />
         <div className="qx-embers" aria-hidden>{Array.from({ length: 7 }).map((_, i) => <i key={i} />)}</div>
         <div className="min-h-[88svh] flex flex-col justify-center relative z-10 py-10 gap-8">
-          <div className="flex-1 grid items-center gap-8 lg:grid-cols-[minmax(0,560px)_minmax(0,1fr)_84px]">
-            {/* left: what the client gets — every tool family */}
-            <div className="text-center lg:text-left order-1">
-              <h1 className="qx-bebas-hero qx-bebas-side">
+          <div className="flex-1 grid items-center gap-8 lg:grid-cols-[minmax(0,540px)_1fr]">
+            {/* left: what the client gets — compact editorial type */}
+            <div className="text-center lg:text-left">
+              <h1 className="qx-hero-title">
                 <span className="block"><ScrambleIn text={heroL1} delay={150} triggered={entrance} /></span>
                 <span className="block" style={{ color: "var(--primary-bright)" }}><ScrambleIn text={heroL2} delay={480} triggered={entrance} /></span>
                 <span className="block"><ScrambleIn text={heroR1} delay={820} triggered={entrance} /></span>
@@ -417,21 +416,7 @@ export default function HomePage() {
             </div>
 
             {/* the samurai breathes in this gap */}
-            <div className="hidden lg:block order-2" aria-hidden />
-
-            {/* right: our six tool families standing beside the samurai */}
-            <nav className="qx-htools order-3" aria-label="Tool categories">
-              {([[<FiGrid key="qr" size={22} />, "/qr-tools", "QR Tools", "#22c55e"],
-                 [<FiFileText key="pdf" size={22} />, "/pdf-tools", "PDF Tools", "#60a5fa"],
-                 [<FiImage key="img" size={22} />, "/image-tools", "Image Tools", "#c084fc"],
-                 [<FiCpu key="ai" size={22} />, "/ai-tools", "AI Tools", "#fbbf24"],
-                 [<FiVideo key="vid" size={22} />, "/video-tools", "Video Tools", "#f472b6"],
-                 [<FiBox key="3d" size={22} />, "/3d-tools", "3D Tools", "#22d3ee"]] as const
-              ).map(([icon, href, label, c]) => (
-                <Link key={href} href={href} title={label} aria-label={label} className="qx-htool"
-                  style={{ ["--tc" as string]: c } as React.CSSProperties}>{icon}</Link>
-              ))}
-            </nav>
+            <div className="hidden lg:block" aria-hidden />
           </div>
 
           {/* Coverr-style tool finder stays centered: "jpg to pdf" → that tool */}
@@ -686,22 +671,17 @@ export default function HomePage() {
           </h2>
           <p className="mt-4 text-[16px] max-w-[520px] mx-auto" style={{ color:"var(--text-muted)" }}>{t.whySub}</p>
         </div>
-        {/* Bento composition: hero cell + varied spans — no two rows identical */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {/* editorial statements — no cards, the reasons land one after another */}
+        <div className="max-w-[880px] mx-auto">
           {features.map((f, i) => (
-            <div key={f.title}
-              data-tilt className={`qx-gpanel qx-rise qx-rise-${i+1}${i === 0 ? " lg:col-span-2" : ""}${i === 3 ? " sm:col-span-2 lg:col-span-1" : ""}${i === 5 ? " lg:col-span-2" : ""}`}
-              data-reveal="scale"
-              style={{ ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
-              {/* icon color glow */}
-              <div className="absolute inset-0 opacity-40 pointer-events-none"
-                style={{ background:`radial-gradient(circle at 28% 24%, ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#ff4d1c"}26 0%, transparent 58%)` }}/>
-              <div className="qx-gpanel-icon text-white"
-                style={{ background:f.grad, boxShadow:`0 8px 24px ${f.grad.match(/#[0-9a-f]{6}/i)?.[0] ?? "#ff4d1c"}45` }}>
-                {f.icon}
+            <div key={f.title} className="qx-why-line"
+              data-reveal={i % 2 ? "right" : "left"}
+              style={{ ["--rv-delay" as string]: `${(i % 2) * 160 + 60}ms` } as React.CSSProperties}>
+              <span className="qx-why-num qx-mono">0{i + 1}</span>
+              <div className="min-w-0">
+                <h3 className="qx-why-title">{f.title}</h3>
+                <p className="qx-why-desc">{f.desc}</p>
               </div>
-              <h3 className="font-display text-[17px] font-bold mb-2" style={{ color:"var(--text)" }}>{f.title}</h3>
-              <p className="text-sm leading-relaxed" style={{ color:"var(--text-muted)" }}>{f.desc}</p>
             </div>
           ))}
         </div>
@@ -777,111 +757,119 @@ export default function HomePage() {
       </section>
 
       {/* ================= FOOTER ================= */}
-      <footer className="mt-10 relative overflow-hidden">
-        {/* Top neon line */}
+      <footer className="mt-10 relative overflow-hidden" data-scene="dusk">
         <hr className="qx-neon-line" />
-        {/* Footer bg subtle top glow */}
         <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,77,28,.05) 0%, transparent 60%)" }} />
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,77,28,.06) 0%, transparent 60%)" }} />
 
-        <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 pb-10 grid md:grid-cols-[1.6fr_1fr_1fr_1.2fr] gap-12">
-          {/* Brand */}
+        <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 pt-16 pb-12 grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr_1.2fr]">
+          {/* brand */}
           <div>
             <div className="font-display flex items-center gap-0.5 mb-5">
               <span className="text-3xl font-black tracking-tight" style={{ color: "var(--text)" }}>QR</span>
               <span className="text-3xl font-black tracking-tight" style={{ color: "var(--primary-bright)" }}>ix</span>
             </div>
-            <p className="text-sm leading-relaxed max-w-[240px] mb-6" style={{ color: "var(--text-muted)" }}>{t.footAbout}</p>
-            {/* Social chips */}
-            <div className="flex gap-2">
+            <p className="text-sm leading-relaxed max-w-[260px] mb-6" style={{ color: "var(--text-muted)" }}>{t.footAbout}</p>
+            <div className="flex gap-2 mb-6">
               {[
-                { href: "mailto:musarasulzada@gmail.com", icon: <FiMail size={14} />, label: "Email" },
-                { href: "https://t.me/QRix2020", icon: <FiSend size={14} />, label: "Telegram" },
-              ].map((s) => (
-                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-xl flex items-center justify-center transition-all hover:scale-110"
+                { href: "mailto:musarasulzada@gmail.com", icon: <FiMail size={15} />, label: "Email" },
+                { href: "https://t.me/QRix2020", icon: <FiSend size={15} />, label: "Telegram" },
+              ].map((so) => (
+                <a key={so.label} href={so.href} target="_blank" rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center transition-all hover:scale-110 hover:-translate-y-0.5"
                   style={{ background: "rgba(255,77,28,.1)", border: "1px solid rgba(255,77,28,.25)", color: "#ff4d1c" }}
-                  aria-label={s.label}>
-                  {s.icon}
+                  aria-label={so.label}>
+                  {so.icon}
                 </a>
               ))}
             </div>
+            <p className="qx-mono text-[10.5px] tracking-[0.18em] uppercase" style={{ color: "var(--text-faint)" }}>
+              <FiShield className="inline -mt-0.5 mr-1.5" size={11} aria-hidden />
+              {lang === "uz" ? "Файллар қурилмангиздан чиқмайди" : lang === "ru" ? "Файлы не покидают устройство" : "Files never leave your device"}
+            </p>
           </div>
 
+          {/* product */}
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-widest mb-5" style={{ color: "var(--text-faint)" }}>{t.footProduct}</h4>
+            <h4 className="qx-foot-h">{t.footProduct}</h4>
             <div className="space-y-3 text-sm">
               {[
                 { href: "/url-qr", label: "URL QR" },
                 { href: "/bulk-qr", label: "Bulk QR" },
-                { href: "/dashboard", label: "Dashboard" },
                 { href: "/scanner", label: "QR Scanner" },
+                { href: "/dashboard", label: "Dashboard" },
+                { href: "/pricing", label: "Pricing" },
+                { href: "/developers", label: "Developer API" },
               ].map((l) => (
-                <Link key={l.href} href={l.href}
-                  className="block transition-all hover:translate-x-1"
-                  style={{ color: "var(--text-muted)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#ff4d1c")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
-                >{l.label}</Link>
+                <Link key={l.href} href={l.href} className="qx-foot-link">{l.label}</Link>
               ))}
             </div>
           </div>
 
+          {/* tools */}
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-widest mb-5" style={{ color: "var(--text-faint)" }}>{t.footTools}</h4>
+            <h4 className="qx-foot-h">{t.footTools}</h4>
             <div className="space-y-3 text-sm">
               {[
+                { href: "/qr-tools", label: "QR Tools" },
                 { href: "/pdf-tools", label: "PDF Tools" },
                 { href: "/image-tools", label: "Image Tools" },
-                { href: "/wifi-qr", label: "WiFi QR" },
-                { href: "/vcard-qr", label: "vCard QR" },
+                { href: "/ai-tools", label: "AI Tools" },
+                { href: "/video-tools", label: "Video Tools" },
+                { href: "/3d-tools", label: "3D Tools" },
               ].map((l) => (
-                <Link key={l.href} href={l.href}
-                  className="block transition-all hover:translate-x-1"
-                  style={{ color: "var(--text-muted)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = "#ff4d1c")}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}
-                >{l.label}</Link>
+                <Link key={l.href} href={l.href} className="qx-foot-link">{l.label}</Link>
               ))}
             </div>
           </div>
 
+          {/* company */}
           <div>
-            <h4 className="text-[11px] font-bold uppercase tracking-widest mb-5" style={{ color: "var(--text-faint)" }}>{t.footContact}</h4>
+            <h4 className="qx-foot-h">{lang === "uz" ? "Компания" : lang === "ru" ? "Компания" : "Company"}</h4>
             <div className="space-y-3 text-sm">
-              <a href="mailto:musarasulzada@gmail.com"
-                className="flex items-center gap-2.5 transition-colors"
-                style={{ color: "var(--text-muted)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#ff4d1c")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
+              {[
+                { href: "/about", label: lang === "uz" ? "Биз ҳақимизда" : lang === "ru" ? "О нас" : "About" },
+                { href: "/blog", label: lang === "uz" ? "Блог" : lang === "ru" ? "Блог" : "Blog" },
+                { href: "/contact", label: lang === "uz" ? "Алоқа" : lang === "ru" ? "Контакты" : "Contact" },
+                { href: "/privacy", label: lang === "uz" ? "Махфийлик" : lang === "ru" ? "Конфиденциальность" : "Privacy" },
+                { href: "/terms", label: lang === "uz" ? "Шартлар" : lang === "ru" ? "Условия" : "Terms" },
+              ].map((l) => (
+                <Link key={l.href} href={l.href} className="qx-foot-link">{l.label}</Link>
+              ))}
+            </div>
+          </div>
+
+          {/* contact + cta */}
+          <div>
+            <h4 className="qx-foot-h">{t.footContact}</h4>
+            <div className="space-y-3 text-sm mb-7">
+              <a href="mailto:musarasulzada@gmail.com" className="qx-foot-link flex items-center gap-2.5">
                 <FiMail size={14} style={{ color: "#ff4d1c" }} /> musarasulzada@gmail.com
               </a>
-              <a href="https://t.me/QRix2020" target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-2.5 transition-colors"
-                style={{ color: "var(--text-muted)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#ff4d1c")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text-muted)")}>
+              <a href="https://t.me/QRix2020" target="_blank" rel="noopener noreferrer" className="qx-foot-link flex items-center gap-2.5">
                 <FiSend size={14} style={{ color: "#ff4d1c" }} /> @QRix2020
               </a>
             </div>
-            {/* CTA mini */}
-            <Link href="/register" className="qx-btn mt-8 text-sm inline-flex">
-              Get Started Free →
+            <Link href="/register" className="qx-btn-hero inline-flex text-sm px-6 py-3" data-magnetic>
+              {lang === "uz" ? "Бепул бошлаш" : lang === "ru" ? "Начать бесплатно" : "Get Started Free"} <FiArrowRight size={14} />
             </Link>
           </div>
         </div>
 
-        {/* Bottom bar */}
-        <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3"
-          style={{ borderTop: "1px solid rgba(255,255,255,.06)" }}>
+        {/* bottom bar */}
+        <div className="relative max-w-[1400px] mx-auto px-5 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4"
+          style={{ borderTop: "1px solid rgba(255,255,255,.07)" }}>
           <div className="text-[12px]" style={{ color: "var(--text-faint)" }}>
-            © 2026 <span style={{ color: "#ff4d1c" }}>QRix</span>. {t.rights}
+            © 2026 <span style={{ color: "#ff4d1c", fontWeight: 700 }}>QRix</span> · {t.rights}
           </div>
-          <div className="flex items-center gap-3.5 text-[12px]" style={{ color: "var(--text-faint)" }}>
-            <Link href="/about" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>About</Link>
-            <Link href="/privacy" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>Privacy</Link>
-            <Link href="/terms" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>Terms</Link>
-            <Link href="/contact" className="hover:opacity-80" style={{ color: "var(--text-muted)" }}>Contact</Link>
+          <div className="qx-mono flex items-center gap-2 text-[11px] tracking-[0.14em] uppercase" style={{ color: "var(--text-muted)" }}>
+            <span className="qx-status-dot" aria-hidden />
+            {lang === "uz" ? "Барча тизимлар ишлаяпти" : lang === "ru" ? "Все системы работают" : "All systems operational"}
+          </div>
+          <div className="flex items-center gap-4 text-[12px]">
+            {[["/about", "About"], ["/privacy", "Privacy"], ["/terms", "Terms"], ["/contact", "Contact"]].map(([h, l]) => (
+              <Link key={h} href={h} className="qx-foot-link">{l}</Link>
+            ))}
           </div>
         </div>
       </footer>
