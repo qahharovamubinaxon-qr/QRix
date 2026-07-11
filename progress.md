@@ -71,8 +71,10 @@
 
 - **Mission 39c — Living auth panels (`9a73d49`)**: the two ninja artworks animated in the site's "living still" language (AI video credits = 0): art moved to `.qx-auth-ov-panel::before` (own GPU layer, 24s Ken Burns drift scale 1.03→1.11, right panel −12s offset), `::after` = screen-blended radial glows placed over each artwork's light sources (mask eyes / cyan glyph / pink straps · blue flame / red straps) breathing 5.4s, 7 rising embers (`.qx-embers` reused) span the overlay and travel with the slide; panels overflow hidden; reduced-motion kills all three; light theme keeps sparks (override of global hide). Verified live: computed animationNames + frame-compare screenshots.
 
+- **Mission 39d — Bunny mascots on auth panels (`8533dfa`)**: user's new Pinterest picks replace the ninjas — warm bunny (sunglasses/skull tee/orange sneakers, 800×1422) → sign-in view, blue bunny (headphones/blue sneakers, 1200×1200 square) → sign-up view, same `auth-signin/signup.webp` slots. Animation retuned for mascot art: neon glow pulse → `qxAuthSheen` studio light band (115deg white gradient, screen blend, sweeps 8s then rests, right panel −3.6s), Ken Burns drift kept, embers → soft white bokeh via `.qx-auth-ov .qx-embers i` override. Verified: image loads + computed animationNames in Browser pane; composition confirmed by rendering the exact panel crop (cover, center 18%, veil) with sharp — ears intact, faces clear. Both Chrome ext and pane screenshots were down (pane tab hidden → no rAF → no hydration; known artifact).
+
 ## Current Mission
-Auth redesign done (M39 + 39b art + 39c animation). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
+Auth redesign done (M39 + 39b art + 39c animation + 39d bunny swap). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
