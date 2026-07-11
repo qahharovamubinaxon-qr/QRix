@@ -75,8 +75,10 @@
 
 - **Mission 40 — All Tools coverflow rows (`3780910`)**: homepage tool directory (M37 hairline grid) rebuilt as six 3D coverflow galleries, one per category, adapted from the user's Originkit Framer component into `components/CategoryShowcase.tsx`. Section header "All tools"; each row leads with dot + category name + count + "All {category} →". Geometry: perspective 1400, spacing 190, depth 150, rotateY 24°/step, rotateZ 4°, scale −0.11/step, inactive dim 0.45, 0.6s expo-out. Behavior: click side card → focus (preventDefault), center card = real Link to the tool; arrow keys; autoplay 3.2s/card alternating direction per row, paused on hover/focus, gated by IntersectionObserver (0.25) + prefers-reduced-motion. Cards = emoji + title + one-line hint on #141414 (white in light) with category-tinted radial wash + hover "Open →". 28 crawlable links preserved. Verified structurally (SSR transforms, computed perspective/preserve-3d/shade opacities); interactions not live-verified — Chrome ext down, pane hidden-tab can't hydrate.
 
+- **Mission 40b — White cat mascot on sign-in panel (`bc7c28b`)**: user's new pin (white cat, headphones + sunglasses, red accents) replaces the sunglasses bunny in `auth-signin.webp` (1000×1000). Frontal pose, so "facing the form" was done compositionally: panel--right ::before background-position `72% 18%` shifts the mascot toward the form side (lighting already falls from that direction). Sheen/drift/bokeh animations unchanged. Verified: image loads, computed bgPos 72% 18%, qxAuthDrift live; composition confirmed via sharp panel-crop render.
+
 ## Current Mission
-Auth redesign done (M39 + 39b art + 39c animation + 39d bunny swap). Homepage tools = coverflow rows (M40). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
+Auth redesign done (M39 + 39b art + 39c animation + 39d bunny swap + 40b cat). Homepage tools = coverflow rows (M40). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
