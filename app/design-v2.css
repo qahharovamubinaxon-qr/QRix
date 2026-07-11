@@ -305,7 +305,7 @@ html.qx-perf .qx-particles, html.qx-perf .qx-hero-light { display: none; }
   position: absolute; inset: 0; z-index: 0;
   display: grid; place-items: center;
   transform: translateY(36px);
-  font-family: "Anton SC", var(--font-display), sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(120px, 27vw, 480px);
   letter-spacing: -4px; line-height: 1; text-transform: uppercase;
   background: radial-gradient(circle, rgba(142,127,148,0) 0%, #8e7f94 70%);
@@ -340,7 +340,7 @@ html.light .qx-watermark { opacity: 0.07; }
    MISSION 22 — Mockit design language
    ════════════════════════════════════════════════════════════ */
 .qx-bebas-hero {
-  font-family: "Bebas Neue", "Oswald", var(--font-display), sans-serif;
+  font-family: var(--font-display);
   font-weight: 400;
   font-size: clamp(64px, 12.5vw, 168px);
   line-height: 0.88;
@@ -372,11 +372,6 @@ body { transition: background-color 1.1s var(--ease-in-out), color 0.3s ease; }
     url("/scenes/valley.webp") center / cover no-repeat,
     radial-gradient(130% 100% at 50% -10%, #091324 0%, #050a13 40%, #030508 75%, #020203 100%);
 }
-.qx-scene[data-scene="ember"] {
-  background:
-    url("/scenes/ember-samurai.webp") center / cover no-repeat,
-    radial-gradient(120% 100% at 50% 46%, #3e0f03 0%, #230802 42%, #100302 68%, #050101 100%);
-}
 .qx-scene[data-scene="dusk"] {
   background:
     url("/scenes/valley.webp") center / cover no-repeat,
@@ -391,20 +386,6 @@ body { transition: background-color 1.1s var(--ease-in-out), color 0.3s ease; }
 }
 html.light .qx-scenes { display: none; }
 
-/* Giant katana-style stats that live on the ember scene */
-.qx-kstat { text-align: center; }
-.qx-kstat-num {
-  font-family: "Bebas Neue", "Oswald", sans-serif;
-  font-size: clamp(52px, 6.5vw, 104px); line-height: 0.9; letter-spacing: 0.015em;
-  font-variant-numeric: tabular-nums; white-space: nowrap;
-  color: #ff7a50; text-shadow: 0 0 70px rgba(255, 77, 28, 0.5);
-}
-.qx-kstat-lbl {
-  margin-top: 10px; font-family: "Space Mono", monospace;
-  font-size: 11.5px; letter-spacing: 0.22em; text-transform: uppercase;
-  color: var(--text-muted);
-}
-html.light .qx-kstat-num { color: #e2410f; text-shadow: none; }
 
 /* ── Mission 25: katana scene artwork + background motion ────────────── */
 
@@ -578,9 +559,9 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
   padding: 30px 0 34px; border-top: 1px solid rgba(255, 77, 28, 0.16);
 }
 .qx-why-line:first-child { border-top: 0; }
-.qx-why-num {
-  flex-shrink: 0; width: 58px; padding-top: 12px;
-  font-size: 13px; letter-spacing: 0.22em; color: #ff7a50;
+.qx-why-mark {
+  flex-shrink: 0; width: 10px; height: 10px; margin-top: 16px;
+  background: var(--primary-bright);
 }
 .qx-why-title {
   font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em;
@@ -604,3 +585,30 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 }
 @keyframes qxStatusPulse { 50% { opacity: 0.45; } }
 @media (prefers-reduced-motion: reduce) { .qx-status-dot { animation: none; } }
+
+/* ── Mission 38: quiet proof band (numbers + logos as one zone) ─────── */
+.qx-proof {
+  display: flex; flex-wrap: wrap; align-items: stretch;
+  border-top: 1px solid rgba(255, 77, 28, 0.16);
+  border-bottom: 1px solid rgba(255, 77, 28, 0.16);
+}
+.qx-proof-item {
+  flex: 1 1 160px; display: flex; flex-direction: column; gap: 8px;
+  padding: 26px 26px 24px;
+  border-left: 1px solid var(--border);
+}
+.qx-proof-item:first-child { border-left: 0; }
+.qx-proof-num {
+  font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em;
+  font-size: clamp(24px, 2.6vw, 34px); line-height: 1; color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.qx-proof-lbl {
+  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+@media (max-width: 720px) {
+  .qx-proof-item { flex-basis: 50%; border-top: 1px solid var(--border); }
+  .qx-proof-item:nth-child(-n+2) { border-top: 0; }
+  .qx-proof-item:nth-child(odd) { border-left: 0; }
+}

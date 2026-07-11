@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=SUSE:wght@500;600;700;800&family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Anton+SC&family=Bebas+Neue&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Oswald:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=SUSE:wght@500;600;700;800&family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&display=swap');
 @import "tailwindcss";
 @import "./design-v2.css";
 
@@ -46,7 +46,7 @@
   --radius-xl: 34px;
 
   /* Fonts */
-  --font-display: "Bricolage Grotesque", "Oswald", "Inter", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
   --font-body: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
 
   /* Shadows */
@@ -297,12 +297,12 @@ html.light {
   box-shadow: 0 24px 52px rgba(0,0,0,0.55), 0 0 34px rgba(255,77,28,0.12);
 }
 .qx-fcard-title {
-  font-family: "Bebas Neue", "Oswald", var(--font-display), sans-serif;
-  font-weight: 400;
-  font-size: 1.45em;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.18em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  line-height: 1;
+  letter-spacing: 0.05em;
+  line-height: 1.05;
   color: var(--text);
 }
 .qx-fcard-title::before {

@@ -10,7 +10,6 @@ import CategoryShowcase from "@/components/CategoryShowcase";
 import TrustedBy from "@/components/TrustedBy";
 import HomeFaq from "@/components/HomeFaq";
 import LatestPosts from "@/components/LatestPosts";
-import NewsletterSection from "@/components/NewsletterSection";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import { ScrambleIn } from "@/components/Scramble";
@@ -383,7 +382,6 @@ export default function HomePage() {
             poster="/scenes/hero-video-poster.webp" autoPlay muted loop playsInline />
         </div>
         <div className="qx-scene" data-scene="deep" />
-        <div className="qx-scene" data-scene="ember" />
         <div className="qx-scene" data-scene="dusk" />
       </div>
       <style>{`
@@ -399,7 +397,6 @@ export default function HomePage() {
         {/* Mission 22: Mockit-language hero — near-black, one hot accent, giant condensed caps */}
         <div className="qx-dotgrid" aria-hidden />
         <div className="qx-hero-light" aria-hidden />
-        <div className="qx-embers" aria-hidden>{Array.from({ length: 7 }).map((_, i) => <i key={i} />)}</div>
         <div className="min-h-[88svh] flex flex-col justify-center relative z-10 py-10 gap-8">
           <div className="flex-1 grid items-center gap-8 lg:grid-cols-[minmax(0,540px)_1fr]">
             {/* left: what the client gets — compact editorial type */}
@@ -639,22 +636,21 @@ export default function HomePage() {
         <CategoryShowcase />
       </div>
 
-      {/* ================= STATS — the ember moment (katana-style) ================= */}
-      <section data-scene="ember" className="relative overflow-hidden py-28 lg:py-44">
-        <div className="qx-embers" aria-hidden>{Array.from({ length: 9 }).map((_, i) => <i key={i} />)}</div>
-        <div className="max-w-[1240px] mx-auto px-5 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-16 gap-x-10 lg:gap-x-64" data-stagger>
+      {/* ================= PROOF — numbers and logos, one quiet band ================= */}
+      <section data-scene="deep" className="relative py-16 lg:py-24">
+        <div className="max-w-[1400px] mx-auto px-5 lg:px-8">
+          <div className="qx-proof" data-reveal>
             {stats.map((s) => (
-              <div key={s.label} className="qx-kstat" data-reveal>
-                <div className="qx-kstat-num"><CountUp end={s.end} suffix={s.suffix} /></div>
-                <div className="qx-kstat-lbl">{s.label}</div>
+              <div key={s.label} className="qx-proof-item">
+                <span className="qx-proof-num"><CountUp end={s.end} suffix={s.suffix} /></span>
+                <span className="qx-proof-lbl qx-mono">{s.label}</span>
               </div>
             ))}
+            <div className="qx-proof-item">
+              <span className="qx-proof-num">99.9%</span>
+              <span className="qx-proof-lbl qx-mono">{t.statUptime}</span>
+            </div>
           </div>
-          <p className="qx-mono text-center mt-16 text-[11px] tracking-[0.24em] uppercase" data-reveal
-            style={{ color: "var(--text-muted)" }}>
-            <FiShield className="inline -mt-0.5 mr-2" size={12} aria-hidden />99.9% {t.statUptime}
-          </p>
         </div>
       </section>
 
@@ -674,7 +670,7 @@ export default function HomePage() {
             <div key={f.title} className="qx-why-line"
               data-reveal={i % 2 ? "right" : "left"}
               style={{ ["--rv-delay" as string]: `${(i % 2) * 160 + 60}ms` } as React.CSSProperties}>
-              <span className="qx-why-num qx-mono">0{i + 1}</span>
+              <span className="qx-why-mark" aria-hidden />
               <div className="min-w-0">
                 <h3 className="qx-why-title">{f.title}</h3>
                 <p className="qx-why-desc">{f.desc}</p>
@@ -684,8 +680,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ================= TRUSTED BY ================= */}
-      <div className="qx-sec-glass" data-scene="deep">
+      {/* ================= TRUSTED BY (continues the proof zone) ================= */}
+      <div data-scene="deep">
         <TrustedBy heading={lang === "uz" ? "Жаҳон жамоалари ишонган воситалар тоифаси" : lang === "ru" ? "Инструменты уровня мировых команд" : "The tool quality world-class teams expect"} />
       </div>
 
@@ -734,11 +730,6 @@ export default function HomePage() {
           ))}
         </div>
       </section>
-
-      {/* ================= NEWSLETTER ================= */}
-      <div data-reveal="rotate">
-      <NewsletterSection lang={lang} />
-      </div>
 
       {/* ================= FINAL CTA ================= */}
       <section className="max-w-3xl mx-auto px-5 pb-24 lg:pb-32 text-center" data-reveal="scale">
