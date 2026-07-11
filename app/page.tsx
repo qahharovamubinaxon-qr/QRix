@@ -388,7 +388,12 @@ export default function HomePage() {
           <span className="qx-era-ghost" aria-hidden>QRIX</span>
 
           <h1 className="qx-era-title">
-            {lang === "uz" ? "ЯНГИ ВОСИТАЛАР ДАВРИ" : lang === "ru" ? "НОВАЯ ЭРА ИНСТРУМЕНТОВ" : "NEW TOOLS ERA"}
+            {(lang === "uz" ? "ЯНГИ ВОСИТАЛАР ДАВРИ" : lang === "ru" ? "НОВАЯ ЭРА ИНСТРУМЕНТОВ" : "NEW TOOLS ERA")
+              .split(" ").map((w, i) => (
+                <span className="qx-era-w" key={`${w}-${i}`}>
+                  <span style={{ ["--i" as string]: i } as React.CSSProperties}>{w}</span>
+                </span>
+              ))}
             <span className="sr-only"> — QRix. {t.sub}</span>
           </h1>
 
@@ -435,64 +440,39 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ================= GENERATOR — bunny glides left, glass cards right ================= */}
+      {/* ================= GENERATOR — mascot left, two big glass cards ================= */}
       <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-20 lg:pt-28 pb-24 relative">
-        <div id="generator" className="lg:ml-[26vw] grid lg:grid-cols-3 gap-5 items-stretch relative z-10">
+        <div id="generator" className="lg:ml-[24vw] grid lg:grid-cols-2 gap-6 items-stretch relative z-10">
 
-          {/* LEFT — QR Type selector (Fireship green) */}
-          <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#ff4d1c" } as React.CSSProperties}>
-            <div className="px-2 pt-1 pb-3">
-              <div className="qx-fcard-title text-[19px]">
-                {lang==="uz"?"QR TURI"  : lang==="ru"?"ТИП QR" : "QR TYPE"}
-              </div>
-              <div className="qx-fcard-sub text-[12px] mt-0.5">
-                {lang==="uz"?"Форматни танланг" : lang==="ru"?"Выберите формат" : "Pick your format"}
-              </div>
-            </div>
-            <div className="qx-fcard-panel overflow-y-auto p-1.5" style={{ maxHeight: 400 }}>
-              {[...tabs, ...moreTabs].map((tb) => (
-                <button key={tb.id} onClick={()=>{ setTab(tb.id); setMoreOpen(false); }}
-                  className="qx-typerow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-left"
-                  style={{
-                    background: tab===tb.id ? "rgba(255,77,28,0.16)" : "transparent",
-                    color: tab===tb.id ? "#fff" : "var(--text-muted)",
-                    fontWeight: tab===tb.id ? 700 : 500,
-                  }}>
-                  <span className="qx-typerow-ico w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: tab===tb.id ? "#ff4d1c" : "var(--surface-2)", color: tab===tb.id ? "#0e0e0c" : "var(--text-faint)" }}>
-                    {tb.icon}
-                  </span>
-                  {tb.label}
-                  {tab===tb.id && <FiArrowRight size={12} className="ml-auto" style={{ color:"#ff4d1c" }}/>}
-                </button>
-              ))}
-
-              {/* All other QR formats → dedicated tool pages */}
-              <div className="px-3 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider" style={{ color:"var(--text-faint)" }}>
-                {lang==="uz"?"Барча форматлар" : lang==="ru"?"Все форматы" : "All formats"}
-              </div>
-              {QR_TOOLS.filter(m => !["url","text","wifi","vcard","email","sms","whatsapp","telegram"].includes(m.slug)).map((m) => (
-                <Link key={m.slug} href={`/qr-tools/${m.slug}`}
-                  className="qx-typerow w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] text-left"
-                  style={{ color:"var(--text-muted)", fontWeight:500 }}>
-                  <span className="qx-typerow-ico w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-base"
-                    style={{ background:"var(--surface-2)" }}>{m.emoji}</span>
-                  {m.title.replace(/ QR Code$/,"")}
-                  <FiArrowRight size={12} className="ml-auto" style={{ color:"var(--text-faint)" }}/>
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          {/* CENTER — Generator form (Fireship orange) */}
+          {/* LEFT — Generator form; type selector lives inside as a chip row (Mission 42) */}
           <div data-mascot-anchor="generator" className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#ffffff" } as React.CSSProperties}>
             <div className="px-2 pt-1 pb-3">
-              <div className="qx-fcard-title text-[19px]">
+              <div className="qx-fcard-title text-[21px]">
                 {lang==="uz"?"QR ЯРАТИШ" : lang==="ru"?"СОЗДАТЬ QR" : "CREATE QR CODE"}
               </div>
-              <div className="qx-fcard-sub text-[12px] mt-0.5">{t.cardSub}</div>
+              <div className="qx-fcard-sub text-[12.5px] mt-0.5">{t.cardSub}</div>
             </div>
             <div className="qx-fcard-panel flex flex-col flex-1 p-4">
+
+            {/* format chips — the old type card, compressed */}
+            <div className="flex flex-wrap gap-1.5 mb-3.5">
+              {[...tabs, ...moreTabs].map((tb) => (
+                <button key={tb.id} onClick={()=>{ setTab(tb.id); setMoreOpen(false); }}
+                  className="qx-typechip inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold"
+                  style={{
+                    background: tab===tb.id ? "#ff4d1c" : "var(--surface-2)",
+                    color: tab===tb.id ? "#0e0e0c" : "var(--text-muted)",
+                    border: "1px solid " + (tab===tb.id ? "#ff4d1c" : "var(--card-border)"),
+                  }}>
+                  {tb.icon}{tb.label}
+                </button>
+              ))}
+              <Link href="/qr-tools"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold"
+                style={{ color:"var(--primary-bright)", border:"1px dashed var(--card-border)" }}>
+                {lang==="uz"?"Барча форматлар" : lang==="ru"?"Все форматы" : "All formats"} <FiArrowRight size={11}/>
+              </Link>
+            </div>
 
             {/* Form fields */}
             <div className="space-y-2.5 flex-1">

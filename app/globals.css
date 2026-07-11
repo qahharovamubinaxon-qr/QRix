@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=SUSE:wght@500;600;700;800&family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Anton&family=Oswald:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=SUSE:wght@500;600;700;800&family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Anton&family=Oswald:wght@600;700&family=Unbounded:wght@700;800;900&display=swap');
 @import "tailwindcss";
 @import "./design-v2.css";
 
@@ -1099,3 +1099,4 @@ html.qx-perf .qx-cs-card::after { display: none; }
   .qx-card { backdrop-filter: none; }
 }
 /* nudge 1783805888 */
+/* nudge2 1783808215 */

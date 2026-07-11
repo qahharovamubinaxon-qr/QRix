@@ -261,7 +261,7 @@ export default function CategoryShowcase() {
           padding: 18px 20px; text-decoration: none;
           background:
             radial-gradient(120% 90% at 82% -10%, color-mix(in srgb, var(--cf-accent) 26%, transparent) 0%, transparent 55%),
-            var(--qx-cf-bg, #141414);
+            var(--qx-cf-bg, linear-gradient(165deg, #47200d 0%, #2c1408 52%, #1e0d06 100%));
           border: 1px solid var(--qx-cf-line, rgba(255,255,255,0.09));
           transform-origin: center center;
           transition: transform ${DUR}s ${EASE}, opacity ${DUR}s ${EASE}, border-color 0.3s;
@@ -269,7 +269,7 @@ export default function CategoryShowcase() {
         }
         .qx-cf-card.is-active { cursor: pointer; }
         .qx-cf-card.is-active:hover { border-color: color-mix(in srgb, var(--cf-accent) 55%, transparent); }
-        html.light .qx-cf-card { --qx-cf-bg: #ffffff; --qx-cf-line: rgba(0,0,0,0.09); }
+        html.light .qx-cf-card { --qx-cf-bg: #fff4ec; --qx-cf-line: rgba(120,50,10,0.14); }
 
         .qx-cf-emoji {
           position: absolute; top: 16px; left: 20px;

@@ -371,12 +371,16 @@ body { transition: background-color 1.1s var(--ease-in-out), color 0.3s ease; }
 }
 .qx-scene[data-scene="era"]::after { content: none; }
 .qx-scene[data-scene="deep"] {
+  /* Mission 42: deep-orange breath in the black — never plain */
   background:
-    radial-gradient(120% 90% at 50% -12%, #17171a 0%, #0d0d0f 42%, #08080a 72%, #050506 100%);
+    radial-gradient(58% 44% at 84% -8%, rgba(255, 106, 19, 0.14) 0%, transparent 60%),
+    radial-gradient(48% 40% at 6% 106%, rgba(255, 77, 28, 0.1) 0%, transparent 62%),
+    radial-gradient(120% 90% at 50% -12%, #18120e 0%, #0e0b09 42%, #090707 72%, #050505 100%);
 }
 .qx-scene[data-scene="dusk"] {
   background:
-    radial-gradient(110% 80% at 50% 112%, #1a100a 0%, #0e0a08 46%, #060505 100%);
+    radial-gradient(52% 40% at 12% -6%, rgba(255, 106, 19, 0.12) 0%, transparent 58%),
+    radial-gradient(110% 80% at 50% 112%, #2a1409 0%, #120b07 46%, #060505 100%);
 }
 /* readability veil: darker top and bottom, gentle vignette */
 .qx-scene::after {
@@ -782,20 +786,47 @@ html.light .qx-era {
 
 .qx-era-title {
   position: relative; z-index: 1;
-  font-family: "Anton", "Oswald", var(--font-display), sans-serif;
-  font-weight: 400; text-transform: uppercase;
-  font-size: clamp(46px, 9.4vw, 164px);
-  line-height: 0.98; letter-spacing: 0.004em;
+  font-family: "Unbounded", "Oswald", var(--font-display), sans-serif;
+  font-weight: 900; text-transform: uppercase;
+  font-size: clamp(30px, 6.6vw, 110px);
+  line-height: 1.02; letter-spacing: -0.015em;
   text-align: center; color: #fff;
-  margin-top: 8px; text-wrap: balance;
+  margin-top: 10px; text-wrap: balance;
+}
+/* staggered word reveal on load (Kowalski: transform+opacity, ease-out).
+   from-only keyframes + backwards fill: content can never get stuck hidden. */
+.qx-era-w { display: inline-block; overflow: hidden; vertical-align: bottom; padding: 0 0.14em; }
+.qx-era-w > span {
+  display: inline-block;
+  animation: qxEraWord 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(0.15s + var(--i, 0) * 0.1s);
+}
+@keyframes qxEraWord {
+  from { transform: translateY(112%); opacity: 0; }
 }
 
 .qx-era-ghost {
   position: absolute; left: 50%; top: 30%; transform: translateX(-50%);
   z-index: 0; pointer-events: none; user-select: none;
-  font-family: "Anton", "Oswald", sans-serif; line-height: 1;
-  font-size: clamp(140px, 27vw, 460px);
-  color: rgba(186, 60, 4, 0.32);
+  font-family: "Unbounded", "Oswald", sans-serif; line-height: 1;
+  font-weight: 900;
+  font-size: clamp(100px, 20vw, 330px);
+  color: rgba(186, 60, 4, 0.34);
+  animation: qxGhostIn 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.35s backwards;
+}
+@keyframes qxGhostIn {
+  from { opacity: 0; transform: translateX(-50%) scale(1.05); }
+}
+
+/* the rest of the hero rises after the headline */
+.qx-era-side, .qx-era-marq {
+  animation: qxEraUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.qx-era-side--left { animation-delay: 0.55s; }
+.qx-era-side--right { animation-delay: 0.7s; }
+.qx-era-marq { animation-delay: 0.9s; }
+@keyframes qxEraUp {
+  from { opacity: 0; transform: translateY(18px); }
 }
 
 .qx-era-stage {
@@ -807,12 +838,13 @@ html.light .qx-era {
 .qx-era-side--left { grid-column: 1; justify-self: start; max-width: 340px; }
 .qx-era-side--right { grid-column: 3; justify-self: end; width: min(100%, 420px); }
 .qx-era-kicker {
-  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.95); margin-bottom: 12px;
+  font-size: 13.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: #fff; margin-bottom: 14px; font-weight: 700;
   text-shadow: 0 1px 10px rgba(150, 45, 0, 0.4);
 }
 .qx-era-copy {
-  font-size: 13.5px; line-height: 1.7; color: rgba(255, 255, 255, 0.88);
+  font-size: 16.5px; line-height: 1.75; color: rgba(255, 255, 255, 0.94);
+  font-weight: 500;
   text-shadow: 0 1px 12px rgba(150, 45, 0, 0.35);
 }
 .qx-era .qx-hsearch { width: 100%; margin: 0; }
@@ -840,15 +872,24 @@ html.light .qx-era {
 @keyframes qxEraMarq { to { transform: translateX(-50%); } }
 
 /* ── the bunny: fixed stage, scroll choreography lives in EraBunny.tsx ── */
-.qx-bunny-stage {
-  position: fixed; left: 50%; bottom: 0; z-index: 5;
-  height: min(72vh, 780px);
-  pointer-events: none; will-change: transform, opacity;
-  transform: translateX(-50%);
-  filter: drop-shadow(0 34px 60px rgba(90, 24, 0, 0.38));
+/* the mascot film: fixed layer, two slots that cross-fade (no gliding) */
+.qx-bunny-fixed { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+.qx-bunny-fixed--static { position: absolute; }
+.qx-bunny-slot {
+  position: absolute; will-change: transform, opacity;
+  filter: drop-shadow(0 30px 55px rgba(90, 24, 0, 0.35));
 }
-.qx-bunny-stage--static { position: absolute; }
-.qx-bunny-img { height: 100%; width: auto; display: block; user-select: none; }
+/* hero walk loop, centre stage (video is 760x1080 → width = h * 0.704) */
+.qx-bunny-slot--hero {
+  bottom: 0; height: min(70vh, 740px);
+  left: calc(50% - min(70vh, 740px) * 0.352);
+}
+/* generator idle close-up, left column (840x1080 → width = h * 0.778) */
+.qx-bunny-slot--gen {
+  bottom: 14vh; height: min(54vh, 540px);
+  left: 4vw;
+}
+.qx-bunny-media { height: 100%; width: auto; display: block; user-select: none; }
 
 /* smaller cousins living in lower sections */
 .qx-bunny-peek { position: absolute; bottom: -14px; z-index: 1; pointer-events: none; }
@@ -919,11 +960,16 @@ html.light .qx-fcard-panel {
     padding-top: 44vh; padding-bottom: 8px;
   }
   .qx-era-side--left, .qx-era-side--right { grid-column: 1; justify-self: stretch; max-width: none; width: 100%; }
-  .qx-bunny-stage { height: 44vh; }
+  .qx-bunny-slot--hero { height: 42vh; left: calc(50% - 42vh * 0.352); }
+  .qx-bunny-slot--gen { display: none; }
+  .qx-era-title { font-size: clamp(26px, 8.6vw, 44px); }
   .qx-hs-fly { bottom: calc(100% + 10px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .qx-era-marq-track { animation: none; }
   .qx-hs-fly { animation: none; }
+  .qx-era-w > span, .qx-era-ghost, .qx-era-side, .qx-era-marq {
+    animation: none; opacity: 1; transform: none;
+  }
 }
