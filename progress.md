@@ -69,8 +69,10 @@
 
 - **Mission 39b — Auth panel artwork (user's Pinterest picks)**: the two pinned cyber-ninja artworks (pin.it short links → resolved via `widgets.pinterest.com/v3/pidgets/pins/info?pin_ids=` since pin pages are JS shells) now live on the auth overlay: red-strap ninja (`/scenes/auth-signin.webp`, 59KB) on the sign-in view panel, blue/neon ninja (`/scenes/auth-signup.webp`, 58KB) on the sign-up view panel; backgrounds moved from shared `.qx-auth-ov-inner` (poster dropped, dark radial kept) to per-panel `center 18% / cover` + readability gradient. Verified both slide states in real Chrome (light theme).
 
+- **Mission 39c — Living auth panels (`9a73d49`)**: the two ninja artworks animated in the site's "living still" language (AI video credits = 0): art moved to `.qx-auth-ov-panel::before` (own GPU layer, 24s Ken Burns drift scale 1.03→1.11, right panel −12s offset), `::after` = screen-blended radial glows placed over each artwork's light sources (mask eyes / cyan glyph / pink straps · blue flame / red straps) breathing 5.4s, 7 rising embers (`.qx-embers` reused) span the overlay and travel with the slide; panels overflow hidden; reduced-motion kills all three; light theme keeps sparks (override of global hide). Verified live: computed animationNames + frame-compare screenshots.
+
 ## Current Mission
-Auth redesign done (M39 + M39b art). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
+Auth redesign done (M39 + 39b art + 39c animation). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
