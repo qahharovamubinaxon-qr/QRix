@@ -701,9 +701,10 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 .qx-auth--signup .qx-auth-ov-panel--left { transform: translateX(0); }
 .qx-auth-ov-panel--right { right: 0; }
 .qx-auth-ov-panel--right::before {
+  /* 72% x: the mascot sits toward the form side of the card */
   background:
     linear-gradient(180deg, rgba(8, 8, 8, 0.42) 0%, rgba(8, 8, 8, 0.26) 42%, rgba(8, 8, 8, 0.7) 100%),
-    url("/scenes/auth-signin.webp") center 18% / cover no-repeat;
+    url("/scenes/auth-signin.webp") 72% 18% / cover no-repeat;
   animation-delay: -12s;
 }
 .qx-auth-ov-panel--right::after { animation-delay: -3.6s; }
