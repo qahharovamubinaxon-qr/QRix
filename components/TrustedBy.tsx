@@ -25,7 +25,7 @@ const BRANDS: [string, string, IconType][] = [
 export default function TrustedBy({ heading }: { heading: string }) {
   const row = [...BRANDS, ...BRANDS];
   return (
-    <section className="max-w-[1400px] mx-auto px-5 lg:px-8 py-20 lg:py-28" aria-label={heading}>
+    <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-16 pb-8 lg:pt-20 lg:pb-10" aria-label={heading}>
       <p data-reveal className="text-center text-[13px] font-bold uppercase tracking-[.2em] mb-12" style={{ color: "var(--text-faint)" }}>
         {heading}
       </p>

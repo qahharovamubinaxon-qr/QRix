@@ -51,7 +51,7 @@ export default function HomeFaq({ lang }: { lang: Lang }) {
   const tt = TITLES[lang] || TITLES.en;
 
   return (
-    <section className="max-w-3xl mx-auto px-5 pb-24 lg:pb-32" aria-label={tt.t}>
+    <section className="max-w-3xl mx-auto px-5 pb-16 lg:pb-20" aria-label={tt.t}>
       {/* FAQ rich results — always emit the English set for search engines */}
       <script
         type="application/ld+json"

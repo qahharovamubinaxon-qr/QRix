@@ -592,28 +592,34 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 @media (prefers-reduced-motion: reduce) { .qx-status-dot { animation: none; } }
 
 /* ── Mission 38: quiet proof band (numbers + logos as one zone) ─────── */
+/* Mission 44: the numbers ride an orange card now */
 .qx-proof {
   display: flex; flex-wrap: wrap; align-items: stretch;
-  border-top: 1px solid rgba(255, 77, 28, 0.16);
-  border-bottom: 1px solid rgba(255, 77, 28, 0.16);
+  border-radius: 24px; overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background:
+    radial-gradient(90% 90% at 50% -25%, rgba(255, 196, 130, 0.45) 0%, transparent 55%),
+    linear-gradient(170deg, #ff8a3c 0%, #ff6a13 46%, #e85708 100%);
+  box-shadow: 0 24px 70px rgba(210, 75, 8, 0.28);
 }
 .qx-proof-item {
   flex: 1 1 160px; display: flex; flex-direction: column; gap: 8px;
-  padding: 26px 26px 24px;
-  border-left: 1px solid var(--border);
+  padding: 28px 26px 26px;
+  border-left: 1px solid rgba(255, 255, 255, 0.22);
 }
 .qx-proof-item:first-child { border-left: 0; }
 .qx-proof-num {
   font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em;
-  font-size: clamp(24px, 2.6vw, 34px); line-height: 1; color: var(--text);
+  font-size: clamp(24px, 2.6vw, 34px); line-height: 1; color: #fff;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 14px rgba(140, 45, 0, 0.35);
 }
 .qx-proof-lbl {
   font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--text-faint);
+  color: rgba(255, 255, 255, 0.85);
 }
 @media (max-width: 720px) {
-  .qx-proof-item { flex-basis: 50%; border-top: 1px solid var(--border); }
+  .qx-proof-item { flex-basis: 50%; border-top: 1px solid rgba(255, 255, 255, 0.22); }
   .qx-proof-item:nth-child(-n+2) { border-top: 0; }
   .qx-proof-item:nth-child(odd) { border-left: 0; }
 }
@@ -887,15 +893,15 @@ html.light .qx-glitter { display: none; }
   position: absolute; will-change: transform, opacity;
   filter: drop-shadow(0 30px 55px rgba(90, 24, 0, 0.35));
 }
-/* hero walk loop, centre stage (video is 760x1080 → width = h * 0.704) */
+/* hero: cream bunny loop, centre stage (520x1270 → width = h * 0.409) */
 .qx-bunny-slot--hero {
   bottom: 0; height: min(70vh, 740px);
-  left: calc(50% - min(70vh, 740px) * 0.352);
+  left: calc(50% - min(70vh, 740px) * 0.205);
 }
-/* generator idle close-up, left column (840x1080 → width = h * 0.778) */
+/* generator: small blue-sneaker bunny by the CREATE card (square clip) */
 .qx-bunny-slot--gen {
-  bottom: 14vh; height: min(54vh, 540px);
-  left: 4vw;
+  bottom: 16vh; height: min(44vh, 400px);
+  left: 4.5vw;
 }
 .qx-bunny-media { height: 100%; width: auto; display: block; user-select: none; }
 
