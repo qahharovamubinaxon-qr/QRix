@@ -12,8 +12,8 @@ import HomeFaq from "@/components/HomeFaq";
 import LatestPosts from "@/components/LatestPosts";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
-import { ScrambleIn } from "@/components/Scramble";
 import HeroSearch from "@/components/HeroSearch";
+import EraBunny, { BunnyPeek } from "@/components/EraBunny";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -171,14 +171,7 @@ function CountUp({ end, suffix = "" }: { end: number; suffix?: string }) {
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>("en");
   const t = T[lang];
-  // Mission 21: scramble entrance + corner-anchored headline pairs
-  const [entrance, setEntrance] = useState(false);
-  useEffect(() => { const id = setTimeout(() => setEntrance(true), 250); return () => clearTimeout(id); }, []);
-  // benefit headline covering every tool family — compact, sentence case
-  const [heroL1, heroL2, heroR1] =
-    lang === "uz" ? ["QR кодлар яратинг.", "PDF ва расмни ўзгартиринг.", "AI · Видео · 3D — бепул."]
-    : lang === "ru" ? ["Создавай QR коды.", "Конвертируй PDF и фото.", "AI · Видео · 3D — бесплатно."]
-    : ["Create QR codes.", "Convert PDF & image.", "AI · Video · 3D — free."];
+  // Mission 41: NEW TOOLS ERA hero — the bunny carries the entrance now.
 
   /* ===== Tabs & forms ===== */
   const [tab, setTab] = useState("url");
@@ -376,11 +369,7 @@ export default function HomePage() {
       {/* Katana-style scroll scenes: fixed full-viewport canvas that cross-fades
           between rich gradient scenes as sections pass the viewport center. */}
       <div className="qx-scenes" aria-hidden>
-        <div className="qx-scene on" data-scene="base">
-          {/* the user's own animated samurai — plays on, fixed, while you scroll */}
-          <video className="qx-scene-video" src="/scenes/hero-samurai.mp4"
-            poster="/scenes/hero-video-poster.webp" autoPlay muted loop playsInline />
-        </div>
+        <div className="qx-scene on" data-scene="era" />
         <div className="qx-scene" data-scene="deep" />
         <div className="qx-scene" data-scene="dusk" />
       </div>
@@ -392,51 +381,63 @@ export default function HomePage() {
         .qx-toggle.off{background:var(--surface-hover)}
       `}</style>
 
-      {/* ================= HERO ================= */}
-      <section data-scene="base" className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-14 lg:pt-20 pb-24 lg:pb-32 relative">
-        {/* Mission 22: Mockit-language hero — near-black, one hot accent, giant condensed caps */}
-        <div className="qx-dotgrid" aria-hidden />
-        <div className="qx-hero-light" aria-hidden />
-        <div className="min-h-[88svh] flex flex-col justify-center relative z-10 py-10 gap-8">
-          <div className="flex-1 grid items-center gap-8 lg:grid-cols-[minmax(0,540px)_1fr]">
-            {/* left: what the client gets — compact editorial type */}
-            <div className="text-center lg:text-left">
-              <h1 className="qx-hero-title">
-                <span className="block"><ScrambleIn text={heroL1} delay={150} triggered={entrance} /></span>
-                <span className="block" style={{ color: "var(--primary-bright)" }}><ScrambleIn text={heroL2} delay={480} triggered={entrance} /></span>
-                <span className="block"><ScrambleIn text={heroR1} delay={820} triggered={entrance} /></span>
-              </h1>
-              <p className="max-w-md text-[14px] sm:text-[15px] leading-relaxed mt-5 mx-auto lg:mx-0" style={{ color: "var(--text-muted)" }}>
-                {t.sub}
+      {/* ================= HERO — NEW TOOLS ERA (Mission 41) ================= */}
+      <section data-scene="era" className="qx-era relative">
+        <EraBunny />
+        <div className="max-w-[1480px] mx-auto px-5 lg:px-8 relative flex flex-col min-h-[96svh] pt-6 lg:pt-8">
+          <span className="qx-era-ghost" aria-hidden>QRIX</span>
+
+          <h1 className="qx-era-title">
+            {lang === "uz" ? "ЯНГИ ВОСИТАЛАР ДАВРИ" : lang === "ru" ? "НОВАЯ ЭРА ИНСТРУМЕНТОВ" : "NEW TOOLS ERA"}
+            <span className="sr-only"> — QRix. {t.sub}</span>
+          </h1>
+
+          <div className="qx-era-stage">
+            {/* left of the bunny — who QRix is */}
+            <div className="qx-era-side qx-era-side--left">
+              <p className="qx-era-kicker qx-mono">
+                {lang === "uz" ? "// МЕН QRIX — БАРЧАСИ БРАУЗЕРИНГИЗДА"
+                  : lang === "ru" ? "// Я QRIX — ВСЁ В ВАШЕМ БРАУЗЕРЕ"
+                  : "// I'M QRIX — EVERYTHING IN YOUR BROWSER"}
               </p>
+              <p className="qx-era-copy">{t.sub}</p>
             </div>
 
-            {/* the samurai breathes in this gap */}
-            <div className="hidden lg:block" aria-hidden />
+            {/* right of the bunny — the tool finder */}
+            <div className="qx-era-side qx-era-side--right">
+              <p className="qx-era-kicker qx-mono">
+                {lang === "uz" ? "// ИШИНГИЗГА МОС ВОСИТА ТОПИНГ"
+                  : lang === "ru" ? "// ИНСТРУМЕНТЫ ПОД ВАШИ ЗАДАЧИ"
+                  : "// TOOLS THAT SPEAK YOUR WORKFLOW"}
+              </p>
+              <HeroSearch fly placeholder={
+                lang === "uz" ? "Асбоб қидиринг… (жпг то пдф ҳам бўлади)"
+                : lang === "ru" ? "Найдите инструмент… (можно кириллицей)"
+                : "Search 185+ tools… (e.g. jpg to pdf)"
+              } />
+            </div>
           </div>
 
-          {/* Coverr-style tool finder stays centered: "jpg to pdf" → that tool */}
-          <div>
-            <HeroSearch placeholder={
-              lang === "uz" ? "Асбоб қидиринг… (масалан: jpg to pdf)"
-              : lang === "ru" ? "Найдите инструмент… (например: jpg to pdf)"
-              : "Search 185+ tools… (e.g. jpg to pdf)"
-            } />
-
-            {/* category quick links (the "Trending:" row) */}
-            <div className="qx-hcats">
-              <span className="qx-hcats-label">{lang === "uz" ? "Бўлимлар:" : lang === "ru" ? "Разделы:" : "Tools:"}</span>
-              {([["QR Tools", "/qr-tools"], ["PDF Tools", "/pdf-tools"], ["Image Tools", "/image-tools"],
-                 ["AI Tools", "/ai-tools"], ["Video Tools", "/video-tools"], ["3D Tools", "/3d-tools"]] as const
-              ).map(([label, href]) => (
-                <Link key={href} href={href} className="qx-hcat">{label}</Link>
+          {/* the reference's brand row — our six tool families, drifting */}
+          <div className="qx-era-marq" aria-label="Tool categories">
+            <div className="qx-era-marq-track">
+              {[0, 1].map((dup) => (
+                <div className="qx-era-marq-seg" key={dup} aria-hidden={dup === 1}>
+                  {([["QR TOOLS", "/qr-tools"], ["PDF TOOLS", "/pdf-tools"], ["IMAGE TOOLS", "/image-tools"],
+                     ["AI TOOLS", "/ai-tools"], ["VIDEO TOOLS", "/video-tools"], ["3D TOOLS", "/3d-tools"]] as const
+                  ).map(([label, href]) => (
+                    <Link key={`${href}-${dup}`} href={href} className="qx-era-cat" tabIndex={dup === 1 ? -1 : 0}>{label}</Link>
+                  ))}
+                </div>
               ))}
             </div>
           </div>
         </div>
+      </section>
 
-        {/* ── BOTTOM: 3 equal cards ── */}
-        <div id="generator" className="grid lg:grid-cols-3 gap-5 items-stretch relative z-10">
+      {/* ================= GENERATOR — bunny glides left, glass cards right ================= */}
+      <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-20 lg:pt-28 pb-24 relative">
+        <div id="generator" className="lg:ml-[26vw] grid lg:grid-cols-3 gap-5 items-stretch relative z-10">
 
           {/* LEFT — QR Type selector (Fireship green) */}
           <div className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#ff4d1c" } as React.CSSProperties}>
@@ -702,7 +703,8 @@ export default function HomePage() {
       <div data-scene="dusk"><ReviewsSection lang={lang} /></div>
 
       {/* ================= PRICING TEASER (trust sits right above) ================= */}
-      <section data-scene="dusk" className="max-w-4xl mx-auto px-5 pb-24" data-reveal="perspective" aria-label="Pricing">
+      <section data-scene="dusk" className="max-w-4xl mx-auto px-5 pb-24 relative" data-reveal="perspective" aria-label="Pricing">
+        <BunnyPeek pose="walk" side="left" />
         <div className="text-center mb-8">
           <h2 className="font-display text-3xl lg:text-4xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
             {lang === "uz" ? "Оддий нархлар" : lang === "ru" ? "Простые тарифы" : "Simple pricing"}
@@ -732,7 +734,8 @@ export default function HomePage() {
       </section>
 
       {/* ================= FINAL CTA ================= */}
-      <section className="max-w-3xl mx-auto px-5 pb-24 lg:pb-32 text-center" data-reveal="scale">
+      <section className="max-w-3xl mx-auto px-5 pb-24 lg:pb-32 text-center relative" data-reveal="scale">
+        <BunnyPeek pose="point" side="right" />
         <h2 className="font-display text-3xl lg:text-5xl font-extrabold leading-tight" style={{ color: "var(--text)" }}>
           {lang === "uz" ? "Бугуноқ бошланг — бепул" : lang === "ru" ? "Начните сегодня — бесплатно" : "Start creating today — free"}
         </h2>

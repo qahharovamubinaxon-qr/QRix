@@ -362,20 +362,21 @@ body { transition: background-color 1.1s var(--ease-in-out), color 0.3s ease; }
 .qx-scene.on { opacity: 1; }
 /* Mission 30: the user's Gemini artworks ARE the scenes — the gradient
    underlayers keep the canvas alive while the webp streams in. */
-.qx-scene[data-scene="base"] {
+/* Mission 41: NEW TOOLS ERA — saturated orange hero that fades to a clean
+   professional near-black as you scroll (katana crossfade engine reused). */
+.qx-scene[data-scene="era"] {
   background:
-    url("/scenes/hero-samurai.webp") center / cover no-repeat,
-    radial-gradient(70% 55% at 50% 78%, #4a1204 0%, #1a0602 55%, #060404 100%);
+    radial-gradient(90% 70% at 50% 6%, rgba(255, 178, 102, 0.55) 0%, transparent 55%),
+    linear-gradient(178deg, #ff8a3c 0%, #ff6a13 42%, #f05a08 78%, #d94e05 100%);
 }
+.qx-scene[data-scene="era"]::after { content: none; }
 .qx-scene[data-scene="deep"] {
   background:
-    url("/scenes/valley.webp") center / cover no-repeat,
-    radial-gradient(130% 100% at 50% -10%, #091324 0%, #050a13 40%, #030508 75%, #020203 100%);
+    radial-gradient(120% 90% at 50% -12%, #17171a 0%, #0d0d0f 42%, #08080a 72%, #050506 100%);
 }
 .qx-scene[data-scene="dusk"] {
   background:
-    url("/scenes/valley.webp") center / cover no-repeat,
-    radial-gradient(120% 90% at 50% 110%, #190b05 0%, #0c0608 48%, #040303 100%);
+    radial-gradient(110% 80% at 50% 112%, #1a100a 0%, #0e0a08 46%, #060505 100%);
 }
 /* readability veil: darker top and bottom, gentle vignette */
 .qx-scene::after {
@@ -768,4 +769,161 @@ html.light .qx-auth-ov .qx-embers { display: block; }
   .qx-auth-ov-panel::before, .qx-auth-ov-panel::after { animation: none !important; }
   .qx-auth-ov .qx-embers { display: none; }
   .qx-auth-spin { animation-duration: 1.6s; }
+}
+
+/* ── Mission 41: NEW TOOLS ERA hero ─────────────────────────────────── */
+.qx-era { color: #fff; }
+/* scenes canvas is dark-theme only — paint the section itself in light mode */
+html.light .qx-era {
+  background:
+    radial-gradient(90% 70% at 50% 6%, rgba(255, 178, 102, 0.55) 0%, transparent 55%),
+    linear-gradient(178deg, #ff8a3c 0%, #ff6a13 42%, #f05a08 78%, #d94e05 100%);
+}
+
+.qx-era-title {
+  position: relative; z-index: 1;
+  font-family: "Anton", "Oswald", var(--font-display), sans-serif;
+  font-weight: 400; text-transform: uppercase;
+  font-size: clamp(46px, 9.4vw, 164px);
+  line-height: 0.98; letter-spacing: 0.004em;
+  text-align: center; color: #fff;
+  margin-top: 8px; text-wrap: balance;
+}
+
+.qx-era-ghost {
+  position: absolute; left: 50%; top: 30%; transform: translateX(-50%);
+  z-index: 0; pointer-events: none; user-select: none;
+  font-family: "Anton", "Oswald", sans-serif; line-height: 1;
+  font-size: clamp(140px, 27vw, 460px);
+  color: rgba(186, 60, 4, 0.32);
+}
+
+.qx-era-stage {
+  position: relative; z-index: 6; flex: 1;
+  display: grid; grid-template-columns: 1fr minmax(0, 26vw) 1fr;
+  align-items: center; column-gap: 24px;
+  margin-top: clamp(8px, 2vh, 28px);
+}
+.qx-era-side--left { grid-column: 1; justify-self: start; max-width: 340px; }
+.qx-era-side--right { grid-column: 3; justify-self: end; width: min(100%, 420px); }
+.qx-era-kicker {
+  font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.95); margin-bottom: 12px;
+  text-shadow: 0 1px 10px rgba(150, 45, 0, 0.4);
+}
+.qx-era-copy {
+  font-size: 13.5px; line-height: 1.7; color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 12px rgba(150, 45, 0, 0.35);
+}
+.qx-era .qx-hsearch { width: 100%; margin: 0; }
+
+/* six families drift like the reference's brand row */
+.qx-era-marq {
+  position: relative; z-index: 6; overflow: hidden;
+  margin-top: auto; padding: 20px 0 26px;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.qx-era-marq-track { display: flex; width: max-content; animation: qxEraMarq 28s linear infinite; }
+.qx-era-marq:hover .qx-era-marq-track { animation-play-state: paused; }
+.qx-era-marq-seg {
+  display: flex; align-items: center;
+  gap: clamp(36px, 6vw, 92px); padding-right: clamp(36px, 6vw, 92px);
+}
+.qx-era-cat {
+  font-family: "Anton", "Oswald", sans-serif;
+  font-size: clamp(20px, 2.3vw, 30px); letter-spacing: 0.05em;
+  color: #fff; opacity: 0.94; text-decoration: none; white-space: nowrap;
+  transition: opacity 0.25s, transform 0.25s;
+}
+.qx-era-cat:hover { opacity: 1; transform: translateY(-2px); }
+@keyframes qxEraMarq { to { transform: translateX(-50%); } }
+
+/* ── the bunny: fixed stage, scroll choreography lives in EraBunny.tsx ── */
+.qx-bunny-stage {
+  position: fixed; left: 50%; bottom: 0; z-index: 5;
+  height: min(72vh, 780px);
+  pointer-events: none; will-change: transform, opacity;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 34px 60px rgba(90, 24, 0, 0.38));
+}
+.qx-bunny-stage--static { position: absolute; }
+.qx-bunny-img { height: 100%; width: auto; display: block; user-select: none; }
+
+/* smaller cousins living in lower sections */
+.qx-bunny-peek { position: absolute; bottom: -14px; z-index: 1; pointer-events: none; }
+.qx-bunny-peek--right { right: -190px; }
+.qx-bunny-peek--left { left: -210px; }
+.qx-bunny-peek img {
+  height: clamp(190px, 27vh, 310px); width: auto; display: block;
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.45));
+}
+@media (max-width: 1280px) { .qx-bunny-peek { display: none; } }
+
+/* ── search: the best match flies in from the corner ── */
+.qx-hs-fly {
+  position: absolute; bottom: calc(100% + 14px); left: 0; width: 100%; z-index: 40;
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: 16px; cursor: pointer; text-align: left;
+  background: rgba(10, 10, 12, 0.8);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.38);
+  animation: qxFlyIn 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
+  color: #fff;
+}
+.qx-hs-fly:hover { border-color: rgba(255, 255, 255, 0.5); }
+.qx-hs-fly-ic { font-size: 22px; line-height: 1; }
+.qx-hs-fly-title { display: block; font-weight: 700; font-size: 14.5px; color: #fff; }
+.qx-hs-fly-grp { display: block; margin-top: 2px; font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255, 255, 255, 0.62); }
+.qx-hs-fly-go { margin-left: auto; color: #ffb790; }
+@keyframes qxFlyIn {
+  0%   { transform: translate(44vw, -32vh) rotate(7deg) scale(0.45); opacity: 0; }
+  45%  { opacity: 1; }
+  100% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+}
+
+/* ── Mission 41: generator cards go glass (see-through, blurred) ── */
+.qx-fcard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.07) inset;
+}
+.qx-fcard:hover {
+  border-color: rgba(255, 255, 255, 0.24);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 255, 255, 0.1) inset;
+}
+.qx-fcard-panel {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+html.light .qx-fcard {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+}
+html.light .qx-fcard-panel {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(0, 0, 0, 0.07);
+  --text: #0d1117; --text-muted: #374151; --text-faint: #6b7280;
+  --card-border: rgba(0, 0, 0, 0.12); --surface-2: rgba(0, 0, 0, 0.04);
+}
+
+/* stacked hero on small screens: the fixed bunny floats over this gap */
+@media (max-width: 1023px) {
+  .qx-era-stage {
+    grid-template-columns: 1fr; row-gap: 20px;
+    padding-top: 44vh; padding-bottom: 8px;
+  }
+  .qx-era-side--left, .qx-era-side--right { grid-column: 1; justify-self: stretch; max-width: none; width: 100%; }
+  .qx-bunny-stage { height: 44vh; }
+  .qx-hs-fly { bottom: calc(100% + 10px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qx-era-marq-track { animation: none; }
+  .qx-hs-fly { animation: none; }
 }
