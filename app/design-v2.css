@@ -675,24 +675,60 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 .qx-auth-ov-panel {
   position: absolute; top: 0; height: 100%; width: 50%;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  text-align: center; padding: 0 48px;
+  text-align: center; padding: 0 48px; overflow: hidden;
   transform: translateX(0);
   transition: transform .65s cubic-bezier(.77, 0, .175, 1);
 }
-.qx-auth-ov-panel--left {
-  transform: translateX(-20%);
+/* living artwork — slow Ken Burns drift on its own GPU layer */
+.qx-auth-ov-panel::before {
+  content: ""; position: absolute; inset: 0; z-index: -2;
+  transform-origin: 50% 16%;
+  animation: qxAuthDrift 24s ease-in-out infinite alternate;
+}
+/* neon breathing — screen-blended glows over the art's light sources */
+.qx-auth-ov-panel::after {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  mix-blend-mode: screen; pointer-events: none;
+  animation: qxAuthGlow 5.4s ease-in-out infinite;
+}
+.qx-auth-ov-panel--left { transform: translateX(-20%); }
+.qx-auth-ov-panel--left::before {
   background:
     linear-gradient(180deg, rgba(8, 8, 8, 0.42) 0%, rgba(8, 8, 8, 0.26) 42%, rgba(8, 8, 8, 0.7) 100%),
     url("/scenes/auth-signup.webp") center 18% / cover no-repeat;
 }
+.qx-auth-ov-panel--left::after {
+  background:
+    radial-gradient(30% 20% at 50% 9%, rgba(80, 140, 255, 0.55), transparent 70%),
+    radial-gradient(24% 18% at 72% 24%, rgba(0, 215, 255, 0.45), transparent 72%),
+    radial-gradient(34% 28% at 30% 62%, rgba(255, 70, 190, 0.32), transparent 75%);
+}
 .qx-auth--signup .qx-auth-ov-panel--left { transform: translateX(0); }
-.qx-auth-ov-panel--right {
-  right: 0;
+.qx-auth-ov-panel--right { right: 0; }
+.qx-auth-ov-panel--right::before {
   background:
     linear-gradient(180deg, rgba(8, 8, 8, 0.42) 0%, rgba(8, 8, 8, 0.26) 42%, rgba(8, 8, 8, 0.7) 100%),
     url("/scenes/auth-signin.webp") center 18% / cover no-repeat;
+  animation-delay: -12s;
+}
+.qx-auth-ov-panel--right::after {
+  background:
+    radial-gradient(30% 24% at 70% 20%, rgba(70, 120, 255, 0.5), transparent 70%),
+    radial-gradient(38% 30% at 36% 46%, rgba(255, 70, 40, 0.4), transparent 74%),
+    radial-gradient(26% 18% at 50% 9%, rgba(120, 160, 255, 0.35), transparent 70%);
+  animation-delay: -2.7s;
 }
 .qx-auth--signup .qx-auth-ov-panel--right { transform: translateX(20%); }
+@keyframes qxAuthDrift {
+  from { transform: scale(1.03); }
+  to   { transform: scale(1.11) translateY(-1.8%); }
+}
+@keyframes qxAuthGlow {
+  0%, 100% { opacity: 0.25; }
+  50%      { opacity: 0.85; }
+}
+/* auth panels stay dark art in light theme — keep the sparks visible there */
+html.light .qx-auth-ov .qx-embers { display: block; }
 
 .qx-auth-ov-brand { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; color: #fff; margin-bottom: 26px; }
 .qx-auth-ov-brand em { font-style: normal; color: #ff7a50; }
@@ -734,5 +770,7 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 
 @media (prefers-reduced-motion: reduce) {
   .qx-auth, .qx-auth-pane, .qx-auth-ov, .qx-auth-ov-inner, .qx-auth-ov-panel { transition: none !important; }
+  .qx-auth-ov-panel::before, .qx-auth-ov-panel::after { animation: none !important; }
+  .qx-auth-ov .qx-embers { display: none; }
   .qx-auth-spin { animation-duration: 1.6s; }
 }

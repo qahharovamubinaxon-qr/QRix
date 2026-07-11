@@ -76,6 +76,7 @@ export default function AuthSlider({ initialMode }: { initialMode: Mode }) {
                 Sign up
               </button>
             </div>
+            <div className="qx-embers" aria-hidden>{Array.from({ length: 7 }).map((_, i) => <i key={i} />)}</div>
           </div>
         </div>
       </div>
