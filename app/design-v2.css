@@ -872,6 +872,14 @@ html.light .qx-era {
 @keyframes qxEraMarq { to { transform: translateX(-50%); } }
 
 /* ── the bunny: fixed stage, scroll choreography lives in EraBunny.tsx ── */
+/* Originkit glitter starfield — a layer of the fixed scene canvas */
+.qx-glitter {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  opacity: 0; transition: opacity 1.3s var(--ease-in-out);
+  mix-blend-mode: screen;
+}
+html.light .qx-glitter { display: none; }
+
 /* the mascot film: fixed layer, two slots that cross-fade (no gliding) */
 .qx-bunny-fixed { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
 .qx-bunny-fixed--static { position: absolute; }

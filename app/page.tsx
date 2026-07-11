@@ -14,6 +14,7 @@ import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { BunnyPeek } from "@/components/EraBunny";
+import GlitterField from "@/components/GlitterField";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -372,6 +373,8 @@ export default function HomePage() {
         <div className="qx-scene on" data-scene="era" />
         <div className="qx-scene" data-scene="deep" />
         <div className="qx-scene" data-scene="dusk" />
+        {/* Originkit Glitter Wrap — sparks live on the dark scenes only */}
+        <GlitterField />
       </div>
       <style>{`
         @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(187,169,255,.35)}50%{box-shadow:0 0 0 14px rgba(187,169,255,0)}}
