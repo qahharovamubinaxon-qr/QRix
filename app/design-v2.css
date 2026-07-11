@@ -612,3 +612,120 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
   .qx-proof-item:nth-child(-n+2) { border-top: 0; }
   .qx-proof-item:nth-child(odd) { border-left: 0; }
 }
+
+/* ── Mission 39: sliding auth card (sign in ↔ sign up, one page) ────── */
+.qx-auth {
+  position: relative; overflow: hidden; width: 100%; max-width: 1000px;
+  min-height: 660px; border-radius: var(--radius-lg);
+  background: var(--surface-solid); border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+}
+.qx-auth-pane {
+  position: absolute; top: 0; left: 0; height: 100%; width: 50%;
+  display: flex; align-items: center; justify-content: center;
+  padding: 44px 48px; overflow-y: auto;
+  transition: transform .65s cubic-bezier(.77, 0, .175, 1),
+              opacity .65s cubic-bezier(.77, 0, .175, 1);
+}
+.qx-auth-pane--in { z-index: 2; }
+.qx-auth-pane--up { opacity: 0; z-index: 1; pointer-events: none; }
+.qx-auth--signup .qx-auth-pane--in { transform: translateX(100%); opacity: 0; pointer-events: none; }
+.qx-auth--signup .qx-auth-pane--up { transform: translateX(100%); opacity: 1; z-index: 5; pointer-events: auto; }
+
+.qx-auth-form { width: 100%; max-width: 360px; }
+.qx-auth-h { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+.qx-auth-s { margin: 6px 0 22px; font-size: 13px; color: var(--text-muted); }
+.qx-auth-foot { margin-top: 22px; text-align: center; font-size: 13px; color: var(--text-muted); }
+.qx-auth-legal { margin-top: 14px; font-size: 11.5px; line-height: 1.5; text-align: center; color: var(--text-faint); }
+.qx-auth-legal a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 2px; }
+
+/* Google button */
+.qx-auth-gbtn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: .72rem 1rem; border-radius: 99px;
+  font-size: .88rem; font-weight: 600; color: var(--text);
+  background: var(--surface-2); border: 1.5px solid var(--card-border, var(--border));
+  cursor: pointer; transition: border-color .2s, background .2s, transform .2s;
+}
+.qx-auth-gbtn:hover { border-color: var(--border-hover); background: var(--surface-hover); transform: translateY(-1px); }
+.qx-auth-gbtn:disabled { opacity: .6; cursor: default; transform: none; }
+
+/* "or continue with email" divider */
+.qx-auth-div {
+  display: flex; align-items: center; gap: 14px; margin: 18px 0;
+  font-family: "Space Mono", monospace; font-size: 10px;
+  letter-spacing: .18em; text-transform: uppercase; color: var(--text-faint);
+}
+.qx-auth-div::before, .qx-auth-div::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+/* Sliding brand overlay */
+.qx-auth-ov {
+  position: absolute; top: 0; left: 50%; width: 50%; height: 100%;
+  overflow: hidden; z-index: 10;
+  transition: transform .65s cubic-bezier(.77, 0, .175, 1);
+}
+.qx-auth--signup .qx-auth-ov { transform: translateX(-100%); }
+.qx-auth-ov-inner {
+  position: relative; left: -100%; height: 100%; width: 200%;
+  transform: translateX(0);
+  transition: transform .65s cubic-bezier(.77, 0, .175, 1);
+  background:
+    linear-gradient(200deg, rgba(8, 8, 8, 0.2) 0%, rgba(8, 8, 8, 0.62) 74%, rgba(8, 8, 8, 0.82) 100%),
+    url("/scenes/hero-video-poster.webp") center / cover no-repeat,
+    radial-gradient(120% 100% at 50% 40%, #2b0a02 0%, #100302 60%, #050101 100%);
+}
+.qx-auth--signup .qx-auth-ov-inner { transform: translateX(50%); }
+.qx-auth-ov-panel {
+  position: absolute; top: 0; height: 100%; width: 50%;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; padding: 0 48px;
+  transform: translateX(0);
+  transition: transform .65s cubic-bezier(.77, 0, .175, 1);
+}
+.qx-auth-ov-panel--left { transform: translateX(-20%); }
+.qx-auth--signup .qx-auth-ov-panel--left { transform: translateX(0); }
+.qx-auth-ov-panel--right { right: 0; }
+.qx-auth--signup .qx-auth-ov-panel--right { transform: translateX(20%); }
+
+.qx-auth-ov-brand { font-size: 17px; font-weight: 800; letter-spacing: -0.01em; color: #fff; margin-bottom: 26px; }
+.qx-auth-ov-brand em { font-style: normal; color: #ff7a50; }
+.qx-auth-ov-title {
+  font-size: clamp(26px, 2.6vw, 34px); font-weight: 800; letter-spacing: -0.02em;
+  color: #fff; text-shadow: 0 2px 24px rgba(0, 0, 0, 0.55);
+}
+.qx-auth-ov-sub {
+  margin: 12px 0 26px; max-width: 300px; font-size: 13.5px; line-height: 1.65;
+  color: rgba(255, 255, 255, 0.82); text-shadow: 0 1px 12px rgba(0, 0, 0, 0.5);
+}
+.qx-auth-ov-btn {
+  padding: .72rem 2.4rem; border-radius: 99px; font-size: .88rem; font-weight: 700;
+  color: #fff; background: rgba(255, 255, 255, 0.06); border: 1.5px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px); cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+.qx-auth-ov-btn:hover { background: rgba(255, 255, 255, 0.16); transform: translateY(-1px); }
+
+/* OAuth callback spinner */
+.qx-auth-spin {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 3px solid var(--border); border-top-color: var(--primary-bright);
+  animation: qxAuthSpin .8s linear infinite;
+}
+@keyframes qxAuthSpin { to { transform: rotate(360deg); } }
+
+/* Stacked layout below 900px — overlay hides, footer links toggle */
+@media (max-width: 899px) {
+  .qx-auth { min-height: 0; }
+  .qx-auth-pane {
+    position: static; width: 100%; height: auto;
+    padding: 36px 22px; transform: none !important; opacity: 1;
+  }
+  .qx-auth--signup .qx-auth-pane--in { display: none; }
+  .qx-auth:not(.qx-auth--signup) .qx-auth-pane--up { display: none; }
+  .qx-auth-ov { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qx-auth, .qx-auth-pane, .qx-auth-ov, .qx-auth-ov-inner, .qx-auth-ov-panel { transition: none !important; }
+  .qx-auth-spin { animation-duration: 1.6s; }
+}
