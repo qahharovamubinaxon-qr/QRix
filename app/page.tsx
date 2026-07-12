@@ -618,51 +618,11 @@ export default function HomePage() {
 
       {/* ================= CINEMATIC STATEMENT (Mission 21) ================= */}
       {/* ================= PREMIUM CATEGORY SHOWCASE ================= */}
-      <div className="qx-sheet pt-6" data-reveal="depth" data-scene="deep">
+      <div data-scene="deep">
         <CategoryShowcase />
       </div>
 
-      {/* ================= PROOF — numbers and logos, one quiet band ================= */}
-      <section data-scene="deep" className="relative py-16 lg:py-24">
-        {/* the timeline spine plugs into this card */}
-        <div className="qx-proof-wire" aria-hidden><i /></div>
-        <div className="max-w-[1400px] mx-auto px-5 lg:px-8">
-          {/* 21st.dev "stats section with text" archetype, rebuilt in QRix orange */}
-          <div className="qx-proof" data-reveal>
-            <span className="qx-proof-neon" aria-hidden />
-            <div className="qx-proof-inner">
-              <div className="qx-proof-left">
-                <span className="qx-mono qx-proof-kick">
-                  {lang === "uz" ? "// QRIX РАҚАМЛАРДА" : lang === "ru" ? "// QRIX В ЦИФРАХ" : "// QRIX IN NUMBERS"}
-                </span>
-                <h2 className="qx-proof-title">
-                  {lang === "uz" ? "Бутун дунё ишончи" : lang === "ru" ? "Нам доверяют по всему миру" : "Trusted by makers worldwide"}
-                </h2>
-                <p className="qx-proof-copy">
-                  {lang === "uz"
-                    ? "Ҳар куни минглаб жамоалар QR, PDF ва медиа ишларини QRix'да бажаради — рўйхатсиз, тўловсиз."
-                    : lang === "ru"
-                    ? "Каждый день тысячи команд делают QR, PDF и медиа-задачи в QRix — без регистрации и оплаты."
-                    : "Every day thousands of teams run their QR, PDF and media work on QRix — no signup, no paywall."}
-                </p>
-                <span className="qx-mono qx-proof-live"><i aria-hidden />LIVE</span>
-              </div>
-              <div className="qx-proof-tiles">
-                {stats.map((s) => (
-                  <div key={s.label} className="qx-proof-tile">
-                    <FiTrendingUp className="qx-proof-tr" size={15} aria-hidden />
-                    <span className="qx-proof-num"><CountUp end={s.end} suffix={s.suffix} /></span>
-                    <span className="qx-proof-lbl qx-mono">{s.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="qx-proof-foot qx-mono">
-              <FiShield size={12} aria-hidden /> 99.9% {t.statUptime}
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* PROOF numbers now live as the final chapter of the tools story above */}
 
       {/* ================= WHY QRIX — BENTO GRID ================= */}
       <section id="why" data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
