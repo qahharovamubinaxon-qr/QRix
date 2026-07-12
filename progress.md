@@ -101,8 +101,10 @@
 
 - **Mission 52 — QRIX IN NUMBERS: black glass, orange type (`aabb36c`)**: card bg → near-black glass rgba(8,6,5,.62)+blur with faint orange radial; orange hairline + warm inset. Type all orange: title #ff8a3c (glow 26px), numerals #ff7a32 (glow 22px), kicker rgba(255,150,80,.95), copy rgba(255,178,122,.88), labels rgba(255,160,100,.85), foot warm; tiles rgba(255,106,19,.07)/borders .28 hover .15; LIVE chip orange (green dot kept); trend arrows #ffb27a. Verified in served CSS chunk.
 
+- **Mission 53 — All Tools as an interactive scrolling story (`be8ad64`)**: user rejected the timeline + stats card ("умуман бошқача қил") → CategoryShowcase v10 on the interactive-scrolling-story archetype (structure from its public page; own implementation): sticky 100vh split-screen inside a `N*92vh` wrapper; rAF scroll progress → active chapter index; LEFT stacked copyboxes fade/slide (is-past/-next ±28px, visibility-hidden inactive with 0s/0.55s delay trick — links stay crawlable, tabIndex managed), RIGHT visual cards slide with soft rotateY, `--st` chapter color drives an ambient glow + accents; clickable orange progress rail (labeled dots, jump = scrollTo formula). 7 chapters = 6 categories (emoji + giant count card) + **QRix-in-numbers finale** (2×2 orange numerals + uptime) — the separate proof section (card+wire+neon markup) REMOVED from page.tsx (feature folded into the story; proof CSS now unused but kept). Story wrapper's data-reveal dropped (transforms + sticky don't mix). <900px single-column; reduced-motion static.
+
 ## Current Mission
-Homepage = NEW TOOLS ERA, mascots with smoke reveals, TOOLS TIMELINE wired into the BLACK-glass/orange-type stats card, glitter dark scenes (M41-52). Auth = sliding card + mascots (M39x). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
+Homepage = NEW TOOLS ERA, mascots with smoke reveals, TOOLS = scrolling story with numbers finale, glitter dark scenes (M41-53). Auth = sliding card + mascots (M39x). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
