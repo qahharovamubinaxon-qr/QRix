@@ -592,6 +592,39 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 @media (prefers-reduced-motion: reduce) { .qx-status-dot { animation: none; } }
 
 /* ── Mission 38: quiet proof band (numbers + logos as one zone) ─────── */
+/* Mission 54: QRIX IN NUMBERS — a quiet standalone band: no card, no
+   glass, just orange numerals on the canvas over a single hairline */
+.qx-num {
+  border-top: 1px solid rgba(255, 106, 19, 0.28);
+  padding-top: clamp(22px, 3.4vh, 34px);
+}
+.qx-num-kick {
+  font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
+  color: var(--primary-bright); margin-bottom: clamp(22px, 3.6vh, 38px);
+}
+.qx-num-row {
+  display: flex; flex-wrap: wrap;
+  gap: clamp(24px, 4vw, 56px);
+  align-items: baseline; justify-content: space-between;
+}
+.qx-num-item { display: flex; flex-direction: column; gap: 9px; }
+.qx-num-val {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(28px, 3.2vw, 46px); line-height: 1;
+  letter-spacing: -0.025em; color: #ff7a32;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 26px rgba(255, 106, 19, 0.3);
+}
+.qx-num-lbl {
+  font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+html.light .qx-num-val { color: #e2410f; text-shadow: none; }
+@media (max-width: 720px) {
+  .qx-num-row { justify-content: flex-start; row-gap: 28px; }
+  .qx-num-item { flex-basis: 42%; }
+}
+
 /* Mission 51: the timeline spine plugs into the numbers card —
    a wire drops through the section gap, energy pulses down it, and the
    same orange neon then chases the card's border */

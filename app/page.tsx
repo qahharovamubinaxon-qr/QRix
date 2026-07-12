@@ -622,7 +622,26 @@ export default function HomePage() {
         <CategoryShowcase />
       </div>
 
-      {/* PROOF numbers now live as the final chapter of the tools story above */}
+      {/* ================= QRIX IN NUMBERS — quiet band ================= */}
+      <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20 lg:pb-28" aria-label="QRix in numbers">
+        <div className="qx-num" data-reveal>
+          <p className="qx-mono qx-num-kick">
+            {lang === "uz" ? "// QRIX РАҚАМЛАРДА" : lang === "ru" ? "// QRIX В ЦИФРАХ" : "// QRIX IN NUMBERS"}
+          </p>
+          <div className="qx-num-row">
+            {stats.map((s) => (
+              <div key={s.label} className="qx-num-item">
+                <span className="qx-num-val"><CountUp end={s.end} suffix={s.suffix} /></span>
+                <span className="qx-num-lbl qx-mono">{s.label}</span>
+              </div>
+            ))}
+            <div className="qx-num-item">
+              <span className="qx-num-val">99.9%</span>
+              <span className="qx-num-lbl qx-mono">{t.statUptime}</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* ================= WHY QRIX — BENTO GRID ================= */}
       <section id="why" data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
