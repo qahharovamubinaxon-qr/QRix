@@ -112,19 +112,28 @@
 
 - **Mission 58 — Image Tools: one studio grid + era header (`ec8f363`)**: the 7 flagship tools folded INTO ImageExpansionGrid as a leading "Essentials" category (unified Item shape: href/emoji/title/intro/keywords + AI/NEW/POPULAR badges, emoji tiles on quiet surfaces) — one search + one chip row (All/Essentials/…IMG_CATEGORIES) covers all 72; landing header rebuilt in era language (mono kicker "// IMAGE TOOLS — 72 FREE · ON-DEVICE", display H1 "A full image studio", quiet trust row over orange hairline); purple hero card, separate 7-card grid and sort select removed; sidebar Upgrade card → brand orange. /animated-qr also got its QR Tools landing card (M57b `58896c3`).
 
+- **Mission 59 — Stats cards + Blog/SEO expansion + QA sweep + security audit (`2fd8458`, `f4a2f1b`)**:
+  - **QRIX IN NUMBERS**: the four figures now ride equal-size orange gradient cards, side by side (4-col desktop / 2-col mobile), white numerals + white labels; dropped the 5th uptime tile for a clean four-across row.
+  - **Blog/SEO**: +6 original feature articles (animated QR, compress video, video→GIF, AI upscaling, EXIF privacy, image→3D); `BlogPost.category` union extended with `Video` + `AI`. Blog index reorganised into **topical clusters** (category sections + anchor nav) for topical authority; broadened index metadata/keywords. All auto-picked up by sitemap + search-index. In-content **AdSense** slot added to blog posts (env-gated).
+  - **Full-site QA sweep** (subagent): all **287 routes return HTTP 200, zero broken pages**; per-page unique titles + structured data verified. Ratings — QR/PDF/Image/Animated-QR/Blog/SEO **10/10**; sub-10s (AI 8, Video 8, 3D 9, Auth 7, Billing 8) are **external-service-gated** (paid AI/MP4 cloud, Stripe, DB), not code defects.
+  - **Fixes applied**: video recorders now prefer real **MP4/H.264** (Chrome 130+/Edge/Safari) with WebM fallback across `recodeVideo` + mp3-to-mp4/gif-to-mp4/add-audio, filenames follow the real container; `/dashboard` got a proper `<title>` (noindex); env template domain aligned to qrix.uz.
+  - **Security audit**: headers strong (frame-ancestors, X-Frame-Options, nosniff, referrer, permissions-policy, HSTS preload, no X-Powered-By); **no secrets committed** (`.env*` gitignored, template clean, full-tree scan clean); API wrapper has rate-limit (fixed-window over cache) + schema validation + auth/admin gates + CSRF + sanitisation.
+
 ## Current Mission
-Homepage = NEW TOOLS ERA, quiet tools index + numbers band (M41-54). AI = free chain LIVE: Groq/Gemini/OpenRouter/Anthropic tested, MuAPI awaiting credits (M55-56). New tool /animated-qr (M57). Image Tools = unified studio (M58). Auth = sliding card + mascots (M39x).
+Mission 59 complete: 4 equal orange stat cards; blog grown to 64 posts in 6 topical clusters + blog AdSense slot; full QA sweep (287/287 routes 200); video tools upgraded to MP4; security audited clean. Homepage = NEW TOOLS ERA + numbers band. AI free chain LIVE (Groq/Gemini/OpenRouter/Anthropic). Image Tools = unified studio.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
 - Swap mock repositories to Prisma queries once DATABASE_URL is live (interface already isolated in `lib/server/db.ts`).
-- Blog articles for AI + Video tools; i18n localized URLs.
+- **Monetization go-live (from M59 audit):** (1) apply for Google AdSense — content depth is now sufficient; set `NEXT_PUBLIC_ADSENSE_CLIENT` + real slot ids to switch ads on. (2) Add live Stripe keys (`STRIPE_SECRET_KEY` + price ids) to make `/pricing` plans purchasable. (3) Top up MuAPI or add a Fal/Replicate key to flip cloud AI/3D + image-gen from preview to real. (4) Set `DATABASE_URL` (Supabase/Postgres) so accounts/analytics persist across deploys.
+- Configure Supabase Google OAuth provider (auth UI is built; provider still needs enabling in Supabase console).
+- i18n localized URLs; more AI/Video blog articles for continued SEO growth.
 
 ## Current Architecture
 Next.js App Router + TS + Tailwind v4, CoolM5 palette. Tool categories follow one pattern: `lib/<x>-tools-meta.ts` registry → `app/<x>-tools/page.tsx` landing + `[slug]/page.tsx` SSG → `components/<x>/<X>EngineRegistry.tsx` lazy-maps engine keys to clients. Shared primitives in `components/ai/AiKit.tsx`; SEO in `lib/seo.ts`; motion via `data-reveal`/`data-magnetic`. Backend: `prisma/schema.prisma` + `lib/server/*` mock-first env-gated drivers, REST at `app/api/v1/**`, admin at `/admin`. Register new tools in TopNav + search-index + sitemap. Supabase auth/backend, Stripe billing, all env-gated.
 
 ## Current Tool Count
-~186 tools: QR 30+ · PDF 21 · Image 72 · AI 28 · Video 29 · 3D 1 · Barcode 10 formats (+ Link-in-Bio, Poster, Bulk QR).
+~187 tools: QR 30+ (+ Animated QR) · PDF 21 · Image 72 · AI 28 · Video 30 · 3D 1 · Barcode 10 formats (+ Link-in-Bio, Poster, Bulk QR). Blog: 64 articles across 6 topical clusters.
 
 ## Current Categories
 QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ Barcode, Link-in-Bio, Blog).
@@ -148,4 +157,4 @@ QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ B
 - Reviews table needs Supabase migration (falls back to localStorage).
 
 ## Next Recommended Mission
-Deploy to Vercel with real env (Postgres + Stripe + Resend), or blog articles for AI/Video tools (SEO growth).
+Go-live for monetization: apply for AdSense (content now sufficient) + add Stripe live keys, deploy to Vercel with real env (Postgres + Stripe + Resend). Then roadmap: mediabunny Video Tools upgrade → promo-video generator tools → mascot promo films (Remotion skills active).
