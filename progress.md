@@ -99,8 +99,10 @@
 
 - **Mission 51 — Spine plugs into QRIX IN NUMBERS (`699ea65`)**: continuity trick — `.qx-tl-spine` overruns its section's exact bottom padding (bottom −5rem, lg −6rem = pb-20/pb-24) while a matching `.qx-proof-wire` (same 3px orange + glow, left 50%) fills the proof section's top padding (4rem/6rem) → reads as ONE line connecting the timeline to the stats card. A bright energy segment flows down the wire (`qxWireFlow`, 1.6s ease-in, overflow-hidden track). The stats card gets its own border chase: `.qx-proof-neon` conic ring on separate `@property --qx-ang2` (avoids clashing with the component-scoped --qx-ang), inset 0 inside the overflow-hidden card, z-3 above content (ring is only 1.5px at edges). Wire hidden <900px (spine hugs left there). Verified: markers in HTML + rules in served CSS chunk, tsc clean.
 
+- **Mission 52 — QRIX IN NUMBERS: black glass, orange type (`aabb36c`)**: card bg → near-black glass rgba(8,6,5,.62)+blur with faint orange radial; orange hairline + warm inset. Type all orange: title #ff8a3c (glow 26px), numerals #ff7a32 (glow 22px), kicker rgba(255,150,80,.95), copy rgba(255,178,122,.88), labels rgba(255,160,100,.85), foot warm; tiles rgba(255,106,19,.07)/borders .28 hover .15; LIVE chip orange (green dot kept); trend arrows #ffb27a. Verified in served CSS chunk.
+
 ## Current Mission
-Homepage = NEW TOOLS ERA, mascots with smoke reveals, TOOLS TIMELINE wired into the glass stats card (orange spine → flowing wire → border chase), glitter dark scenes (M41-51). Auth = sliding card + mascots (M39x). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
+Homepage = NEW TOOLS ERA, mascots with smoke reveals, TOOLS TIMELINE wired into the BLACK-glass/orange-type stats card, glitter dark scenes (M41-52). Auth = sliding card + mascots (M39x). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
