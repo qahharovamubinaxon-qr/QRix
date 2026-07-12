@@ -13,7 +13,7 @@ import LatestPosts from "@/components/LatestPosts";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
-import EraBunny, { BunnyPeek, GenBunny } from "@/components/EraBunny";
+import EraBunny, { GenBunny } from "@/components/EraBunny";
 import GlitterField from "@/components/GlitterField";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
@@ -625,15 +625,23 @@ export default function HomePage() {
       <section data-scene="deep" className="relative py-16 lg:py-24">
         <div className="max-w-[1400px] mx-auto px-5 lg:px-8">
           <div className="qx-proof" data-reveal>
-            {stats.map((s) => (
-              <div key={s.label} className="qx-proof-item">
-                <span className="qx-proof-num"><CountUp end={s.end} suffix={s.suffix} /></span>
-                <span className="qx-proof-lbl qx-mono">{s.label}</span>
+            <div className="qx-proof-head">
+              <span className="qx-mono qx-proof-kick">
+                {lang === "uz" ? "// QRIX РАҚАМЛАРДА" : lang === "ru" ? "// QRIX В ЦИФРАХ" : "// QRIX IN NUMBERS"}
+              </span>
+              <span className="qx-mono qx-proof-live"><i aria-hidden />LIVE</span>
+            </div>
+            <div className="qx-proof-grid">
+              {stats.map((s) => (
+                <div key={s.label} className="qx-proof-item">
+                  <span className="qx-proof-num"><CountUp end={s.end} suffix={s.suffix} /></span>
+                  <span className="qx-proof-lbl qx-mono">{s.label}</span>
+                </div>
+              ))}
+              <div className="qx-proof-item">
+                <span className="qx-proof-num">99.9%</span>
+                <span className="qx-proof-lbl qx-mono">{t.statUptime}</span>
               </div>
-            ))}
-            <div className="qx-proof-item">
-              <span className="qx-proof-num">99.9%</span>
-              <span className="qx-proof-lbl qx-mono">{t.statUptime}</span>
             </div>
           </div>
         </div>
@@ -688,7 +696,6 @@ export default function HomePage() {
 
       {/* ================= PRICING TEASER (trust sits right above) ================= */}
       <section data-scene="dusk" className="max-w-4xl mx-auto px-5 pb-24 relative" data-reveal="perspective" aria-label="Pricing">
-        <BunnyPeek pose="walk" side="left" />
         <div className="text-center mb-8">
           <h2 className="font-display text-3xl lg:text-4xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
             {lang === "uz" ? "Оддий нархлар" : lang === "ru" ? "Простые тарифы" : "Simple pricing"}
@@ -719,7 +726,6 @@ export default function HomePage() {
 
       {/* ================= FINAL CTA ================= */}
       <section className="max-w-3xl mx-auto px-5 pb-24 lg:pb-32 text-center relative" data-reveal="scale">
-        <BunnyPeek pose="point" side="right" />
         <h2 className="font-display text-3xl lg:text-5xl font-extrabold leading-tight" style={{ color: "var(--text)" }}>
           {lang === "uz" ? "Бугуноқ бошланг — бепул" : lang === "ru" ? "Начните сегодня — бесплатно" : "Start creating today — free"}
         </h2>

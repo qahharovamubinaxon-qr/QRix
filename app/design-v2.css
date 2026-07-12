@@ -592,31 +592,54 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 @media (prefers-reduced-motion: reduce) { .qx-status-dot { animation: none; } }
 
 /* ── Mission 38: quiet proof band (numbers + logos as one zone) ─────── */
-/* Mission 44: the numbers ride an orange card now */
+/* Mission 44/47: the numbers ride a professional orange card */
 .qx-proof {
-  display: flex; flex-wrap: wrap; align-items: stretch;
-  border-radius: 24px; overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 26px; overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.22);
   background:
     radial-gradient(90% 90% at 50% -25%, rgba(255, 196, 130, 0.45) 0%, transparent 55%),
     linear-gradient(170deg, #ff8a3c 0%, #ff6a13 46%, #e85708 100%);
-  box-shadow: 0 24px 70px rgba(210, 75, 8, 0.28);
+  box-shadow: 0 24px 70px rgba(210, 75, 8, 0.28), 0 1px 0 rgba(255, 255, 255, 0.25) inset;
 }
+.qx-proof-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 26px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+}
+.qx-proof-kick {
+  font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92); font-weight: 700;
+}
+.qx-proof-live {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 10px; letter-spacing: 0.24em; color: #fff;
+  padding: 5px 12px; border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+}
+.qx-proof-live i {
+  width: 7px; height: 7px; border-radius: 50%; background: #b6ffc3;
+  box-shadow: 0 0 10px #b6ffc3;
+  animation: qx-glow-pulse 2.2s ease-in-out infinite;
+}
+.qx-proof-grid { display: flex; flex-wrap: wrap; align-items: stretch; }
 .qx-proof-item {
-  flex: 1 1 160px; display: flex; flex-direction: column; gap: 8px;
-  padding: 28px 26px 26px;
+  flex: 1 1 160px; display: flex; flex-direction: column; gap: 10px;
+  padding: 30px 26px 28px;
   border-left: 1px solid rgba(255, 255, 255, 0.22);
+  transition: background 0.3s;
 }
+.qx-proof-item:hover { background: rgba(255, 255, 255, 0.07); }
 .qx-proof-item:first-child { border-left: 0; }
 .qx-proof-num {
-  font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em;
-  font-size: clamp(24px, 2.6vw, 34px); line-height: 1; color: #fff;
+  font-family: var(--font-display); font-weight: 800; letter-spacing: -0.025em;
+  font-size: clamp(28px, 3vw, 42px); line-height: 1; color: #fff;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 2px 14px rgba(140, 45, 0, 0.35);
+  text-shadow: 0 2px 16px rgba(140, 45, 0, 0.4);
 }
 .qx-proof-lbl {
-  font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.85);
+  font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
 }
 @media (max-width: 720px) {
   .qx-proof-item { flex-basis: 50%; border-top: 1px solid rgba(255, 255, 255, 0.22); }
@@ -899,9 +922,9 @@ html.light .qx-glitter { display: none; }
 
 /* hero stage — lives INSIDE the era section, scrolls with it */
 .qx-hm {
-  position: absolute; left: 50%; bottom: 0; z-index: 5;
-  height: min(66vh, 700px);
-  width: calc(min(66vh, 700px) * 0.5715); /* 1143/2000 still + film share this ratio */
+  position: absolute; left: 50%; bottom: clamp(72px, 11vh, 122px); z-index: 5;
+  height: min(64vh, 680px);
+  width: calc(min(64vh, 680px) * 0.5715); /* 1143/2000 still + film share this ratio */
   transform: translateX(-50%);
   pointer-events: none;
   filter: drop-shadow(0 30px 55px rgba(90, 24, 0, 0.35));
