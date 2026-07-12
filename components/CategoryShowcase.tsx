@@ -1,65 +1,67 @@
 "use client";
 
-/* Homepage — ALL TOOLS as a glass bento (Mission 49).
-   Layout anatomy studied via the 21st.dev catalog (kokonutd's bento):
-   icon chip + status badge on top, title + copy, tag links, hover CTA,
-   mixed column spans. Re-authored here in QRix language: translucent
-   glass tiles over the glitter canvas, category color washes, Unbounded
-   titles, every link real. QR takes the featured 2x2 cell. */
+/* Homepage — ALL TOOLS as a 3D interactive timeline (Mission 50).
+   Archetype: dhiluxui's 3d-interactive-timeline on 21st.dev (vertical spine,
+   alternating cards, pulsing nodes, 3D hover tilt) — re-authored for QRix:
+   the spine burns ORANGE and fills with scroll progress, every card is dark
+   glass with an orange NEON glow chasing its border, nodes pulse as they
+   enter, cards tilt in 3D under the cursor. All tool links stay real. */
 
 import Link from "next/link";
-import { FiArrowRight, FiArrowUpRight } from "react-icons/fi";
+import { useEffect, useRef } from "react";
+import { FiArrowRight } from "react-icons/fi";
 
-type Tool = { label: string; href: string; hint?: string };
 type Cat = {
   name: string; count: string; color: string; href: string; emoji: string;
   copy: string;
-  tools: Tool[];
-  area: string;
+  tools: { label: string; href: string }[];
 };
 
 const CATS: Cat[] = [
   {
-    name: "QR Tools", count: "30+", color: "#22c55e", href: "/qr-tools", emoji: "🔳", area: "qr",
+    name: "QR Tools", count: "30+", color: "#22c55e", href: "/qr-tools", emoji: "🔳",
     copy: "Dynamic codes with live analytics, PIN protection and full design control.",
     tools: [
-      { label: "URL QR Code", href: "/url-qr", hint: "Link → QR in a click" },
-      { label: "WiFi QR", href: "/qr-tools/wifi", hint: "Share WiFi without passwords" },
-      { label: "vCard QR", href: "/qr-tools/vcard", hint: "Contact card in one scan" },
-      { label: "Bulk QR from CSV", href: "/bulk-qr", hint: "Hundreds of codes at once" },
-      { label: "QR Scanner", href: "/scanner", hint: "Decode any QR in-browser" },
+      { label: "URL QR", href: "/url-qr" },
+      { label: "WiFi QR", href: "/qr-tools/wifi" },
+      { label: "vCard QR", href: "/qr-tools/vcard" },
+      { label: "Bulk CSV", href: "/bulk-qr" },
+      { label: "Scanner", href: "/scanner" },
     ],
   },
   {
-    name: "PDF Tools", count: "24+", color: "#60a5fa", href: "/pdf-tools", emoji: "📄", area: "pdf",
+    name: "PDF Tools", count: "24+", color: "#60a5fa", href: "/pdf-tools", emoji: "📄",
     copy: "Merge, compress, convert and OCR — right in the browser.",
     tools: [
-      { label: "Merge PDF", href: "/pdf-tools/merge" },
+      { label: "Merge", href: "/pdf-tools/merge" },
       { label: "Compress", href: "/pdf-tools/compress" },
       { label: "PDF to Word", href: "/pdf-tools/pdf-to-word" },
+      { label: "Split", href: "/pdf-tools/split" },
       { label: "OCR", href: "/pdf-tools/ocr" },
     ],
   },
   {
-    name: "Image Tools", count: "70+", color: "#c084fc", href: "/image-tools", emoji: "🖼️", area: "img",
-    copy: "Cut, compress and perfect any picture.",
+    name: "Image Tools", count: "70+", color: "#c084fc", href: "/image-tools", emoji: "🖼️",
+    copy: "Cut, compress and perfect any picture — nothing leaves your device.",
     tools: [
       { label: "Remove BG", href: "/image-tools/remove-bg" },
       { label: "Compress", href: "/image-tools/compress" },
       { label: "Crop", href: "/image-tools/crop-image" },
+      { label: "Watermark", href: "/image-tools/watermark-image" },
     ],
   },
   {
-    name: "AI Tools", count: "28+", color: "#fbbf24", href: "/ai-tools", emoji: "✨", area: "ai",
-    copy: "Upscale, colorize, generate — AI on your files.",
+    name: "AI Tools", count: "28+", color: "#fbbf24", href: "/ai-tools", emoji: "✨",
+    copy: "Upscale, colorize, generate — AI working on your files.",
     tools: [
       { label: "Upscaler", href: "/ai-tools/image-upscaler" },
       { label: "AI Remove BG", href: "/ai-tools/background-remover" },
       { label: "Logo Maker", href: "/ai-tools/logo-generator" },
+      { label: "Colorize", href: "/ai-tools/colorize-photo" },
     ],
   },
   {
-    name: "Video Tools", count: "29+", color: "#f472b6", href: "/video-tools", emoji: "🎬", area: "vid",
+    name: "Video Tools", count: "29+", color: "#f472b6", href: "/video-tools", emoji: "🎬",
     copy: "Trim, compress, GIF — no upload, no watermark.",
     tools: [
       { label: "Compress", href: "/video-tools/compress-video" },
@@ -69,8 +71,8 @@ const CATS: Cat[] = [
     ],
   },
   {
-    name: "3D Tools", count: "New", color: "#22d3ee", href: "/3d-tools", emoji: "🧊", area: "d3",
-    copy: "Turn a photo into a textured 3D model.",
+    name: "3D Tools", count: "New", color: "#22d3ee", href: "/3d-tools", emoji: "🧊",
+    copy: "Turn a photo into a textured, export-ready 3D model.",
     tools: [
       { label: "Image to 3D", href: "/3d-tools/image-to-3d" },
       { label: "GLB · OBJ · STL", href: "/3d-tools/image-to-3d" },
@@ -79,9 +81,41 @@ const CATS: Cat[] = [
 ];
 
 export default function CategoryShowcase() {
+  const spineRef = useRef<HTMLDivElement>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  /* the orange spine fills as the section scrolls through the viewport */
+  useEffect(() => {
+    const wrap = wrapRef.current, fill = spineRef.current;
+    if (!wrap || !fill) return;
+    let raf = 0;
+    const tick = () => {
+      const r = wrap.getBoundingClientRect();
+      const vh = window.innerHeight;
+      const p = Math.min(1, Math.max(0, (vh * 0.8 - r.top) / (r.height + vh * 0.3)));
+      fill.style.height = `${(p * 100).toFixed(2)}%`;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  /* 3D tilt under the cursor (per card) */
+  const onTilt = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const el = e.currentTarget;
+    const r = el.getBoundingClientRect();
+    const rx = ((e.clientY - r.top) / r.height - 0.5) * -7;
+    const ry = ((e.clientX - r.left) / r.width - 0.5) * 9;
+    el.style.transform = `perspective(900px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-2px)`;
+  };
+  const offTilt = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.currentTarget.style.transform = "";
+  };
+
   return (
     <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20 lg:pb-24" aria-label="All tools">
-      <div className="mb-8 lg:mb-10" data-reveal>
+      <div className="mb-10 lg:mb-14 text-center" data-reveal>
         <p className="qx-mono text-[11px] tracking-[0.28em] uppercase mb-4" style={{ color: "var(--primary-bright)" }}>
           185+ free tools
         </p>
@@ -91,180 +125,186 @@ export default function CategoryShowcase() {
         </h2>
       </div>
 
-      <div className="qx-bn" data-stagger>
+      <div className="qx-tl" ref={wrapRef}>
+        {/* the orange spine + scroll fill */}
+        <div className="qx-tl-spine" aria-hidden>
+          <div className="qx-tl-fill" ref={spineRef} />
+        </div>
+
         {CATS.map((cat, i) => {
-          const featured = cat.area === "qr";
+          const left = i % 2 === 0;
           return (
-            <div key={cat.name}
-              className={`qx-bn-cell qx-bn-cell--${cat.area}`}
-              style={{ ["--bn" as string]: cat.color, ["--rv-delay" as string]: `${i * 70}ms` } as React.CSSProperties}
-              data-reveal
-            >
-              <div className="qx-bn-dots" aria-hidden />
+            <div key={cat.name} className={`qx-tl-row${left ? " is-left" : ""}`}>
+              {/* pulsing node on the spine */}
+              <span className="qx-tl-node" aria-hidden><i /></span>
 
-              <div className="qx-bn-top">
-                <span className="qx-bn-ico" aria-hidden>{cat.emoji}</span>
-                <span className="qx-mono qx-bn-count">{cat.count} TOOLS</span>
-              </div>
-
-              <h3 className="qx-bn-name">{cat.name}</h3>
-              <p className="qx-bn-copy">{cat.copy}</p>
-
-              {featured ? (
-                <ul className="qx-bn-list">
-                  {cat.tools.map((tool) => (
-                    <li key={tool.label}>
-                      <Link href={tool.href} className="qx-bn-row">
-                        <span className="qx-bn-row-label">{tool.label}</span>
-                        <span className="qx-bn-row-hint">{tool.hint}</span>
-                        <FiArrowUpRight size={13} className="qx-bn-row-ic" aria-hidden />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <div className="qx-bn-chips">
-                  {cat.tools.map((tool) => (
-                    <Link key={tool.label} href={tool.href} className="qx-bn-chip">{tool.label}</Link>
-                  ))}
+              <div className="qx-tl-slot" data-reveal={left ? "left" : "right"}
+                style={{ ["--tl" as string]: cat.color, ["--rv-delay" as string]: `${(i % 2) * 60}ms` } as React.CSSProperties}>
+                <div className="qx-tl-card" onMouseMove={onTilt} onMouseLeave={offTilt}>
+                  <span className="qx-tl-neon" aria-hidden />
+                  <div className="qx-tl-in">
+                    <div className="qx-tl-top">
+                      <span className="qx-tl-ico" aria-hidden>{cat.emoji}</span>
+                      <span className="qx-mono qx-tl-idx">0{i + 1}</span>
+                      <span className="qx-mono qx-tl-count">{cat.count} TOOLS</span>
+                    </div>
+                    <h3 className="qx-tl-name">{cat.name}</h3>
+                    <p className="qx-tl-copy">{cat.copy}</p>
+                    <div className="qx-tl-chips">
+                      {cat.tools.map((tool) => (
+                        <Link key={tool.label} href={tool.href} className="qx-tl-chip">{tool.label}</Link>
+                      ))}
+                    </div>
+                    <Link href={cat.href} className="qx-tl-all">
+                      All {cat.name.toLowerCase()} <FiArrowRight size={12} aria-hidden />
+                    </Link>
+                  </div>
                 </div>
-              )}
-
-              <Link href={cat.href} className="qx-bn-all">
-                All {cat.name.toLowerCase()} <FiArrowRight size={12} aria-hidden />
-              </Link>
+              </div>
             </div>
           );
         })}
       </div>
 
       <style>{`
-        .qx-bn {
-          display: grid; gap: 12px;
-          grid-template-columns: repeat(4, 1fr);
-          grid-template-areas:
-            "qr qr pdf pdf"
-            "qr qr img ai"
-            "vid vid d3 d3";
+        @property --qx-ang {
+          syntax: "<angle>"; initial-value: 0deg; inherits: false;
         }
-        .qx-bn-cell--qr { grid-area: qr; }
-        .qx-bn-cell--pdf { grid-area: pdf; }
-        .qx-bn-cell--img { grid-area: img; }
-        .qx-bn-cell--ai { grid-area: ai; }
-        .qx-bn-cell--vid { grid-area: vid; }
-        .qx-bn-cell--d3 { grid-area: d3; }
 
-        .qx-bn-cell {
-          position: relative; overflow: hidden;
-          display: flex; flex-direction: column;
-          padding: 22px 24px 18px; border-radius: 20px;
+        .qx-tl { position: relative; }
+
+        /* central orange spine, glowing, filled by scroll */
+        .qx-tl-spine {
+          position: absolute; top: 0; bottom: 0; left: 50%;
+          width: 3px; transform: translateX(-50%);
+          background: rgba(255, 106, 19, 0.16);
+          border-radius: 3px;
+        }
+        .qx-tl-fill {
+          width: 100%; height: 0%;
+          background: linear-gradient(180deg, #ffb27a 0%, #ff6a13 55%, #e14e08 100%);
+          border-radius: 3px;
+          box-shadow: 0 0 14px rgba(255, 106, 19, 0.8), 0 0 34px rgba(255, 106, 19, 0.35);
+        }
+
+        .qx-tl-row {
+          position: relative;
+          display: grid; grid-template-columns: 1fr 72px 1fr;
+          padding: 22px 0;
+        }
+        .qx-tl-slot { grid-column: 3; perspective: 900px; }
+        .qx-tl-row.is-left .qx-tl-slot { grid-column: 1; justify-self: end; }
+        .qx-tl-slot { width: min(100%, 520px); }
+
+        /* pulsing node */
+        .qx-tl-node {
+          position: absolute; left: 50%; top: 54px;
+          transform: translateX(-50%); z-index: 2;
+        }
+        .qx-tl-node i {
+          display: block; width: 14px; height: 14px; border-radius: 50%;
+          background: #ff6a13; border: 3px solid #2a1206;
+          box-shadow: 0 0 12px rgba(255, 106, 19, 0.9);
+          animation: qxNodePulse 2.6s ease-in-out infinite;
+        }
+        @keyframes qxNodePulse {
+          0%, 100% { box-shadow: 0 0 10px rgba(255, 106, 19, 0.8), 0 0 0 0 rgba(255, 106, 19, 0.4); }
+          50%      { box-shadow: 0 0 16px rgba(255, 106, 19, 1), 0 0 0 9px rgba(255, 106, 19, 0); }
+        }
+
+        /* card: dark glass + neon chase around the border */
+        .qx-tl-card {
+          position: relative; border-radius: 22px;
+          transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+          transform-style: preserve-3d; will-change: transform;
+        }
+        .qx-tl-neon {
+          position: absolute; inset: -1.5px; border-radius: 23px;
+          padding: 1.5px; pointer-events: none;
+          background: conic-gradient(from var(--qx-ang),
+            transparent 0%, transparent 72%,
+            rgba(255, 106, 19, 0.55) 82%,
+            #ff6a13 88%, #ffc9a3 92%,
+            rgba(255, 106, 19, 0.55) 96%, transparent 100%);
+          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor;
+          mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          mask-composite: exclude;
+          animation: qxNeonChase 4.5s linear infinite;
+          filter: drop-shadow(0 0 6px rgba(255, 106, 19, 0.7));
+        }
+        @keyframes qxNeonChase { to { --qx-ang: 360deg; } }
+
+        .qx-tl-in {
+          position: relative; border-radius: 22px; overflow: hidden;
+          padding: 22px 24px 18px;
           background:
-            radial-gradient(120% 90% at 85% -10%, color-mix(in srgb, var(--bn) 14%, transparent) 0%, transparent 55%),
-            rgba(255, 255, 255, 0.045);
+            radial-gradient(120% 90% at 85% -10%, color-mix(in srgb, var(--tl) 13%, transparent) 0%, transparent 55%),
+            rgba(20, 12, 8, 0.66);
           backdrop-filter: var(--glass-blur);
-          border: 1px solid rgba(255, 255, 255, 0.11);
-          transition: transform 0.3s var(--ease-out), border-color 0.3s, background 0.3s;
-          will-change: transform;
+          border: 1px solid rgba(255, 140, 80, 0.16);
         }
-        .qx-bn-cell:hover {
-          transform: translateY(-3px);
-          border-color: color-mix(in srgb, var(--bn) 45%, transparent);
-        }
-        html.light .qx-bn-cell {
+        html.light .qx-tl-in {
           background:
-            radial-gradient(120% 90% at 85% -10%, color-mix(in srgb, var(--bn) 10%, transparent) 0%, transparent 55%),
-            rgba(255, 255, 255, 0.72);
+            radial-gradient(120% 90% at 85% -10%, color-mix(in srgb, var(--tl) 10%, transparent) 0%, transparent 55%),
+            rgba(255, 255, 255, 0.82);
           border-color: rgba(0, 0, 0, 0.09);
         }
 
-        /* dotted texture breathes in on hover (bento archetype) */
-        .qx-bn-dots {
-          position: absolute; inset: 0; opacity: 0; pointer-events: none;
-          background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-          background-size: 5px 5px;
-          transition: opacity 0.35s;
+        .qx-tl-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .qx-tl-ico {
+          width: 36px; height: 36px; border-radius: 11px;
+          display: grid; place-items: center; font-size: 18px;
+          background: color-mix(in srgb, var(--tl) 18%, transparent);
+          border: 1px solid color-mix(in srgb, var(--tl) 30%, transparent);
         }
-        .qx-bn-cell:hover .qx-bn-dots { opacity: 1; }
-
-        .qx-bn-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-        .qx-bn-ico {
-          width: 38px; height: 38px; border-radius: 12px;
-          display: grid; place-items: center; font-size: 19px;
-          background: color-mix(in srgb, var(--bn) 18%, transparent);
-          border: 1px solid color-mix(in srgb, var(--bn) 30%, transparent);
-        }
-        .qx-bn-count {
+        .qx-tl-idx { font-size: 11px; letter-spacing: 0.2em; color: var(--text-faint); }
+        .qx-tl-count {
+          margin-left: auto;
           font-size: 9.5px; letter-spacing: 0.2em; padding: 5px 10px;
-          border-radius: 99px; color: var(--bn);
-          border: 1px solid color-mix(in srgb, var(--bn) 35%, transparent);
-          background: color-mix(in srgb, var(--bn) 10%, transparent);
+          border-radius: 99px; color: var(--tl);
+          border: 1px solid color-mix(in srgb, var(--tl) 35%, transparent);
+          background: color-mix(in srgb, var(--tl) 10%, transparent);
         }
-
-        .qx-bn-name {
+        .qx-tl-name {
           font-family: "Unbounded", var(--font-display), sans-serif;
-          font-weight: 800; font-size: 17px; letter-spacing: -0.01em;
+          font-weight: 800; font-size: 19px; letter-spacing: -0.01em;
           color: var(--text); line-height: 1.15;
         }
-        .qx-bn-cell--qr .qx-bn-name { font-size: 22px; }
-        .qx-bn-copy { margin-top: 6px; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
+        .qx-tl-copy { margin-top: 6px; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
 
-        /* featured cell: real tool rows */
-        .qx-bn-list { margin-top: 14px; display: flex; flex-direction: column; flex: 1; }
-        .qx-bn-row {
-          display: grid; grid-template-columns: auto 1fr auto;
-          align-items: baseline; gap: 10px;
-          padding: 8px 2px; text-decoration: none;
-          border-top: 1px solid rgba(255, 255, 255, 0.08);
-          transition: padding-left 0.2s ease-out;
-        }
-        .qx-bn-row:hover { padding-left: 8px; }
-        .qx-bn-row-label { font-weight: 650; font-size: 13.5px; color: var(--text); white-space: nowrap; }
-        .qx-bn-row-hint {
-          font-size: 11.5px; color: var(--text-muted);
-          overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
-        .qx-bn-row-ic { opacity: 0; transform: translate(-4px, 4px); transition: 0.2s; color: var(--bn); align-self: center; }
-        .qx-bn-row:hover .qx-bn-row-ic { opacity: 1; transform: none; }
-
-        /* compact cells: tool chips */
-        .qx-bn-chips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
-        .qx-bn-chip {
+        .qx-tl-chips { margin-top: 13px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .qx-tl-chip {
           font-size: 11.5px; font-weight: 600; text-decoration: none;
           padding: 5px 11px; border-radius: 99px; color: var(--text-muted);
           border: 1px solid rgba(255, 255, 255, 0.12);
           background: rgba(255, 255, 255, 0.04);
           transition: color 0.2s, border-color 0.2s, background 0.2s;
         }
-        .qx-bn-chip:hover {
+        .qx-tl-chip:hover {
           color: var(--text);
-          border-color: color-mix(in srgb, var(--bn) 50%, transparent);
-          background: color-mix(in srgb, var(--bn) 12%, transparent);
+          border-color: color-mix(in srgb, var(--tl) 50%, transparent);
+          background: color-mix(in srgb, var(--tl) 12%, transparent);
         }
-        html.light .qx-bn-chip { border-color: rgba(0, 0, 0, 0.1); background: rgba(0, 0, 0, 0.03); }
+        html.light .qx-tl-chip { border-color: rgba(0, 0, 0, 0.1); background: rgba(0, 0, 0, 0.03); }
 
-        .qx-bn-all {
-          margin-top: auto; padding-top: 14px;
-          display: inline-flex; align-items: center; gap: 6px;
-          font-size: 12.5px; font-weight: 700; color: var(--bn); text-decoration: none;
+        .qx-tl-all {
+          margin-top: 14px; display: inline-flex; align-items: center; gap: 6px;
+          font-size: 12.5px; font-weight: 700; color: var(--tl); text-decoration: none;
           opacity: 0.85; transition: opacity 0.25s, gap 0.25s;
         }
-        .qx-bn-all:hover { opacity: 1; gap: 10px; }
+        .qx-tl-all:hover { opacity: 1; gap: 10px; }
 
-        @media (max-width: 1023px) {
-          .qx-bn {
-            grid-template-columns: 1fr 1fr;
-            grid-template-areas:
-              "qr qr"
-              "pdf img"
-              "ai vid"
-              "d3 d3";
-          }
-        }
-        @media (max-width: 560px) {
-          .qx-bn { grid-template-columns: 1fr; grid-template-areas: "qr" "pdf" "img" "ai" "vid" "d3"; }
+        /* spine hugs the left edge on small screens */
+        @media (max-width: 900px) {
+          .qx-tl-spine { left: 14px; transform: none; }
+          .qx-tl-node { left: 14px; transform: translateX(-50%); }
+          .qx-tl-row { grid-template-columns: 40px 1fr; padding: 14px 0; }
+          .qx-tl-slot, .qx-tl-row.is-left .qx-tl-slot { grid-column: 2; justify-self: stretch; width: 100%; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .qx-bn-cell, .qx-bn-dots, .qx-bn-row { transition: none !important; }
+          .qx-tl-neon, .qx-tl-node i { animation: none; }
+          .qx-tl-card { transition: none; }
         }
       `}</style>
     </section>
