@@ -91,8 +91,10 @@
 
 - **Mission 47 — Hero mascot raised + professional stats card + peeks removed (`cf3a245`)**: `.qx-hm` bottom 0 → clamp(72px, 11vh, 122px) (bunny clears the marquee), height 66→64vh. Proof card upgraded: `.qx-proof-head` strip (mono "// QRIX IN NUMBERS" localized + pulsing LIVE chip with green glow dot), numerals up to clamp(28px,3vw,42px) tabular, per-cell hover `rgba(255,255,255,0.07)`, inset top highlight. Both bottom BunnyPeek stills removed from page.tsx (component export kept). Verified: served HTML has 0 peeks, proof-head/grid present, tsc clean. Note: 21st.dev MCP went LIVE this session (28 tools: search/generate/get_component/themes...) + 4 CLI skills — available for future UI work.
 
+- **Mission 48 — QRIX IN NUMBERS on the 21st.dev archetype (`67a43d7`)**: first live use of the 21st MCP — `search` (free) → `get_component` (metered, 1 of 2/day used; free tier) for the stats-section-with-text archetype, then rebuilt entirely in QRix language (own markup/styles/copy): orange card = left column (mono kicker + display heading "Trusted by makers worldwide" localized + copy + pulsing LIVE chip) and right 2×2 glass stat tiles (FiTrendingUp, CountUp numeral 26–38px tabular, mono label, hover lift), uptime = FiShield footer strip; 1-col <900px, tiles stack <480px. 21st capabilities noted: catalog search (free/unlimited), component code retrieval (2/day free), AI generate/iterate (preview URL, paid credits), themes (free CSS), publish/profile tools, `21st` CLI via 4 plugin skills.
+
 ## Current Mission
-Homepage = NEW TOOLS ERA, user-cut mascots with smoke reveals + film cycles, editorial type index, glitter dark scenes, pro orange stats card (M41-47). Auth = sliding card + mascots (M39x). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
+Homepage = NEW TOOLS ERA, user-cut mascots with smoke reveals + film cycles, editorial type index, glitter dark scenes, 21st-archetype stats card (M41-48). Auth = sliding card + mascots (M39x). Remaining premium candidates: reviews section slimming, section-count audit. Verify visuals with screenshots before finishing.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
