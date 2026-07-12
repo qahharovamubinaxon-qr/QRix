@@ -641,12 +641,13 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 .qx-proof {
   position: relative;
   border-radius: 26px; overflow: hidden;
-  border: 1px solid rgba(255, 150, 90, 0.3);
+  border: 1px solid rgba(255, 106, 19, 0.34);
+  /* Mission 52: black glass, orange type */
   background:
-    radial-gradient(90% 90% at 50% -25%, rgba(255, 150, 80, 0.18) 0%, transparent 55%),
-    linear-gradient(170deg, rgba(255, 122, 50, 0.16) 0%, rgba(226, 88, 14, 0.12) 100%);
+    radial-gradient(90% 90% at 50% -25%, rgba(255, 106, 19, 0.1) 0%, transparent 55%),
+    rgba(8, 6, 5, 0.62);
   backdrop-filter: var(--glass-blur);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45), 0 1px 0 rgba(255, 140, 70, 0.14) inset;
 }
 /* light theme has no dark canvas behind — keep the solid orange there */
 html.light .qx-proof {
@@ -664,40 +665,40 @@ html.light .qx-proof {
 .qx-proof-left { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
 .qx-proof-kick {
   font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.92); font-weight: 700;
+  color: rgba(255, 150, 80, 0.95); font-weight: 700;
 }
 .qx-proof-title {
   font-family: var(--font-display); font-weight: 800;
   font-size: clamp(24px, 2.4vw, 36px); letter-spacing: -0.02em; line-height: 1.12;
-  color: #fff; text-shadow: 0 2px 16px rgba(140, 45, 0, 0.35);
+  color: #ff8a3c; text-shadow: 0 0 26px rgba(255, 106, 19, 0.35);
 }
 .qx-proof-copy {
-  font-size: 13.5px; line-height: 1.7; color: rgba(255, 255, 255, 0.88);
+  font-size: 13.5px; line-height: 1.7; color: rgba(255, 178, 122, 0.88);
   max-width: 380px;
 }
 .qx-proof-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .qx-proof-tile {
   display: flex; flex-direction: column; gap: 8px;
   padding: 18px 20px 16px; border-radius: 16px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 106, 19, 0.07);
+  border: 1px solid rgba(255, 106, 19, 0.28);
   transition: background 0.3s, transform 0.3s;
 }
-.qx-proof-tile:hover { background: rgba(255, 255, 255, 0.14); transform: translateY(-2px); }
-.qx-proof-tr { color: #b6ffc3; }
+.qx-proof-tile:hover { background: rgba(255, 106, 19, 0.15); transform: translateY(-2px); }
+.qx-proof-tr { color: #ffb27a; }
 .qx-proof-foot {
   display: flex; align-items: center; gap: 8px;
   padding: 13px clamp(26px, 3.4vw, 44px);
-  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  border-top: 1px solid rgba(255, 106, 19, 0.25);
   font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 160, 100, 0.9);
 }
 .qx-proof-live {
   display: inline-flex; align-items: center; gap: 7px;
-  font-size: 10px; letter-spacing: 0.24em; color: #fff;
+  font-size: 10px; letter-spacing: 0.24em; color: #ffb27a;
   padding: 5px 12px; border-radius: 99px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 106, 19, 0.4);
+  background: rgba(255, 106, 19, 0.1);
 }
 .qx-proof-live i {
   width: 7px; height: 7px; border-radius: 50%; background: #b6ffc3;
@@ -706,13 +707,13 @@ html.light .qx-proof {
 }
 .qx-proof-num {
   font-family: var(--font-display); font-weight: 800; letter-spacing: -0.025em;
-  font-size: clamp(26px, 2.6vw, 38px); line-height: 1; color: #fff;
+  font-size: clamp(26px, 2.6vw, 38px); line-height: 1; color: #ff7a32;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 2px 16px rgba(140, 45, 0, 0.4);
+  text-shadow: 0 0 22px rgba(255, 106, 19, 0.4);
 }
 .qx-proof-lbl {
   font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.88);
+  color: rgba(255, 160, 100, 0.85);
 }
 @media (max-width: 900px) {
   .qx-proof-inner { grid-template-columns: 1fr; align-items: start; }
