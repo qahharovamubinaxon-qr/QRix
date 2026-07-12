@@ -1,32 +1,19 @@
 "use client";
 
-/* Mission 42 — the QRix bunny lives as film now.
-   Two transparent VP9 loops cut from the user's Kling render:
-   - walk loop: centre-stage in the hero
-   - idle close-up: left of the generator cards
-   No gliding — the mascot cross-FADES between states as you scroll
-   (fade out by mid-travel, swap position + clip, fade back in), then fades
-   away below the generator. Cursor gives a soft parallax. Browsers without
-   VP9-alpha get the static webp posters. */
+/* Mission 45 — the mascot as premium stills (user's picks, gamma-lifted,
+   keyed at full res). Two fixed slots cross-FADE between states on scroll:
+   standing bunny centre-stage in the hero, blue-sneaker bunny beside the
+   CREATE card. A slow float keeps them alive; the cursor adds parallax.
+   Reduced motion pins the hero still only. */
 
 import { useEffect, useRef, useState } from "react";
 
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 
-function useAlphaVideoOk() {
-  const [ok, setOk] = useState(true);
-  useEffect(() => {
-    const v = document.createElement("video");
-    setOk(v.canPlayType('video/webm; codecs="vp9"') !== "");
-  }, []);
-  return ok;
-}
-
 export default function EraBunny() {
   const ref = useRef<HTMLDivElement>(null);
   const [reduced, setReduced] = useState(false);
-  const alphaOk = useAlphaVideoOk();
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -40,9 +27,9 @@ export default function EraBunny() {
     if (reduced) return;
     const el = ref.current;
     if (!el) return;
-    const walkEl = el.querySelector<HTMLElement>("[data-pose='walk']");
-    const idleEl = el.querySelector<HTMLElement>("[data-pose='idle']");
-    if (!walkEl || !idleEl) return;
+    const heroEl = el.querySelector<HTMLElement>("[data-pose='hero']");
+    const genEl = el.querySelector<HTMLElement>("[data-pose='gen']");
+    if (!heroEl || !genEl) return;
 
     let mx = 0, my = 0, cmx = 0, cmy = 0, raf = 0;
     const onMove = (e: PointerEvent) => {
@@ -66,19 +53,18 @@ export default function EraBunny() {
       cmx += (mx - cmx) * 0.06;
       cmy += (my - cmy) * 0.06;
 
-      // cross-fade, no travel: walk owns p<0.5, idle owns p>0.5
-      const walkO = clamp(1 - p * 2.2, 0, 1);
-      const idleO = clamp((p - 0.5) * 2.2, 0, 1) * tail;
-      walkEl.style.opacity = String(walkO);
-      idleEl.style.opacity = String(idleO);
-      walkEl.style.visibility = walkO <= 0.01 ? "hidden" : "visible";
-      idleEl.style.visibility = idleO <= 0.01 ? "hidden" : "visible";
+      const heroO = clamp(1 - p * 2.2, 0, 1);
+      const genO = clamp((p - 0.5) * 2.2, 0, 1) * tail;
+      heroEl.style.opacity = String(heroO);
+      genEl.style.opacity = String(genO);
+      heroEl.style.visibility = heroO <= 0.01 ? "hidden" : "visible";
+      genEl.style.visibility = genO <= 0.01 ? "hidden" : "visible";
 
       const drift = `translate3d(${cmx}px, ${cmy}px, 0) rotate(${cmx / 12}deg)`;
-      walkEl.style.transform = drift;
-      idleEl.style.transform = drift;
+      heroEl.style.transform = drift;
+      genEl.style.transform = drift;
 
-      el.style.visibility = (walkO <= 0.01 && idleO <= 0.01) ? "hidden" : "visible";
+      el.style.visibility = (heroO <= 0.01 && genO <= 0.01) ? "hidden" : "visible";
       raf = requestAnimationFrame(tick);
     };
 
@@ -92,25 +78,15 @@ export default function EraBunny() {
 
   return (
     <div ref={ref} className={`qx-bunny-fixed${reduced ? " qx-bunny-fixed--static" : ""}`} aria-hidden>
-      {/* hero: walking loop, centre stage */}
-      <div className="qx-bunny-slot qx-bunny-slot--hero" data-pose="walk">
-        {alphaOk && !reduced ? (
-          <video className="qx-bunny-media" src="/scenes/bunny-walk-loop.webm"
-            autoPlay muted loop playsInline poster="/scenes/bunny-walk-loop.webp" />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="qx-bunny-media" src="/scenes/bunny-hero.webp" alt="" draggable={false} />
-        )}
+      {/* hero: standing bunny, centre stage */}
+      <div className="qx-bunny-slot qx-bunny-slot--hero" data-pose="hero">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="qx-bunny-media" src="/scenes/bunny-hero.webp" alt="" draggable={false} />
       </div>
-      {/* generator: idle close-up on the left */}
-      <div className="qx-bunny-slot qx-bunny-slot--gen" data-pose="idle" style={{ opacity: 0 }}>
-        {alphaOk && !reduced ? (
-          <video className="qx-bunny-media" src="/scenes/bunny-idle-loop.webm"
-            autoPlay muted loop playsInline poster="/scenes/bunny-idle-loop.webp" />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img className="qx-bunny-media" src="/scenes/bunny-idle-loop.webp" alt="" draggable={false} />
-        )}
+      {/* generator: blue-sneaker bunny beside the CREATE card */}
+      <div className="qx-bunny-slot qx-bunny-slot--gen" data-pose="gen" style={{ opacity: 0 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img className="qx-bunny-media" src="/scenes/bunny-blue.webp" alt="" draggable={false} />
       </div>
     </div>
   );

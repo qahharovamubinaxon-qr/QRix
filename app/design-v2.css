@@ -893,17 +893,26 @@ html.light .qx-glitter { display: none; }
   position: absolute; will-change: transform, opacity;
   filter: drop-shadow(0 30px 55px rgba(90, 24, 0, 0.35));
 }
-/* hero: cream bunny loop, centre stage (520x1270 → width = h * 0.409) */
+/* hero: standing bunny still, centre stage (617x1877 → width = h * 0.329) */
 .qx-bunny-slot--hero {
   bottom: 0; height: min(70vh, 740px);
-  left: calc(50% - min(70vh, 740px) * 0.205);
+  left: calc(50% - min(70vh, 740px) * 0.165);
 }
-/* generator: small blue-sneaker bunny by the CREATE card (square clip) */
+/* generator: blue-sneaker bunny beside the CREATE card */
 .qx-bunny-slot--gen {
-  bottom: 16vh; height: min(44vh, 400px);
+  bottom: 15vh; height: min(48vh, 440px);
   left: 4.5vw;
 }
-.qx-bunny-media { height: 100%; width: auto; display: block; user-select: none; }
+.qx-bunny-media {
+  height: 100%; width: auto; display: block; user-select: none;
+  animation: qxBunnyFloat 6.5s ease-in-out infinite;
+}
+.qx-bunny-slot--gen .qx-bunny-media { animation-delay: -3s; }
+@keyframes qxBunnyFloat {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -10px; }
+}
+@media (prefers-reduced-motion: reduce) { .qx-bunny-media { animation: none; } }
 
 /* smaller cousins living in lower sections */
 .qx-bunny-peek { position: absolute; bottom: -14px; z-index: 1; pointer-events: none; }
