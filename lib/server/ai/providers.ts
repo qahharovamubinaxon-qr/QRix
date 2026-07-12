@@ -87,7 +87,8 @@ const gemini: ProviderDef = {
       parts.push({ inline_data: { mime_type: meta.slice(5).split(";")[0] || "image/png", data } });
     }
     const j = await post(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      // gemini-3.1-flash-lite: the roomiest free tier (500 req/day) and multimodal
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`,
       { contents: [{ parts }], generationConfig: { maxOutputTokens: input.maxTokens || 2048 } },
       {},
     );
