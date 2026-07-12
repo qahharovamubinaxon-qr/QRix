@@ -22,6 +22,7 @@ import {
   FiShield, FiPenTool, FiBarChart2, FiCamera, FiFileText, FiImage,
   FiUpload, FiTrash2, FiCheck,
   FiLayers, FiMinimize2, FiMaximize2, FiDroplet, FiScissors,
+  FiTrendingUp,
 } from "react-icons/fi";
 
 type Lang = "en" | "ru" | "uz";
@@ -624,24 +625,37 @@ export default function HomePage() {
       {/* ================= PROOF — numbers and logos, one quiet band ================= */}
       <section data-scene="deep" className="relative py-16 lg:py-24">
         <div className="max-w-[1400px] mx-auto px-5 lg:px-8">
+          {/* 21st.dev "stats section with text" archetype, rebuilt in QRix orange */}
           <div className="qx-proof" data-reveal>
-            <div className="qx-proof-head">
-              <span className="qx-mono qx-proof-kick">
-                {lang === "uz" ? "// QRIX РАҚАМЛАРДА" : lang === "ru" ? "// QRIX В ЦИФРАХ" : "// QRIX IN NUMBERS"}
-              </span>
-              <span className="qx-mono qx-proof-live"><i aria-hidden />LIVE</span>
-            </div>
-            <div className="qx-proof-grid">
-              {stats.map((s) => (
-                <div key={s.label} className="qx-proof-item">
-                  <span className="qx-proof-num"><CountUp end={s.end} suffix={s.suffix} /></span>
-                  <span className="qx-proof-lbl qx-mono">{s.label}</span>
-                </div>
-              ))}
-              <div className="qx-proof-item">
-                <span className="qx-proof-num">99.9%</span>
-                <span className="qx-proof-lbl qx-mono">{t.statUptime}</span>
+            <div className="qx-proof-inner">
+              <div className="qx-proof-left">
+                <span className="qx-mono qx-proof-kick">
+                  {lang === "uz" ? "// QRIX РАҚАМЛАРДА" : lang === "ru" ? "// QRIX В ЦИФРАХ" : "// QRIX IN NUMBERS"}
+                </span>
+                <h2 className="qx-proof-title">
+                  {lang === "uz" ? "Бутун дунё ишончи" : lang === "ru" ? "Нам доверяют по всему миру" : "Trusted by makers worldwide"}
+                </h2>
+                <p className="qx-proof-copy">
+                  {lang === "uz"
+                    ? "Ҳар куни минглаб жамоалар QR, PDF ва медиа ишларини QRix'да бажаради — рўйхатсиз, тўловсиз."
+                    : lang === "ru"
+                    ? "Каждый день тысячи команд делают QR, PDF и медиа-задачи в QRix — без регистрации и оплаты."
+                    : "Every day thousands of teams run their QR, PDF and media work on QRix — no signup, no paywall."}
+                </p>
+                <span className="qx-mono qx-proof-live"><i aria-hidden />LIVE</span>
               </div>
+              <div className="qx-proof-tiles">
+                {stats.map((s) => (
+                  <div key={s.label} className="qx-proof-tile">
+                    <FiTrendingUp className="qx-proof-tr" size={15} aria-hidden />
+                    <span className="qx-proof-num"><CountUp end={s.end} suffix={s.suffix} /></span>
+                    <span className="qx-proof-lbl qx-mono">{s.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="qx-proof-foot qx-mono">
+              <FiShield size={12} aria-hidden /> 99.9% {t.statUptime}
             </div>
           </div>
         </div>

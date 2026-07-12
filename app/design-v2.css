@@ -601,14 +601,41 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
     linear-gradient(170deg, #ff8a3c 0%, #ff6a13 46%, #e85708 100%);
   box-shadow: 0 24px 70px rgba(210, 75, 8, 0.28), 0 1px 0 rgba(255, 255, 255, 0.25) inset;
 }
-.qx-proof-head {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 26px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.22);
+.qx-proof-inner {
+  display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.3fr);
+  gap: clamp(24px, 4vw, 52px); align-items: center;
+  padding: clamp(26px, 3.4vw, 44px);
 }
+.qx-proof-left { display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
 .qx-proof-kick {
   font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase;
   color: rgba(255, 255, 255, 0.92); font-weight: 700;
+}
+.qx-proof-title {
+  font-family: var(--font-display); font-weight: 800;
+  font-size: clamp(24px, 2.4vw, 36px); letter-spacing: -0.02em; line-height: 1.12;
+  color: #fff; text-shadow: 0 2px 16px rgba(140, 45, 0, 0.35);
+}
+.qx-proof-copy {
+  font-size: 13.5px; line-height: 1.7; color: rgba(255, 255, 255, 0.88);
+  max-width: 380px;
+}
+.qx-proof-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.qx-proof-tile {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 18px 20px 16px; border-radius: 16px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  transition: background 0.3s, transform 0.3s;
+}
+.qx-proof-tile:hover { background: rgba(255, 255, 255, 0.14); transform: translateY(-2px); }
+.qx-proof-tr { color: #b6ffc3; }
+.qx-proof-foot {
+  display: flex; align-items: center; gap: 8px;
+  padding: 13px clamp(26px, 3.4vw, 44px);
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.88);
 }
 .qx-proof-live {
   display: inline-flex; align-items: center; gap: 7px;
@@ -622,18 +649,9 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
   box-shadow: 0 0 10px #b6ffc3;
   animation: qx-glow-pulse 2.2s ease-in-out infinite;
 }
-.qx-proof-grid { display: flex; flex-wrap: wrap; align-items: stretch; }
-.qx-proof-item {
-  flex: 1 1 160px; display: flex; flex-direction: column; gap: 10px;
-  padding: 30px 26px 28px;
-  border-left: 1px solid rgba(255, 255, 255, 0.22);
-  transition: background 0.3s;
-}
-.qx-proof-item:hover { background: rgba(255, 255, 255, 0.07); }
-.qx-proof-item:first-child { border-left: 0; }
 .qx-proof-num {
   font-family: var(--font-display); font-weight: 800; letter-spacing: -0.025em;
-  font-size: clamp(28px, 3vw, 42px); line-height: 1; color: #fff;
+  font-size: clamp(26px, 2.6vw, 38px); line-height: 1; color: #fff;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 2px 16px rgba(140, 45, 0, 0.4);
 }
@@ -641,10 +659,12 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
   font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
   color: rgba(255, 255, 255, 0.88);
 }
-@media (max-width: 720px) {
-  .qx-proof-item { flex-basis: 50%; border-top: 1px solid rgba(255, 255, 255, 0.22); }
-  .qx-proof-item:nth-child(-n+2) { border-top: 0; }
-  .qx-proof-item:nth-child(odd) { border-left: 0; }
+@media (max-width: 900px) {
+  .qx-proof-inner { grid-template-columns: 1fr; align-items: start; }
+  .qx-proof-tiles { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  .qx-proof-tiles { grid-template-columns: 1fr; }
 }
 
 /* ── Mission 39: sliding auth card (sign in ↔ sign up, one page) ────── */
