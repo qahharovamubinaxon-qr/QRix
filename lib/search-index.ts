@@ -38,6 +38,7 @@ const PAGES: SearchItem[] = [
   { title: "Link-in-Bio Page", href: "/link-in-bio", group: "Pages", keywords: "linktree bio links" },
   { title: "QR Poster Maker", href: "/poster", group: "Pages", keywords: "scan me flyer poster" },
   { title: "Bulk QR Generator", href: "/bulk-qr", group: "Pages", keywords: "csv batch mass" },
+  { title: "Animated QR Maker", href: "/animated-qr", group: "Pages", keywords: "animated qr video stories reels tiktok shorts scan me mp4 animation" },
   { title: "QR Decoder", href: "/qr-tools/decode", group: "Pages", keywords: "read scan from image" },
   { title: "QR Scanner", href: "/scanner", group: "Pages", keywords: "camera scan" },
   { title: "Pricing", href: "/pricing", group: "Pages", keywords: "pro plan subscription narx" },
