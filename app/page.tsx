@@ -624,9 +624,12 @@ export default function HomePage() {
 
       {/* ================= PROOF — numbers and logos, one quiet band ================= */}
       <section data-scene="deep" className="relative py-16 lg:py-24">
+        {/* the timeline spine plugs into this card */}
+        <div className="qx-proof-wire" aria-hidden><i /></div>
         <div className="max-w-[1400px] mx-auto px-5 lg:px-8">
           {/* 21st.dev "stats section with text" archetype, rebuilt in QRix orange */}
           <div className="qx-proof" data-reveal>
+            <span className="qx-proof-neon" aria-hidden />
             <div className="qx-proof-inner">
               <div className="qx-proof-left">
                 <span className="qx-mono qx-proof-kick">

@@ -592,9 +592,54 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 @media (prefers-reduced-motion: reduce) { .qx-status-dot { animation: none; } }
 
 /* ── Mission 38: quiet proof band (numbers + logos as one zone) ─────── */
+/* Mission 51: the timeline spine plugs into the numbers card —
+   a wire drops through the section gap, energy pulses down it, and the
+   same orange neon then chases the card's border */
+.qx-proof-wire {
+  position: absolute; left: 50%; top: 0; transform: translateX(-50%);
+  width: 3px; height: 4rem; overflow: hidden;
+  background: linear-gradient(180deg, #ff6a13 0%, #e14e08 100%);
+  border-radius: 3px;
+  box-shadow: 0 0 14px rgba(255, 106, 19, 0.8), 0 0 34px rgba(255, 106, 19, 0.35);
+}
+@media (min-width: 1024px) { .qx-proof-wire { height: 6rem; } }
+.qx-proof-wire i {
+  position: absolute; left: 0; right: 0; top: -40%; height: 40%;
+  background: linear-gradient(180deg, transparent 0%, #ffd9b8 60%, #fff 100%);
+  animation: qxWireFlow 1.6s ease-in infinite;
+}
+@keyframes qxWireFlow {
+  to { top: 100%; }
+}
+@media (max-width: 899px) { .qx-proof-wire { display: none; } }
+
+@property --qx-ang2 {
+  syntax: "<angle>"; initial-value: 0deg; inherits: false;
+}
+.qx-proof-neon {
+  position: absolute; inset: 0; border-radius: 26px;
+  padding: 1.5px; pointer-events: none; z-index: 3;
+  background: conic-gradient(from var(--qx-ang2) at 50% 50%,
+    transparent 0%, transparent 72%,
+    rgba(255, 106, 19, 0.55) 82%,
+    #ff6a13 88%, #ffc9a3 92%,
+    rgba(255, 106, 19, 0.55) 96%, transparent 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: qxNeonChase2 4.5s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(255, 106, 19, 0.7));
+}
+@keyframes qxNeonChase2 { to { --qx-ang2: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .qx-proof-wire i, .qx-proof-neon { animation: none; }
+}
+
 /* Mission 44/47/49: the numbers ride an orange GLASS card now —
    translucent, blurred, the glitter starfield breathes through it */
 .qx-proof {
+  position: relative;
   border-radius: 26px; overflow: hidden;
   border: 1px solid rgba(255, 150, 90, 0.3);
   background:

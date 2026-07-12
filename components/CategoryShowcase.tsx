@@ -173,13 +173,16 @@ export default function CategoryShowcase() {
 
         .qx-tl { position: relative; }
 
-        /* central orange spine, glowing, filled by scroll */
+        /* central orange spine, glowing, filled by scroll.
+           It overruns the section's bottom padding (pb-20/lg:pb-24) so it
+           meets the QRIX IN NUMBERS wire in the next section seamlessly. */
         .qx-tl-spine {
-          position: absolute; top: 0; bottom: 0; left: 50%;
+          position: absolute; top: 0; bottom: -5rem; left: 50%;
           width: 3px; transform: translateX(-50%);
           background: rgba(255, 106, 19, 0.16);
           border-radius: 3px;
         }
+        @media (min-width: 1024px) { .qx-tl-spine { bottom: -6rem; } }
         .qx-tl-fill {
           width: 100%; height: 0%;
           background: linear-gradient(180deg, #ffb27a 0%, #ff6a13 55%, #e14e08 100%);
