@@ -13,7 +13,9 @@ export type AiTaskKind =
 
 export type ProviderId =
   | "gemini" | "groq" | "openrouter" | "cloudflare" | "huggingface"
-  | "openai" | "anthropic" | "replicate" | "fal" | "stability" | "custom";
+  | "mistral" | "cerebras" | "cohere" | "nvidia" | "github"
+  | "openai" | "anthropic" | "replicate" | "fal" | "stability"
+  | "muapi" | "custom";
 
 export interface AiInput {
   prompt: string;
@@ -119,6 +121,35 @@ const openrouter = openAiCompatible("openrouter", "OpenRouter", "OPENROUTER_API_
 
 const openai = openAiCompatible("openai", "OpenAI", "OPENAI_API_KEY", false,
   "https://api.openai.com/v1/chat/completions", "gpt-4o-mini", 0.6);
+
+// Free-tier providers from cheahjs/free-llm-api-resources (Mission 55).
+// All speak the OpenAI chat schema, so the factory covers them.
+const mistral = openAiCompatible("mistral", "Mistral La Plateforme", "MISTRAL_API_KEY", true,
+  "https://api.mistral.ai/v1/chat/completions", "mistral-small-latest", 0);
+
+const cerebras = openAiCompatible("cerebras", "Cerebras", "CEREBRAS_API_KEY", true,
+  "https://api.cerebras.ai/v1/chat/completions", "llama-3.3-70b", 0);
+
+const nvidia = openAiCompatible("nvidia", "NVIDIA NIM", "NVIDIA_API_KEY", true,
+  "https://integrate.api.nvidia.com/v1/chat/completions", "meta/llama-3.3-70b-instruct", 0);
+
+const github = openAiCompatible("github", "GitHub Models", "GITHUB_MODELS_TOKEN", true,
+  "https://models.github.ai/inference/chat/completions", "openai/gpt-4o-mini", 0);
+
+const cohere: ProviderDef = {
+  id: "cohere", name: "Cohere", envKey: "COHERE_API_KEY", free: true,
+  capabilities: ["text", "summarize", "translate", "code"],
+  costPerUnit: 0,
+  async call(task, input, apiKey) {
+    const j = await post("https://api.cohere.com/v2/chat",
+      { model: "command-r7b-12-2024", messages: asChat({ ...input, prompt: taskPrompt(task, input) }) },
+      { Authorization: `Bearer ${apiKey}` });
+    const msg = j.message as { content?: { type: string; text?: string }[] } | undefined;
+    const text = msg?.content?.filter((b) => b.type === "text").map((b) => b.text).join("") || "";
+    const u = j.usage as { tokens?: { input_tokens?: number; output_tokens?: number } } | undefined;
+    return { text, raw: j, tokens: (u?.tokens?.input_tokens || 0) + (u?.tokens?.output_tokens || 0) };
+  },
+};
 
 const cloudflare: ProviderDef = {
   id: "cloudflare", name: "Cloudflare Workers AI", envKey: "CLOUDFLARE_API_KEY", free: true,
@@ -246,6 +277,43 @@ const stability: ProviderDef = {
   },
 };
 
+/** MuAPI — the engine behind Open-Generative-AI: 200+ image/video models
+ *  behind one submit-and-poll API (Mission 55). */
+const muapi: ProviderDef = {
+  id: "muapi", name: "MuAPI", envKey: "MUAPI_API_KEY", free: false,
+  capabilities: ["image-generate"],
+  costPerUnit: 0.004,
+  async call(_task, input, apiKey) {
+    const model = process.env.MUAPI_IMAGE_MODEL?.trim() || "flux-schnell-image";
+    const headers = { "x-api-key": apiKey };
+    const submit = await post(`https://api.muapi.ai/api/v1/${model}`,
+      { prompt: input.prompt, image_url: input.image || null }, headers);
+    const requestId = (submit.request_id || submit.id) as string | undefined;
+    if (!requestId) {
+      const direct = (submit.outputs as string[] | undefined)?.[0] || (submit.url as string | undefined);
+      return { imageUrl: direct, raw: submit };
+    }
+    // poll until the prediction settles (~2s cadence, ≤60 tries)
+    for (let i = 0; i < 60; i++) {
+      await new Promise((r) => setTimeout(r, 2000));
+      const res = await fetch(`https://api.muapi.ai/api/v1/predictions/${requestId}/result`, { headers });
+      if (res.status === 429 || res.status === 402) throw new RateLimitError();
+      if (res.status >= 500) continue;
+      const j = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      if (!res.ok) throw new ProviderError(`${res.status}: ${JSON.stringify(j).slice(0, 160)}`);
+      const status = String(j.status || "").toLowerCase();
+      if (["completed", "succeeded", "success"].includes(status)) {
+        const out = (j.outputs as string[] | undefined)?.[0]
+          || (j.url as string | undefined)
+          || ((j.output as { url?: string } | undefined)?.url);
+        return { imageUrl: out, raw: j };
+      }
+      if (["failed", "error"].includes(status)) throw new ProviderError(String(j.error || "generation failed"));
+    }
+    throw new ProviderError("muapi poll timeout");
+  },
+};
+
 /** Future custom provider — any endpoint speaking {task, input} → {text|imageUrl}. */
 const custom: ProviderDef = {
   id: "custom", name: "Custom Provider", envKey: "CUSTOM_AI_KEY", free: true,
@@ -261,22 +329,24 @@ const custom: ProviderDef = {
 
 export const PROVIDERS: Record<ProviderId, ProviderDef> = {
   gemini, groq, openrouter, cloudflare, huggingface,
-  openai, anthropic, replicate, fal, stability, custom,
+  mistral, cerebras, cohere, nvidia, github,
+  openai, anthropic, replicate, fal, stability, muapi, custom,
 };
 
 /** Mission-defined default priority: free providers first. */
 export const DEFAULT_PRIORITY: ProviderId[] = [
   "gemini", "groq", "openrouter", "cloudflare", "huggingface",
-  "openai", "anthropic", "replicate", "fal", "stability", "custom",
+  "cerebras", "mistral", "cohere", "nvidia", "github",
+  "openai", "anthropic", "replicate", "fal", "stability", "muapi", "custom",
 ];
 
 /** Smart routing — preferred provider order per task kind. */
 export const TASK_ROUTES: Record<AiTaskKind, ProviderId[]> = {
-  "text":           ["gemini", "groq", "openrouter", "cloudflare", "huggingface", "openai", "anthropic", "custom"],
-  "summarize":      ["gemini", "groq", "openrouter", "cloudflare", "openai", "anthropic", "custom"],
-  "translate":      ["gemini", "groq", "openrouter", "cloudflare", "openai", "anthropic", "custom"],
-  "code":           ["groq", "gemini", "openrouter", "openai", "anthropic", "custom"],
-  "image-generate": ["fal", "replicate", "cloudflare", "huggingface", "stability", "custom"],
+  "text":           ["gemini", "groq", "openrouter", "cerebras", "mistral", "cohere", "nvidia", "github", "cloudflare", "huggingface", "openai", "anthropic", "custom"],
+  "summarize":      ["gemini", "groq", "openrouter", "cerebras", "mistral", "cohere", "cloudflare", "openai", "anthropic", "custom"],
+  "translate":      ["gemini", "groq", "openrouter", "mistral", "cohere", "cerebras", "cloudflare", "openai", "anthropic", "custom"],
+  "code":           ["groq", "cerebras", "gemini", "openrouter", "mistral", "nvidia", "github", "openai", "anthropic", "custom"],
+  "image-generate": ["fal", "replicate", "muapi", "cloudflare", "huggingface", "stability", "custom"],
   "image-analyze":  ["gemini", "anthropic", "custom"],
   "ocr":            ["gemini", "anthropic", "custom"],
   "transcribe":     ["custom", "gemini"],
