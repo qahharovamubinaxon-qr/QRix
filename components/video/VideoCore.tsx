@@ -336,15 +336,20 @@ export async function recodeVideo(metas: VideoMeta[], o: RecodeOpts = {}): Promi
     metas.forEach((m) => { m.el.muted = true; });
   }
 
-  const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
-    ? "video/webm;codecs=vp9,opus" : "video/webm";
+  // Prefer real MP4/H.264 (Chrome 130+, Edge, Safari); fall back to WebM.
+  const cand = [
+    "video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4;codecs=avc1", "video/mp4",
+    "video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm",
+  ];
+  const mime = cand.find((m) => MediaRecorder.isTypeSupported(m)) ?? "video/webm";
+  const outType = mime.startsWith("video/mp4") ? "video/mp4" : "video/webm";
   const rec = new MediaRecorder(stream, {
     mimeType: mime,
     videoBitsPerSecond: o.videoBitsPerSecond ?? 6_000_000,
   });
   const chunks: BlobPart[] = [];
   rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-  const done = new Promise<Blob>((res) => { rec.onstop = () => res(new Blob(chunks, { type: "video/webm" })); });
+  const done = new Promise<Blob>((res) => { rec.onstop = () => res(new Blob(chunks, { type: outType })); });
   rec.start(250);
 
   // build the segment plan

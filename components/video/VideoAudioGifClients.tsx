@@ -9,6 +9,20 @@ import { AiDropzone, AiResultBar, AiProcessing, CloudNotice } from "@/components
 import { VideoPlayer, Timeline, loadVideoFile, type VideoMeta } from "@/components/video/VideoCore";
 import { trackTool } from "@/lib/track";
 
+/* ── Recorder codec picker ────────────────────────────────────
+   Prefer real MP4/H.264 (Chrome 130+, Edge, Safari) so tools named
+   "…→MP4" actually deliver MP4; fall back to WebM elsewhere. Extension
+   always matches the container the browser produced. */
+function pickVideoMime(): { mimeType: string; ext: "mp4" | "webm" } {
+  const supported = (m: string) =>
+    typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(m);
+  const mp4 = ["video/mp4;codecs=avc1.42E01E,mp4a.40.2", "video/mp4;codecs=avc1", "video/mp4"];
+  for (const m of mp4) if (supported(m)) return { mimeType: m, ext: "mp4" };
+  const webm = ["video/webm;codecs=vp9,opus", "video/webm;codecs=vp8,opus", "video/webm"];
+  for (const m of webm) if (supported(m)) return { mimeType: m, ext: "webm" };
+  return { mimeType: "video/webm", ext: "webm" };
+}
+
 /* ── WAV encoding helper ──────────────────────────────────── */
 function audioBufferToWav(buf: AudioBuffer): Blob {
   const ch = Math.min(2, buf.numberOfChannels), sr = buf.sampleRate, len = buf.length;
@@ -100,10 +114,11 @@ export function Mp3ToMp4Client() {
       const at = dest.stream.getAudioTracks()[0];
       if (at) stream.addTrack(at);
 
-      const rec = new MediaRecorder(stream, { mimeType: "video/webm", videoBitsPerSecond: 2_500_000 });
+      const enc = pickVideoMime();
+      const rec = new MediaRecorder(stream, { mimeType: enc.mimeType, videoBitsPerSecond: 2_500_000 });
       const chunks: BlobPart[] = [];
       rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-      const stopped = new Promise<Blob>((res) => { rec.onstop = () => res(new Blob(chunks, { type: "video/webm" })); });
+      const stopped = new Promise<Blob>((res) => { rec.onstop = () => res(new Blob(chunks, { type: `video/${enc.ext}` })); });
 
       const bars = new Uint8Array(analyser.frequencyBinCount);
       rec.start(250);
@@ -164,7 +179,7 @@ export function Mp3ToMp4Client() {
       {result && (
         <>
           <video src={result.url} controls playsInline className="w-full max-h-[380px] rounded-2xl" style={{ background: "#000", border: "1px solid var(--border)" }} />
-          <AiResultBar blob={result.blob} filename="waveform-video.webm" onReset={() => setResult(null)} />
+          <AiResultBar blob={result.blob} filename={`waveform-video.${result.blob.type.includes("mp4") ? "mp4" : "webm"}`} onReset={() => setResult(null)} />
         </>
       )}
     </div>
@@ -201,10 +216,11 @@ export function AddAudioClient() {
       if (at) stream.addTrack(at);
       meta.el.muted = true;
 
-      const rec = new MediaRecorder(stream, { mimeType: "video/webm", videoBitsPerSecond: 6_000_000 });
+      const enc = pickVideoMime();
+      const rec = new MediaRecorder(stream, { mimeType: enc.mimeType, videoBitsPerSecond: 6_000_000 });
       const chunks: BlobPart[] = [];
       rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-      const stopped = new Promise<Blob>((res) => { rec.onstop = () => res(new Blob(chunks, { type: "video/webm" })); });
+      const stopped = new Promise<Blob>((res) => { rec.onstop = () => res(new Blob(chunks, { type: `video/${enc.ext}` })); });
 
       meta.el.currentTime = 0;
       await new Promise((r) => { meta.el.onseeked = r; });
@@ -255,7 +271,7 @@ export function AddAudioClient() {
       {result && (
         <>
           <video src={result.url} controls playsInline className="w-full max-h-[380px] rounded-2xl" style={{ background: "#000", border: "1px solid var(--border)" }} />
-          <AiResultBar blob={result.blob} filename="with-new-audio.webm" onReset={() => { setMeta(null); setAudioFile(null); setResult(null); }} />
+          <AiResultBar blob={result.blob} filename={`with-new-audio.${result.blob.type.includes("mp4") ? "mp4" : "webm"}`} onReset={() => { setMeta(null); setAudioFile(null); setResult(null); }} />
         </>
       )}
     </div>
@@ -370,10 +386,11 @@ export function GifToVideoClient() {
       const ctx = c.getContext("2d")!;
       const stream = c.captureStream(0);
       const vTrack = stream.getVideoTracks()[0] as MediaStreamTrack & { requestFrame?: () => void };
-      const rec = new MediaRecorder(stream, { mimeType: "video/webm", videoBitsPerSecond: 3_000_000 });
+      const enc = pickVideoMime();
+      const rec = new MediaRecorder(stream, { mimeType: enc.mimeType, videoBitsPerSecond: 3_000_000 });
       const chunks: BlobPart[] = [];
       rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
-      const stopped = new Promise<Blob>((res) => { rec.onstop = () => res(new Blob(chunks, { type: "video/webm" })); });
+      const stopped = new Promise<Blob>((res) => { rec.onstop = () => res(new Blob(chunks, { type: `video/${enc.ext}` })); });
       rec.start(250);
       for (let loop = 0; loop < 2; loop++) {
         for (let i = 0; i < count; i++) {
@@ -409,7 +426,7 @@ export function GifToVideoClient() {
         <>
           <video src={result.url} controls loop autoPlay playsInline muted className="w-full max-h-[380px] rounded-2xl" style={{ background: "#000", border: "1px solid var(--border)" }} />
           <p className="text-[12px]" style={{ color: "var(--text-muted)" }}>🎉 <b style={{ color: "var(--primary-bright)" }}>{result.saved}</b> than the original GIF.</p>
-          <AiResultBar blob={result.blob} filename="from-gif.webm" onReset={() => setResult(null)} />
+          <AiResultBar blob={result.blob} filename={`from-gif.${result.blob.type.includes("mp4") ? "mp4" : "webm"}`} onReset={() => setResult(null)} />
         </>
       )}
     </div>

@@ -321,7 +321,7 @@ export default function VideoRecodeClient({ preset }: { preset: RecodePreset }) 
             <div key={i} className="space-y-3">
               {results.length > 1 && <div className="text-[12px] font-bold" style={{ color: "var(--primary-bright)" }}>{r.label}</div>}
               <video src={r.url} controls playsInline className="w-full max-h-[380px] rounded-2xl" style={{ background: "#000", border: "1px solid var(--border)" }} />
-              <AiResultBar blob={r.blob} filename={`qrix-${preset}${results.length > 1 ? `-part${i + 1}` : ""}.webm`} onReset={reset} />
+              <AiResultBar blob={r.blob} filename={`qrix-${preset}${results.length > 1 ? `-part${i + 1}` : ""}.${r.blob.type.includes("mp4") ? "mp4" : "webm"}`} onReset={reset} />
             </div>
           ))}
         </div>

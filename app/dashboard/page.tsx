@@ -1,6 +1,14 @@
 ﻿import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
 import DashboardClient from "@/components/DashboardClient";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({
+  title: "Dashboard — Your QR Codes & Analytics",
+  description: "Manage your dynamic QR codes, track scans and view analytics.",
+  path: "/dashboard",
+  noindex: true,
+});
 
 export default async function DashboardPage() {
   const supabase = await createClient();
