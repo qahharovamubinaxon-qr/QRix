@@ -1,24 +1,27 @@
 "use client";
 
-/* Homepage — ALL TOOLS as an editorial type index (Mission 46).
-   Six oversized Unbounded rows; hovering (or focusing / tapping) a row
-   lights it in its category color and a glass tool panel smokes in on the
-   right with five real links. Down-scaled screens get a tap accordion.
-   No cards, no carousels — type does the premium work. */
+/* Homepage — ALL TOOLS as a glass bento (Mission 49).
+   Layout anatomy studied via the 21st.dev catalog (kokonutd's bento):
+   icon chip + status badge on top, title + copy, tag links, hover CTA,
+   mixed column spans. Re-authored here in QRix language: translucent
+   glass tiles over the glitter canvas, category color washes, Unbounded
+   titles, every link real. QR takes the featured 2x2 cell. */
 
 import Link from "next/link";
-import { useState } from "react";
 import { FiArrowRight, FiArrowUpRight } from "react-icons/fi";
 
-type Tool = { label: string; href: string; hint: string };
+type Tool = { label: string; href: string; hint?: string };
 type Cat = {
-  name: string; count: string; color: string; href: string;
+  name: string; count: string; color: string; href: string; emoji: string;
+  copy: string;
   tools: Tool[];
+  area: string;
 };
 
 const CATS: Cat[] = [
   {
-    name: "QR Tools", count: "30+", color: "#22c55e", href: "/qr-tools",
+    name: "QR Tools", count: "30+", color: "#22c55e", href: "/qr-tools", emoji: "🔳", area: "qr",
+    copy: "Dynamic codes with live analytics, PIN protection and full design control.",
     tools: [
       { label: "URL QR Code", href: "/url-qr", hint: "Link → QR in a click" },
       { label: "WiFi QR", href: "/qr-tools/wifi", hint: "Share WiFi without passwords" },
@@ -28,58 +31,54 @@ const CATS: Cat[] = [
     ],
   },
   {
-    name: "PDF Tools", count: "24+", color: "#60a5fa", href: "/pdf-tools",
+    name: "PDF Tools", count: "24+", color: "#60a5fa", href: "/pdf-tools", emoji: "📄", area: "pdf",
+    copy: "Merge, compress, convert and OCR — right in the browser.",
     tools: [
-      { label: "Merge PDF", href: "/pdf-tools/merge", hint: "Combine files into one" },
-      { label: "Compress PDF", href: "/pdf-tools/compress", hint: "Shrink size, keep quality" },
-      { label: "PDF to Word", href: "/pdf-tools/pdf-to-word", hint: "Editable .docx output" },
-      { label: "Split PDF", href: "/pdf-tools/split", hint: "Extract the pages you need" },
-      { label: "OCR PDF", href: "/pdf-tools/ocr", hint: "Scans → searchable text" },
+      { label: "Merge PDF", href: "/pdf-tools/merge" },
+      { label: "Compress", href: "/pdf-tools/compress" },
+      { label: "PDF to Word", href: "/pdf-tools/pdf-to-word" },
+      { label: "OCR", href: "/pdf-tools/ocr" },
     ],
   },
   {
-    name: "Image Tools", count: "70+", color: "#c084fc", href: "/image-tools",
+    name: "Image Tools", count: "70+", color: "#c084fc", href: "/image-tools", emoji: "🖼️", area: "img",
+    copy: "Cut, compress and perfect any picture.",
     tools: [
-      { label: "Remove Background", href: "/image-tools/remove-bg", hint: "Clean cutouts in seconds" },
-      { label: "Compress Image", href: "/image-tools/compress", hint: "Lighter files, same look" },
-      { label: "Crop Image", href: "/image-tools/crop-image", hint: "Perfect framing, any ratio" },
-      { label: "Watermark", href: "/image-tools/watermark-image", hint: "Protect your work" },
-      { label: "Color Picker", href: "/image-tools/color-picker", hint: "Grab any pixel's color" },
+      { label: "Remove BG", href: "/image-tools/remove-bg" },
+      { label: "Compress", href: "/image-tools/compress" },
+      { label: "Crop", href: "/image-tools/crop-image" },
     ],
   },
   {
-    name: "AI Tools", count: "28+", color: "#fbbf24", href: "/ai-tools",
+    name: "AI Tools", count: "28+", color: "#fbbf24", href: "/ai-tools", emoji: "✨", area: "ai",
+    copy: "Upscale, colorize, generate — AI on your files.",
     tools: [
-      { label: "Image Upscaler", href: "/ai-tools/image-upscaler", hint: "Sharper, larger, cleaner" },
-      { label: "AI Background Remover", href: "/ai-tools/background-remover", hint: "AI-precise subject cutout" },
-      { label: "Logo Generator", href: "/ai-tools/logo-generator", hint: "Brand marks in minutes" },
-      { label: "Colorize Photo", href: "/ai-tools/colorize-photo", hint: "B&W memories in color" },
-      { label: "Face Enhancer", href: "/ai-tools/face-enhancer", hint: "Restore blurry portraits" },
+      { label: "Upscaler", href: "/ai-tools/image-upscaler" },
+      { label: "AI Remove BG", href: "/ai-tools/background-remover" },
+      { label: "Logo Maker", href: "/ai-tools/logo-generator" },
     ],
   },
   {
-    name: "Video Tools", count: "29+", color: "#f472b6", href: "/video-tools",
+    name: "Video Tools", count: "29+", color: "#f472b6", href: "/video-tools", emoji: "🎬", area: "vid",
+    copy: "Trim, compress, GIF — no upload, no watermark.",
     tools: [
-      { label: "Compress Video", href: "/video-tools/compress-video", hint: "Smaller files, smooth play" },
-      { label: "Trim Video", href: "/video-tools/trim-video", hint: "Cut to the exact moment" },
-      { label: "GIF Maker", href: "/video-tools/create-gif", hint: "Video → looping GIF" },
-      { label: "Merge Videos", href: "/video-tools/merge-videos", hint: "Stitch clips together" },
-      { label: "Resize Video", href: "/video-tools/resize-video", hint: "Any platform, any ratio" },
+      { label: "Compress", href: "/video-tools/compress-video" },
+      { label: "Trim", href: "/video-tools/trim-video" },
+      { label: "GIF Maker", href: "/video-tools/create-gif" },
+      { label: "Merge", href: "/video-tools/merge-videos" },
     ],
   },
   {
-    name: "3D Tools", count: "New", color: "#22d3ee", href: "/3d-tools",
+    name: "3D Tools", count: "New", color: "#22d3ee", href: "/3d-tools", emoji: "🧊", area: "d3",
+    copy: "Turn a photo into a textured 3D model.",
     tools: [
-      { label: "Image to 3D Model", href: "/3d-tools/image-to-3d", hint: "Photo → textured mesh" },
-      { label: "3D Preview & Orbit", href: "/3d-tools/image-to-3d", hint: "Inspect from every angle" },
-      { label: "GLB · OBJ · STL · USDZ", href: "/3d-tools/image-to-3d", hint: "Export-ready formats" },
+      { label: "Image to 3D", href: "/3d-tools/image-to-3d" },
+      { label: "GLB · OBJ · STL", href: "/3d-tools/image-to-3d" },
     ],
   },
 ];
 
 export default function CategoryShowcase() {
-  const [open, setOpen] = useState(-1);
-
   return (
     <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20 lg:pb-24" aria-label="All tools">
       <div className="mb-8 lg:mb-10" data-reveal>
@@ -92,151 +91,180 @@ export default function CategoryShowcase() {
         </h2>
       </div>
 
-      <ol className="qx-ti" onMouseLeave={() => setOpen(-1)}>
+      <div className="qx-bn" data-stagger>
         {CATS.map((cat, i) => {
-          const isOpen = i === open;
+          const featured = cat.area === "qr";
           return (
-            <li key={cat.name}
-              className={`qx-ti-row${isOpen ? " is-open" : ""}`}
-              style={{ ["--ti" as string]: cat.color } as React.CSSProperties}
-              onMouseEnter={() => setOpen(i)}
-              onFocusCapture={() => setOpen(i)}
+            <div key={cat.name}
+              className={`qx-bn-cell qx-bn-cell--${cat.area}`}
+              style={{ ["--bn" as string]: cat.color, ["--rv-delay" as string]: `${i * 70}ms` } as React.CSSProperties}
+              data-reveal
             >
-              <Link href={cat.href} className="qx-ti-line"
-                onClick={(e) => {
-                  // first tap on touch opens the panel; second follows the link
-                  if (window.matchMedia("(hover: none)").matches && !isOpen) {
-                    e.preventDefault();
-                    setOpen(i);
-                  }
-                }}>
-                <span className="qx-mono qx-ti-idx">0{i + 1}</span>
-                <span className="qx-ti-name">{cat.name}</span>
-                <span className="qx-mono qx-ti-count">{cat.count}</span>
-                <FiArrowRight className="qx-ti-go" size={26} aria-hidden />
-              </Link>
+              <div className="qx-bn-dots" aria-hidden />
 
-              {/* the tool panel smokes in beside the row */}
-              <div className="qx-ti-panel" aria-hidden={!isOpen}>
-                <ul>
+              <div className="qx-bn-top">
+                <span className="qx-bn-ico" aria-hidden>{cat.emoji}</span>
+                <span className="qx-mono qx-bn-count">{cat.count} TOOLS</span>
+              </div>
+
+              <h3 className="qx-bn-name">{cat.name}</h3>
+              <p className="qx-bn-copy">{cat.copy}</p>
+
+              {featured ? (
+                <ul className="qx-bn-list">
                   {cat.tools.map((tool) => (
                     <li key={tool.label}>
-                      <Link href={tool.href} className="qx-ti-tool" tabIndex={isOpen ? 0 : -1}>
-                        <span className="qx-ti-tool-label">{tool.label}</span>
-                        <span className="qx-ti-tool-hint">{tool.hint}</span>
-                        <FiArrowUpRight size={13} className="qx-ti-tool-ic" aria-hidden />
+                      <Link href={tool.href} className="qx-bn-row">
+                        <span className="qx-bn-row-label">{tool.label}</span>
+                        <span className="qx-bn-row-hint">{tool.hint}</span>
+                        <FiArrowUpRight size={13} className="qx-bn-row-ic" aria-hidden />
                       </Link>
                     </li>
                   ))}
                 </ul>
-                <Link href={cat.href} className="qx-ti-all" tabIndex={isOpen ? 0 : -1}>
-                  All {cat.name.toLowerCase()} <FiArrowRight size={12} aria-hidden />
-                </Link>
-              </div>
-            </li>
+              ) : (
+                <div className="qx-bn-chips">
+                  {cat.tools.map((tool) => (
+                    <Link key={tool.label} href={tool.href} className="qx-bn-chip">{tool.label}</Link>
+                  ))}
+                </div>
+              )}
+
+              <Link href={cat.href} className="qx-bn-all">
+                All {cat.name.toLowerCase()} <FiArrowRight size={12} aria-hidden />
+              </Link>
+            </div>
           );
         })}
-      </ol>
+      </div>
 
       <style>{`
-        .qx-ti { position: relative; counter-reset: none; }
-        .qx-ti-row {
-          position: relative;
-          border-top: 1px solid rgba(255, 140, 80, 0.14);
+        .qx-bn {
+          display: grid; gap: 12px;
+          grid-template-columns: repeat(4, 1fr);
+          grid-template-areas:
+            "qr qr pdf pdf"
+            "qr qr img ai"
+            "vid vid d3 d3";
         }
-        .qx-ti-row:last-child { border-bottom: 1px solid rgba(255, 140, 80, 0.14); }
+        .qx-bn-cell--qr { grid-area: qr; }
+        .qx-bn-cell--pdf { grid-area: pdf; }
+        .qx-bn-cell--img { grid-area: img; }
+        .qx-bn-cell--ai { grid-area: ai; }
+        .qx-bn-cell--vid { grid-area: vid; }
+        .qx-bn-cell--d3 { grid-area: d3; }
 
-        .qx-ti-line {
-          display: flex; align-items: baseline; gap: clamp(16px, 3vw, 38px);
-          padding: clamp(16px, 2.6vh, 26px) 6px;
-          text-decoration: none; position: relative; z-index: 1;
-        }
-        .qx-ti-idx {
-          font-size: 12px; letter-spacing: 0.2em;
-          color: var(--text-faint);
-          transition: color 0.25s;
-        }
-        .qx-ti-name {
-          font-family: "Unbounded", var(--font-display), sans-serif;
-          font-weight: 800; text-transform: uppercase;
-          font-size: clamp(26px, 4.6vw, 58px);
-          line-height: 1.05; letter-spacing: -0.015em;
-          color: var(--text-muted);
-          transition: color 0.3s, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .qx-ti-count {
-          font-size: 12px; letter-spacing: 0.18em;
-          color: var(--text-faint); transition: color 0.25s;
-        }
-        .qx-ti-go {
-          margin-left: auto; align-self: center;
-          color: var(--text-faint); opacity: 0;
-          transform: translateX(-10px) rotate(-45deg);
-          transition: opacity 0.3s, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s;
-        }
-        .qx-ti-row.is-open .qx-ti-name { color: var(--ti); transform: translateX(14px); }
-        .qx-ti-row.is-open .qx-ti-idx,
-        .qx-ti-row.is-open .qx-ti-count { color: var(--ti); }
-        .qx-ti-row.is-open .qx-ti-go { opacity: 1; transform: translateX(0) rotate(0); color: var(--ti); }
-
-        /* glass panel, smoked in on the right of the row */
-        .qx-ti-panel {
-          position: absolute; right: 0; top: 50%; z-index: 5;
-          width: min(380px, 34vw);
-          transform: translateY(-50%) scale(1.04);
-          padding: 18px 20px 14px;
-          border-radius: 18px;
-          background: rgba(16, 10, 7, 0.88);
+        .qx-bn-cell {
+          position: relative; overflow: hidden;
+          display: flex; flex-direction: column;
+          padding: 22px 24px 18px; border-radius: 20px;
+          background:
+            radial-gradient(120% 90% at 85% -10%, color-mix(in srgb, var(--bn) 14%, transparent) 0%, transparent 55%),
+            rgba(255, 255, 255, 0.045);
           backdrop-filter: var(--glass-blur);
-          border: 1px solid color-mix(in srgb, var(--ti) 40%, transparent);
-          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
-          opacity: 0; filter: blur(14px); pointer-events: none;
-          transition: opacity 0.45s ease-out, filter 0.45s ease-out, transform 0.45s ease-out;
+          border: 1px solid rgba(255, 255, 255, 0.11);
+          transition: transform 0.3s var(--ease-out), border-color 0.3s, background 0.3s;
+          will-change: transform;
         }
-        .qx-ti-row.is-open .qx-ti-panel {
-          opacity: 1; filter: blur(0); transform: translateY(-50%) scale(1);
-          pointer-events: auto;
+        .qx-bn-cell:hover {
+          transform: translateY(-3px);
+          border-color: color-mix(in srgb, var(--bn) 45%, transparent);
         }
-        html.light .qx-ti-panel { background: rgba(255, 248, 242, 0.94); }
+        html.light .qx-bn-cell {
+          background:
+            radial-gradient(120% 90% at 85% -10%, color-mix(in srgb, var(--bn) 10%, transparent) 0%, transparent 55%),
+            rgba(255, 255, 255, 0.72);
+          border-color: rgba(0, 0, 0, 0.09);
+        }
 
-        .qx-ti-tool {
+        /* dotted texture breathes in on hover (bento archetype) */
+        .qx-bn-dots {
+          position: absolute; inset: 0; opacity: 0; pointer-events: none;
+          background-image: radial-gradient(circle at center, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+          background-size: 5px 5px;
+          transition: opacity 0.35s;
+        }
+        .qx-bn-cell:hover .qx-bn-dots { opacity: 1; }
+
+        .qx-bn-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .qx-bn-ico {
+          width: 38px; height: 38px; border-radius: 12px;
+          display: grid; place-items: center; font-size: 19px;
+          background: color-mix(in srgb, var(--bn) 18%, transparent);
+          border: 1px solid color-mix(in srgb, var(--bn) 30%, transparent);
+        }
+        .qx-bn-count {
+          font-size: 9.5px; letter-spacing: 0.2em; padding: 5px 10px;
+          border-radius: 99px; color: var(--bn);
+          border: 1px solid color-mix(in srgb, var(--bn) 35%, transparent);
+          background: color-mix(in srgb, var(--bn) 10%, transparent);
+        }
+
+        .qx-bn-name {
+          font-family: "Unbounded", var(--font-display), sans-serif;
+          font-weight: 800; font-size: 17px; letter-spacing: -0.01em;
+          color: var(--text); line-height: 1.15;
+        }
+        .qx-bn-cell--qr .qx-bn-name { font-size: 22px; }
+        .qx-bn-copy { margin-top: 6px; font-size: 12.5px; line-height: 1.6; color: var(--text-muted); }
+
+        /* featured cell: real tool rows */
+        .qx-bn-list { margin-top: 14px; display: flex; flex-direction: column; flex: 1; }
+        .qx-bn-row {
           display: grid; grid-template-columns: auto 1fr auto;
           align-items: baseline; gap: 10px;
-          padding: 7px 2px; text-decoration: none;
-          border-top: 1px solid rgba(255, 150, 90, 0.1);
+          padding: 8px 2px; text-decoration: none;
+          border-top: 1px solid rgba(255, 255, 255, 0.08);
           transition: padding-left 0.2s ease-out;
         }
-        .qx-ti-panel li:first-child .qx-ti-tool { border-top: 0; }
-        .qx-ti-tool:hover { padding-left: 8px; }
-        .qx-ti-tool-label { font-weight: 650; font-size: 13.5px; color: var(--text); white-space: nowrap; }
-        .qx-ti-tool-hint {
+        .qx-bn-row:hover { padding-left: 8px; }
+        .qx-bn-row-label { font-weight: 650; font-size: 13.5px; color: var(--text); white-space: nowrap; }
+        .qx-bn-row-hint {
           font-size: 11.5px; color: var(--text-muted);
           overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-        .qx-ti-tool-ic { opacity: 0; transform: translate(-4px, 4px); transition: 0.2s; color: var(--ti); align-self: center; }
-        .qx-ti-tool:hover .qx-ti-tool-ic { opacity: 1; transform: none; }
-        .qx-ti-all {
-          margin-top: 10px; display: inline-flex; align-items: center; gap: 6px;
-          font-size: 12.5px; font-weight: 700; color: var(--ti); text-decoration: none;
-          transition: gap 0.25s;
-        }
-        .qx-ti-all:hover { gap: 10px; }
+        .qx-bn-row-ic { opacity: 0; transform: translate(-4px, 4px); transition: 0.2s; color: var(--bn); align-self: center; }
+        .qx-bn-row:hover .qx-bn-row-ic { opacity: 1; transform: none; }
 
-        /* stacked: panel flows under the row */
+        /* compact cells: tool chips */
+        .qx-bn-chips { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+        .qx-bn-chip {
+          font-size: 11.5px; font-weight: 600; text-decoration: none;
+          padding: 5px 11px; border-radius: 99px; color: var(--text-muted);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          background: rgba(255, 255, 255, 0.04);
+          transition: color 0.2s, border-color 0.2s, background 0.2s;
+        }
+        .qx-bn-chip:hover {
+          color: var(--text);
+          border-color: color-mix(in srgb, var(--bn) 50%, transparent);
+          background: color-mix(in srgb, var(--bn) 12%, transparent);
+        }
+        html.light .qx-bn-chip { border-color: rgba(0, 0, 0, 0.1); background: rgba(0, 0, 0, 0.03); }
+
+        .qx-bn-all {
+          margin-top: auto; padding-top: 14px;
+          display: inline-flex; align-items: center; gap: 6px;
+          font-size: 12.5px; font-weight: 700; color: var(--bn); text-decoration: none;
+          opacity: 0.85; transition: opacity 0.25s, gap 0.25s;
+        }
+        .qx-bn-all:hover { opacity: 1; gap: 10px; }
+
         @media (max-width: 1023px) {
-          .qx-ti-panel {
-            position: static; width: 100%; transform: none;
-            margin: 0 0 14px; max-height: 0; overflow: hidden;
-            padding: 0 16px; opacity: 0; filter: none;
-            transition: max-height 0.45s ease-out, opacity 0.35s, padding 0.3s;
+          .qx-bn {
+            grid-template-columns: 1fr 1fr;
+            grid-template-areas:
+              "qr qr"
+              "pdf img"
+              "ai vid"
+              "d3 d3";
           }
-          .qx-ti-row.is-open .qx-ti-panel {
-            max-height: 420px; opacity: 1; transform: none; padding: 14px 16px 12px;
-          }
-          .qx-ti-row.is-open .qx-ti-name { transform: none; }
+        }
+        @media (max-width: 560px) {
+          .qx-bn { grid-template-columns: 1fr; grid-template-areas: "qr" "pdf" "img" "ai" "vid" "d3"; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .qx-ti-name, .qx-ti-go, .qx-ti-panel { transition: none !important; }
+          .qx-bn-cell, .qx-bn-dots, .qx-bn-row { transition: none !important; }
         }
       `}</style>
     </section>
