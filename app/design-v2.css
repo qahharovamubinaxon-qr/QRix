@@ -900,11 +900,15 @@ html.light .qx-glitter { display: none; }
 /* hero stage — lives INSIDE the era section, scrolls with it */
 .qx-hm {
   position: absolute; left: 50%; bottom: 0; z-index: 5;
-  height: min(66vh, 700px); aspect-ratio: 1143 / 2000;
+  height: min(66vh, 700px);
+  width: calc(min(66vh, 700px) * 0.5715); /* 1143/2000 still + film share this ratio */
   transform: translateX(-50%);
   pointer-events: none;
   filter: drop-shadow(0 30px 55px rgba(90, 24, 0, 0.35));
 }
+/* the smoke layer must span the stage — its blur() makes it the containing
+   block for the absolute media, so a zero-size div collapses everything */
+.qx-hm .qx-smoke { position: absolute; inset: 0; }
 .qx-hm-in { position: absolute; inset: 0; }
 .qx-hm-img, .qx-hm-vid {
   position: absolute; inset: 0; width: 100%; height: 100%;

@@ -8,18 +8,26 @@
 
 import { useEffect, useRef, useState } from "react";
 
-/* toggle .on both ways so the smoke plays on every entry/exit */
+/* toggle .on both ways so the smoke plays on every entry/exit.
+   The synchronous first check guarantees the mascot materializes on load
+   even where observer callbacks are delayed (hidden/throttled tabs). */
 function useSmoke<T extends HTMLElement>(threshold = 0.22) {
   const ref = useRef<T>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const check = () => {
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      el.classList.toggle("on", r.bottom > vh * 0.06 && r.top < vh * 0.94);
+    };
+    const id = window.setTimeout(check, 60); // after first layout
     const io = new IntersectionObserver(
       ([e]) => el.classList.toggle("on", e.isIntersecting),
       { threshold, rootMargin: "-6% 0px -6% 0px" }
     );
     io.observe(el);
-    return () => io.disconnect();
+    return () => { window.clearTimeout(id); io.disconnect(); };
   }, [threshold]);
   return ref;
 }
