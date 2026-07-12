@@ -635,10 +635,6 @@ export default function HomePage() {
                 <span className="qx-num-lbl qx-mono">{s.label}</span>
               </div>
             ))}
-            <div className="qx-num-item">
-              <span className="qx-num-val">99.9%</span>
-              <span className="qx-num-lbl qx-mono">{t.statUptime}</span>
-            </div>
           </div>
         </div>
       </section>

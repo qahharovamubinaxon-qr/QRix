@@ -5,6 +5,7 @@ import { FiArrowRight, FiClock, FiChevronRight } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME } from "@/lib/seo";
 import { getPost, getPost as _get, POSTS } from "@/lib/blog";
 import BookmarkButton from "@/components/BookmarkButton";
+import AdSlot from "@/components/AdSlot";
 
 export function generateStaticParams() {
   return POSTS.map((p) => ({ slug: p.slug }));
@@ -91,6 +92,9 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
           </section>
         ))}
       </article>
+
+      {/* In-content ad — renders only after AdSense approval (env-gated) */}
+      <AdSlot slot="blog-in-article" format="fluid" className="mt-12" />
 
       {/* FAQ */}
       <section className="mt-12">

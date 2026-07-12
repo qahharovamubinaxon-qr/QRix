@@ -602,27 +602,38 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
   font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
   color: var(--primary-bright); margin-bottom: clamp(22px, 3.6vh, 38px);
 }
+/* Mission 59: the four figures ride equal-size orange cards, side by side. */
 .qx-num-row {
-  display: flex; flex-wrap: wrap;
-  gap: clamp(24px, 4vw, 56px);
-  align-items: baseline; justify-content: space-between;
+  display: grid; gap: 16px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-.qx-num-item { display: flex; flex-direction: column; gap: 9px; }
+@media (max-width: 960px) {
+  .qx-num-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.qx-num-item {
+  display: flex; flex-direction: column; gap: 10px;
+  padding: 26px 22px 24px; border-radius: 18px;
+  background:
+    radial-gradient(120% 100% at 50% -30%, rgba(255, 196, 130, 0.4) 0%, transparent 55%),
+    linear-gradient(170deg, #ff8a3c 0%, #ff6a13 48%, #e85708 100%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  box-shadow: 0 18px 50px rgba(210, 75, 8, 0.24), 0 1px 0 rgba(255, 255, 255, 0.25) inset;
+  transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+}
+.qx-num-item:hover { transform: translateY(-3px); box-shadow: 0 24px 60px rgba(210, 75, 8, 0.32), 0 1px 0 rgba(255, 255, 255, 0.3) inset; }
 .qx-num-val {
   font-family: var(--font-display); font-weight: 800;
-  font-size: clamp(28px, 3.2vw, 46px); line-height: 1;
-  letter-spacing: -0.025em; color: #ff7a32;
+  font-size: clamp(26px, 2.6vw, 40px); line-height: 1;
+  letter-spacing: -0.025em; color: #ffffff;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 0 26px rgba(255, 106, 19, 0.3);
+  text-shadow: 0 2px 16px rgba(140, 45, 0, 0.4);
 }
 .qx-num-lbl {
   font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--text-faint);
+  color: rgba(255, 255, 255, 0.88);
 }
-html.light .qx-num-val { color: #e2410f; text-shadow: none; }
 @media (max-width: 720px) {
-  .qx-num-row { justify-content: flex-start; row-gap: 28px; }
-  .qx-num-item { flex-basis: 42%; }
+  .qx-num-row { grid-template-columns: 1fr 1fr; }
 }
 
 /* Mission 51: the timeline spine plugs into the numbers card —

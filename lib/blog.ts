@@ -8,7 +8,7 @@ export type BlogPost = {
   title: string;
   description: string;
   keywords: string[];
-  category: "QR Codes" | "PDF" | "Image" | "Guides";
+  category: "QR Codes" | "PDF" | "Image" | "Video" | "AI" | "Guides";
   date: string;        // ISO
   readMins: number;
   toolHref: string;
@@ -936,7 +936,193 @@ const GUIDE_SPECS: GuideSpec[] = [
   },
 ];
 
-export const POSTS: BlogPost[] = [...HAND_POSTS, ...GUIDE_SPECS.map(buildPost)];
+/* Mission 59 — fresh feature articles: video/AI coverage + the newest tools. */
+const FEATURE_POSTS: BlogPost[] = [
+  {
+    slug: "animated-qr-code-for-stories-reels",
+    title: "Animated QR Codes for Instagram Stories, Reels & TikTok (Free)",
+    description: "Static QR codes get skipped in feeds. Turn any link into a 6-second animated QR video that stops the scroll — free, no watermark, rendered in your browser.",
+    keywords: ["animated qr code", "qr code video", "qr code for instagram story", "qr code reels", "scan me video", "animated qr maker"],
+    category: "QR Codes", date: "2026-07-13", readMins: 4,
+    toolHref: "/animated-qr", toolLabel: "Make an animated QR",
+    intro: "A printed QR code works because people stand still. In a feed, nobody stops for a static square — motion is what earns the pause. An animated QR video gives your code an entrance: it assembles on screen, catches a light sweep, and lands with a SCAN ME call-to-action.",
+    sections: [
+      { h: "Why animate a QR code at all?", p: [
+        "Stories and Reels are motion-first surfaces. A static image reads as a screenshot and gets swiped away; a short animation reads as content.",
+        "The QR itself stays fully scannable in the final seconds — viewers pause the story or screenshot the last frame and scan it later.",
+      ]},
+      { h: "How to make one in under a minute", p: [
+        "1. Paste your link — the QR updates live while you type.",
+        "2. Pick a format: Story (9:16) for Instagram/TikTok or Post (1:1) for feeds.",
+        "3. Choose a theme and edit the call-to-action text.",
+        "4. Hit Record — a 6-second MP4/WebM downloads straight from your browser.",
+      ]},
+      { h: "Where animated QR videos work best", p: [
+        "Restaurant menu pushes in Stories, giveaway entries, event check-ins, link-in-bio promotions and product drops.",
+        "Because everything renders on your device, nothing uploads and there is nothing to wait for — the video is yours the moment recording ends.",
+      ]},
+    ],
+    faqs: [
+      { q: "Will the QR still scan from a video?", a: "Yes — the final seconds hold the finished code steady. Viewers pause the story or screenshot it and scan from the image." },
+      { q: "What format does it download in?", a: "MP4 where the browser supports recording it, otherwise WebM — both upload fine to Instagram, TikTok and YouTube." },
+      { q: "Is it free?", a: "Completely. No signup, no watermark, and rendering happens on your device." },
+    ],
+    related: ["how-to-create-a-qr-code"],
+  },
+  {
+    slug: "compress-video-online-free",
+    title: "How to Compress a Video Online Free (No Watermark, No Upload)",
+    description: "Shrink a video for WhatsApp, email or the web without installing anything. How on-device compression works and how to pick the right quality.",
+    keywords: ["compress video online", "reduce video size", "video compressor free", "shrink video for whatsapp", "compress mp4"],
+    category: "Video", date: "2026-07-12", readMins: 5,
+    toolHref: "/video-tools/compress-video", toolLabel: "Compress a video",
+    intro: "Most video compressors upload your file to a server, queue it, and stamp a watermark on the result. A browser-based compressor skips all three: your video never leaves your device, and the output is clean.",
+    sections: [
+      { h: "What actually makes video files big", p: [
+        "Resolution, bitrate and duration multiply together. A one-minute 4K clip can outweigh a feature-length SD film.",
+        "Most sharing targets — WhatsApp, Telegram, email — don't need more than 720p–1080p at a moderate bitrate. That's where the big savings live.",
+      ]},
+      { h: "Compressing in the browser, step by step", p: [
+        "1. Drop your video into the tool — nothing uploads; it opens locally.",
+        "2. Pick a target quality or resolution. Lower resolution shrinks files fastest.",
+        "3. Preview, then export. The re-encoded file downloads instantly.",
+      ]},
+      { h: "Settings that don't ruin quality", p: [
+        "For chat apps: 720p is the sweet spot — sharp on phones, small enough to send.",
+        "For email: aim under 25 MB; trimming dead seconds off the ends often saves as much as re-encoding.",
+        "For archiving: keep the original and compress a copy — compression is one-way.",
+      ]},
+    ],
+    faqs: [
+      { q: "Does my video get uploaded?", a: "No. The whole pipeline runs in your browser — files never leave your device." },
+      { q: "Is there a size limit?", a: "The practical limit is your device's memory; multi-hundred-megabyte files are fine on modern hardware." },
+      { q: "Will there be a watermark?", a: "Never. The output is your video, only smaller." },
+    ],
+    related: ["make-gif-from-video", "animated-qr-code-for-stories-reels"],
+  },
+  {
+    slug: "make-gif-from-video",
+    title: "How to Make a GIF from a Video (Free, Right in Your Browser)",
+    description: "Turn any video moment into a looping GIF for chats, docs and social — pick the clip, set the size, export. No upload, no watermark.",
+    keywords: ["video to gif", "make gif from video", "gif maker online", "convert mp4 to gif", "create gif free"],
+    category: "Video", date: "2026-07-11", readMins: 4,
+    toolHref: "/video-tools/create-gif", toolLabel: "Make a GIF",
+    intro: "GIFs still rule chats, pull requests and documentation because they loop, autoplay everywhere, and need no player. The trick is making one small enough to send and sharp enough to read.",
+    sections: [
+      { h: "Picking the right moment", p: [
+        "Great GIFs are short — two to four seconds. Find the exact beat you want and trim tight; every extra second multiplies the file size.",
+        "Loops feel best when the last frame lands near the first — cutting on motion hides the seam.",
+      ]},
+      { h: "Size, frame rate and colors", p: [
+        "GIF stores a limited palette per frame, so a modest resolution usually looks better than a starved high-res image.",
+        "480 px wide at 12–15 fps is the classic chat-friendly recipe; go bigger only for tutorial captures where text must stay legible.",
+      ]},
+      { h: "Making one in the browser", p: [
+        "1. Open the GIF maker and drop in your video.",
+        "2. Choose the start and end points and the output width.",
+        "3. Export — the encoder runs on your device and the GIF downloads immediately.",
+      ]},
+    ],
+    faqs: [
+      { q: "Why is my GIF bigger than the video?", a: "GIF is an old format without modern compression — keep clips short and modest in size, or share a WebM/MP4 when the platform supports it." },
+      { q: "Is anything uploaded?", a: "No — decoding and encoding both happen in your browser." },
+      { q: "Can I make a GIF from a screen recording?", a: "Yes — any video file works: screen captures, phone clips, downloads." },
+    ],
+    related: ["compress-video-online-free"],
+  },
+  {
+    slug: "upscale-image-with-ai",
+    title: "How to Upscale an Image with AI (Make Small Photos Larger & Sharper)",
+    description: "Enlarge a low-resolution photo 2–4× without the blur. How AI upscaling works, when it helps, and how to run it free in your browser.",
+    keywords: ["ai image upscaler", "upscale image online", "enlarge photo without losing quality", "increase image resolution", "photo enhancer"],
+    category: "AI", date: "2026-07-10", readMins: 5,
+    toolHref: "/ai-tools/image-upscaler", toolLabel: "Upscale an image",
+    intro: "Classic resizing stretches pixels and blurs edges. AI upscaling predicts the detail that should be there — edges stay crisp, textures stay plausible, and a thumbnail-sized photo becomes usable again.",
+    sections: [
+      { h: "When upscaling helps (and when it can't)", p: [
+        "It shines on old photos, small logos, product shots saved at low resolution, and screenshots destined for print.",
+        "It can't invent what was never captured — heavy motion blur or extreme compression artifacts limit any upscaler.",
+      ]},
+      { h: "Getting the best result", p: [
+        "Start from the largest original you have — never from a screenshot of a screenshot.",
+        "Upscale 2× first and inspect; jumping straight to 4× amplifies any noise in the source.",
+        "For faces, follow the upscale with a light sharpen rather than pushing the scale factor higher.",
+      ]},
+      { h: "Doing it free in the browser", p: [
+        "1. Open the upscaler and drop in your image.",
+        "2. Choose 2× or 4× and run it.",
+        "3. Compare before/after, then download the PNG.",
+      ]},
+    ],
+    faqs: [
+      { q: "Does the photo leave my device?", a: "The on-device engine processes locally; cloud engines run only when you explicitly enable them." },
+      { q: "What's the maximum size?", a: "Browser memory is the limit — typical photos upscale to 4K+ comfortably." },
+      { q: "Does it work on logos and text?", a: "Yes — flat graphics with clean edges upscale especially well." },
+    ],
+    related: ["remove-exif-gps-data-from-photos"],
+  },
+  {
+    slug: "remove-exif-gps-data-from-photos",
+    title: "Your Photos Leak Your Location — How to Remove EXIF & GPS Data",
+    description: "Every phone photo carries hidden metadata: GPS coordinates, device model, timestamps. What EXIF reveals and how to strip it before sharing.",
+    keywords: ["remove exif data", "strip gps from photo", "photo metadata remover", "exif cleaner online", "photo privacy"],
+    category: "Image", date: "2026-07-09", readMins: 4,
+    toolHref: "/image-tools/exif-remover", toolLabel: "Clean a photo now",
+    intro: "The picture you just shared may include exactly where it was taken — down to a few meters. EXIF metadata rides inside the file itself, invisible in the image but readable by anyone with the file.",
+    sections: [
+      { h: "What's hiding in a photo file", p: [
+        "GPS coordinates of the shot, the exact date and time, your phone's make and model, camera settings — sometimes even the editing software used.",
+        "Major social networks strip metadata on upload, but email, messengers, cloud drives and marketplaces often pass the original file through untouched.",
+      ]},
+      { h: "When it matters most", p: [
+        "Selling items online from home, sharing photos of children, posting from a private location, or publishing documents that include photographs.",
+      ]},
+      { h: "Stripping metadata in seconds", p: [
+        "1. Drop the photo into the EXIF remover — it runs entirely in your browser.",
+        "2. Review what was found: location, device, timestamps.",
+        "3. Download the cleaned copy. The pixels are identical; the secrets are gone.",
+      ]},
+    ],
+    faqs: [
+      { q: "Does removing EXIF change image quality?", a: "No — metadata lives alongside the image data. Removing it doesn't touch a single pixel." },
+      { q: "Is the photo uploaded anywhere?", a: "No. Reading and cleaning happen on your device." },
+      { q: "Which formats are supported?", a: "JPG and most camera formats that carry EXIF; PNG rarely contains sensitive metadata." },
+    ],
+    related: ["upscale-image-with-ai"],
+  },
+  {
+    slug: "photo-to-3d-model-online",
+    title: "Turn a Photo into a 3D Model Online (GLB, OBJ, STL, USDZ)",
+    description: "From a single product shot to a textured, export-ready 3D model — how image-to-3D works, what to expect, and how to try it free.",
+    keywords: ["image to 3d model", "photo to 3d", "3d model from picture", "glb generator", "stl from image"],
+    category: "Guides", date: "2026-07-08", readMins: 5,
+    toolHref: "/3d-tools/image-to-3d", toolLabel: "Try Image to 3D",
+    intro: "Image-to-3D has crossed from research demo to practical tool: give it one clear photo and you get back a textured mesh you can spin, inspect and export for AR, games or 3D printing.",
+    sections: [
+      { h: "What one photo can honestly produce", p: [
+        "Expect a convincing model of the visible side plus an AI-completed back. Products, toys, shoes and furniture work great; thin or transparent objects are harder.",
+        "The result is a real mesh with textures baked in — not a flat card trick.",
+      ]},
+      { h: "Shooting the right source photo", p: [
+        "Use a plain background, even lighting and the object centered, filling most of the frame.",
+        "Avoid harsh shadows and reflections — the reconstruction reads them as geometry.",
+      ]},
+      { h: "From photo to file", p: [
+        "1. Upload the image and start the generation — progress streams live.",
+        "2. Orbit and inspect the model in the 3D viewer, switch lighting rigs.",
+        "3. Export GLB for web/AR, OBJ for editing, STL for printing, or USDZ for iOS Quick Look.",
+      ]},
+    ],
+    faqs: [
+      { q: "Which format should I export?", a: "GLB for web and AR viewers, STL for 3D printing, OBJ for editing in Blender, USDZ for Apple devices." },
+      { q: "How long does it take?", a: "Typically under a minute per model, streamed with live progress." },
+      { q: "Is it free?", a: "You get free generations to start; heavier use runs on credits." },
+    ],
+    related: ["upscale-image-with-ai"],
+  },
+];
+
+export const POSTS: BlogPost[] = [...HAND_POSTS, ...FEATURE_POSTS, ...GUIDE_SPECS.map(buildPost)];
 
 export function getPost(slug: string): BlogPost | undefined {
   return POSTS.find((p) => p.slug === slug);
