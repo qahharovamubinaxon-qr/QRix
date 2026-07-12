@@ -886,33 +886,51 @@ html.light .qx-era {
 }
 html.light .qx-glitter { display: none; }
 
-/* the mascot film: fixed layer, two slots that cross-fade (no gliding) */
-.qx-bunny-fixed { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
-.qx-bunny-fixed--static { position: absolute; }
-.qx-bunny-slot {
-  position: absolute; will-change: transform, opacity;
+/* ── Mission 46: smoke reveal — mascots materialize from within and
+   dissolve back; nothing rides the screen while scrolling ─────────── */
+.qx-smoke {
+  opacity: 0;
+  filter: blur(18px);
+  transform: scale(1.06) translateY(10px);
+  transition: opacity 0.9s var(--ease-out), filter 0.9s var(--ease-out), transform 0.9s var(--ease-out);
+  will-change: opacity, filter, transform;
+}
+.qx-smoke.on { opacity: 1; filter: blur(0); transform: none; }
+
+/* hero stage — lives INSIDE the era section, scrolls with it */
+.qx-hm {
+  position: absolute; left: 50%; bottom: 0; z-index: 5;
+  height: min(66vh, 700px); aspect-ratio: 1143 / 2000;
+  transform: translateX(-50%);
+  pointer-events: none;
   filter: drop-shadow(0 30px 55px rgba(90, 24, 0, 0.35));
 }
-/* hero: standing bunny still, centre stage (617x1877 → width = h * 0.329) */
-.qx-bunny-slot--hero {
-  bottom: 0; height: min(70vh, 740px);
-  left: calc(50% - min(70vh, 740px) * 0.165);
+.qx-hm-in { position: absolute; inset: 0; }
+.qx-hm-img, .qx-hm-vid {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; user-select: none;
+  transition: opacity 1s var(--ease-in-out), filter 1s var(--ease-in-out);
 }
-/* generator: blue-sneaker bunny beside the CREATE card */
-.qx-bunny-slot--gen {
-  bottom: 15vh; height: min(48vh, 440px);
-  left: 4.5vw;
+.qx-hm-vid { opacity: 0; filter: blur(14px); }
+.qx-hm-in.show-vid .qx-hm-vid { opacity: 1; filter: blur(0); }
+.qx-hm-in.show-vid .qx-hm-img { opacity: 0; filter: blur(14px); }
+
+/* generator stage — beside the CREATE card, inside its section */
+.qx-gm {
+  position: absolute; left: 3.5vw; top: 110px; z-index: 1;
+  height: min(48vh, 440px); pointer-events: none;
+  filter: drop-shadow(0 24px 45px rgba(0, 0, 0, 0.4));
 }
-.qx-bunny-media {
-  height: 100%; width: auto; display: block; user-select: none;
-  animation: qxBunnyFloat 6.5s ease-in-out infinite;
+.qx-gm-media { height: min(48vh, 440px); width: auto; display: block; user-select: none; }
+
+@media (max-width: 1023px) {
+  .qx-hm { height: 42vh; }
+  .qx-gm { display: none; }
 }
-.qx-bunny-slot--gen .qx-bunny-media { animation-delay: -3s; }
-@keyframes qxBunnyFloat {
-  0%, 100% { translate: 0 0; }
-  50%      { translate: 0 -10px; }
+@media (prefers-reduced-motion: reduce) {
+  .qx-smoke { transition: none; opacity: 1; filter: none; transform: none; }
+  .qx-hm-img, .qx-hm-vid { transition: none; }
 }
-@media (prefers-reduced-motion: reduce) { .qx-bunny-media { animation: none; } }
 
 /* smaller cousins living in lower sections */
 .qx-bunny-peek { position: absolute; bottom: -14px; z-index: 1; pointer-events: none; }

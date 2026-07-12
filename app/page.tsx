@@ -13,7 +13,7 @@ import LatestPosts from "@/components/LatestPosts";
 import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
-import EraBunny, { BunnyPeek } from "@/components/EraBunny";
+import EraBunny, { BunnyPeek, GenBunny } from "@/components/EraBunny";
 import GlitterField from "@/components/GlitterField";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
@@ -445,6 +445,7 @@ export default function HomePage() {
 
       {/* ================= GENERATOR — mascot left, two big glass cards ================= */}
       <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pt-20 lg:pt-28 pb-24 relative">
+        <GenBunny />
         <div id="generator" className="lg:ml-[24vw] grid lg:grid-cols-2 gap-6 items-stretch relative z-10">
 
           {/* LEFT — Generator form; type selector lives inside as a chip row (Mission 42) */}

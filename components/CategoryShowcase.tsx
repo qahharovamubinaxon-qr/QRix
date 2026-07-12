@@ -1,11 +1,10 @@
 "use client";
 
-/* Homepage — ALL TOOLS as six expanding panels (Mission 43).
-   One panel is in the spotlight at a time: it grows wide and reveals the
-   category's real tools; the others compress into slim Unbounded spines.
-   Hover / focus / tap moves the spotlight (Kowalski: single layout
-   transition, 550ms expo-out, content fades in after the panel settles).
-   Dark-orange glass over the glitter starfield; every link is real. */
+/* Homepage — ALL TOOLS as an editorial type index (Mission 46).
+   Six oversized Unbounded rows; hovering (or focusing / tapping) a row
+   lights it in its category color and a glass tool panel smokes in on the
+   right with five real links. Down-scaled screens get a tap accordion.
+   No cards, no carousels — type does the premium work. */
 
 import Link from "next/link";
 import { useState } from "react";
@@ -13,13 +12,13 @@ import { FiArrowRight, FiArrowUpRight } from "react-icons/fi";
 
 type Tool = { label: string; href: string; hint: string };
 type Cat = {
-  name: string; count: string; color: string; href: string; emoji: string;
+  name: string; count: string; color: string; href: string;
   tools: Tool[];
 };
 
 const CATS: Cat[] = [
   {
-    name: "QR Tools", count: "30+", color: "#22c55e", href: "/qr-tools", emoji: "🔳",
+    name: "QR Tools", count: "30+", color: "#22c55e", href: "/qr-tools",
     tools: [
       { label: "URL QR Code", href: "/url-qr", hint: "Link → QR in a click" },
       { label: "WiFi QR", href: "/qr-tools/wifi", hint: "Share WiFi without passwords" },
@@ -29,7 +28,7 @@ const CATS: Cat[] = [
     ],
   },
   {
-    name: "PDF Tools", count: "24+", color: "#60a5fa", href: "/pdf-tools", emoji: "📄",
+    name: "PDF Tools", count: "24+", color: "#60a5fa", href: "/pdf-tools",
     tools: [
       { label: "Merge PDF", href: "/pdf-tools/merge", hint: "Combine files into one" },
       { label: "Compress PDF", href: "/pdf-tools/compress", hint: "Shrink size, keep quality" },
@@ -39,7 +38,7 @@ const CATS: Cat[] = [
     ],
   },
   {
-    name: "Image Tools", count: "70+", color: "#c084fc", href: "/image-tools", emoji: "🖼️",
+    name: "Image Tools", count: "70+", color: "#c084fc", href: "/image-tools",
     tools: [
       { label: "Remove Background", href: "/image-tools/remove-bg", hint: "Clean cutouts in seconds" },
       { label: "Compress Image", href: "/image-tools/compress", hint: "Lighter files, same look" },
@@ -49,7 +48,7 @@ const CATS: Cat[] = [
     ],
   },
   {
-    name: "AI Tools", count: "28+", color: "#fbbf24", href: "/ai-tools", emoji: "✨",
+    name: "AI Tools", count: "28+", color: "#fbbf24", href: "/ai-tools",
     tools: [
       { label: "Image Upscaler", href: "/ai-tools/image-upscaler", hint: "Sharper, larger, cleaner" },
       { label: "AI Background Remover", href: "/ai-tools/background-remover", hint: "AI-precise subject cutout" },
@@ -59,7 +58,7 @@ const CATS: Cat[] = [
     ],
   },
   {
-    name: "Video Tools", count: "29+", color: "#f472b6", href: "/video-tools", emoji: "🎬",
+    name: "Video Tools", count: "29+", color: "#f472b6", href: "/video-tools",
     tools: [
       { label: "Compress Video", href: "/video-tools/compress-video", hint: "Smaller files, smooth play" },
       { label: "Trim Video", href: "/video-tools/trim-video", hint: "Cut to the exact moment" },
@@ -69,7 +68,7 @@ const CATS: Cat[] = [
     ],
   },
   {
-    name: "3D Tools", count: "New", color: "#22d3ee", href: "/3d-tools", emoji: "🧊",
+    name: "3D Tools", count: "New", color: "#22d3ee", href: "/3d-tools",
     tools: [
       { label: "Image to 3D Model", href: "/3d-tools/image-to-3d", hint: "Photo → textured mesh" },
       { label: "3D Preview & Orbit", href: "/3d-tools/image-to-3d", hint: "Inspect from every angle" },
@@ -79,7 +78,7 @@ const CATS: Cat[] = [
 ];
 
 export default function CategoryShowcase() {
-  const [open, setOpen] = useState(0);
+  const [open, setOpen] = useState(-1);
 
   return (
     <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20 lg:pb-24" aria-label="All tools">
@@ -93,164 +92,151 @@ export default function CategoryShowcase() {
         </h2>
       </div>
 
-      <div className="qx-xp" data-reveal>
+      <ol className="qx-ti" onMouseLeave={() => setOpen(-1)}>
         {CATS.map((cat, i) => {
           const isOpen = i === open;
           return (
-            <div
-              key={cat.name}
-              className={`qx-xp-panel${isOpen ? " is-open" : ""}`}
-              style={{ ["--xp" as string]: cat.color } as React.CSSProperties}
+            <li key={cat.name}
+              className={`qx-ti-row${isOpen ? " is-open" : ""}`}
+              style={{ ["--ti" as string]: cat.color } as React.CSSProperties}
               onMouseEnter={() => setOpen(i)}
               onFocusCapture={() => setOpen(i)}
             >
-              {/* collapsed spine */}
-              <button
-                type="button"
-                className="qx-xp-spine"
-                aria-expanded={isOpen}
-                aria-label={`${cat.name} — ${cat.count}`}
-                onClick={() => setOpen(i)}
-                tabIndex={isOpen ? -1 : 0}
-              >
-                <span className="qx-xp-spine-emoji" aria-hidden>{cat.emoji}</span>
-                <span className="qx-xp-spine-name">{cat.name}</span>
-                <span className="qx-xp-spine-dot" aria-hidden />
-              </button>
+              <Link href={cat.href} className="qx-ti-line"
+                onClick={(e) => {
+                  // first tap on touch opens the panel; second follows the link
+                  if (window.matchMedia("(hover: none)").matches && !isOpen) {
+                    e.preventDefault();
+                    setOpen(i);
+                  }
+                }}>
+                <span className="qx-mono qx-ti-idx">0{i + 1}</span>
+                <span className="qx-ti-name">{cat.name}</span>
+                <span className="qx-mono qx-ti-count">{cat.count}</span>
+                <FiArrowRight className="qx-ti-go" size={26} aria-hidden />
+              </Link>
 
-              {/* open face */}
-              <div className="qx-xp-body" aria-hidden={!isOpen}>
-                <div className="qx-xp-head">
-                  <span className="qx-xp-emoji" aria-hidden>{cat.emoji}</span>
-                  <div>
-                    <h3 className="qx-xp-name">{cat.name}</h3>
-                    <span className="qx-mono qx-xp-count">{cat.count} TOOLS</span>
-                  </div>
-                </div>
-                <ul className="qx-xp-list">
+              {/* the tool panel smokes in beside the row */}
+              <div className="qx-ti-panel" aria-hidden={!isOpen}>
+                <ul>
                   {cat.tools.map((tool) => (
                     <li key={tool.label}>
-                      <Link href={tool.href} className="qx-xp-link" tabIndex={isOpen ? 0 : -1}>
-                        <span className="qx-xp-link-label">{tool.label}</span>
-                        <span className="qx-xp-link-hint">{tool.hint}</span>
-                        <FiArrowUpRight size={14} className="qx-xp-link-ic" aria-hidden />
+                      <Link href={tool.href} className="qx-ti-tool" tabIndex={isOpen ? 0 : -1}>
+                        <span className="qx-ti-tool-label">{tool.label}</span>
+                        <span className="qx-ti-tool-hint">{tool.hint}</span>
+                        <FiArrowUpRight size={13} className="qx-ti-tool-ic" aria-hidden />
                       </Link>
                     </li>
                   ))}
                 </ul>
-                <Link href={cat.href} className="qx-xp-all" tabIndex={isOpen ? 0 : -1}>
-                  All {cat.name.toLowerCase()} <FiArrowRight size={13} aria-hidden />
+                <Link href={cat.href} className="qx-ti-all" tabIndex={isOpen ? 0 : -1}>
+                  All {cat.name.toLowerCase()} <FiArrowRight size={12} aria-hidden />
                 </Link>
               </div>
-            </div>
+            </li>
           );
         })}
-      </div>
+      </ol>
 
       <style>{`
-        .qx-xp {
-          display: flex; gap: 12px; height: 500px;
+        .qx-ti { position: relative; counter-reset: none; }
+        .qx-ti-row {
+          position: relative;
+          border-top: 1px solid rgba(255, 140, 80, 0.14);
         }
-        .qx-xp-panel {
-          position: relative; overflow: hidden; border-radius: 20px;
-          flex: 1 1 0%; min-width: 76px; cursor: pointer;
-          background:
-            radial-gradient(130% 100% at 85% -12%, color-mix(in srgb, var(--xp) 20%, transparent) 0%, transparent 55%),
-            linear-gradient(168deg, rgba(64, 28, 12, 0.72) 0%, rgba(34, 15, 7, 0.82) 55%, rgba(22, 10, 5, 0.88) 100%);
-          border: 1px solid rgba(255, 140, 80, 0.14);
-          transition: flex 0.55s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.3s;
-        }
-        .qx-xp-panel.is-open {
-          flex: 4.6 1 0%; cursor: default;
-          border-color: color-mix(in srgb, var(--xp) 45%, transparent);
-        }
-        html.light .qx-xp-panel {
-          background:
-            radial-gradient(130% 100% at 85% -12%, color-mix(in srgb, var(--xp) 14%, transparent) 0%, transparent 55%),
-            linear-gradient(168deg, #fff4ec 0%, #ffe9da 100%);
-          border-color: rgba(140, 60, 15, 0.14);
-        }
+        .qx-ti-row:last-child { border-bottom: 1px solid rgba(255, 140, 80, 0.14); }
 
-        /* collapsed spine — vertical Unbounded name */
-        .qx-xp-spine {
-          position: absolute; inset: 0; z-index: 2;
-          display: flex; flex-direction: column; align-items: center;
-          padding: 20px 0 22px; gap: 14px;
-          background: none; border: 0; cursor: pointer;
-          opacity: 1; transition: opacity 0.25s ease-out;
+        .qx-ti-line {
+          display: flex; align-items: baseline; gap: clamp(16px, 3vw, 38px);
+          padding: clamp(16px, 2.6vh, 26px) 6px;
+          text-decoration: none; position: relative; z-index: 1;
         }
-        .qx-xp-panel.is-open .qx-xp-spine { opacity: 0; pointer-events: none; }
-        .qx-xp-spine-emoji { font-size: 22px; line-height: 1; }
-        .qx-xp-spine-name {
+        .qx-ti-idx {
+          font-size: 12px; letter-spacing: 0.2em;
+          color: var(--text-faint);
+          transition: color 0.25s;
+        }
+        .qx-ti-name {
           font-family: "Unbounded", var(--font-display), sans-serif;
-          font-weight: 700; font-size: 13.5px; letter-spacing: 0.14em;
-          text-transform: uppercase; color: var(--text);
-          writing-mode: vertical-rl; transform: rotate(180deg);
-          margin: auto 0;
-          white-space: nowrap;
+          font-weight: 800; text-transform: uppercase;
+          font-size: clamp(26px, 4.6vw, 58px);
+          line-height: 1.05; letter-spacing: -0.015em;
+          color: var(--text-muted);
+          transition: color 0.3s, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .qx-xp-spine-dot {
-          width: 8px; height: 8px; border-radius: 50%;
-          background: var(--xp); box-shadow: 0 0 12px var(--xp);
+        .qx-ti-count {
+          font-size: 12px; letter-spacing: 0.18em;
+          color: var(--text-faint); transition: color 0.25s;
         }
+        .qx-ti-go {
+          margin-left: auto; align-self: center;
+          color: var(--text-faint); opacity: 0;
+          transform: translateX(-10px) rotate(-45deg);
+          transition: opacity 0.3s, transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), color 0.3s;
+        }
+        .qx-ti-row.is-open .qx-ti-name { color: var(--ti); transform: translateX(14px); }
+        .qx-ti-row.is-open .qx-ti-idx,
+        .qx-ti-row.is-open .qx-ti-count { color: var(--ti); }
+        .qx-ti-row.is-open .qx-ti-go { opacity: 1; transform: translateX(0) rotate(0); color: var(--ti); }
 
-        /* open face — fades in once the panel has landed */
-        .qx-xp-body {
-          position: absolute; inset: 0; z-index: 1;
-          display: flex; flex-direction: column;
-          padding: 26px 28px 22px;
-          opacity: 0; transform: translateY(8px);
-          transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-          min-width: 330px;
+        /* glass panel, smoked in on the right of the row */
+        .qx-ti-panel {
+          position: absolute; right: 0; top: 50%; z-index: 5;
+          width: min(380px, 34vw);
+          transform: translateY(-50%) scale(1.04);
+          padding: 18px 20px 14px;
+          border-radius: 18px;
+          background: rgba(16, 10, 7, 0.88);
+          backdrop-filter: var(--glass-blur);
+          border: 1px solid color-mix(in srgb, var(--ti) 40%, transparent);
+          box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+          opacity: 0; filter: blur(14px); pointer-events: none;
+          transition: opacity 0.45s ease-out, filter 0.45s ease-out, transform 0.45s ease-out;
         }
-        .qx-xp-panel.is-open .qx-xp-body {
-          opacity: 1; transform: none;
-          transition-delay: 0.22s;
+        .qx-ti-row.is-open .qx-ti-panel {
+          opacity: 1; filter: blur(0); transform: translateY(-50%) scale(1);
+          pointer-events: auto;
         }
-        .qx-xp-head { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-        .qx-xp-emoji { font-size: 34px; line-height: 1; }
-        .qx-xp-name {
-          font-family: "Unbounded", var(--font-display), sans-serif;
-          font-weight: 800; font-size: 19px; letter-spacing: -0.01em;
-          color: var(--text); line-height: 1.1;
-        }
-        .qx-xp-count { display: block; margin-top: 4px; font-size: 10px; letter-spacing: 0.2em; color: var(--xp); }
+        html.light .qx-ti-panel { background: rgba(255, 248, 242, 0.94); }
 
-        .qx-xp-list { display: flex; flex-direction: column; flex: 1; min-height: 0; }
-        .qx-xp-link {
-          display: grid; grid-template-columns: minmax(0, auto) 1fr auto;
-          align-items: baseline; gap: 12px;
-          padding: 9px 2px; text-decoration: none;
+        .qx-ti-tool {
+          display: grid; grid-template-columns: auto 1fr auto;
+          align-items: baseline; gap: 10px;
+          padding: 7px 2px; text-decoration: none;
           border-top: 1px solid rgba(255, 150, 90, 0.1);
-          transition: padding-left 0.22s ease-out;
+          transition: padding-left 0.2s ease-out;
         }
-        .qx-xp-link:hover { padding-left: 8px; }
-        .qx-xp-link-label { font-weight: 650; font-size: 14.5px; color: var(--text); white-space: nowrap; }
-        .qx-xp-link-hint {
-          font-size: 12px; color: var(--text-muted);
+        .qx-ti-panel li:first-child .qx-ti-tool { border-top: 0; }
+        .qx-ti-tool:hover { padding-left: 8px; }
+        .qx-ti-tool-label { font-weight: 650; font-size: 13.5px; color: var(--text); white-space: nowrap; }
+        .qx-ti-tool-hint {
+          font-size: 11.5px; color: var(--text-muted);
           overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-        .qx-xp-link-ic { opacity: 0; transform: translate(-4px, 4px); transition: opacity 0.22s, transform 0.22s; color: var(--xp); align-self: center; }
-        .qx-xp-link:hover .qx-xp-link-ic { opacity: 1; transform: none; }
-
-        .qx-xp-all {
-          margin-top: 14px; display: inline-flex; align-items: center; gap: 7px;
-          font-size: 13px; font-weight: 700; color: var(--xp); text-decoration: none;
+        .qx-ti-tool-ic { opacity: 0; transform: translate(-4px, 4px); transition: 0.2s; color: var(--ti); align-self: center; }
+        .qx-ti-tool:hover .qx-ti-tool-ic { opacity: 1; transform: none; }
+        .qx-ti-all {
+          margin-top: 10px; display: inline-flex; align-items: center; gap: 6px;
+          font-size: 12.5px; font-weight: 700; color: var(--ti); text-decoration: none;
           transition: gap 0.25s;
         }
-        .qx-xp-all:hover { gap: 11px; }
+        .qx-ti-all:hover { gap: 10px; }
 
-        /* vertical accordion below 1024px */
+        /* stacked: panel flows under the row */
         @media (max-width: 1023px) {
-          .qx-xp { flex-direction: column; height: auto; gap: 10px; }
-          .qx-xp-panel { min-width: 0; min-height: 64px; flex: none; transition: border-color 0.3s; }
-          .qx-xp-panel.is-open { min-height: 430px; }
-          .qx-xp-spine { flex-direction: row; padding: 0 18px; gap: 12px; align-items: center; }
-          .qx-xp-spine-name { writing-mode: horizontal-tb; transform: none; margin: 0 auto 0 0; }
-          .qx-xp-body { position: relative; min-width: 0; padding: 20px; }
+          .qx-ti-panel {
+            position: static; width: 100%; transform: none;
+            margin: 0 0 14px; max-height: 0; overflow: hidden;
+            padding: 0 16px; opacity: 0; filter: none;
+            transition: max-height 0.45s ease-out, opacity 0.35s, padding 0.3s;
+          }
+          .qx-ti-row.is-open .qx-ti-panel {
+            max-height: 420px; opacity: 1; transform: none; padding: 14px 16px 12px;
+          }
+          .qx-ti-row.is-open .qx-ti-name { transform: none; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .qx-xp-panel, .qx-xp-body, .qx-xp-spine { transition: none !important; }
+          .qx-ti-name, .qx-ti-go, .qx-ti-panel { transition: none !important; }
         }
       `}</style>
     </section>
