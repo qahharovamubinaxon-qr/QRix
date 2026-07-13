@@ -832,6 +832,7 @@ export default function HomePage() {
                 { href: "/ai-tools", label: "AI Tools" },
                 { href: "/video-tools", label: "Video Tools" },
                 { href: "/3d-tools", label: "3D Tools" },
+                { href: "/use/en", label: lang === "uz" ? "Ҳолатлар" : lang === "ru" ? "Сценарии" : "Use cases" },
               ].map((l) => (
                 <Link key={l.href} href={l.href} className="qx-foot-link">{l.label}</Link>
               ))}

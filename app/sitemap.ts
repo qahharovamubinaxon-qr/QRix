@@ -6,6 +6,7 @@ import { AI_TOOLS } from "@/lib/ai-tools-meta";
 import { VIDEO_TOOLS } from "@/lib/video-tools-meta";
 import { THREE_TOOLS } from "@/lib/three-tools-meta";
 import { IMAGE_TOOLS as IMG_EXP } from "@/lib/image-tools-meta";
+import { USE_CASES_EN, USE_LANGS, hasTranslation } from "@/lib/usecase-content";
 import { HELP_CATEGORIES } from "@/lib/help-content";
 import { DOC_PAGES } from "@/lib/docs-content";
 
@@ -22,7 +23,27 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const entry = (path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly") =>
     ({ url: `${SITE_URL}${path}`, lastModified: now, changeFrequency, priority });
 
+  // Programmatic SEO use-case pages (localized, with hreflang alternates).
+  const langReady = (l: string) => l === "en" || USE_CASES_EN.some((u) => hasTranslation(u.slug, l as never));
+  const useEntries: MetadataRoute.Sitemap = [
+    ...USE_LANGS.filter(langReady).map((l) => entry(`/use/${l}`, 0.7)),
+    ...USE_CASES_EN.flatMap((u) =>
+      USE_LANGS.filter((l) => hasTranslation(u.slug, l)).map((l) => ({
+        url: `${SITE_URL}/use/${l}/${u.slug}`,
+        lastModified: now,
+        changeFrequency: "monthly" as const,
+        priority: 0.7,
+        alternates: {
+          languages: Object.fromEntries(
+            USE_LANGS.filter((x) => hasTranslation(u.slug, x)).map((x) => [x, `${SITE_URL}/use/${x}/${u.slug}`]),
+          ),
+        },
+      })),
+    ),
+  ];
+
   return [
+    ...useEntries,
     entry("/", 1.0, "daily"),
     entry("/qr-tools", 0.9),
     entry("/pdf-tools", 0.9),

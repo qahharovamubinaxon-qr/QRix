@@ -13,14 +13,19 @@ export function pageMeta(opts: {
   path?: string;
   keywords?: string[];
   noindex?: boolean;
+  /** hreflang alternates, e.g. { en: "/use/en/x", ru: "/use/ru/x", "x-default": "/use/en/x" } (paths or absolute URLs). */
+  languages?: Record<string, string>;
 }): Metadata {
   const url = SITE_URL + (opts.path || "/");
   const description = opts.description || SITE_DESCRIPTION;
+  const languages = opts.languages
+    ? Object.fromEntries(Object.entries(opts.languages).map(([k, v]) => [k, v.startsWith("http") ? v : SITE_URL + v]))
+    : undefined;
   return {
     title: opts.title,
     description,
     keywords: opts.keywords,
-    alternates: { canonical: url },
+    alternates: { canonical: url, ...(languages ? { languages } : {}) },
     robots: opts.noindex ? { index: false, follow: false } : { index: true, follow: true },
     openGraph: {
       type: "website",
