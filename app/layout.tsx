@@ -7,6 +7,7 @@ import MotionLayer from "@/components/MotionLayer";
 import CommandSearch from "@/components/CommandSearch";
 import Toaster from "@/components/Toaster";
 import PwaVitals from "@/components/PwaVitals";
+import CookieConsent from "@/components/CookieConsent";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, jsonLd } from "@/lib/seo";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -75,6 +76,15 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        {/* Google Consent Mode v2 — default DENIED until the user opts in.
+            Must run before AdSense/GA so no ad/analytics storage is set
+            without consent (GDPR / AdSense EEA requirement). */}
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=window.gtag||gtag;try{var c=JSON.parse(localStorage.getItem("qrix_consent")||"null");}catch(e){c=null;}var v=c==="granted"?"granted":"denied";gtag("consent","default",{ad_storage:v,ad_user_data:v,ad_personalization:v,analytics_storage:v,functionality_storage:"granted",security_storage:"granted",wait_for_update:500});`,
+          }}
+        />
         {/* Google AdSense loader — only injected once the publisher id is configured */}
         {process.env.NEXT_PUBLIC_ADSENSE_CLIENT && (
           // eslint-disable-next-line @next/next/no-sync-scripts
@@ -112,6 +122,7 @@ export default function RootLayout({
         <PwaVitals />
         <TopNav />
         <div id="main" className="contents">{children}</div>
+        <CookieConsent />
         <Analytics />
         <SpeedInsights />
       </body>
