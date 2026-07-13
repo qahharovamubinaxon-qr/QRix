@@ -5,8 +5,9 @@ import { FiPlus } from "react-icons/fi";
 import { jsonLd, faqLd } from "@/lib/seo";
 import { type Lang } from "@/lib/lang";
 import { HOME_I18N } from "@/lib/home-i18n";
+import { FAQ_I18N } from "@/lib/home-faq-i18n";
 
-const FAQS: Partial<Record<Lang, { q: string; a: string }[]>> = {
+const FAQS_BASE: Partial<Record<Lang, { q: string; a: string }[]>> = {
   en: [
     { q: "Is QRix really free?", a: "Yes — all 55+ tools are free with no watermark and no signup. Pro adds unlimited dynamic QR codes, deeper analytics and an ad-free experience." },
     { q: "Are my files uploaded to a server?", a: "No. PDF, image and QR tools run entirely in your browser — your files never leave your device." },
@@ -38,6 +39,9 @@ const FAQS: Partial<Record<Lang, { q: string; a: string }[]>> = {
     { q: "QRix бошқалардан нимаси билан фарқ қилади?", a: "Тўлиқ тўплам: 30+ QR тури, штрих-код студияси, link-in-bio, постер, PDF ва расм асбоблари — махфий, тез ва бепул." },
   ],
 };
+// Merge the 12 generated languages' Q&A (English fills anything missing).
+const FAQS: Partial<Record<Lang, { q: string; a: string }[]>> = { ...FAQS_BASE };
+for (const [code, v] of Object.entries(FAQ_I18N)) FAQS[code as Lang] = v;
 
 const TITLES_BASE: Record<"en" | "ru" | "uz", { t: string; s: string }> = {
   en: { t: "Frequently asked questions", s: "Everything you might want to know before you start." },
