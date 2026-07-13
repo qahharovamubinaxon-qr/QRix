@@ -232,7 +232,7 @@ export default function TopNav() {
         </Link>
 
         {/* Nav links */}
-        <nav className="hidden md:flex items-center gap-0.5 mx-auto relative" onMouseLeave={moveToActive}>
+        <nav aria-label="Primary" className="hidden md:flex items-center gap-0.5 mx-auto relative" onMouseLeave={moveToActive}>
           {/* sliding glass pill */}
           <span className="qx-nav-glasspill" style={{ transform: `translateX(${pill.x}px)`, top: pill.y, width: pill.w, height: pill.h, opacity: pill.show ? 1 : 0 }} />
           {links.map((l, idx) => {
@@ -331,7 +331,7 @@ export default function TopNav() {
           {!user && <Link href="/register" className="qx-btn !py-2 !px-4 text-[13px] font-bold hidden lg:inline-flex">{t.signup}</Link>}
 
           {/* Hamburger — mobile only */}
-          <button onClick={() => setMobileOpen((v) => !v)} className="qx-btn-ghost !p-2.5 md:hidden" aria-label="Menu">
+          <button onClick={() => setMobileOpen((v) => !v)} className="qx-btn-ghost !p-2.5 md:hidden" aria-label="Menu" aria-haspopup="true" aria-expanded={mobileOpen}>
             {mobileOpen ? <FiX size={18} /> : <FiMenu size={18} />}
           </button>
         </div>
@@ -340,7 +340,7 @@ export default function TopNav() {
       {/* ── Mobile menu ── */}
       {mobileOpen && (
         <div className="md:hidden pb-4 pt-1 max-w-[1400px] mx-auto">
-          <nav className="flex flex-col gap-1">
+          <nav aria-label="Mobile" className="flex flex-col gap-1">
             {links.map((l) => {
               const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
               return (

@@ -429,7 +429,7 @@ export default function PromoVideoClient() {
               {THEMES.map((th) => (
                 <button key={th.id} type="button" onClick={() => setTheme(th)}
                   className="w-8 h-8 rounded-full"
-                  title={th.label}
+                  title={th.label} aria-label={`Theme: ${th.label}`} aria-pressed={theme.id === th.id}
                   style={{ background: th.glow, outline: theme.id === th.id ? "2px solid var(--text)" : "1px solid var(--border)", outlineOffset: 2 }} />
               ))}
             </div>

@@ -33,7 +33,7 @@ export function AiDropzone({ onFile, accept = "image/*", hint }: {
     <div
       role="button" tabIndex={0} aria-label="Upload file"
       onClick={() => inputRef.current?.click()}
-      onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }}
       onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
       onDragLeave={() => setDrag(false)}
       onDrop={(e) => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files?.[0]; if (f) onFile(f); }}

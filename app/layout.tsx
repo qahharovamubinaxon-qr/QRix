@@ -123,7 +123,7 @@ export default function RootLayout({
         <Toaster />
         <PwaVitals />
         <TopNav />
-        <div id="main" className="contents">{children}</div>
+        <div id="main" tabIndex={-1} className="contents">{children}</div>
         <CookieConsent />
         <ErrorMonitor />
         {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics id={process.env.NEXT_PUBLIC_GA_ID} />}

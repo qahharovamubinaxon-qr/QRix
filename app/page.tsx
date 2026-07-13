@@ -369,7 +369,7 @@ export default function HomePage() {
   } as React.CSSProperties;
 
   return (
-    <div className="relative overflow-x-clip">
+    <main className="relative overflow-x-clip">
       {/* Katana-style scroll scenes: fixed full-viewport canvas that cross-fades
           between rich gradient scenes as sections pass the viewport center. */}
       <div className="qx-scenes" aria-hidden>
@@ -484,7 +484,7 @@ export default function HomePage() {
             {/* Form fields */}
             <div className="space-y-2.5 flex-1">
               {tab==="url" && <>
-                <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://yourwebsite.com" className={inputCls} style={inputStyle}/>
+                <input value={url} onChange={e=>setUrl(e.target.value)} placeholder="https://yourwebsite.com" aria-label="Website URL" className={inputCls} style={inputStyle}/>
                 <div className="rounded-xl p-2.5" style={{ background:"rgba(70,116,52,0.06)", border:"1px solid rgba(70,116,52,0.2)" }}>
                   <label className="flex items-center gap-2 text-[11px] font-semibold cursor-pointer" style={{ color:"var(--text)" }}>
                     <input type="checkbox" checked={utmOn} onChange={e=>setUtmOn(e.target.checked)} className="accent-green-600"/>
@@ -494,38 +494,38 @@ export default function HomePage() {
                   </label>
                   {utmOn && (
                     <div className="grid grid-cols-3 gap-1.5 mt-2">
-                      <input value={utmSource} onChange={e=>setUtmSource(e.target.value)} placeholder="source" className={inputCls} style={{ ...inputStyle, fontSize:"12px", padding:"6px 8px" }}/>
-                      <input value={utmMedium} onChange={e=>setUtmMedium(e.target.value)} placeholder="medium" className={inputCls} style={{ ...inputStyle, fontSize:"12px", padding:"6px 8px" }}/>
-                      <input value={utmCampaign} onChange={e=>setUtmCampaign(e.target.value)} placeholder="campaign" className={inputCls} style={{ ...inputStyle, fontSize:"12px", padding:"6px 8px" }}/>
+                      <input value={utmSource} onChange={e=>setUtmSource(e.target.value)} placeholder="source" aria-label="UTM source" className={inputCls} style={{ ...inputStyle, fontSize:"12px", padding:"6px 8px" }}/>
+                      <input value={utmMedium} onChange={e=>setUtmMedium(e.target.value)} placeholder="medium" aria-label="UTM medium" className={inputCls} style={{ ...inputStyle, fontSize:"12px", padding:"6px 8px" }}/>
+                      <input value={utmCampaign} onChange={e=>setUtmCampaign(e.target.value)} placeholder="campaign" aria-label="UTM campaign" className={inputCls} style={{ ...inputStyle, fontSize:"12px", padding:"6px 8px" }}/>
                     </div>
                   )}
                 </div>
               </>}
-              {tab==="text" && <textarea value={textVal} onChange={e=>setTextVal(e.target.value)} rows={3} placeholder="QRix..." className={`${inputCls} resize-none`} style={inputStyle}/>}
+              {tab==="text" && <textarea value={textVal} onChange={e=>setTextVal(e.target.value)} rows={3} placeholder="QRix..." aria-label="Text to encode" className={`${inputCls} resize-none`} style={inputStyle}/>}
               {tab==="wifi" && <>
-                <input value={ssid} onChange={e=>setSsid(e.target.value)} placeholder={t.ssid} className={inputCls} style={inputStyle}/>
-                <input value={wifiPass} onChange={e=>setWifiPass(e.target.value)} placeholder={t.password} className={inputCls} style={inputStyle}/>
+                <input value={ssid} onChange={e=>setSsid(e.target.value)} placeholder={t.ssid} aria-label={t.ssid} className={inputCls} style={inputStyle}/>
+                <input value={wifiPass} onChange={e=>setWifiPass(e.target.value)} placeholder={t.password} aria-label={t.password} className={inputCls} style={inputStyle}/>
               </>}
               {tab==="vcard" && <div className="grid grid-cols-2 gap-2">
-                <input value={vName} onChange={e=>setVName(e.target.value)} placeholder={t.fullName} className={inputCls} style={inputStyle}/>
-                <input value={vPhone} onChange={e=>setVPhone(e.target.value)} placeholder={t.phone} className={inputCls} style={inputStyle}/>
-                <input value={vEmail} onChange={e=>setVEmail(e.target.value)} placeholder={t.emailL} className={inputCls} style={inputStyle}/>
-                <input value={vOrg} onChange={e=>setVOrg(e.target.value)} placeholder={t.org} className={inputCls} style={inputStyle}/>
+                <input value={vName} onChange={e=>setVName(e.target.value)} placeholder={t.fullName} aria-label={t.fullName} className={inputCls} style={inputStyle}/>
+                <input value={vPhone} onChange={e=>setVPhone(e.target.value)} placeholder={t.phone} aria-label={t.phone} className={inputCls} style={inputStyle}/>
+                <input value={vEmail} onChange={e=>setVEmail(e.target.value)} placeholder={t.emailL} aria-label={t.emailL} className={inputCls} style={inputStyle}/>
+                <input value={vOrg} onChange={e=>setVOrg(e.target.value)} placeholder={t.org} aria-label={t.org} className={inputCls} style={inputStyle}/>
               </div>}
               {tab==="email" && <>
-                <input value={emTo} onChange={e=>setEmTo(e.target.value)} placeholder={t.emailTo} className={inputCls} style={inputStyle}/>
-                <input value={emSub} onChange={e=>setEmSub(e.target.value)} placeholder={t.subject} className={inputCls} style={inputStyle}/>
-                <textarea value={emBody} onChange={e=>setEmBody(e.target.value)} rows={2} placeholder={t.body} className={`${inputCls} resize-none`} style={inputStyle}/>
+                <input value={emTo} onChange={e=>setEmTo(e.target.value)} placeholder={t.emailTo} aria-label={t.emailTo} className={inputCls} style={inputStyle}/>
+                <input value={emSub} onChange={e=>setEmSub(e.target.value)} placeholder={t.subject} aria-label={t.subject} className={inputCls} style={inputStyle}/>
+                <textarea value={emBody} onChange={e=>setEmBody(e.target.value)} rows={2} placeholder={t.body} aria-label={t.body} className={`${inputCls} resize-none`} style={inputStyle}/>
               </>}
               {tab==="sms" && <>
-                <input value={smsNum} onChange={e=>setSmsNum(e.target.value)} placeholder={t.smsPhone} className={inputCls} style={inputStyle}/>
-                <textarea value={smsMsg} onChange={e=>setSmsMsg(e.target.value)} rows={2} placeholder={t.smsMsg} className={`${inputCls} resize-none`} style={inputStyle}/>
+                <input value={smsNum} onChange={e=>setSmsNum(e.target.value)} placeholder={t.smsPhone} aria-label={t.smsPhone} className={inputCls} style={inputStyle}/>
+                <textarea value={smsMsg} onChange={e=>setSmsMsg(e.target.value)} rows={2} placeholder={t.smsMsg} aria-label={t.smsMsg} className={`${inputCls} resize-none`} style={inputStyle}/>
               </>}
               {tab==="whatsapp" && <>
-                <input value={waNum} onChange={e=>setWaNum(e.target.value)} placeholder={t.waPhone} className={inputCls} style={inputStyle}/>
-                <textarea value={waMsg} onChange={e=>setWaMsg(e.target.value)} rows={2} placeholder={t.waMsg} className={`${inputCls} resize-none`} style={inputStyle}/>
+                <input value={waNum} onChange={e=>setWaNum(e.target.value)} placeholder={t.waPhone} aria-label={t.waPhone} className={inputCls} style={inputStyle}/>
+                <textarea value={waMsg} onChange={e=>setWaMsg(e.target.value)} rows={2} placeholder={t.waMsg} aria-label={t.waMsg} className={`${inputCls} resize-none`} style={inputStyle}/>
               </>}
-              {tab==="telegram" && <input value={tgUser} onChange={e=>setTgUser(e.target.value)} placeholder={t.tgUser} className={inputCls} style={inputStyle}/>}
+              {tab==="telegram" && <input value={tgUser} onChange={e=>setTgUser(e.target.value)} placeholder={t.tgUser} aria-label={t.tgUser} className={inputCls} style={inputStyle}/>}
             </div>
 
             {/* PIN */}
@@ -538,7 +538,7 @@ export default function HomePage() {
               <div className="flex gap-2">
                 <input value={pin}
                   onChange={e=>{ setPin(e.target.value.replace(/\D/g,"").slice(0,10)); setPinConfirmed(false); setPinOn(e.target.value.length>0); }}
-                  placeholder={t.pinPh} inputMode="numeric"
+                  placeholder={t.pinPh} inputMode="numeric" aria-label={t.pin}
                   className={`${inputCls} flex-1`} style={{ ...inputStyle, fontSize:"13px" }}/>
                 <button type="button" onClick={()=>{ if(pin.length>=4) setPinConfirmed(true); }}
                   disabled={pin.length<4} className="qx-btn !px-3 !py-2 text-xs shrink-0 disabled:opacity-35">
@@ -577,7 +577,7 @@ export default function HomePage() {
                 className="qx-float-stage flex items-center justify-center w-full" style={{ perspective:700 }}>
                 {/* floating platform: gentle levitation + reflection; cursor tilt on the tile inside */}
                 <div className="qx-float-panel relative rounded-2xl">
-                  <div ref={canvasWrapRef} className="p-4 rounded-2xl transition-transform duration-150"
+                  <div ref={canvasWrapRef} role="img" aria-label={`QR code for ${qrValue}`} className="p-4 rounded-2xl transition-transform duration-150"
                     style={{ background:bg, transform:`rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
                       boxShadow:"0 0 0 1px rgba(255,255,255,0.06)" }}>
                     <QRCodeCanvas value={qrValue} size={180} bgColor={bg} fgColor={fg} level={level} marginSize={1}
@@ -806,7 +806,7 @@ export default function HomePage() {
 
           {/* product */}
           <div>
-            <h4 className="qx-foot-h">{t.footProduct}</h4>
+            <h3 className="qx-foot-h">{t.footProduct}</h3>
             <div className="space-y-3 text-sm">
               {[
                 { href: "/url-qr", label: "URL QR" },
@@ -823,7 +823,7 @@ export default function HomePage() {
 
           {/* tools */}
           <div>
-            <h4 className="qx-foot-h">{t.footTools}</h4>
+            <h3 className="qx-foot-h">{t.footTools}</h3>
             <div className="space-y-3 text-sm">
               {[
                 { href: "/qr-tools", label: "QR Tools" },
@@ -840,7 +840,7 @@ export default function HomePage() {
 
           {/* company */}
           <div>
-            <h4 className="qx-foot-h">{lang === "uz" ? "Компания" : lang === "ru" ? "Компания" : "Company"}</h4>
+            <h3 className="qx-foot-h">{lang === "uz" ? "Компания" : lang === "ru" ? "Компания" : "Company"}</h3>
             <div className="space-y-3 text-sm">
               {[
                 { href: "/about", label: lang === "uz" ? "Биз ҳақимизда" : lang === "ru" ? "О нас" : "About" },
@@ -858,7 +858,7 @@ export default function HomePage() {
 
           {/* contact + cta */}
           <div>
-            <h4 className="qx-foot-h">{t.footContact}</h4>
+            <h3 className="qx-foot-h">{t.footContact}</h3>
             <div className="space-y-3 text-sm mb-7">
               <a href="mailto:musarasulzada@gmail.com" className="qx-foot-link flex items-center gap-2.5">
                 <FiMail size={14} style={{ color: "#ff4d1c" }} /> musarasulzada@gmail.com
@@ -902,7 +902,7 @@ export default function HomePage() {
           onClose={() => setDesignOpen(false)}
         />
       )}
-    </div>
+    </main>
   );
 }
 

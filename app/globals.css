@@ -33,7 +33,7 @@
   /* Text */
   --text: #ecebe7;
   --text-muted: #9a968f;
-  --text-faint: #605c55;
+  --text-faint: #8a857c; /* lightened for WCAG AA contrast on the dark base */
 
   /* Semantic */
   --success: #467434;

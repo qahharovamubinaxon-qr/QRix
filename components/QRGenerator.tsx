@@ -89,7 +89,7 @@ export default function QRGenerator({ type }: { type: QrType }) {
   const inputCls = "w-full px-4 py-3 text-sm";
 
   const renderField = (f: Field) => {
-    const common = { value: values[f.key] || "", onChange: (e: any) => set(f.key, e.target.value), placeholder: f.placeholder, className: inputCls };
+    const common = { id: f.key, "aria-label": f.label, value: values[f.key] || "", onChange: (e: any) => set(f.key, e.target.value), placeholder: f.placeholder, className: inputCls };
     if (f.type === "textarea") return <textarea {...common} rows={3} className={`${inputCls} resize-none`} />;
     if (f.type === "select")
       return (
@@ -108,7 +108,7 @@ export default function QRGenerator({ type }: { type: QrType }) {
           <div className={`grid gap-3 ${type.fields.length > 4 ? "sm:grid-cols-2" : ""}`}>
             {type.fields.map((f) => (
               <div key={f.key} className={f.full || f.type === "textarea" ? "sm:col-span-2" : ""}>
-                <label className="block text-xs font-semibold mb-2" style={{ color: "var(--text)" }}>{f.label}</label>
+                <label htmlFor={f.key} className="block text-xs font-semibold mb-2" style={{ color: "var(--text)" }}>{f.label}</label>
                 {renderField(f)}
               </div>
             ))}
@@ -124,7 +124,7 @@ export default function QRGenerator({ type }: { type: QrType }) {
           <h3 className="font-display text-sm font-bold mb-4" style={{ color: "var(--text)" }}>Your QR Code</h3>
           <div ref={boxRef} onMouseMove={onTilt} onMouseLeave={() => setTilt({ x: 0, y: 0 })}
             className="flex items-center justify-center" style={{ perspective: 700 }}>
-            <div ref={wrapRef} className="p-4 rounded-2xl transition-transform duration-150"
+            <div ref={wrapRef} role="img" aria-label={`QR code for ${qrValue}`} className="p-4 rounded-2xl transition-transform duration-150"
               style={{ background: bg, transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`, boxShadow: "0 20px 50px rgba(0,0,0,.3), 0 0 30px rgba(124,58,237,.15)" }}>
               <QRCodeCanvas value={qrValue} size={size} bgColor={bg} fgColor={fg} level={level} marginSize={1}
                 imageSettings={logo ? { src: logo, height: Math.round(size * 0.2), width: Math.round(size * 0.2), excavate: true } : undefined} />
@@ -137,7 +137,7 @@ export default function QRGenerator({ type }: { type: QrType }) {
           <div className="relative mt-5">
             <div className="flex">
               <button onClick={downloadPng} className="qx-btn flex-1 !rounded-r-none"><FiDownload size={14} /> Download PNG</button>
-              <button onClick={() => setDlOpen(!dlOpen)} className="qx-btn !rounded-l-none !px-3" style={{ borderLeft: "1px solid rgba(255,255,255,.2)" }}>
+              <button onClick={() => setDlOpen(!dlOpen)} aria-label="Download format" aria-haspopup="true" aria-expanded={dlOpen} className="qx-btn !rounded-l-none !px-3" style={{ borderLeft: "1px solid rgba(255,255,255,.2)" }}>
                 <FiChevronDown size={14} />
               </button>
             </div>
@@ -155,12 +155,12 @@ export default function QRGenerator({ type }: { type: QrType }) {
       {/* Design modal */}
       {designOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,.6)", backdropFilter: "blur(8px)" }} onClick={() => setDesignOpen(false)}>
-          <div className="qx-card w-full max-w-lg max-h-[88vh] overflow-y-auto p-6" style={{ background: "var(--surface-solid)" }} onClick={(e) => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-label="QR Design Studio" className="qx-card w-full max-w-lg max-h-[88vh] overflow-y-auto p-6" style={{ background: "var(--surface-solid)" }} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-6">
               <h3 className="font-display text-lg font-bold flex items-center gap-2" style={{ color: "var(--text)" }}>
                 <FiSliders style={{ color: "var(--primary-bright)" }} /> QR Design Studio
               </h3>
-              <button onClick={() => setDesignOpen(false)} className="qx-btn-ghost !p-2"><FiX size={16} /></button>
+              <button onClick={() => setDesignOpen(false)} aria-label="Close" className="qx-btn-ghost !p-2"><FiX size={16} /></button>
             </div>
             <div className="flex justify-center mb-6">
               <div className="p-3 rounded-xl" style={{ background: bg, boxShadow: "0 8px 28px rgba(0,0,0,.3)" }}>
@@ -172,20 +172,20 @@ export default function QRGenerator({ type }: { type: QrType }) {
               <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>🎨 QR Color</label>
               <div className="flex flex-wrap items-center gap-2">
                 {COLOR_PRESETS.map((c) => (
-                  <button key={c} onClick={() => setFg(c)} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
+                  <button key={c} onClick={() => setFg(c)} aria-label={`QR color ${c}`} aria-pressed={fg === c} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
                     style={{ background: c, border: fg === c ? "2px solid var(--primary-bright)" : "1px solid var(--border)" }} />
                 ))}
-                <input type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
+                <input type="color" value={fg} onChange={(e) => setFg(e.target.value)} aria-label="Custom QR color" className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
               </div>
             </div>
             <div className="mb-5">
               <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>🖼 Background</label>
               <div className="flex flex-wrap items-center gap-2">
                 {BG_PRESETS.map((c) => (
-                  <button key={c} onClick={() => setBg(c)} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
+                  <button key={c} onClick={() => setBg(c)} aria-label={`Background ${c}`} aria-pressed={bg === c} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
                     style={{ background: c, border: bg === c ? "2px solid var(--primary-bright)" : "1px solid var(--border)" }} />
                 ))}
-                <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
+                <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} aria-label="Custom background color" className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
               </div>
             </div>
             <div className="mb-5">
