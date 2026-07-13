@@ -639,6 +639,36 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ================= BRAND FILM BANNER ================= */}
+      <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-16 lg:pb-24" aria-label="QRix brand film">
+        <Link href="/promo" data-reveal
+          className="group qx-card qx-card-lift relative overflow-hidden flex flex-col sm:flex-row sm:items-center gap-5 p-6 lg:p-8"
+          style={{ border: "1px solid var(--border-hover)" }}>
+          <div className="absolute inset-0 pointer-events-none" aria-hidden
+            style={{ background: "radial-gradient(560px circle at 15% 0%, rgba(255,106,19,.22), transparent 62%)" }} />
+          <span className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl shrink-0 relative"
+            style={{ background: "linear-gradient(135deg,#ff8a3c,#e14e08)", boxShadow: "0 12px 32px rgba(225,78,8,.42)" }}>🎬</span>
+          <div className="flex-1 relative min-w-0">
+            <span className="qx-mono text-[10.5px] tracking-[0.24em] uppercase" style={{ color: "var(--primary-bright)" }}>
+              {lang === "uz" ? "// QRIX РОЛИГИ" : lang === "ru" ? "// ФИЛЬМ QRIX" : "// THE QRIX FILM"}
+            </span>
+            <h2 className="font-display text-xl lg:text-2xl font-extrabold mt-1.5" style={{ color: "var(--text)" }}>
+              {lang === "uz" ? "QRix'ни ҳаракатда кўринг" : lang === "ru" ? "Посмотрите QRix в движении" : "See QRix in motion"}
+            </h2>
+            <p className="text-[13.5px] mt-1 leading-relaxed max-w-xl" style={{ color: "var(--text-muted)" }}>
+              {lang === "uz"
+                ? "185+ текин восита — қисқа роликда. Кўринг ва MP4 қилиб юклаб олинг, ёки ўзингизники ясанг."
+                : lang === "ru"
+                ? "185+ бесплатных инструментов в коротком ролике. Смотрите и скачивайте MP4 — или создайте свой."
+                : "185+ free tools in one short film. Watch it, grab the MP4 — or make your own."}
+            </p>
+          </div>
+          <span className="qx-btn-hero shrink-0 relative pointer-events-none">
+            {lang === "uz" ? "Роликни кўриш" : lang === "ru" ? "Смотреть" : "Watch the film"} <FiArrowRight size={15} />
+          </span>
+        </Link>
+      </section>
+
       {/* ================= WHY QRIX — BENTO GRID ================= */}
       <section id="why" data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
         <hr className="qx-neon-line mb-16" />
