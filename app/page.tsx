@@ -15,6 +15,7 @@ import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { GenBunny } from "@/components/EraBunny";
 import GlitterField from "@/components/GlitterField";
+import QrixPromoFilm from "@/components/QrixPromoFilm";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -346,7 +347,8 @@ export default function HomePage() {
 
 
   const stats = [
-    { end: 1000000, suffix: "+", label: t.statQr, icon: <FiGrid />, color: "#a78bfa" },
+    { end: 185, suffix: "+", label: lang === "uz" ? "Текин восита" : lang === "ru" ? "Бесплатных инструментов" : "Free tools", icon: <FiGrid />, color: "#ff6a13" },
+    { end: 1000000, suffix: "+", label: t.statQr, icon: <FiZap />, color: "#a78bfa" },
     { end: 50000000, suffix: "+", label: t.statScans, icon: <FiBarChart2 />, color: "#22d3ee" },
     { end: 150, suffix: "+", label: t.statCountries, icon: <FiSend />, color: "#3b82f6" },
     { end: 10000, suffix: "+", label: t.statBiz, icon: <FiUser />, color: "#ec4899" },
@@ -631,6 +633,7 @@ export default function HomePage() {
           <div className="qx-num-row">
             {stats.map((s) => (
               <div key={s.label} className="qx-num-item">
+                <span className="qx-num-ic" aria-hidden>{s.icon}</span>
                 <span className="qx-num-val"><CountUp end={s.end} suffix={s.suffix} /></span>
                 <span className="qx-num-lbl qx-mono">{s.label}</span>
               </div>
@@ -639,34 +642,43 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ================= BRAND FILM BANNER ================= */}
+      {/* ================= BRAND FILM (auto-playing 16:9) ================= */}
       <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-16 lg:pb-24" aria-label="QRix brand film">
-        <Link href="/promo" data-reveal
-          className="group qx-card qx-card-lift relative overflow-hidden flex flex-col sm:flex-row sm:items-center gap-5 p-6 lg:p-8"
-          style={{ border: "1px solid var(--border-hover)" }}>
+        <div className="relative overflow-hidden rounded-[28px] p-6 sm:p-8 lg:p-10" data-reveal
+          style={{ background: "linear-gradient(135deg,#ff8a2e 0%,#f5731a 45%,#d2440a 100%)", boxShadow: "0 30px 80px rgba(190,60,8,.4)" }}>
           <div className="absolute inset-0 pointer-events-none" aria-hidden
-            style={{ background: "radial-gradient(560px circle at 15% 0%, rgba(255,106,19,.22), transparent 62%)" }} />
-          <span className="w-16 h-16 rounded-2xl flex items-center justify-center text-4xl shrink-0 relative"
-            style={{ background: "linear-gradient(135deg,#ff8a3c,#e14e08)", boxShadow: "0 12px 32px rgba(225,78,8,.42)" }}>🎬</span>
-          <div className="flex-1 relative min-w-0">
-            <span className="qx-mono text-[10.5px] tracking-[0.24em] uppercase" style={{ color: "var(--primary-bright)" }}>
-              {lang === "uz" ? "// QRIX РОЛИГИ" : lang === "ru" ? "// ФИЛЬМ QRIX" : "// THE QRIX FILM"}
-            </span>
-            <h2 className="font-display text-xl lg:text-2xl font-extrabold mt-1.5" style={{ color: "var(--text)" }}>
-              {lang === "uz" ? "QRix'ни ҳаракатда кўринг" : lang === "ru" ? "Посмотрите QRix в движении" : "See QRix in motion"}
-            </h2>
-            <p className="text-[13.5px] mt-1 leading-relaxed max-w-xl" style={{ color: "var(--text-muted)" }}>
-              {lang === "uz"
-                ? "185+ текин восита — қисқа роликда. Кўринг ва MP4 қилиб юклаб олинг, ёки ўзингизники ясанг."
-                : lang === "ru"
-                ? "185+ бесплатных инструментов в коротком ролике. Смотрите и скачивайте MP4 — или создайте свой."
-                : "185+ free tools in one short film. Watch it, grab the MP4 — or make your own."}
-            </p>
+            style={{ background: "radial-gradient(600px circle at 88% 12%, rgba(255,220,180,.35), transparent 60%)" }} />
+          <div className="relative grid lg:grid-cols-[1fr_minmax(0,60%)] gap-7 lg:gap-10 items-center">
+            {/* copy — white / dark ink on orange */}
+            <div>
+              <span className="qx-mono text-[11px] tracking-[0.24em] uppercase font-bold" style={{ color: "#3a1400" }}>
+                {lang === "uz" ? "// QRIX РОЛИГИ" : lang === "ru" ? "// ФИЛЬМ QRIX" : "// THE QRIX FILM"}
+              </span>
+              <h2 className="font-display font-extrabold leading-[1.05] mt-2" style={{ color: "#ffffff", fontSize: "clamp(1.9rem,3.4vw,3rem)", textShadow: "0 2px 20px rgba(90,30,0,.35)" }}>
+                {lang === "uz" ? "QRix'ни ҳаракатда кўринг" : lang === "ru" ? "Посмотрите QRix в движении" : "See QRix in motion"}
+              </h2>
+              <p className="mt-3 text-[15px] leading-relaxed max-w-md font-medium" style={{ color: "rgba(255,255,255,.95)" }}>
+                {lang === "uz"
+                  ? "185+ текин восита — битта қисқа роликда. Ролик ўзи ўйнаяпти; тўлиқ кўриб MP4 юклаб олинг ёки ўзингизники ясанг."
+                  : lang === "ru"
+                  ? "185+ бесплатных инструментов в одном коротком ролике. Он уже играет; смотрите полностью, скачивайте MP4 или создайте свой."
+                  : "185+ free tools in one short film. It's already playing — watch the full cut, grab the MP4, or make your own."}
+              </p>
+              <div className="flex flex-wrap gap-3 mt-6">
+                <Link href="/promo" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl text-sm font-bold"
+                  style={{ background: "#ffffff", color: "#c2410c", boxShadow: "0 8px 24px rgba(90,30,0,.28)" }}>
+                  {lang === "uz" ? "Тўлиқ кўриш & MP4" : lang === "ru" ? "Смотреть & MP4" : "Watch & download"} <FiArrowRight size={15} />
+                </Link>
+                <Link href="/promo-video" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl text-sm font-bold"
+                  style={{ background: "rgba(58,20,0,.28)", color: "#ffffff", border: "1px solid rgba(255,255,255,.4)" }}>
+                  {lang === "uz" ? "Ўзингизники ясанг" : lang === "ru" ? "Создать свой" : "Make your own"} <FiArrowRight size={14} />
+                </Link>
+              </div>
+            </div>
+            {/* the auto-playing 16:9 film */}
+            <QrixPromoFilm embed />
           </div>
-          <span className="qx-btn-hero shrink-0 relative pointer-events-none">
-            {lang === "uz" ? "Роликни кўриш" : lang === "ru" ? "Смотреть" : "Watch the film"} <FiArrowRight size={15} />
-          </span>
-        </Link>
+        </div>
       </section>
 
       {/* ================= WHY QRIX — BENTO GRID ================= */}

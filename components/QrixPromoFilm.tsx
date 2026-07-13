@@ -1,9 +1,11 @@
 "use client";
 
-/* QRix Brand Film (Mission 63) — the site's own promo. A scripted,
-   five-scene canvas film (wordmark → 185+ tools → benefits → live QR →
-   CTA) with the bunny mascot, rendered on-device and recordable to
-   MP4/WebM for the landing page, YouTube, Reels and ads. */
+/* QRix Brand Film (Mission 63, orange edition) — the site's own promo.
+   A scripted five-scene canvas film (wordmark → 185+ tools → benefits →
+   live QR → CTA) with the bunny mascot, on a vibrant orange backdrop with
+   white/dark type. Rendered on-device, recordable to MP4/WebM, and
+   embeddable (16:9, autoplay, no chrome) on the homepage. Pauses when
+   scrolled off-screen. */
 
 import { useEffect, useRef, useState } from "react";
 import { FiFilm, FiImage, FiZap, FiDownload } from "react-icons/fi";
@@ -22,6 +24,15 @@ const FPS = 30;
 const SITE = "qrix.uz";
 const CATS = ["QR Codes", "PDF", "Images", "Video", "AI", "3D"];
 const BENEFITS = ["100% free — no limits", "Runs on your device", "No signup, no watermark", "Works in any browser"];
+
+// Orange palette — vibrant backdrop, white/dark ink.
+const C = {
+  bgA: "#ff8a2e", bgB: "#d2440a",
+  inkW: "#ffffff", inkSoft: "rgba(255,255,255,0.94)",
+  dark: "#3a1400", pillInk: "#c2410c",
+  chipBg: "rgba(255,255,255,0.95)", chipInk: "#c2410c",
+  shadow: "rgba(70,22,0,0.55)",
+};
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const easeOut = (t: number) => 1 - Math.pow(1 - clamp01(t), 3);
@@ -42,11 +53,12 @@ async function loadImg(src: string): Promise<HTMLCanvasElement | null> {
   } catch { return null; }
 }
 
-export default function QrixPromoFilm() {
+export default function QrixPromoFilm({ embed = false }: { embed?: boolean }) {
   const [preset, setPreset] = useState(PRESETS[0]);
   const [recording, setRecording] = useState(false);
   const [progress, setProgress] = useState(0);
   const [err, setErr] = useState<string | null>(null);
+  const [visible, setVisible] = useState(true);
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const startRef = useRef(0);
@@ -54,6 +66,8 @@ export default function QrixPromoFilm() {
   const mascots = useRef<Record<string, HTMLCanvasElement | null>>({});
   const qrRef = useRef<HTMLCanvasElement | null>(null);
   const [ready, setReady] = useState(false);
+
+  const activePreset = embed ? PRESETS[0] : preset;
 
   /* preload mascots + QR once */
   useEffect(() => {
@@ -92,6 +106,15 @@ export default function QrixPromoFilm() {
     return () => { dead = true; };
   }, []);
 
+  /* pause the render loop when scrolled off-screen (perf) */
+  useEffect(() => {
+    const cv = canvasRef.current;
+    if (!cv || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver((es) => setVisible(es[0]?.isIntersecting ?? true), { threshold: 0.05 });
+    io.observe(cv);
+    return () => io.disconnect();
+  }, []);
+
   const drawMascot = (ctx: CanvasRenderingContext2D, key: string, cx: number, cy: number, h: number, alpha: number) => {
     const img = mascots.current[key];
     if (!img || alpha <= 0) return;
@@ -104,41 +127,48 @@ export default function QrixPromoFilm() {
   const drawFrame = (ctx: CanvasRenderingContext2D, t: number, W: number, H: number) => {
     const M = Math.min(W, H);
     const portrait = H > W;
-    // backdrop
+    // orange backdrop
     const g = ctx.createLinearGradient(0, 0, W, H);
-    g.addColorStop(0, "#2a0f06"); g.addColorStop(1, "#12060a");
+    g.addColorStop(0, C.bgA); g.addColorStop(1, C.bgB);
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    // moving highlight
     const gx = W * (0.5 + 0.26 * Math.sin(t * Math.PI * 2));
-    const gy = H * (0.4 + 0.16 * Math.cos(t * Math.PI * 2));
-    const rg = ctx.createRadialGradient(gx, gy, 0, gx, gy, M * 0.9);
-    rg.addColorStop(0, "#ff6a1340"); rg.addColorStop(1, "transparent");
-    ctx.fillStyle = rg; ctx.fillRect(0, 0, W, H);
+    const gy = H * (0.36 + 0.16 * Math.cos(t * Math.PI * 2));
+    const hg = ctx.createRadialGradient(gx, gy, 0, gx, gy, M * 0.85);
+    hg.addColorStop(0, "rgba(255,214,168,0.4)"); hg.addColorStop(1, "transparent");
+    ctx.fillStyle = hg; ctx.fillRect(0, 0, W, H);
+    // corner vignette for text contrast
+    const vg = ctx.createRadialGradient(W / 2, H / 2, M * 0.3, W / 2, H / 2, M * 0.95);
+    vg.addColorStop(0, "transparent"); vg.addColorStop(1, "rgba(90,30,0,0.5)");
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+    // light sparks
     for (let i = 0; i < 20; i++) {
       const sx = ((i * 379) % 997) / 997;
       const sp = 0.3 + ((i * 131) % 7) / 12;
       const sy = 1.15 - (((t * sp + i * 0.13) % 1) * 1.3);
-      ctx.globalAlpha = 0.3 * (1 - Math.abs(0.5 - sy) * 1.6);
-      ctx.fillStyle = "#ff6a13";
+      ctx.globalAlpha = 0.28 * (1 - Math.abs(0.5 - sy) * 1.6);
+      ctx.fillStyle = "#ffffff";
       const r = 2 + (i % 3) * 1.6;
       ctx.fillRect(sx * W, sy * H, r, r);
     }
     ctx.globalAlpha = 1;
     ctx.textAlign = "center";
     const float = Math.sin(t * Math.PI * 6) * M * 0.012;
+    const shadow = (blur: number) => { ctx.shadowColor = C.shadow; ctx.shadowBlur = blur; };
+    const noShadow = () => { ctx.shadowBlur = 0; };
 
     // ── Scene 1 · brand ─────────────────────────────────────────
     const a1 = fadeInOut(t, 0.0, 0.2, 0.18, 0.2);
     if (a1 > 0) {
       const p = easeOut(seg(t, 0.0, 0.2));
-      drawMascot(ctx, "hero", W / 2, H * (portrait ? 0.86 : 0.96) + float, M * (portrait ? 0.46 : 0.5), a1 * 0.96);
+      drawMascot(ctx, "hero", W / 2, H * (portrait ? 0.86 : 0.98) + float, M * (portrait ? 0.46 : 0.52), a1 * 0.97);
       ctx.save(); ctx.globalAlpha = a1;
-      ctx.translate(W / 2, H * (portrait ? 0.32 : 0.38)); ctx.scale(0.9 + 0.1 * p, 0.9 + 0.1 * p);
+      ctx.translate(W / 2, H * (portrait ? 0.32 : 0.36)); ctx.scale(0.9 + 0.1 * p, 0.9 + 0.1 * p);
       ctx.font = `800 ${M * 0.15}px Unbounded, Arial, sans-serif`;
-      ctx.fillStyle = "#ffffff"; ctx.shadowColor = "#ff6a13"; ctx.shadowBlur = 40;
-      ctx.fillText("QRix", 0, 0);
-      ctx.shadowBlur = 0;
+      ctx.fillStyle = C.inkW; shadow(30);
+      ctx.fillText("QRix", 0, 0); noShadow();
       ctx.font = `500 ${M * 0.04}px "Space Mono", monospace`;
-      ctx.fillStyle = "#ffb27a";
+      ctx.fillStyle = C.inkSoft;
       ctx.fillText("Everything you need. Free.", 0, M * 0.09);
       ctx.restore();
     }
@@ -147,34 +177,32 @@ export default function QrixPromoFilm() {
     const a2 = fadeInOut(t, 0.2, 0.44, 0.14, 0.16);
     if (a2 > 0) {
       const p = seg(t, 0.2, 0.44);
-      drawMascot(ctx, "point", W * (portrait ? 0.5 : 0.8), H * (portrait ? 0.88 : 0.98) + float, M * (portrait ? 0.4 : 0.46), a2 * 0.95);
+      drawMascot(ctx, "point", W * (portrait ? 0.5 : 0.82), H * (portrait ? 0.88 : 1.0) + float, M * (portrait ? 0.4 : 0.48), a2 * 0.96);
       ctx.save(); ctx.globalAlpha = a2 * easeOut(clamp01(p / 0.3));
       ctx.translate(W * (portrait ? 0.5 : 0.36), H * (portrait ? 0.3 : 0.36));
       ctx.font = `800 ${M * 0.2}px Unbounded, Arial, sans-serif`;
-      ctx.fillStyle = "#ff6a13"; ctx.shadowColor = "#ff6a13"; ctx.shadowBlur = 30;
-      ctx.fillText("185+", 0, 0); ctx.shadowBlur = 0;
+      ctx.fillStyle = C.inkW; shadow(28);
+      ctx.fillText("185+", 0, 0); noShadow();
       ctx.font = `700 ${M * 0.05}px Unbounded, Arial, sans-serif`;
-      ctx.fillStyle = "#ffffff";
+      ctx.fillStyle = C.dark;
       ctx.fillText("FREE TOOLS", 0, M * 0.08);
       ctx.restore();
       // category chips cascade
       ctx.font = `600 ${M * 0.032}px Unbounded, Arial, sans-serif`;
       const chipY = H * (portrait ? 0.5 : 0.58);
-      let cxp = W * (portrait ? 0.5 : 0.36);
       const widths = CATS.map((c) => ctx.measureText(c).width + M * 0.06);
       const total = widths.reduce((s, w) => s + w + M * 0.02, 0);
-      cxp = cxp - total / 2;
+      let cxp = W * (portrait ? 0.5 : 0.36) - total / 2;
       CATS.forEach((c, i) => {
         const cp = easeOut(clamp01((p - 0.25 - i * 0.06) / 0.4));
         const w = widths[i];
         if (cp > 0) {
           ctx.globalAlpha = a2 * cp;
-          ctx.fillStyle = "rgba(255,255,255,0.08)";
-          ctx.strokeStyle = "#ff6a1366"; ctx.lineWidth = M * 0.003;
+          ctx.fillStyle = C.chipBg;
           ctx.beginPath();
           ctx.roundRect(cxp, chipY - M * 0.03 + (1 - cp) * M * 0.04, w, M * 0.06, M * 0.03);
-          ctx.fill(); ctx.stroke();
-          ctx.fillStyle = "#ffe9d6"; ctx.textAlign = "center";
+          ctx.fill();
+          ctx.fillStyle = C.chipInk; ctx.textAlign = "center";
           ctx.fillText(c, cxp + w / 2, chipY + M * 0.011 + (1 - cp) * M * 0.04);
         }
         cxp += w + M * 0.02;
@@ -186,10 +214,10 @@ export default function QrixPromoFilm() {
     const a3 = fadeInOut(t, 0.44, 0.66, 0.12, 0.14);
     if (a3 > 0) {
       const p = seg(t, 0.44, 0.66);
-      drawMascot(ctx, "blue", W * (portrait ? 0.5 : 0.82) + float, H * (portrait ? 0.9 : 0.99), M * (portrait ? 0.38 : 0.46), a3 * 0.95);
+      drawMascot(ctx, "blue", W * (portrait ? 0.5 : 0.83) + float, H * (portrait ? 0.9 : 1.0), M * (portrait ? 0.38 : 0.48), a3 * 0.96);
       ctx.save(); ctx.textAlign = "left";
       ctx.font = `600 ${M * 0.046}px Unbounded, Arial, sans-serif`;
-      const x = W * (portrait ? 0.16 : 0.16);
+      const x = W * 0.16;
       const rowH = M * 0.1;
       let y = H * (portrait ? 0.4 : 0.5) - (BENEFITS.length * rowH) / 2 + rowH / 2;
       BENEFITS.forEach((b, i) => {
@@ -197,16 +225,16 @@ export default function QrixPromoFilm() {
         if (rp <= 0) { y += rowH; return; }
         ctx.globalAlpha = a3 * rp;
         const dx = x - (1 - rp) * M * 0.06;
-        ctx.fillStyle = "#ff6a13";
+        ctx.fillStyle = "#ffffff";
         ctx.beginPath(); ctx.arc(dx, y - M * 0.013, M * 0.026, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#0e0e0e"; ctx.lineWidth = M * 0.007;
+        ctx.strokeStyle = C.pillInk; ctx.lineWidth = M * 0.008;
         ctx.beginPath();
         ctx.moveTo(dx - M * 0.011, y - M * 0.013);
         ctx.lineTo(dx - M * 0.002, y - M * 0.004);
         ctx.lineTo(dx + M * 0.013, y - M * 0.024);
         ctx.stroke();
-        ctx.fillStyle = "#ffffff";
-        ctx.fillText(b, dx + M * 0.05, y);
+        ctx.fillStyle = C.inkW; shadow(14);
+        ctx.fillText(b, dx + M * 0.05, y); noShadow();
         y += rowH;
       });
       ctx.restore();
@@ -219,18 +247,17 @@ export default function QrixPromoFilm() {
       const p = seg(t, 0.66, 0.84);
       ctx.save(); ctx.globalAlpha = a4; ctx.textAlign = "center";
       ctx.font = `700 ${M * 0.055}px Unbounded, Arial, sans-serif`;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText("Scan. Convert. Create.", W / 2, H * (portrait ? 0.26 : 0.24));
+      ctx.fillStyle = C.inkW; shadow(18);
+      ctx.fillText("Scan. Convert. Create.", W / 2, H * (portrait ? 0.26 : 0.24)); noShadow();
       const qr = qrRef.current;
       if (qr) {
         const qs = M * (portrait ? 0.42 : 0.34) * (0.85 + 0.15 * easeOut(p));
         const pad = qs * 0.08, cs = qs + pad * 2;
         const cx = W / 2, cy = H * (portrait ? 0.52 : 0.56);
-        ctx.shadowColor = "#ff6a13"; ctx.shadowBlur = 50 * easeOut(p);
+        shadow(50 * easeOut(p));
         ctx.fillStyle = "#fff";
         ctx.beginPath(); ctx.roundRect(cx - cs / 2, cy - cs / 2, cs, cs, cs * 0.08); ctx.fill();
-        ctx.shadowBlur = 0;
-        // tile cascade
+        noShadow();
         const TILES = 11, ts = qs / TILES;
         for (let r = 0; r < TILES; r++) for (let c = 0; c < TILES; c++) {
           const delay = ((r + c) / (TILES * 2 - 2)) * 0.5;
@@ -248,52 +275,55 @@ export default function QrixPromoFilm() {
     const a5 = fadeInOut(t, 0.84, 1.0, 0.12, 0.02);
     if (a5 > 0) {
       const p = easeOut(seg(t, 0.84, 1.0));
-      drawMascot(ctx, "hero", W * (portrait ? 0.5 : 0.8), H * (portrait ? 0.92 : 1.0) + float, M * (portrait ? 0.4 : 0.48), a5 * 0.96);
+      drawMascot(ctx, "hero", W * (portrait ? 0.5 : 0.82), H * (portrait ? 0.92 : 1.0) + float, M * (portrait ? 0.4 : 0.5), a5 * 0.97);
       ctx.save(); ctx.globalAlpha = a5; ctx.textAlign = "center";
       ctx.font = `800 ${M * 0.075}px Unbounded, Arial, sans-serif`;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText("Start free today", W * (portrait ? 0.5 : 0.4), H * (portrait ? 0.34 : 0.4));
-      // pill
+      ctx.fillStyle = C.inkW; shadow(22);
+      ctx.fillText("Start free today", W * (portrait ? 0.5 : 0.4), H * (portrait ? 0.34 : 0.4)); noShadow();
+      // white pill w/ orange ink
       ctx.font = `800 ${M * 0.05}px Unbounded, Arial, sans-serif`;
       const label = SITE;
       const tw = ctx.measureText(label).width, pw = tw + M * 0.12, ph = M * 0.12;
       const cx = W * (portrait ? 0.5 : 0.4), cy = H * (portrait ? 0.46 : 0.56);
       ctx.translate(cx, cy); ctx.scale(0.85 + 0.15 * p, 0.85 + 0.15 * p);
-      ctx.shadowColor = "#ff6a13"; ctx.shadowBlur = 40 * p;
-      ctx.fillStyle = "#ff6a13";
+      shadow(36 * p);
+      ctx.fillStyle = "#ffffff";
       ctx.beginPath(); ctx.roundRect(-pw / 2, -ph / 2, pw, ph, ph / 2); ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.fillStyle = "#0e0e0e"; ctx.textBaseline = "middle";
+      noShadow();
+      ctx.fillStyle = C.pillInk; ctx.textBaseline = "middle";
       ctx.fillText(label, 0, M * 0.004); ctx.textBaseline = "alphabetic";
       ctx.restore();
     }
 
-    // persistent watermark + progress
-    ctx.globalAlpha = 0.5; ctx.textAlign = "left";
+    // watermark + progress
+    ctx.globalAlpha = 0.7; ctx.textAlign = "left";
     ctx.font = `600 ${M * 0.022}px "Space Mono", monospace`;
-    ctx.fillStyle = "#ffb27a";
+    ctx.fillStyle = "#ffffff";
     ctx.fillText(SITE, M * 0.05, H - M * 0.05);
     ctx.globalAlpha = 1;
-    ctx.fillStyle = "#ff6a13";
+    ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, H - M * 0.008, W * t, M * 0.008);
   };
 
   useEffect(() => {
     const cv = canvasRef.current;
     if (!cv) return;
-    cv.width = preset.w; cv.height = preset.h;
+    cv.width = activePreset.w; cv.height = activePreset.h;
     const ctx = cv.getContext("2d")!;
+    // draw a first frame immediately so it never shows blank
+    drawFrame(ctx, 0, activePreset.w, activePreset.h);
+    if (!visible && !recording) return; // paused off-screen
     startRef.current = performance.now();
     const loop = (now: number) => {
       const t = ((now - startRef.current) / 1000 / DUR) % 1;
-      drawFrame(ctx, t, preset.w, preset.h);
+      drawFrame(ctx, t, activePreset.w, activePreset.h);
       if (recording) setProgress(Math.min(100, Math.round(((now - startRef.current) / 1000 / DUR) * 100)));
       rafRef.current = requestAnimationFrame(loop);
     };
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset, ready, recording]);
+  }, [activePreset, ready, recording, visible]);
 
   const record = async () => {
     const cv = canvasRef.current;
@@ -315,17 +345,25 @@ export default function QrixPromoFilm() {
       rec.onstop = async () => {
         setRecording(false); setProgress(0);
         const ext = mime.startsWith("video/mp4") ? "mp4" : "webm";
-        await saveBlob(new Blob(chunks, { type: mime.split(";")[0] }), `qrix-promo-${preset.id}.${ext}`);
+        await saveBlob(new Blob(chunks, { type: mime.split(";")[0] }), `qrix-promo-${activePreset.id}.${ext}`);
       };
     }, DUR * 1000 + 150);
   };
 
   const savePng = async () => {
     const cv = document.createElement("canvas");
-    cv.width = preset.w; cv.height = preset.h;
-    drawFrame(cv.getContext("2d")!, 0.9, preset.w, preset.h);
-    cv.toBlob(async (b) => { if (b) await saveBlob(b, `qrix-promo-${preset.id}.png`); }, "image/png");
+    cv.width = activePreset.w; cv.height = activePreset.h;
+    drawFrame(cv.getContext("2d")!, 0.9, activePreset.w, activePreset.h);
+    cv.toBlob(async (b) => { if (b) await saveBlob(b, `qrix-promo-${activePreset.id}.png`); }, "image/png");
   };
+
+  // Embedded on the homepage — just the auto-playing 16:9 canvas.
+  if (embed) {
+    return (
+      <canvas ref={canvasRef}
+        style={{ width: "100%", aspectRatio: "1920 / 1080", borderRadius: 16, display: "block", boxShadow: "0 20px 60px rgba(180,60,8,.35)" }} />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -333,8 +371,8 @@ export default function QrixPromoFilm() {
         <canvas ref={canvasRef}
           style={{
             width: "100%",
-            maxWidth: preset.w > preset.h ? 760 : preset.w === preset.h ? 480 : 380,
-            aspectRatio: `${preset.w} / ${preset.h}`,
+            maxWidth: activePreset.w > activePreset.h ? 760 : activePreset.w === activePreset.h ? 480 : 380,
+            aspectRatio: `${activePreset.w} / ${activePreset.h}`,
             borderRadius: 20,
             border: "1px solid var(--border)",
             boxShadow: "var(--shadow-card)",

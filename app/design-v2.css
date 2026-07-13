@@ -602,38 +602,67 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
   font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
   color: var(--primary-bright); margin-bottom: clamp(22px, 3.6vh, 38px);
 }
-/* Mission 59: the four figures ride equal-size orange cards, side by side. */
+/* Mission 64: five modern orange stat cards — glass icon chip, big white
+   figure, refined depth. */
 .qx-num-row {
   display: grid; gap: 16px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-@media (max-width: 960px) {
-  .qx-num-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 .qx-num-item {
-  display: flex; flex-direction: column; gap: 10px;
-  padding: 26px 22px 24px; border-radius: 18px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column; gap: 12px;
+  padding: 24px 20px 22px; border-radius: 22px;
   background:
-    radial-gradient(120% 100% at 50% -30%, rgba(255, 196, 130, 0.4) 0%, transparent 55%),
-    linear-gradient(170deg, #ff8a3c 0%, #ff6a13 48%, #e85708 100%);
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  box-shadow: 0 18px 50px rgba(210, 75, 8, 0.24), 0 1px 0 rgba(255, 255, 255, 0.25) inset;
-  transition: transform 0.3s var(--ease-out), box-shadow 0.3s;
+    radial-gradient(130% 110% at 50% -25%, rgba(255, 208, 156, 0.5) 0%, transparent 55%),
+    linear-gradient(165deg, #ff933f 0%, #ff6a13 46%, #e2530a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow:
+    0 20px 46px rgba(206, 74, 8, 0.28),
+    0 1px 0 rgba(255, 255, 255, 0.4) inset,
+    0 -18px 40px rgba(120, 40, 0, 0.28) inset;
+  transition: transform 0.35s var(--ease-out), box-shadow 0.35s;
 }
-.qx-num-item:hover { transform: translateY(-3px); box-shadow: 0 24px 60px rgba(210, 75, 8, 0.32), 0 1px 0 rgba(255, 255, 255, 0.3) inset; }
+/* soft sheen sweeping the top edge */
+.qx-num-item::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, transparent 26%);
+}
+.qx-num-item:hover {
+  transform: translateY(-5px) scale(1.015);
+  box-shadow:
+    0 30px 66px rgba(206, 74, 8, 0.4),
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 -18px 40px rgba(120, 40, 0, 0.28) inset;
+}
+.qx-num-ic {
+  position: relative;
+  width: 40px; height: 40px; border-radius: 13px;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 14px rgba(120, 40, 0, 0.25), 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+  backdrop-filter: var(--glass-blur, blur(6px));
+}
 .qx-num-val {
+  position: relative;
   font-family: var(--font-display); font-weight: 800;
-  font-size: clamp(26px, 2.6vw, 40px); line-height: 1;
-  letter-spacing: -0.025em; color: #ffffff;
+  font-size: clamp(24px, 2.5vw, 38px); line-height: 1;
+  letter-spacing: -0.03em; color: #ffffff;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 2px 16px rgba(140, 45, 0, 0.4);
+  text-shadow: 0 2px 18px rgba(130, 42, 0, 0.45);
 }
 .qx-num-lbl {
-  font-size: 10.5px; letter-spacing: 0.2em; text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.88);
+  position: relative;
+  font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+  font-weight: 600; color: rgba(255, 255, 255, 0.92);
 }
-@media (max-width: 720px) {
-  .qx-num-row { grid-template-columns: 1fr 1fr; }
+@media (max-width: 1080px) {
+  .qx-num-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 680px) {
+  .qx-num-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .qx-num-item { border-radius: 18px; padding: 20px 16px; }
 }
 
 /* Mission 51: the timeline spine plugs into the numbers card —
