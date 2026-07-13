@@ -11,7 +11,7 @@ import {
   FiLink, FiWifi, FiUser, FiMessageCircle, FiType, FiRefreshCw,
   FiLayers, FiScissors, FiMinimize2, FiLock, FiDroplet,
   FiZap, FiBarChart2, FiCamera, FiImage, FiMaximize2,
-  FiGrid, FiPieChart, FiSettings, FiHeart, FiClock, FiPlay,
+  FiGrid, FiPieChart, FiSettings, FiHeart, FiClock, FiPlay, FiFilm,
 } from "react-icons/fi";
 
 const LANGUAGES = [
@@ -67,11 +67,12 @@ const DROPDOWNS: Record<string, { href: string; label: string; desc: string; ico
     { href: "/ai-tools",                    label: "All AI Tools",       desc: "28 tools, one toolbox",     icon: <FiZap size={15}/>,       color: "#ff4d1c" },
   ],
   "/video-tools": [
+    { href: "/promo-video",                label: "Promo Video",  desc: "Animated brand promo",   icon: <FiFilm size={15}/>,      color: "#ff6a13" },
     { href: "/video-tools/compress-video", label: "Compress",     desc: "Shrink 60-85%",          icon: <FiMinimize2 size={15}/>, color: "#84cc16" },
     { href: "/video-tools/trim-video",     label: "Trim",         desc: "Timeline handles",       icon: <FiScissors size={15}/>,  color: "#ff4d1c" },
     { href: "/video-tools/merge-videos",   label: "Merge",        desc: "Join clips",             icon: <FiLayers size={15}/>,    color: "#22d3ee" },
     { href: "/video-tools/video-to-gif",   label: "Video to GIF", desc: "Real GIF encoder",       icon: <FiImage size={15}/>,     color: "#f472b6" },
-    { href: "/video-tools/extract-audio",  label: "Extract Audio",desc: "Video to WAV",           icon: <FiZap size={15}/>,       color: "#a78bfa" },
+    { href: "/video-tools/extract-audio",  label: "Extract Audio",desc: "Video to MP3",           icon: <FiZap size={15}/>,       color: "#a78bfa" },
     { href: "/video-tools/video-thumbnail",label: "Thumbnail",    desc: "Native-res frame grab",  icon: <FiCamera size={15}/>,    color: "#bba9ff" },
     { href: "/video-tools/subtitle-editor",label: "SRT Editor",   desc: "Fix text and timing",    icon: <FiType size={15}/>,      color: "#34d399" },
     { href: "/video-tools",                 label: "All Video Tools", desc: "29 tools, one studio", icon: <FiGrid size={15}/>,      color: "#ff4d1c" },

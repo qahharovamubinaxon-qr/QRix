@@ -90,6 +90,24 @@ export default function VideoToolsLanding() {
 
       {!q && cat === "All" && (
         <>
+          {/* Spotlight: Promo Video Maker (standalone creative tool) */}
+          <Link href="/promo-video" aria-label="Open the Promo Video Maker"
+            className="group qx-card qx-card-lift relative overflow-hidden flex flex-col sm:flex-row sm:items-center gap-5 p-6 lg:p-7 mb-10"
+            style={{ border: "1px solid var(--border-hover)" }}>
+            <div className="absolute inset-0 pointer-events-none" aria-hidden
+              style={{ background: "radial-gradient(520px circle at 12% 0%, rgba(255,106,19,.20), transparent 60%)" }} />
+            <span className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shrink-0 relative"
+              style={{ background: "linear-gradient(135deg,#ff8a3c,#e14e08)", boxShadow: "0 10px 28px rgba(225,78,8,.4)" }}>🎬</span>
+            <div className="flex-1 relative min-w-0">
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>NEW</span>
+              <h2 className="font-display text-xl lg:text-2xl font-bold mt-2" style={{ color: "var(--text)" }}>Promo Video Maker</h2>
+              <p className="text-[13px] mt-1 leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                Turn a brand, headline, benefits and a link into a short animated promo — logo, QR and CTA included. MP4 for Reels, Stories, TikTok & ads, rendered on your device.
+              </p>
+            </div>
+            <span className="qx-btn-hero shrink-0 relative pointer-events-none">Make a promo <FiArrowRight size={15} /></span>
+          </Link>
+
           <section className="mb-10" aria-label="Popular video tools">
             <h2 className="font-display text-xl font-bold mb-4" style={{ color: "var(--text)" }}>🔥 Most popular</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
