@@ -312,6 +312,9 @@ export default function QrixPromoFilm({ embed = false }: { embed?: boolean }) {
     const ctx = cv.getContext("2d")!;
     // draw a first frame immediately so it never shows blank
     drawFrame(ctx, 0, activePreset.w, activePreset.h);
+    // reduced-motion → a static poster frame, no loop (unless recording)
+    const reduce = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce && !recording) { drawFrame(ctx, 0.9, activePreset.w, activePreset.h); return; }
     if (!visible && !recording) return; // paused off-screen
     startRef.current = performance.now();
     const loop = (now: number) => {

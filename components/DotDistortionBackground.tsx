@@ -119,6 +119,7 @@ export default function DotDistortionBackground({
 
     let raf = 0;
     let t = 0;
+    let hidden = false;
     const R2 = influence * influence;
 
     const loop = () => {
@@ -212,16 +213,25 @@ export default function DotDistortionBackground({
       ctx.fillStyle = vig;
       ctx.fillRect(0, 0, W, H);
 
-      raf = requestAnimationFrame(loop);
+      // Reduced-motion → one static frame, no loop. Hidden tab → pause.
+      if (!reduce && !hidden) raf = requestAnimationFrame(loop);
     };
 
-    raf = requestAnimationFrame(loop);
+    if (reduce) loop(); // draw a single static frame and stop
+    else raf = requestAnimationFrame(loop);
 
-    // Theme change → re-seed orbs
-    const themeObs = new MutationObserver(() => seedOrbs(W, H));
+    // Pause the loop while the tab is hidden (saves CPU / battery)
+    const onVis = () => {
+      hidden = document.hidden;
+      if (!hidden && !reduce && !disposed) { cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
+    };
+    document.addEventListener("visibilitychange", onVis);
+
+    // Theme change → re-seed orbs (and repaint once if we're in static mode)
+    const themeObs = new MutationObserver(() => { seedOrbs(W, H); if (reduce) loop(); });
     themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
-    const onResize = () => build();
+    const onResize = () => { build(); if (reduce) loop(); };
     window.addEventListener("resize", onResize);
 
     return () => {
@@ -230,6 +240,7 @@ export default function DotDistortionBackground({
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerout", onLeave);
       window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVis);
       themeObs.disconnect();
     };
   }, [gap, dotRadius, influence, strength]);

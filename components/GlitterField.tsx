@@ -169,6 +169,7 @@ export default function GlitterField() {
     }
 
     const eraScene = document.querySelector('.qx-scene[data-scene="era"]');
+    let hidden = false;
     const loop = (t: number) => {
       const deltaSec = (t - lastT) / 1000;
       lastT = t;
@@ -176,13 +177,20 @@ export default function GlitterField() {
       const eraOn = eraScene?.classList.contains("on") ?? false;
       wrap.style.opacity = eraOn ? "0" : "1";
       if (!eraOn) drawFrame(deltaSec);
-      raf = requestAnimationFrame(loop);
+      if (!hidden) raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
+
+    const onVis = () => {
+      hidden = document.hidden;
+      if (!hidden) { lastT = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
+    };
+    document.addEventListener("visibilitychange", onVis);
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
     };
   }, []);
 
