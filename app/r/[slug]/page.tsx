@@ -99,16 +99,25 @@ await supabase
   })
   .eq("slug", slug);
 
-// Defense-in-depth: only ever redirect to safe http(s) destinations.
+// Defense-in-depth: only ever redirect to safe http(s) destinations, and
+// pass UTM params so the destination's own analytics (e.g. GA4) can attribute
+// the scan → conversion — the practical way to measure QR conversions.
+let target = data.target_url as string;
 let safeTarget = false;
 try {
   const u = new URL(data.target_url);
   safeTarget = u.protocol === "http:" || u.protocol === "https:";
+  if (safeTarget && !u.searchParams.has("utm_source")) {
+    u.searchParams.set("utm_source", "qr");
+    u.searchParams.set("utm_medium", "qr_code");
+    u.searchParams.set("utm_campaign", slug);
+    target = u.toString();
+  }
 } catch { safeTarget = false; }
 
 if (!safeTarget) {
   return <h1 className="text-white p-10">This link points to an unsupported destination.</h1>;
 }
 
-redirect(data.target_url);
+redirect(target);
 }
