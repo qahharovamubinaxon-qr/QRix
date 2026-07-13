@@ -227,6 +227,17 @@ export const QR_TOOLS: QrMeta[] = [
     ],
   },
   {
+    slug: "upi", typeId: "upi", title: "UPI Payment QR Code", desc: "Get paid instantly via UPI.",
+    info: "Scanning opens any UPI app (PhonePe, Google Pay, Paytm, BHIM) with your UPI ID and amount ready — the payment standard across India.",
+    about: "A UPI QR code lets anyone pay you by scanning with PhonePe, Google Pay, Paytm, BHIM or any UPI app — your UPI ID (VPA), name and an optional amount fill in automatically. Perfect for shops, stalls, freelancers, donations and bills across India. Print it once for your counter; it never expires.",
+    emoji: "💸", grad: "linear-gradient(135deg,#5f259f,#00baf2)", popularity: 60, badge: "New",
+    steps: [
+      { title: "Enter your UPI ID", desc: "Add your VPA (e.g. yourname@bank), name and an optional amount." },
+      { title: "Customize", desc: "Style the QR with your colors and logo." },
+      { title: "Download & display", desc: "Print it for your counter or share it anywhere." },
+    ],
+  },
+  {
     slug: "paypal", typeId: "paypal", title: "PayPal QR Code", desc: "Get paid via PayPal.me.",
     info: "Scanning opens your PayPal.me link, optionally with a set amount. Great for tips, donations and sales.",
     about: "A PayPal QR code links to your PayPal.me page, optionally with a preset amount. Scanning lets people pay or tip you instantly. Perfect for freelancers, donations, small businesses and creators.",

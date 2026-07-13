@@ -147,6 +147,22 @@ export const QR_TYPES: Record<string, QrType> = {
     ],
     build: (v) => `https://paypal.me/${v.user || ""}${v.amount ? `/${v.amount}` : ""}`,
   },
+  upi: {
+    id: "upi",
+    fields: [
+      { key: "vpa", label: "UPI ID (VPA)", placeholder: "yourname@bank", full: true },
+      { key: "name", label: "Payee name", placeholder: "Your name" },
+      { key: "amount", label: "Amount ₹ (optional)", placeholder: "100", type: "number" },
+      { key: "note", label: "Note (optional)", placeholder: "Payment for…" },
+    ],
+    build: (v) => {
+      const parts = [`pa=${enc((v.vpa || "").trim())}`];
+      if (v.name) parts.push(`pn=${enc(v.name.trim())}`);
+      if (v.amount) parts.push(`am=${enc(String(v.amount).trim())}`, "cu=INR");
+      if (v.note) parts.push(`tn=${enc(v.note.trim())}`);
+      return `upi://pay?${parts.join("&")}`;
+    },
+  },
   bitcoin: {
     id: "bitcoin",
     fields: [
