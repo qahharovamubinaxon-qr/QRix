@@ -163,6 +163,26 @@ export const QR_TYPES: Record<string, QrType> = {
       return `upi://pay?${parts.join("&")}`;
     },
   },
+  gs1: {
+    id: "gs1",
+    fields: [
+      { key: "gtin", label: "GTIN (product barcode number)", placeholder: "09506000134352", full: true },
+      { key: "domain", label: "Resolver domain", placeholder: "id.gs1.org" },
+      { key: "batch", label: "Batch / Lot (optional)", placeholder: "ABC123" },
+      { key: "serial", label: "Serial (optional)", placeholder: "1000001" },
+      { key: "expiry", label: "Expiry YYMMDD (optional)", placeholder: "271231" },
+    ],
+    build: (v) => {
+      const domain = (v.domain || "id.gs1.org").trim().replace(/^https?:\/\//i, "").replace(/\/+$/, "") || "id.gs1.org";
+      const gtin = (v.gtin || "").replace(/\D/g, "").padStart(14, "0").slice(-14);
+      let url = `https://${domain}/01/${gtin}`;
+      if (v.batch?.trim()) url += `/10/${enc(v.batch.trim())}`;
+      if (v.serial?.trim()) url += `/21/${enc(v.serial.trim())}`;
+      const exp = (v.expiry || "").replace(/\D/g, "");
+      if (exp) url += `?17=${exp}`;
+      return url;
+    },
+  },
   bitcoin: {
     id: "bitcoin",
     fields: [

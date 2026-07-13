@@ -227,6 +227,17 @@ export const QR_TOOLS: QrMeta[] = [
     ],
   },
   {
+    slug: "gs1-digital-link", typeId: "gs1", title: "GS1 Digital Link QR Code", desc: "One QR for checkout + product info (Sunrise 2027).",
+    info: "A GS1 Digital Link QR carries your GTIN plus batch, serial and expiry — one 2D code that retailers can scan at checkout and shoppers can scan for product info. The GS1 'Sunrise 2027' standard is bringing these to packaging worldwide.",
+    about: "A GS1 Digital Link turns your product's GTIN (barcode number) into a smart web link, so a single QR on the pack works for point-of-sale checkout AND opens a product page with allergen, recycling, warranty or promotion info. Add optional batch/lot, serial number and expiry date. As major retailers move to scan 2D codes at checkout by 2027 ('Sunrise 2027'), getting GS1 QR on your packaging early is a real advantage — and here it's free.",
+    emoji: "📦", grad: "linear-gradient(135deg,#0e7490,#f97316)", popularity: 42, badge: "New",
+    steps: [
+      { title: "Enter your GTIN", desc: "Your product's 8–14 digit barcode number, plus optional batch, serial and expiry." },
+      { title: "Customize", desc: "Style the QR with your colors and logo." },
+      { title: "Download for packaging", desc: "Export a crisp SVG/PNG for print — it never expires." },
+    ],
+  },
+  {
     slug: "upi", typeId: "upi", title: "UPI Payment QR Code", desc: "Get paid instantly via UPI.",
     info: "Scanning opens any UPI app (PhonePe, Google Pay, Paytm, BHIM) with your UPI ID and amount ready — the payment standard across India.",
     about: "A UPI QR code lets anyone pay you by scanning with PhonePe, Google Pay, Paytm, BHIM or any UPI app — your UPI ID (VPA), name and an optional amount fill in automatically. Perfect for shops, stalls, freelancers, donations and bills across India. Print it once for your counter; it never expires.",
