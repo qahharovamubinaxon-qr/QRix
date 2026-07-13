@@ -30,8 +30,9 @@ export const PLANS: Record<Plan, {
   },
   BUSINESS: {
     name: "Business", monthly: 4900, yearly: 49_000,
-    limits: { jobsPerDay: 5_000, storageMb: 100_000, apiKeys: 25, teamSeats: 10 },
-    features: ["Everything in Pro", "Team seats", "API access", "SLA support", "Bulk pipelines"],
+    // Business = everything unlimited (sentinel ceilings) — beats competitors' metered tiers.
+    limits: { jobsPerDay: 1_000_000, storageMb: 1_000_000, apiKeys: 1_000, teamSeats: 1_000 },
+    features: ["Everything in Pro", "Unlimited AI credits", "Unlimited team seats & roles", "Unlimited API access + webhooks", "Unlimited dynamic QR & bulk pipelines", "Priority SLA support", "White-label — no QRix badge"],
   },
   ENTERPRISE: {
     name: "Enterprise", monthly: 19_900, yearly: 199_000,

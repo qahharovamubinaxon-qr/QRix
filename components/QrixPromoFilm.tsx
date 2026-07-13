@@ -23,7 +23,8 @@ const DUR = 15;
 const FPS = 30;
 const SITE = "qrix.uz";
 const CATS = ["QR Codes", "PDF", "Images", "Video", "AI", "3D"];
-const BENEFITS = ["100% free — no limits", "Runs on your device", "No signup, no watermark", "Works in any browser"];
+// Competitive differentiators — what other QR tools charge for or don't offer at all.
+const BENEFITS = ["QR codes never expire", "Unlimited scans, forever", "No watermark, no ads", "See links before you scan", "185+ tools — 100% free"];
 
 // Orange palette — vibrant backdrop, white/dark ink.
 const C = {
@@ -210,31 +211,41 @@ export default function QrixPromoFilm({ embed = false }: { embed?: boolean }) {
       ctx.globalAlpha = 1;
     }
 
-    // ── Scene 3 · benefits ──────────────────────────────────────
+    // ── Scene 3 · why QRix wins (differentiators vs others) ─────
     const a3 = fadeInOut(t, 0.44, 0.66, 0.12, 0.14);
     if (a3 > 0) {
       const p = seg(t, 0.44, 0.66);
-      drawMascot(ctx, "blue", W * (portrait ? 0.5 : 0.83) + float, H * (portrait ? 0.9 : 1.0), M * (portrait ? 0.38 : 0.48), a3 * 0.96);
+      drawMascot(ctx, "blue", W * (portrait ? 0.5 : 0.85) + float, H * (portrait ? 0.94 : 1.0), M * (portrait ? 0.34 : 0.44), a3 * 0.9);
+      const x = W * (portrait ? 0.12 : 0.15);
+      const rowH = M * (portrait ? 0.088 : 0.084);
+      const headGap = M * 0.12;
+      const blockTop = H * (portrait ? 0.32 : 0.42) - (headGap + BENEFITS.length * rowH) / 2 + headGap;
+      // header — the comparison line
       ctx.save(); ctx.textAlign = "left";
-      ctx.font = `600 ${M * 0.046}px Unbounded, Arial, sans-serif`;
-      const x = W * 0.16;
-      const rowH = M * 0.1;
-      let y = H * (portrait ? 0.4 : 0.5) - (BENEFITS.length * rowH) / 2 + rowH / 2;
+      ctx.globalAlpha = a3 * easeOut(clamp01(p / 0.22));
+      ctx.font = `800 ${M * (portrait ? 0.044 : 0.05)}px Unbounded, Arial, sans-serif`;
+      ctx.fillStyle = C.inkW; shadow(18);
+      ctx.fillText("Others limit you. We don't.", x, blockTop - headGap * 0.5); noShadow();
+      ctx.restore();
+      // differentiator rows, each with a check
+      ctx.save(); ctx.textAlign = "left";
+      ctx.font = `600 ${M * (portrait ? 0.044 : 0.042)}px Unbounded, Arial, sans-serif`;
+      let y = blockTop + rowH * 0.5;
       BENEFITS.forEach((b, i) => {
-        const rp = easeOut(clamp01((p - i * 0.1) / 0.4));
+        const rp = easeOut(clamp01((p - 0.18 - i * 0.09) / 0.4));
         if (rp <= 0) { y += rowH; return; }
         ctx.globalAlpha = a3 * rp;
-        const dx = x - (1 - rp) * M * 0.06;
+        const dx = x + M * 0.012 - (1 - rp) * M * 0.06;
         ctx.fillStyle = "#ffffff";
-        ctx.beginPath(); ctx.arc(dx, y - M * 0.013, M * 0.026, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = C.pillInk; ctx.lineWidth = M * 0.008;
+        ctx.beginPath(); ctx.arc(dx, y - M * 0.012, M * 0.024, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = C.pillInk; ctx.lineWidth = M * 0.0075;
         ctx.beginPath();
-        ctx.moveTo(dx - M * 0.011, y - M * 0.013);
+        ctx.moveTo(dx - M * 0.010, y - M * 0.012);
         ctx.lineTo(dx - M * 0.002, y - M * 0.004);
-        ctx.lineTo(dx + M * 0.013, y - M * 0.024);
+        ctx.lineTo(dx + M * 0.012, y - M * 0.022);
         ctx.stroke();
-        ctx.fillStyle = C.inkW; shadow(14);
-        ctx.fillText(b, dx + M * 0.05, y); noShadow();
+        ctx.fillStyle = C.inkW; shadow(12);
+        ctx.fillText(b, dx + M * 0.046, y); noShadow();
         y += rowH;
       });
       ctx.restore();

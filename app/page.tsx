@@ -746,7 +746,7 @@ export default function HomePage() {
           {[
             { n: "Free", p: "$0", d: lang === "uz" ? "185+ асбоб, абадий" : lang === "ru" ? "185+ инструментов навсегда" : "185+ tools, forever", hot: false },
             { n: "Pro", p: "$4", d: lang === "uz" ? "1000 AI кредит · чексиз динамик QR" : lang === "ru" ? "1000 AI кредитов · безлимит QR" : "1,000 AI credits · unlimited dynamic QR", hot: true },
-            { n: "Business", p: "$40", d: lang === "uz" ? "Жамоа · API · 5000 кредит" : lang === "ru" ? "Команда · API · 5000 кредитов" : "Teams · API · 5,000 credits", hot: false },
+            { n: "Business", p: "$40", d: lang === "uz" ? "Ҳаммаси чексиз · Жамоа · API" : lang === "ru" ? "Всё безлимитно · Команда · API" : "Unlimited everything · Teams · API", hot: false },
           ].map((t) => (
             <Link key={t.n} href="/pricing"
               className={`qx-card qx-card-lift p-6 text-center rounded-2xl${t.hot ? " qx-border-anim" : ""}`}

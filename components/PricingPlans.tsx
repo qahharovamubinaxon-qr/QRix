@@ -22,8 +22,8 @@ const PLANS = [
   },
   {
     id: "business", name: "Business", monthly: 49, yearly: 490,
-    tagline: "For companies that scale", cta: "Start Business trial",
-    features: ["Everything in Pro", "5,000 AI credits / month", "Team workspaces & roles", "API access + webhooks", "25 API keys", "SLA support", "Bulk pipelines"],
+    tagline: "Everything unlimited — for teams that scale", cta: "Start Business trial",
+    features: ["Everything in Pro", "Unlimited AI credits", "Unlimited team seats & roles", "Unlimited API access + webhooks", "Unlimited API keys", "Unlimited dynamic QR & bulk", "Priority SLA support", "White-label — no QRix badge"],
   },
 ];
 
