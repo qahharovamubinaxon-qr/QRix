@@ -129,7 +129,7 @@ const mistral = openAiCompatible("mistral", "Mistral La Plateforme", "MISTRAL_AP
   "https://api.mistral.ai/v1/chat/completions", "mistral-small-latest", 0);
 
 const cerebras = openAiCompatible("cerebras", "Cerebras", "CEREBRAS_API_KEY", true,
-  "https://api.cerebras.ai/v1/chat/completions", "llama-3.3-70b", 0);
+  "https://api.cerebras.ai/v1/chat/completions", "gpt-oss-120b", 0); // llama-3.3-70b retired; gpt-oss-120b live (1M tok/day free)
 
 const nvidia = openAiCompatible("nvidia", "NVIDIA NIM", "NVIDIA_API_KEY", true,
   "https://integrate.api.nvidia.com/v1/chat/completions", "meta/llama-3.3-70b-instruct", 0);
