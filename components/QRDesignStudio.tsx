@@ -122,40 +122,30 @@ export default function QRDesignStudio({
   };
 
   // ── Download ──
-  const downloadPng = async () => {
-    setDlOpen(false);
+  // Build the final PNG blob (framed or plain) — shared by PNG + PDF export.
+  const getPngBlob = async (): Promise<Blob | null> => {
+    if (!frameOn) return (await qrRef.current?.getRawData("png")) as Blob | null;
     const srcCanvas = mountRef.current?.querySelector("canvas") as HTMLCanvasElement | null;
-    if (!srcCanvas) return;
-    const { saveBlob } = await import("@/lib/save-file");
-
-    if (!frameOn) {
-      const blob = (await qrRef.current?.getRawData("png")) as Blob | null;
-      if (blob) await saveBlob(blob, "qrix-code.png");
-      return;
-    }
-
-    // compose framed PNG
-    const pad = 22;
-    const capH = 56;
-    const W = RENDER + pad * 2;
-    const H = RENDER + pad * 2 + capH;
+    if (!srcCanvas) return null;
+    const pad = 22, capH = 56;
+    const W = RENDER + pad * 2, H = RENDER + pad * 2 + capH;
     const c = document.createElement("canvas");
     c.width = W; c.height = H;
     const ctx = c.getContext("2d")!;
-    roundRect(ctx, 0, 0, W, H, 26);
-    ctx.fillStyle = frameColor;
-    ctx.fill();
-    roundRect(ctx, pad, pad, RENDER, RENDER, 14);
-    ctx.fillStyle = bg;
-    ctx.fill();
+    roundRect(ctx, 0, 0, W, H, 26); ctx.fillStyle = frameColor; ctx.fill();
+    roundRect(ctx, pad, pad, RENDER, RENDER, 14); ctx.fillStyle = bg; ctx.fill();
     ctx.drawImage(srcCanvas, pad, pad, RENDER, RENDER);
     ctx.fillStyle = pickTextColor(frameColor);
     ctx.font = "800 26px Poppins, Inter, sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillText(frameText || "SCAN ME", W / 2, pad + RENDER + capH / 2 + 4);
+    return new Promise<Blob | null>((res) => c.toBlob((b) => res(b), "image/png"));
+  };
 
-    const blob = await new Promise<Blob | null>((res) => c.toBlob((b) => res(b), "image/png"));
+  const downloadPng = async () => {
+    setDlOpen(false);
+    const { saveBlob } = await import("@/lib/save-file");
+    const blob = await getPngBlob();
     if (blob) await saveBlob(blob, "qrix-code.png");
   };
 
@@ -164,6 +154,20 @@ export default function QRDesignStudio({
     const { saveBlob } = await import("@/lib/save-file");
     const blob = (await qrRef.current?.getRawData("svg")) as Blob | null;
     if (blob) await saveBlob(blob, "qrix-code.svg");
+  };
+
+  // Print-ready PDF (embeds the high-res QR image, sized in mm).
+  const downloadPdf = async () => {
+    setDlOpen(false);
+    const blob = await getPngBlob();
+    if (!blob) return;
+    const [{ saveBlob }, jspdf] = await Promise.all([import("@/lib/save-file"), import("jspdf")]);
+    const dataUrl = await new Promise<string>((res) => { const r = new FileReader(); r.onload = () => res(r.result as string); r.readAsDataURL(blob); });
+    const dims = await new Promise<{ w: number; h: number }>((res) => { const im = new Image(); im.onload = () => res({ w: im.width, h: im.height }); im.src = dataUrl; });
+    const wmm = 100, hmm = wmm * (dims.h / dims.w);
+    const pdf = new jspdf.jsPDF({ unit: "mm", format: [wmm + 20, hmm + 20] });
+    pdf.addImage(dataUrl, "PNG", 10, 10, wmm, hmm);
+    await saveBlob(pdf.output("blob"), "qrix-code.pdf");
   };
 
   return (
@@ -206,7 +210,8 @@ export default function QRDesignStudio({
                 <div className="absolute left-0 right-0 top-full mt-1.5 rounded-xl overflow-hidden z-40"
                   style={{ background: "var(--surface-2)", border: "1px solid var(--border)", boxShadow: "var(--shadow-pop)" }}>
                   <button onClick={downloadPng} className="w-full px-4 py-2.5 text-xs font-semibold text-left hover:opacity-80" style={{ color: "var(--text)" }}>PNG {frameOn ? "(with frame)" : ""}</button>
-                  <button onClick={downloadSvg} className="w-full px-4 py-2.5 text-xs font-semibold text-left hover:opacity-80" style={{ color: "var(--text)", borderTop: "1px solid var(--border)" }}>SVG (no frame)</button>
+                  <button onClick={downloadSvg} className="w-full px-4 py-2.5 text-xs font-semibold text-left hover:opacity-80" style={{ color: "var(--text)", borderTop: "1px solid var(--border)" }}>SVG (vector, no frame)</button>
+                  <button onClick={downloadPdf} className="w-full px-4 py-2.5 text-xs font-semibold text-left hover:opacity-80" style={{ color: "var(--text)", borderTop: "1px solid var(--border)" }}>PDF (print-ready)</button>
                 </div>
               )}
             </div>
