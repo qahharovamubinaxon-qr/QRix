@@ -241,8 +241,13 @@ export default function TopNav() {
             return (
               <div key={l.href} ref={(el) => { itemRefs.current[idx] = el; }} className="qx-nav-item"
                 onMouseEnter={() => { moveTo(idx); l.dropdown && onEnter(l.dropdown); }}
-                onMouseLeave={onLeave}>
+                onMouseLeave={onLeave}
+                onFocus={hasDropdown ? () => { moveTo(idx); onEnter(l.dropdown!); } : undefined}
+                onBlur={hasDropdown ? (e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) onLeave(); } : undefined}
+                onKeyDown={hasDropdown ? (e) => { if (e.key === "Escape") { setHovered(null); (e.currentTarget.querySelector("a") as HTMLElement | null)?.focus(); } } : undefined}>
                 <Link href={l.href}
+                  aria-haspopup={hasDropdown ? "true" : undefined}
+                  aria-expanded={hasDropdown ? hovered === l.dropdown : undefined}
                   className={`relative flex items-center gap-1 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors ${active ? "qx-nav-active" : ""}`}
                   style={{ color: active ? "var(--text)" : "var(--text-muted)" }}>
                   {l.label}
