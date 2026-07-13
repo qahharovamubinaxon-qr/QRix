@@ -5,6 +5,7 @@ import { FiArrowRight, FiClock, FiChevronRight } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME } from "@/lib/seo";
 import { getPost, getPost as _get, POSTS } from "@/lib/blog";
 import BookmarkButton from "@/components/BookmarkButton";
+import ShareButtons from "@/components/ShareButtons";
 import AdSlot from "@/components/AdSlot";
 
 export function generateStaticParams() {
@@ -92,6 +93,11 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
           </section>
         ))}
       </article>
+
+      {/* Share */}
+      <div className="mt-10 pt-6" style={{ borderTop: "1px solid var(--border)" }}>
+        <ShareButtons url={url} title={post.title} />
+      </div>
 
       {/* In-content ad — renders only after AdSense approval (env-gated) */}
       <AdSlot slot="blog-in-article" format="fluid" className="mt-12" />

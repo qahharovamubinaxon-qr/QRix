@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { FiArrowRight, FiChevronRight, FiCheck } from "react-icons/fi";
+import ShareButtons from "@/components/ShareButtons";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, softwareAppLd, SITE_URL } from "@/lib/seo";
 import {
   USE_CASES_EN, USE_LANGS, UI, getUseCase, localizedContent, localizedKeywords, hasTranslation,
@@ -99,7 +100,12 @@ export default async function UseCasePage({ params }: { params: Promise<{ lang: 
       </div>
       <p className="text-lg leading-relaxed mt-5" style={{ color: "var(--text-muted)" }}>{c.intro}</p>
 
-      <Link href={u.toolHref} className="qx-btn-hero inline-flex mt-6">{u.toolLabel} <FiArrowRight size={15} /></Link>
+      <div className="flex flex-wrap items-center gap-4 mt-6">
+        <Link href={u.toolHref} className="qx-btn-hero inline-flex">{u.toolLabel} <FiArrowRight size={15} /></Link>
+      </div>
+      <div className="mt-5">
+        <ShareButtons url={url} title={c.title} />
+      </div>
 
       {/* Benefits */}
       <section className="mt-11" aria-label={ui.why}>

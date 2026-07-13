@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FiChevronRight, FiInfo, FiArrowRight, FiShield, FiZap, FiGift, FiSmartphone, FiGlobe, FiSlash } from "react-icons/fi";
 import GlobalFileDrop from "@/components/GlobalFileDrop";
 import AdSlot from "@/components/AdSlot";
+import ShareButtons from "@/components/ShareButtons";
 import FavoriteButton from "@/components/FavoriteButton";
 import RecordVisit from "@/components/RecordVisit";
 import { usePathname } from "next/navigation";
@@ -163,6 +164,11 @@ export default function ToolPageShell({
           </div>
         </section>
       )}
+
+      {/* Share */}
+      <div className="mt-8 flex justify-center">
+        <ShareButtons title={`${title} — QRix`} />
+      </div>
 
       {/* Closing CTA */}
       <div className="qx-card p-7 mt-8 text-center relative overflow-hidden">
