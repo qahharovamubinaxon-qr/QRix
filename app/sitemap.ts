@@ -52,6 +52,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/animated-qr", 0.8),
     entry("/promo-video", 0.8),
     entry("/promo", 0.6),
+    entry("/free-forever", 0.8),
     entry("/poster", 0.8),
     entry("/link-in-bio", 0.8),
     entry("/qr-tools/decode", 0.8),
