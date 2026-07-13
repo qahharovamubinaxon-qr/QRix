@@ -6,6 +6,8 @@ import { AI_TOOLS } from "@/lib/ai-tools-meta";
 import { VIDEO_TOOLS } from "@/lib/video-tools-meta";
 import { THREE_TOOLS } from "@/lib/three-tools-meta";
 import { IMAGE_TOOLS as IMG_EXP } from "@/lib/image-tools-meta";
+import { HELP_CATEGORIES } from "@/lib/help-content";
+import { DOC_PAGES } from "@/lib/docs-content";
 
 const PDF_TOOLS = [
   "merge", "split", "compress", "pdf-to-word", "word-to-pdf", "pdf-to-jpg", "jpg-to-pdf",
@@ -41,6 +43,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/developers", 0.7, "monthly"),
     entry("/blog", 0.7, "weekly"),
     ...POSTS.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly")),
+    entry("/help", 0.6, "monthly"),
+    ...HELP_CATEGORIES.map((c) => entry(`/help/${c.slug}`, 0.5, "monthly")),
+    entry("/docs", 0.6, "monthly"),
+    ...DOC_PAGES.map((d) => entry(`/docs/${d.slug}`, 0.5, "monthly")),
     ...QR_TOOLS.map((t) => entry(`/qr-tools/${t.slug}`, 0.8)),
     ...PDF_TOOLS.map((s) => entry(`/pdf-tools/${s}`, 0.8)),
     ...IMAGE_TOOLS.map((s) => entry(`/image-tools/${s}`, 0.8)),

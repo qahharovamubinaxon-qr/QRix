@@ -803,6 +803,8 @@ export default function HomePage() {
               {[
                 { href: "/about", label: lang === "uz" ? "Биз ҳақимизда" : lang === "ru" ? "О нас" : "About" },
                 { href: "/blog", label: lang === "uz" ? "Блог" : lang === "ru" ? "Блог" : "Blog" },
+                { href: "/help", label: lang === "uz" ? "Ёрдам маркази" : lang === "ru" ? "Помощь" : "Help Center" },
+                { href: "/docs", label: lang === "uz" ? "Ҳужжатлар" : lang === "ru" ? "Документация" : "Docs" },
                 { href: "/contact", label: lang === "uz" ? "Алоқа" : lang === "ru" ? "Контакты" : "Contact" },
                 { href: "/privacy", label: lang === "uz" ? "Махфийлик" : lang === "ru" ? "Конфиденциальность" : "Privacy" },
                 { href: "/terms", label: lang === "uz" ? "Шартлар" : lang === "ru" ? "Условия" : "Terms" },

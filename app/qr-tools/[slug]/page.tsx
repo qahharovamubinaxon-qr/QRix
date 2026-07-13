@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import QRToolClient from "./QRToolClient";
 import { getQrTool, QR_TOOLS } from "@/lib/qr-tools-meta";
-import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd } from "@/lib/seo";
+import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 
 export function generateStaticParams() {
   return QR_TOOLS.map((t) => ({ slug: t.slug }));
@@ -37,6 +37,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
             { name: "QR Tools", path: "/qr-tools" },
             { name: meta.title, path: `/qr-tools/${slug}` },
           ]),
+          ...(meta.faqs && meta.faqs.length ? [faqLd(meta.faqs)] : []),
         ])}
       />
       <QRToolClient slug={slug} />

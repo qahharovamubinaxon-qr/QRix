@@ -21,6 +21,8 @@ export default function QRToolClient({ slug }: { slug: string }) {
       intro={meta.desc}
       about={meta.about}
       steps={meta.steps}
+      faqs={meta.faqs}
+      useCases={meta.useCases}
     >
       <QRGenerator type={type} />
     </ToolPageShell>

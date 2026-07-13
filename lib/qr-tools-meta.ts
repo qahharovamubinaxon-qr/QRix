@@ -1,3 +1,5 @@
+import { QR_CONTENT } from "./qr-tool-content";
+
 export type QrMeta = {
   slug: string;       // URL: /qr-tools/<slug>
   typeId: string;     // QR_TYPES key
@@ -10,6 +12,8 @@ export type QrMeta = {
   popularity: number;
   badge?: string;
   steps: { title: string; desc: string }[];
+  faqs?: { q: string; a: string }[];
+  useCases?: string[];
 };
 
 export const QR_TOOLS: QrMeta[] = [
@@ -344,5 +348,11 @@ export const QR_TOOLS: QrMeta[] = [
     ],
   },
 ];
+
+// Attach per-tool FAQ + use-case content (SEO + landing-page sections).
+for (const t of QR_TOOLS) {
+  const c = QR_CONTENT[t.slug];
+  if (c) { t.faqs = c.faqs; t.useCases = c.useCases; }
+}
 
 export const getQrTool = (slug: string) => QR_TOOLS.find((t) => t.slug === slug);

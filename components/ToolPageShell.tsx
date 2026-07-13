@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FiChevronRight, FiInfo, FiCheckCircle } from "react-icons/fi";
+import { FiChevronRight, FiInfo, FiArrowRight, FiShield, FiZap, FiGift, FiSmartphone, FiGlobe, FiSlash } from "react-icons/fi";
 import GlobalFileDrop from "@/components/GlobalFileDrop";
 import AdSlot from "@/components/AdSlot";
 import FavoriteButton from "@/components/FavoriteButton";
@@ -14,6 +14,17 @@ function ToolFavorite({ title, group }: { title: string; group: string }) {
 }
 
 type Step = { title: string; desc: string };
+type Faq = { q: string; a: string };
+
+// Universal trust points — the "why it's good" that applies to every QRix tool.
+const WHY_QRIX = [
+  { icon: <FiGift size={16} />, title: "100% free", desc: "Every tool, unlimited — no paywall.", color: "#34d399" },
+  { icon: <FiShield size={16} />, title: "Private by design", desc: "Runs in your browser; files never upload.", color: "#22d3ee" },
+  { icon: <FiSlash size={16} />, title: "No watermark", desc: "Clean output you fully own.", color: "#a78bfa" },
+  { icon: <FiZap size={16} />, title: "Instant", desc: "No queue, no waiting on a server.", color: "#ff7a32" },
+  { icon: <FiSmartphone size={16} />, title: "No signup", desc: "Just open the page and go.", color: "#f472b6" },
+  { icon: <FiGlobe size={16} />, title: "Works everywhere", desc: "Any modern browser, any device.", color: "#60a5fa" },
+];
 
 export default function ToolPageShell({
   category,
@@ -24,6 +35,8 @@ export default function ToolPageShell({
   intro,
   about,
   steps,
+  faqs,
+  useCases,
   children,
 }: {
   category: string;
@@ -34,6 +47,8 @@ export default function ToolPageShell({
   intro: string;
   about: string;
   steps: Step[];
+  faqs?: Faq[];
+  useCases?: string[];
   children: React.ReactNode;
 }) {
   return (
@@ -96,6 +111,75 @@ export default function ToolPageShell({
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Popular use cases (rendered when the tool provides them) */}
+      {useCases && useCases.length > 0 && (
+        <section className="qx-card p-6 mt-8" aria-label="Popular use cases">
+          <h2 className="qx-title mb-4" style={{ color: "var(--text)" }}>Popular use cases</h2>
+          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-3">
+            {useCases.map((u, i) => (
+              <div key={i} className="flex items-start gap-2.5">
+                <FiArrowRight size={14} className="mt-1 shrink-0" style={{ color: "var(--primary-bright)" }} />
+                <p className="text-[13.5px] leading-relaxed" style={{ color: "var(--text-muted)" }}>{u}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Why QRix — universal trust strip */}
+      <section className="mt-8" aria-label={`Why use ${title}`}>
+        <h2 className="qx-title mb-4" style={{ color: "var(--text)" }}>Why use QRix for this</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {WHY_QRIX.map((w) => (
+            <div key={w.title} className="qx-card p-4 flex items-start gap-3">
+              <span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: `color-mix(in srgb, ${w.color} 14%, transparent)`, color: w.color, border: `1px solid color-mix(in srgb, ${w.color} 30%, transparent)` }}>
+                {w.icon}
+              </span>
+              <div>
+                <div className="text-[13.5px] font-bold" style={{ color: "var(--text)" }}>{w.title}</div>
+                <div className="text-[11.5px] mt-0.5 leading-snug" style={{ color: "var(--text-muted)" }}>{w.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* FAQ (rendered when the tool provides questions; JSON-LD is emitted by the page) */}
+      {faqs && faqs.length > 0 && (
+        <section className="qx-card p-6 mt-8" aria-label="Frequently asked questions">
+          <h2 className="qx-title mb-4" style={{ color: "var(--text)" }}>Frequently asked questions</h2>
+          <div className="grid sm:grid-cols-2 gap-x-8 gap-y-5">
+            {faqs.map((f, i) => (
+              <div key={i}>
+                <h3 className="text-[14px] font-bold mb-1" style={{ color: "var(--text)" }}>{f.q}</h3>
+                <p className="text-[13px] leading-relaxed" style={{ color: "var(--text-muted)" }}>{f.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Closing CTA */}
+      <div className="qx-card p-7 mt-8 text-center relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(245,143,32,.16), transparent 70%)" }} />
+        <div className="relative">
+          <span className="inline-flex w-14 h-14 rounded-2xl items-center justify-center text-3xl mb-3" style={{ background: grad }}>{emoji}</span>
+          <h2 className="font-display text-xl lg:text-2xl font-bold" style={{ color: "var(--text)" }}>Ready to try {title}?</h2>
+          <p className="text-sm mt-2 max-w-md mx-auto" style={{ color: "var(--text-muted)" }}>
+            It's free, private and works right in your browser — no signup, no watermark.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
+            <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className="qx-btn-hero inline-flex">Use the tool <FiArrowRight size={15} /></a>
+            <Link href={categoryHref} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold"
+              style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}>
+              Explore all {category} <FiArrowRight size={14} />
+            </Link>
           </div>
         </div>
       </div>
