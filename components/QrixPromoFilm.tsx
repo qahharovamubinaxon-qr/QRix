@@ -364,7 +364,7 @@ export default function QrixPromoFilm({ embed = false }: { embed?: boolean }) {
   if (embed) {
     return (
       <canvas ref={canvasRef} role="img" aria-label="QRix brand promo film — 185+ free on-device tools for QR codes, PDFs, images, video and AI"
-        style={{ width: "100%", aspectRatio: "1920 / 1080", borderRadius: 16, display: "block", boxShadow: "0 20px 60px rgba(180,60,8,.35)" }} />
+        style={{ width: "100%", aspectRatio: "1920 / 1080", borderRadius: 16, display: "block", boxShadow: "0 24px 70px -18px rgba(210,68,10,0.50), 0 0 0 1px rgba(255,138,46,0.30), 0 0 60px -6px rgba(255,125,35,0.38)" }} />
     );
   }
 

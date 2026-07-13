@@ -649,19 +649,19 @@ export default function HomePage() {
       {/* ================= BRAND FILM (auto-playing 16:9) ================= */}
       <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-16 lg:pb-24" aria-label="QRix brand film">
         <div className="relative overflow-hidden rounded-[28px] p-6 sm:p-8 lg:p-10" data-reveal
-          style={{ background: "linear-gradient(135deg,#ff8a2e 0%,#f5731a 45%,#d2440a 100%)", boxShadow: "0 30px 80px rgba(190,60,8,.4)" }}>
+          style={{ background: "linear-gradient(150deg, rgba(20,20,23,0.72) 0%, rgba(10,10,12,0.80) 55%, rgba(6,6,8,0.86) 100%)", backdropFilter: "blur(28px) saturate(135%)", WebkitBackdropFilter: "blur(28px) saturate(135%)", border: "1px solid rgba(255,255,255,0.10)", boxShadow: "0 40px 90px -20px rgba(0,0,0,0.75), 0 10px 40px -12px rgba(210,68,10,0.22), inset 0 1px 0 rgba(255,255,255,0.10)" }}>
           <div className="absolute inset-0 pointer-events-none" aria-hidden
-            style={{ background: "radial-gradient(600px circle at 88% 12%, rgba(255,220,180,.35), transparent 60%)" }} />
+            style={{ background: "radial-gradient(680px circle at 85% 40%, rgba(255,138,46,0.18), rgba(255,120,40,0.06) 42%, transparent 68%)" }} />
           <div className="relative grid lg:grid-cols-[1fr_minmax(0,60%)] gap-7 lg:gap-10 items-center">
             {/* copy — white / dark ink on orange */}
             <div>
-              <span className="qx-mono text-[11px] tracking-[0.24em] uppercase font-bold" style={{ color: "#3a1400" }}>
+              <span className="qx-mono text-[11px] tracking-[0.24em] uppercase font-bold" style={{ color: "#ffb27a" }}>
                 {lang === "uz" ? "// QRIX РОЛИГИ" : lang === "ru" ? "// ФИЛЬМ QRIX" : "// THE QRIX FILM"}
               </span>
-              <h2 className="font-display font-extrabold leading-[1.05] mt-2" style={{ color: "#ffffff", fontSize: "clamp(1.9rem,3.4vw,3rem)", textShadow: "0 2px 20px rgba(90,30,0,.35)" }}>
+              <h2 className="font-display font-extrabold leading-[1.05] mt-2" style={{ color: "#f7f7f9", fontSize: "clamp(1.9rem,3.4vw,3rem)", textShadow: "0 1px 24px rgba(0,0,0,0.55)" }}>
                 {lang === "uz" ? "QRix'ни ҳаракатда кўринг" : lang === "ru" ? "Посмотрите QRix в движении" : "See QRix in motion"}
               </h2>
-              <p className="mt-3 text-[15px] leading-relaxed max-w-md font-medium" style={{ color: "rgba(255,255,255,.95)" }}>
+              <p className="mt-3 text-[15px] leading-relaxed max-w-md font-medium" style={{ color: "rgba(233,233,238,0.80)" }}>
                 {lang === "uz"
                   ? "185+ текин восита — битта қисқа роликда. Ролик ўзи ўйнаяпти; тўлиқ кўриб MP4 юклаб олинг ёки ўзингизники ясанг."
                   : lang === "ru"
@@ -670,11 +670,11 @@ export default function HomePage() {
               </p>
               <div className="flex flex-wrap gap-3 mt-6">
                 <Link href="/promo" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl text-sm font-bold"
-                  style={{ background: "#ffffff", color: "#c2410c", boxShadow: "0 8px 24px rgba(90,30,0,.28)" }}>
+                  style={{ background: "#ffffff", color: "#111114", boxShadow: "0 10px 28px -8px rgba(0,0,0,0.55), inset 0 1px 0 rgba(255,255,255,0.6)" }}>
                   {lang === "uz" ? "Тўлиқ кўриш & MP4" : lang === "ru" ? "Смотреть & MP4" : "Watch & download"} <FiArrowRight size={15} />
                 </Link>
                 <Link href="/promo-video" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl text-sm font-bold"
-                  style={{ background: "rgba(58,20,0,.28)", color: "#ffffff", border: "1px solid rgba(255,255,255,.4)" }}>
+                  style={{ background: "rgba(255,255,255,0.06)", color: "rgba(245,245,248,0.95)", border: "1px solid rgba(255,255,255,0.18)" }}>
                   {lang === "uz" ? "Ўзингизники ясанг" : lang === "ru" ? "Создать свой" : "Make your own"} <FiArrowRight size={14} />
                 </Link>
               </div>
