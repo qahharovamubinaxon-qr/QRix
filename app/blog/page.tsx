@@ -2,6 +2,10 @@ import Link from "next/link";
 import { FiArrowRight, FiClock } from "react-icons/fi";
 import { pageMeta, jsonLd, SITE_URL } from "@/lib/seo";
 import { allPostsSorted } from "@/lib/blog";
+import { getAutopilotPosts } from "@/lib/server/autopilot";
+
+// Revalidate hourly so autopilot-published articles appear without a rebuild.
+export const revalidate = 3600;
 
 export const metadata = pageMeta({
   title: "QRix Blog — Guides for QR, PDF, Image, Video & AI Tools",
@@ -14,8 +18,9 @@ export const metadata = pageMeta({
 // Topical-cluster order: newest, most valuable content areas first.
 const CATEGORY_ORDER = ["QR Codes", "AI", "Video", "Image", "PDF", "Guides"] as const;
 
-export default function BlogIndex() {
-  const posts = allPostsSorted();
+export default async function BlogIndex() {
+  const auto = await getAutopilotPosts();
+  const posts = [...allPostsSorted(), ...auto].sort((a, b) => (a.date < b.date ? 1 : -1));
 
   // Group posts into topical clusters (strong signal for search engines).
   const groups = CATEGORY_ORDER

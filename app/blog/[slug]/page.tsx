@@ -4,9 +4,13 @@ import type { Metadata } from "next";
 import { FiArrowRight, FiClock, FiChevronRight } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME } from "@/lib/seo";
 import { getPost, getPost as _get, POSTS } from "@/lib/blog";
+import { getAutopilotPost } from "@/lib/server/autopilot";
 import BookmarkButton from "@/components/BookmarkButton";
 import ShareButtons from "@/components/ShareButtons";
 import AdSlot from "@/components/AdSlot";
+
+// Statically render hand-written posts; autopilot posts render on demand (ISR).
+export const revalidate = 3600;
 
 export function generateStaticParams() {
   return POSTS.map((p) => ({ slug: p.slug }));
@@ -14,7 +18,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = getPost(slug) || (await getAutopilotPost(slug));
   if (!post) return pageMeta({ title: "Article not found", path: `/blog/${slug}`, noindex: true });
   return pageMeta({
     title: post.title,
@@ -26,7 +30,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function BlogArticle({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = getPost(slug) || (await getAutopilotPost(slug));
   if (!post) notFound();
 
   const related = post.related.map((s) => _get(s)).filter(Boolean);

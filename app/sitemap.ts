@@ -2,6 +2,11 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import { POSTS } from "@/lib/blog";
+import { getAutopilotPosts } from "@/lib/server/autopilot";
+
+// ISR: regenerate hourly so autopilot-published posts enter the sitemap without a
+// rebuild (mirrors app/blog/page.tsx). runAutopilot() also revalidates on publish.
+export const revalidate = 3600;
 import { AI_TOOLS } from "@/lib/ai-tools-meta";
 import { VIDEO_TOOLS } from "@/lib/video-tools-meta";
 import { THREE_TOOLS } from "@/lib/three-tools-meta";
@@ -18,8 +23,9 @@ const PDF_TOOLS = [
 const IMAGE_TOOLS = ["remove-bg", "image-to-text", "compress", "resize", "convert", "upscale", "exif-remover"];
 const LEGAL = ["about", "privacy", "terms", "contact"];
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  const autoPosts = await getAutopilotPosts();
   const entry = (path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly") =>
     ({ url: `${SITE_URL}${path}`, lastModified: now, changeFrequency, priority });
 
@@ -68,6 +74,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/developers", 0.7, "monthly"),
     entry("/blog", 0.7, "weekly"),
     ...POSTS.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly")),
+    ...autoPosts.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly")),
     entry("/help", 0.6, "monthly"),
     ...HELP_CATEGORIES.map((c) => entry(`/help/${c.slug}`, 0.5, "monthly")),
     entry("/docs", 0.6, "monthly"),
