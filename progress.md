@@ -119,8 +119,15 @@
   - **Fixes applied**: video recorders now prefer real **MP4/H.264** (Chrome 130+/Edge/Safari) with WebM fallback across `recodeVideo` + mp3-to-mp4/gif-to-mp4/add-audio, filenames follow the real container; `/dashboard` got a proper `<title>` (noindex); env template domain aligned to qrix.uz.
   - **Security audit**: headers strong (frame-ancestors, X-Frame-Options, nosniff, referrer, permissions-policy, HSTS preload, no X-Powered-By); **no secrets committed** (`.env*` gitignored, template clean, full-tree scan clean); API wrapper has rate-limit (fixed-window over cache) + schema validation + auth/admin gates + CSRF + sanitisation.
 
+- **Mission 60 — Help Center + Docs + universal tool-page landings (`1b1f253`)**:
+  - **Every tool page is now a complete landing page.** `ToolPageShell` (drives AI/Video/3D/QR/image/animated-qr/barcode) gained: universal "Why use QRix" trust strip, optional "Popular use cases" + visible FAQ sections, and a strong closing CTA band. Full section set per tool: hero · how-to · about · why · use-cases · FAQ · CTA · SEO.
+  - **QR tools** (30) gained 3 FAQs + 4 use-cases each (`lib/qr-tool-content.ts` merged into the registry at load) and now emit FAQPage structured data.
+  - **Help Center** `/help` + `/help/[category]`: 5 categories, 42 Q&A articles (Getting Started, QR Codes, PDF, Image & AI, Account & Privacy) with FAQPage schema per category.
+  - **Documentation** `/docs` + `/docs/[slug]`: 7 pages (introduction, how-it-works/on-device model, QR codes explained, PDF/image/AI-video guides, privacy & security) with TechArticle schema + prev/next nav.
+  - Content produced via a 4-agent content-generation workflow, then authored into typed content modules (`lib/help-content.ts`, `lib/docs-content.ts`, `lib/qr-tool-content.ts`). Registered in footer (EN/RU/UZ) + sitemap. tsc clean; all new routes 200.
+
 ## Current Mission
-Mission 59 complete: 4 equal orange stat cards; blog grown to 64 posts in 6 topical clusters + blog AdSense slot; full QA sweep (287/287 routes 200); video tools upgraded to MP4; security audited clean. Homepage = NEW TOOLS ERA + numbers band. AI free chain LIVE (Groq/Gemini/OpenRouter/Anthropic). Image Tools = unified studio.
+Mission 60 complete: Help Center (/help, 42 articles) + Documentation (/docs, 7 pages) built; every tool page upgraded to a full landing (why/use-cases/FAQ/CTA); QR tools got FAQ + FAQPage schema. Prior: M59 stat cards + blog clusters (64 posts) + QA sweep (287/287 routes 200) + MP4 video + security audit clean.
 
 ## Remaining Missions
 - Deploy: Vercel (env + cron `/api/cron/cleanup`) or `docker compose up` (Postgres/Redis/MinIO included); then `prisma migrate deploy` + `npm run db:seed`.
@@ -136,7 +143,7 @@ Next.js App Router + TS + Tailwind v4, CoolM5 palette. Tool categories follow on
 ~187 tools: QR 30+ (+ Animated QR) · PDF 21 · Image 72 · AI 28 · Video 30 · 3D 1 · Barcode 10 formats (+ Link-in-Bio, Poster, Bulk QR). Blog: 64 articles across 6 topical clusters.
 
 ## Current Categories
-QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ Barcode, Link-in-Bio, Blog).
+QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ Barcode, Link-in-Bio, Blog, Help Center, Docs).
 
 ## Last Commit Hash
 `QRix Final Production` commit — see git log (M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`).
