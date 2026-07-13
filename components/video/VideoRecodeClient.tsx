@@ -8,6 +8,7 @@ import { useCallback, useRef, useState } from "react";
 import { FiZap, FiX, FiArrowUp, FiArrowDown, FiPlus } from "react-icons/fi";
 import { AiDropzone, AiResultBar, CloudNotice } from "@/components/ai/AiKit";
 import { VideoPlayer, Timeline, loadVideoFile, recodeVideo, fmtTime, type VideoMeta, type RecodeOpts } from "@/components/video/VideoCore";
+import { convertVideo, type MbConvertOpts } from "@/lib/video/convert-mb";
 import { trackTool } from "@/lib/track";
 
 export type RecodePreset =
@@ -50,9 +51,14 @@ export default function VideoRecodeClient({ preset }: { preset: RecodePreset }) 
   const [wmPos, setWmPos] = useState<"tl" | "tr" | "bl" | "br">("br");
   const [wmOpacity, setWmOpacity] = useState(0.75);
   const [crop, setCrop] = useState({ x: 0.1, y: 0.1, w: 0.8, h: 0.8 });
+  const [convFmt, setConvFmt] = useState<"mp4" | "webm">("mp4");
+  const [engineNote, setEngineNote] = useState("");
   const cropDrag = useRef<string | null>(null);
 
   const multi = preset === "merge";
+  // Presets that map cleanly onto a real stream transcode (Mediabunny).
+  // The rest (cut/crop/rotate/flip/speed/watermark/merge) stay on the canvas.
+  const MB_PRESETS = new Set(["trim", "compress", "optimizer", "convert", "resolution", "resize", "mute"]);
   const usesRange = preset === "trim" || preset === "cut" || preset === "split";
   const meta = queue[0];
 
@@ -95,20 +101,56 @@ export default function VideoRecodeClient({ preset }: { preset: RecodePreset }) 
     return o;
   }
 
+  // Real-transcode options for Mediabunny (returns null for canvas-only presets).
+  function buildMbOpts(): MbConvertOpts | null {
+    switch (preset) {
+      case "trim": return { trim: { start: range[0], end: range[1] }, format: "auto" };
+      case "compress": case "optimizer": return { bitrate: QUALITY[quality].bps, format: "auto" };
+      case "convert": return { format: convFmt };
+      case "resolution": {
+        const h = RES_PRESETS[resIdx].h;
+        const w = Math.round((meta.width / meta.height) * h);
+        return { width: w - (w % 2), height: h, format: "auto" };
+      }
+      case "resize": return { width: SIZE_PRESETS[sizeIdx].w, height: SIZE_PRESETS[sizeIdx].h, fit: "contain", format: "auto" };
+      case "mute": return { muteAudio: true, format: "auto" };
+      default: return null;
+    }
+  }
+
   async function run() {
     if (!meta) return;
-    setBusy(true); setProgress(0); setErr("");
+    setBusy(true); setProgress(0); setErr(""); setEngineNote("");
     setResults([]);
     try {
       if (preset === "split") {
         const t = Math.max(0.2, Math.min(time, meta.duration - 0.2));
-        const a = await recodeVideo([meta], { ...buildOpts(), range: [0, t] });
-        setProgress(0.5);
-        const b = await recodeVideo([meta], { ...buildOpts(), range: [t, meta.duration] });
+        let a: Blob, b: Blob;
+        try {
+          const src = await fetch(meta.url).then((r) => r.blob());
+          a = (await convertVideo(src, { trim: { start: 0, end: t }, format: "auto", onProgress: (p) => setProgress(p * 0.5) })).blob;
+          b = (await convertVideo(src, { trim: { start: t, end: meta.duration }, format: "auto", onProgress: (p) => setProgress(0.5 + p * 0.5) })).blob;
+        } catch {
+          a = await recodeVideo([meta], { ...buildOpts(), range: [0, t] });
+          setProgress(0.5);
+          b = await recodeVideo([meta], { ...buildOpts(), range: [t, meta.duration] });
+        }
         setResults([
           { blob: a, url: URL.createObjectURL(a), label: `Part 1 (0:00–${fmtTime(t)})` },
           { blob: b, url: URL.createObjectURL(b), label: `Part 2 (${fmtTime(t)}–${fmtTime(meta.duration)})` },
         ]);
+      } else if (!multi && MB_PRESETS.has(preset)) {
+        const mb = buildMbOpts()!;
+        let blob: Blob;
+        try {
+          const src = await fetch(meta.url).then((r) => r.blob());
+          blob = (await convertVideo(src, { ...mb, onProgress: (p) => setProgress(Math.min(0.99, p)) })).blob;
+        } catch {
+          // Source codec unsupported by WebCodecs — fall back to the canvas encoder.
+          setEngineNote("Used the compatibility encoder for this file.");
+          blob = await recodeVideo([meta], buildOpts());
+        }
+        setResults([{ blob, url: URL.createObjectURL(blob), label: "Result" }]);
       } else {
         const blob = await recodeVideo(multi ? queue : [meta], buildOpts());
         setResults([{ blob, url: URL.createObjectURL(blob), label: "Result" }]);
@@ -247,6 +289,17 @@ export default function VideoRecodeClient({ preset }: { preset: RecodePreset }) 
                 ))}
               </div>
             )}
+            {preset === "convert" && (
+              <div className="flex items-center gap-3">
+                <span className="text-[12px] font-bold uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>Output</span>
+                {(["mp4", "webm"] as const).map((f) => (
+                  <button key={f} onClick={() => setConvFmt(f)} className="px-4 py-2 rounded-xl text-[12px] font-bold uppercase"
+                    style={{ background: convFmt === f ? "var(--primary-dim)" : "var(--surface-2)", border: `1px solid ${convFmt === f ? "var(--primary-bright)" : "var(--border)"}`, color: "var(--text)" }}>
+                    {f}
+                  </button>
+                ))}
+              </div>
+            )}
             {preset === "rotate" && (
               <div className="flex gap-2">
                 {([90, 180, 270] as const).map((d) => (
@@ -327,7 +380,11 @@ export default function VideoRecodeClient({ preset }: { preset: RecodePreset }) 
         </div>
       )}
 
-      {preset === "convert" && <CloudNotice>Output is WebM — the modern web standard that plays everywhere current. MP4/H.264 export needs a licensed encoder and is pre-wired through the QRix cloud connector.</CloudNotice>}
+      {engineNote && <p className="text-[11px]" style={{ color: "var(--text-faint)" }}>{engineNote}</p>}
+
+      {(preset === "compress" || preset === "optimizer" || preset === "convert" || preset === "resize" || preset === "resolution" || preset === "trim" || preset === "mute") && (
+        <CloudNotice>Real transcoding runs on your device (WebCodecs) — true MP4/H.264 output where your browser supports it, WebM otherwise. Nothing is uploaded.</CloudNotice>
+      )}
     </div>
   );
 }

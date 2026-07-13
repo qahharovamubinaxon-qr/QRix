@@ -37,7 +37,7 @@ export type VideoTool = {
 
 const PRIVATE = { q: "Is my video uploaded to a server?", a: "No — everything runs on your device in the browser. Your videos never leave your computer." };
 const FREE = { q: "Is this tool free?", a: "Yes — completely free, no watermark, no signup, no file limits beyond your device's memory." };
-const WEBM = { q: "What format is the output?", a: "Browser processing exports WebM (VP9/VP8) — plays everywhere modern (Chrome, Edge, Firefox, YouTube, Telegram). MP4 export arrives with the cloud engine." };
+const WEBM = { q: "What format is the output?", a: "Real MP4 (H.264) where your browser can encode it — Chrome, Edge and Safari — with WebM (VP9) as an automatic fallback elsewhere. Everything is transcoded on your device; nothing is uploaded." };
 const SIZE = { q: "How large can my video be?", a: "Processing is in-memory, so a few hundred MB works comfortably on most devices; very long 4K files depend on your RAM." };
 
 const STEPS3 = (a: string, b: string, c: string) => [
@@ -80,14 +80,14 @@ export const VIDEO_TOOLS: VideoTool[] = [
   /* ── CONVERT ── */
   {
     slug: "video-converter", title: "Video Converter", short: "Converter",
-    desc: "Convert MP4, MOV and AVI to web-ready WebM in your browser — free and private. MP4 output arrives with the cloud engine.",
+    desc: "Convert MP4, MOV and AVI between MP4 and WebM right in your browser — real transcoding, free and private.",
     emoji: "🔄", grad: "linear-gradient(135deg,#38bdf8,#0369a1)", category: "Convert",
     engine: "recode:convert", status: "live", popular: true,
-    keywords: ["video converter", "convert video online", "mp4 to webm", "mov converter"],
-    intro: "Any playable video in → clean WebM out. Fast, private, free.",
-    about: "The Converter re-encodes anything your browser can play (MP4, MOV, MKV, AVI with common codecs) into WebM — the modern, royalty-free format used across the web. Conversion runs on your device with live progress. MP4/H.264 output requires a licensed encoder and is pre-wired through the QRix cloud connector.",
+    keywords: ["video converter", "convert video online", "mp4 to webm", "webm to mp4", "mov converter"],
+    intro: "Any playable video in → choose MP4 or WebM out. Fast, private, free.",
+    about: "The Converter re-encodes anything your browser can play (MP4, MOV, MKV, AVI with common codecs) to either MP4 (H.264) or WebM (VP9). It uses your browser's built-in WebCodecs engine to demux and re-encode the actual video stream on your device — real transcoding with live progress, not a screen recording, and nothing is uploaded.",
     steps: RECODE_STEPS,
-    faqs: [FREE, PRIVATE, WEBM, SIZE, { q: "Can I convert to MP4?", a: "Browser encoders export WebM. MP4 output is wired through the cloud connector and activates with the cloud engine." }],
+    faqs: [FREE, PRIVATE, WEBM, SIZE, { q: "Can I convert to MP4?", a: "Yes. Pick MP4 as the output and the tool encodes real H.264 MP4 on your device wherever your browser supports it (Chrome, Edge, Safari). You can also convert MP4 to WebM." }],
   },
   {
     slug: "change-resolution", title: "Change Video Resolution", short: "Resolution",
@@ -238,25 +238,25 @@ export const VIDEO_TOOLS: VideoTool[] = [
   /* ── AUDIO ── */
   {
     slug: "extract-audio", title: "Extract Audio from Video", short: "Extract Audio",
-    desc: "Pull the soundtrack out of any video as a high-quality WAV — free, instant, private in your browser.",
+    desc: "Pull the soundtrack out of any video as an MP3 (or lossless WAV) — free, instant, private in your browser.",
     emoji: "🎵", grad: "linear-gradient(135deg,#f472b6,#db2777)", category: "Audio",
     engine: "audio-extract", status: "live", popular: true,
-    keywords: ["extract audio from video", "video to audio", "get sound from video", "rip audio"],
+    keywords: ["extract audio from video", "video to audio", "get sound from video", "rip audio", "video to mp3"],
     intro: "Video in → clean audio out. Full quality, zero upload.",
-    about: "Extract Audio decodes your video's soundtrack on-device and exports it as uncompressed WAV — the universal studio format every editor and player accepts. MP3 export (smaller files) is wired through the cloud connector.",
-    steps: STEPS3("Any video with an audio track.", "Nothing to configure — decoding starts instantly.", "Download the WAV soundtrack."),
-    faqs: [FREE, PRIVATE, { q: "Why WAV and not MP3?", a: "WAV is lossless and universally supported; browser MP3 encoding is wired through the cloud connector and activates with the engine." }, SIZE],
+    about: "Extract Audio pulls your video's soundtrack out entirely on-device. It exports a real MP3 wherever your browser can encode one, and falls back to lossless WAV otherwise — both are universally supported and import into any editor. Nothing is uploaded.",
+    steps: STEPS3("Any video with an audio track.", "Nothing to configure — extraction starts instantly.", "Download the audio file."),
+    faqs: [FREE, PRIVATE, { q: "MP3 or WAV?", a: "You get a real MP3 on browsers that can encode one (most Chromium-based browsers); otherwise the tool falls back to lossless WAV automatically. Either way it stays on your device." }, SIZE],
   },
   {
     slug: "mp4-to-mp3", title: "MP4 to MP3", short: "MP4→MP3",
-    desc: "Convert MP4 video to audio — extract the soundtrack as WAV now, MP3 encoding via the cloud engine. Free & private.",
+    desc: "Convert MP4 video to audio — extract the soundtrack as a real MP3, entirely in your browser. Free & private.",
     emoji: "🎧", grad: "linear-gradient(135deg,#a78bfa,#7c3aed)", category: "Audio",
     engine: "audio-extract", status: "live", popular: true,
     keywords: ["mp4 to mp3", "video to mp3", "convert mp4 to audio", "mp3 from video"],
     intro: "The classic conversion — soundtrack out of an MP4 in seconds.",
-    about: "MP4 to MP3 pulls the audio out of your video entirely on-device. Today it exports lossless WAV (plays everywhere, imports into any editor); one-click MP3 encoding is pre-wired through the QRix cloud connector.",
-    steps: STEPS3("Drop your MP4 (or any video).", "Decoding starts automatically.", "Download the audio file."),
-    faqs: [FREE, PRIVATE, { q: "Is the output really MP3?", a: "Today you get lossless WAV on-device; MP3 encoding activates with the cloud engine — the page is wired for it." }],
+    about: "MP4 to MP3 pulls the audio out of your video entirely on-device. It exports a real MP3 wherever your browser can encode one, and falls back to lossless WAV otherwise — either way the file plays everywhere and imports into any editor, and nothing is uploaded.",
+    steps: STEPS3("Drop your MP4 (or any video).", "Extraction starts automatically.", "Download the audio file."),
+    faqs: [FREE, PRIVATE, { q: "Is the output really MP3?", a: "Yes, on browsers that can encode MP3 (most Chromium-based browsers). If yours can't, the tool automatically gives you a lossless WAV instead — both are on-device and upload nothing." }],
   },
   {
     slug: "mp3-to-mp4", title: "MP3 to MP4", short: "MP3→MP4",

@@ -56,29 +56,46 @@ export function AudioExtractClient() {
   async function onFile(f: File) {
     trackTool("video-audio-extract", { size: f.size });
     setBusy(true); setErr(""); setResult(null);
+    const base = f.name.replace(/\.\w+$/, "");
     try {
-      const ac = new AudioContext();
-      const buf = await ac.decodeAudioData(await f.arrayBuffer());
-      const blob = audioBufferToWav(buf);
-      await ac.close();
-      setResult({ blob, url: URL.createObjectURL(blob), name: f.name.replace(/\.\w+$/, "") + ".wav" });
+      // Prefer a real MP3 (Mediabunny / WebCodecs) — small and universal.
+      const { canOutputMp3, extractAudioMp3 } = await import("@/lib/video/convert-mb");
+      if (await canOutputMp3()) {
+        const blob = await extractAudioMp3(f);
+        setResult({ blob, url: URL.createObjectURL(blob), name: `${base}.mp3` });
+        return;
+      }
+      throw new Error("mp3-unavailable");
     } catch {
-      setErr("Couldn't decode an audio track from this file.");
+      // Fallback: decode + encode a lossless WAV entirely on-device.
+      try {
+        const ac = new AudioContext();
+        const buf = await ac.decodeAudioData(await f.arrayBuffer());
+        const blob = audioBufferToWav(buf);
+        await ac.close();
+        setResult({ blob, url: URL.createObjectURL(blob), name: `${base}.wav` });
+      } catch {
+        setErr("Couldn't decode an audio track from this file.");
+      }
     } finally {
       setBusy(false);
     }
   }
 
+  const isMp3 = result?.name.endsWith(".mp3");
+
   return (
     <div className="qx-card p-6 space-y-5">
       {err && <p className="text-[13px] px-4 py-2.5 rounded-xl" style={{ background: "rgba(224,82,82,.1)", border: "1px solid rgba(224,82,82,.3)", color: "var(--danger)" }}>{err}</p>}
-      {!result && !busy && <AiDropzone onFile={onFile} accept="video/*,audio/*" hint="MP4, WebM, MOV — soundtrack out as lossless WAV" />}
-      {busy && <AiProcessing label="Decoding the soundtrack…" />}
+      {!result && !busy && <AiDropzone onFile={onFile} accept="video/*,audio/*" hint="MP4, WebM, MOV — soundtrack out as MP3" />}
+      {busy && <AiProcessing label="Extracting the soundtrack…" />}
       {result && (
         <>
           <audio src={result.url} controls className="w-full" />
           <AiResultBar blob={result.blob} filename={result.name} onReset={() => setResult(null)} />
-          <CloudNotice>WAV is lossless and opens everywhere. One-click MP3 encoding is wired through the QRix cloud connector.</CloudNotice>
+          <CloudNotice>{isMp3
+            ? "Extracted to MP3 on your device (WebCodecs) — small and plays everywhere. Nothing is uploaded."
+            : "Your browser couldn't encode MP3, so the soundtrack came out as lossless WAV. It opens everywhere; nothing is uploaded."}</CloudNotice>
         </>
       )}
     </div>
