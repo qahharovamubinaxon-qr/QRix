@@ -8,6 +8,8 @@ import CommandSearch from "@/components/CommandSearch";
 import Toaster from "@/components/Toaster";
 import PwaVitals from "@/components/PwaVitals";
 import CookieConsent from "@/components/CookieConsent";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
+import ErrorMonitor from "@/components/ErrorMonitor";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, jsonLd } from "@/lib/seo";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -123,6 +125,8 @@ export default function RootLayout({
         <TopNav />
         <div id="main" className="contents">{children}</div>
         <CookieConsent />
+        <ErrorMonitor />
+        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics id={process.env.NEXT_PUBLIC_GA_ID} />}
         <Analytics />
         <SpeedInsights />
       </body>
