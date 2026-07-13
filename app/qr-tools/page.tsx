@@ -24,6 +24,7 @@ export default function QRToolsPage() {
     .sort((a, b) => (sort === "popular" ? b.popularity - a.popularity : a.title.localeCompare(b.title)));
 
   const FEATURED = [
+    { href: "/qr-art", emoji: "🎨", title: "AI QR Art", desc: "A beautiful AI poster around your QR — free & scannable.", grad: "linear-gradient(135deg,#7c3aed,#ff6a13)", badge: "New" },
     { href: "/animated-qr", emoji: "🎞️", title: "Animated QR Maker", desc: "Turn a link into a 6s QR video for Stories & Reels.", grad: "linear-gradient(135deg,#ff6a13,#e14e08)", badge: "New" },
     { href: "/link-in-bio", emoji: "🔗", title: "Link-in-Bio Page", desc: "All your links on one page — free, no signup.", grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", badge: "New" },
     { href: "/poster", emoji: "🖼️", title: "QR Poster Maker", desc: "Printable ‘Scan me’ flyers for menus, reviews & more.", grad: "linear-gradient(135deg,#F58F20,#e07a10)", badge: "New" },

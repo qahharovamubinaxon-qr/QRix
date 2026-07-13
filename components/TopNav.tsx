@@ -39,6 +39,7 @@ const DROPDOWNS: Record<string, { href: string; label: string; desc: string; ico
     { href: "/poster",             label: "QR Poster",   desc: "Printable 'Scan me' flyer", icon: <FiImage size={15}/>,    color: "#ff4d1c" },
     { href: "/bulk-qr",            label: "Bulk QR",     desc: "Many QR from CSV",     icon: <FiGrid size={15}/>,         color: "#bba9ff" },
     { href: "/animated-qr",        label: "Animated QR", desc: "QR video for Stories", icon: <FiPlay size={15}/>,         color: "#ff6a13" },
+    { href: "/qr-art",             label: "AI QR Art",   desc: "Beautiful AI QR poster",icon: <FiImage size={15}/>,       color: "#7c3aed" },
     { href: "/barcode",            label: "Barcode",     desc: "EAN, UPC, Code 128…",  icon: <FiBarChart2 size={15}/>,    color: "#0e7490" },
     { href: "/qr-tools",           label: "All QR Tools",desc: "25+ QR types",         icon: <FiGrid size={15}/>,         color: "#ff4d1c" },
   ],

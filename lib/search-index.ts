@@ -41,6 +41,7 @@ const PAGES: SearchItem[] = [
   { title: "Animated QR Maker", href: "/animated-qr", group: "Pages", keywords: "animated qr video stories reels tiktok shorts scan me mp4 animation" },
   { title: "Promo Video Maker", href: "/promo-video", group: "Pages", keywords: "promo video ad maker reels stories tiktok shorts marketing product launch logo cta mp4 animated" },
   { title: "QRix Brand Film", href: "/promo", group: "Pages", keywords: "qrix promo brand film video about all in one toolkit" },
+  { title: "AI QR Art", href: "/qr-art", group: "Pages", keywords: "ai qr code art generator beautiful aesthetic scannable poster background artistic qr" },
   { title: "QR Decoder", href: "/qr-tools/decode", group: "Pages", keywords: "read scan from image" },
   { title: "QR Scanner", href: "/scanner", group: "Pages", keywords: "camera scan" },
   { title: "Pricing", href: "/pricing", group: "Pages", keywords: "pro plan subscription narx" },
