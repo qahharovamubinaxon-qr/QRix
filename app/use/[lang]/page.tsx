@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { FiArrowRight } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, SITE_URL } from "@/lib/seo";
 import {
-  USE_CASES_EN, USE_LANGS, UI, localizedContent, hasTranslation, type Lang,
+  USE_CASES_EN, USE_LANGS, UI, localizedContent, hasTranslation, isRtl, type Lang,
 } from "@/lib/usecase-content";
 
 const isLang = (v: string): v is Lang => (USE_LANGS as string[]).includes(v);
@@ -38,7 +38,7 @@ export default async function UseHub({ params }: { params: Promise<{ lang: strin
   const ui = UI[lang];
 
   return (
-    <main className="max-w-5xl mx-auto px-5 py-14">
+    <main className="max-w-5xl mx-auto px-5 py-14" dir={isRtl(lang) ? "rtl" : "ltr"}>
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger

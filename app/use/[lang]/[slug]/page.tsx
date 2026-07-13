@@ -4,8 +4,9 @@ import type { Metadata } from "next";
 import { FiArrowRight, FiChevronRight, FiCheck } from "react-icons/fi";
 import ShareButtons from "@/components/ShareButtons";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, softwareAppLd, SITE_URL } from "@/lib/seo";
+import { FiGlobe } from "react-icons/fi";
 import {
-  USE_CASES_EN, USE_LANGS, UI, getUseCase, localizedContent, localizedKeywords, hasTranslation,
+  USE_CASES_EN, USE_LANGS, UI, LANG_NAMES, getUseCase, localizedContent, localizedKeywords, hasTranslation, isRtl,
   type Lang,
 } from "@/lib/usecase-content";
 
@@ -60,7 +61,7 @@ export default async function UseCasePage({ params }: { params: Promise<{ lang: 
     .slice(0, 4);
 
   return (
-    <main className="max-w-3xl mx-auto px-5 py-12">
+    <main className="max-w-3xl mx-auto px-5 py-12" dir={isRtl(lang) ? "rtl" : "ltr"}>
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
@@ -91,6 +92,24 @@ export default async function UseCasePage({ params }: { params: Promise<{ lang: 
         <FiChevronRight size={12} />
         <span style={{ color: "var(--text)" }}>{u.category}</span>
       </nav>
+
+      {/* Language switcher — native details, no JS; links each translation */}
+      <details className="mb-6 inline-block relative">
+        <summary className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[12.5px] font-bold cursor-pointer list-none"
+          style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}>
+          <FiGlobe size={13} /> {LANG_NAMES[lang]}
+        </summary>
+        <div className="absolute z-20 mt-2 p-2 rounded-xl grid grid-cols-2 gap-1 w-64"
+          style={{ background: "var(--surface-solid)", border: "1px solid var(--border)", boxShadow: "var(--shadow-pop)" }}>
+          {USE_LANGS.filter((l) => hasTranslation(slug, l)).map((l) => (
+            <Link key={l} href={`/use/${l}/${slug}`} dir={isRtl(l) ? "rtl" : "ltr"}
+              className="px-3 py-1.5 rounded-lg text-[12.5px] font-semibold"
+              style={{ background: l === lang ? "var(--primary-dim)" : "transparent", color: l === lang ? "var(--primary-bright)" : "var(--text-muted)" }}>
+              {LANG_NAMES[l]}
+            </Link>
+          ))}
+        </div>
+      </details>
 
       {/* Hero */}
       <p className="qx-mono text-[11px] tracking-[0.28em] uppercase mb-3" style={{ color: "var(--primary-bright)" }}>{ui.kicker}</p>

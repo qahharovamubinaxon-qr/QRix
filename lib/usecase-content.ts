@@ -3,10 +3,24 @@
 // video for WhatsApp", …) that funnels to the real tool. Pages are rendered
 // in EN/RU/UZ under /use/<lang>/<slug> with proper hreflang alternates.
 
-import { USE_CASE_I18N } from "./usecase-content.i18n";
+import { USE_CASE_I18N, UI_I18N } from "./usecase-content.i18n";
 
-export type Lang = "en" | "ru" | "uz";
-export const USE_LANGS: Lang[] = ["en", "ru", "uz"];
+// 15 most-spoken world languages (EN/RU/UZ authored, 12 more translated).
+export type Lang =
+  | "en" | "ru" | "uz" | "zh" | "hi" | "es" | "ar" | "fr"
+  | "pt" | "id" | "de" | "ja" | "tr" | "ur" | "bn";
+export const USE_LANGS: Lang[] = ["en", "ru", "uz", "zh", "hi", "es", "ar", "fr", "pt", "id", "de", "ja", "tr", "ur", "bn"];
+
+// Languages written right-to-left (used to set dir on the page).
+export const RTL_LANGS: Lang[] = ["ar", "ur"];
+export const isRtl = (l: Lang) => RTL_LANGS.includes(l);
+
+// Human-readable language names for the on-page language switcher.
+export const LANG_NAMES: Record<Lang, string> = {
+  en: "English", ru: "Русский", uz: "Oʻzbek", zh: "中文", hi: "हिन्दी", es: "Español",
+  ar: "العربية", fr: "Français", pt: "Português", id: "Bahasa", de: "Deutsch",
+  ja: "日本語", tr: "Türkçe", ur: "اردو", bn: "বাংলা",
+};
 
 export type UseCaseContent = {
   title: string;        // H1 + <title>
@@ -29,15 +43,18 @@ export type UseCase = {
 };
 
 // Chrome / section labels per language (page furniture around the content).
-export const UI: Record<Lang, {
+export type UiStrings = {
   kicker: string; how: string; why: string; faq: string; open: string;
   related: string; more: string; home: string; hub: string; hubTitle: string;
   hubDesc: string; free: string;
-}> = {
+};
+const UI_BASE: Record<"en" | "ru" | "uz", UiStrings> = {
   en: { kicker: "// USE CASE", how: "How to do it", why: "Why QRix", faq: "Frequently asked questions", open: "Open the tool", related: "More use cases", more: "Explore all tools", home: "Home", hub: "Use cases", hubTitle: "QRix use cases — the right tool for every job", hubDesc: "Practical, step-by-step guides that take you straight to the free tool you need — QR codes, PDFs, images and video.", free: "Free · on-device · no signup" },
   ru: { kicker: "// СЦЕНАРИЙ", how: "Как это сделать", why: "Почему QRix", faq: "Частые вопросы", open: "Открыть инструмент", related: "Другие сценарии", more: "Все инструменты", home: "Главная", hub: "Сценарии", hubTitle: "Сценарии QRix — нужный инструмент для любой задачи", hubDesc: "Практические пошаговые руководства, которые сразу ведут к бесплатному инструменту — QR-коды, PDF, изображения и видео.", free: "Бесплатно · на устройстве · без регистрации" },
   uz: { kicker: "// ҲОЛАТ", how: "Қандай қилинади", why: "Нега QRix", faq: "Кўп бериладиган саволлар", open: "Воситани очиш", related: "Бошқа ҳолатлар", more: "Барча воситалар", home: "Бош саҳифа", hub: "Ҳолатлар", hubTitle: "QRix ҳолатлари — ҳар вазифа учун керакли восита", hubDesc: "Амалий, қадам-бақадам қўлланмалар сизни тўғридан-тўғри керакли текин воситага олиб боради — QR кодлар, PDF, расм ва видео.", free: "Текин · қурилмада · рўйхатсиз" },
 };
+// Merge the 12 generated languages (UI_I18N) with the authored en/ru/uz.
+export const UI = { ...UI_BASE, ...(UI_I18N as Record<string, UiStrings>) } as Record<Lang, UiStrings>;
 
 // A single-language authored entry. English is authored here; ru/uz come
 // from lib/usecase-content.i18n.ts (generated) and are merged at load.
@@ -416,7 +433,7 @@ export const USE_CASES_EN: UseCaseSeed[] = [
 
 // Localized content per slug (ru/uz), generated into usecase-content.i18n.ts.
 export type LocalizedContent = UseCaseContent & { keywords?: string[] };
-export type UseCaseI18n = Record<string, Partial<Record<"ru" | "uz", LocalizedContent>>>;
+export type UseCaseI18n = Record<string, Partial<Record<Lang, LocalizedContent>>>;
 
 export const USE_CASE_SLUGS: string[] = USE_CASES_EN.map((u) => u.slug);
 
