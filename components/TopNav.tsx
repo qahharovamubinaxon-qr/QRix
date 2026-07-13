@@ -266,7 +266,8 @@ export default function TopNav() {
 
           {/* Language */}
           <div className="relative">
-            <button onClick={() => setLangOpen(!langOpen)} className="qx-btn-ghost !px-3 !py-2.5">
+            <button onClick={() => setLangOpen(!langOpen)} className="qx-btn-ghost !px-3 !py-2.5"
+              aria-label="Change language" aria-haspopup="true" aria-expanded={langOpen}>
               <FiGlobe size={14}/>
               <span className="text-[12px] font-bold">{currentLang.label}</span>
               <FiChevronDown size={11} style={{ transform: langOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}/>

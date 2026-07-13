@@ -320,7 +320,7 @@ export default function AnimatedQrClient() {
 
       {/* live preview */}
       <div className="flex justify-center">
-        <canvas ref={canvasRef}
+        <canvas ref={canvasRef} role="img" aria-label="Animated QR code video preview"
           style={{
             width: "100%",
             maxWidth: preset.w >= preset.h ? 560 : 340,

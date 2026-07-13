@@ -463,7 +463,7 @@ export default function PromoVideoClient() {
 
       {/* live preview */}
       <div className="flex justify-center lg:sticky lg:top-24">
-        <canvas ref={canvasRef}
+        <canvas ref={canvasRef} role="img" aria-label="Promo video live preview"
           style={{
             width: "100%",
             maxWidth: preset.w > preset.h ? 620 : preset.w === preset.h ? 460 : 360,

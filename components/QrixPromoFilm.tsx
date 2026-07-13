@@ -363,7 +363,7 @@ export default function QrixPromoFilm({ embed = false }: { embed?: boolean }) {
   // Embedded on the homepage — just the auto-playing 16:9 canvas.
   if (embed) {
     return (
-      <canvas ref={canvasRef}
+      <canvas ref={canvasRef} role="img" aria-label="QRix brand promo film — 185+ free on-device tools for QR codes, PDFs, images, video and AI"
         style={{ width: "100%", aspectRatio: "1920 / 1080", borderRadius: 16, display: "block", boxShadow: "0 20px 60px rgba(180,60,8,.35)" }} />
     );
   }
@@ -371,7 +371,7 @@ export default function QrixPromoFilm({ embed = false }: { embed?: boolean }) {
   return (
     <div className="space-y-6">
       <div className="flex justify-center">
-        <canvas ref={canvasRef}
+        <canvas ref={canvasRef} role="img" aria-label="QRix brand promo film preview"
           style={{
             width: "100%",
             maxWidth: activePreset.w > activePreset.h ? 760 : activePreset.w === activePreset.h ? 480 : 380,
