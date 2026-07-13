@@ -25,11 +25,11 @@ import {
   FiLayers, FiMinimize2, FiMaximize2, FiDroplet, FiScissors,
   FiTrendingUp,
 } from "react-icons/fi";
-
-type Lang = "en" | "ru" | "uz";
+import { type Lang, isLang } from "@/lib/lang";
+import { HOME_I18N } from "@/lib/home-i18n";
 
 /* ================= I18N ================= */
-const T: Record<Lang, Record<string, string>> = {
+const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
   en: {
     badge: "🚀 The All-in-One QR Platform",
     h1a: "Generate. Track.", h1b: "Analyze.", h1c: "Grow.",
@@ -140,6 +140,10 @@ const T: Record<Lang, Record<string, string>> = {
   },
 };
 
+// Merge the 12 generated languages; English fills any missing key per language.
+const T: Record<Lang, Record<string, string>> = { ...T_BASE } as Record<Lang, Record<string, string>>;
+for (const [code, v] of Object.entries(HOME_I18N)) T[code as Lang] = { ...T_BASE.en, ...v.pageT };
+
 const COLOR_PRESETS = ["#000000", "#bba9ff", "#2563eb", "#0891b2", "#16a34a", "#dc2626", "#db2777", "#d97706"];
 const BG_PRESETS = ["#ffffff", "#f4f4f8", "#fef9c3", "#e0f2fe", "#f3e8ff", "#dcfce7", "#ffe4e6", "#0a0a14"];
 
@@ -173,7 +177,7 @@ function CountUp({ end, suffix = "" }: { end: number; suffix?: string }) {
 
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>("en");
-  const t = T[lang];
+  const t = T[lang] ?? T.en;
   // Mission 41: NEW TOOLS ERA hero — the bunny carries the entrance now.
 
   /* ===== Tabs & forms ===== */
@@ -224,10 +228,10 @@ export default function HomePage() {
 
   useEffect(() => {
     const saved = localStorage.getItem("language");
-    if (saved === "ru" || saved === "uz" || saved === "en") setLang(saved);
+    if (isLang(saved)) setLang(saved);
     const onLang = () => {
       const l = localStorage.getItem("language");
-      if (l === "ru" || l === "uz" || l === "en") setLang(l);
+      if (isLang(l)) setLang(l);
     };
     window.addEventListener("qrix-lang", onLang);
     return () => window.removeEventListener("qrix-lang", onLang);

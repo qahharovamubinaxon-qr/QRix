@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { jsonLd, faqLd } from "@/lib/seo";
+import { type Lang } from "@/lib/lang";
+import { HOME_I18N } from "@/lib/home-i18n";
 
-type Lang = "en" | "ru" | "uz";
-
-const FAQS: Record<Lang, { q: string; a: string }[]> = {
+const FAQS: Partial<Record<Lang, { q: string; a: string }[]>> = {
   en: [
     { q: "Is QRix really free?", a: "Yes — all 55+ tools are free with no watermark and no signup. Pro adds unlimited dynamic QR codes, deeper analytics and an ad-free experience." },
     { q: "Are my files uploaded to a server?", a: "No. PDF, image and QR tools run entirely in your browser — your files never leave your device." },
@@ -39,16 +39,18 @@ const FAQS: Record<Lang, { q: string; a: string }[]> = {
   ],
 };
 
-const TITLES: Record<Lang, { t: string; s: string }> = {
+const TITLES_BASE: Record<"en" | "ru" | "uz", { t: string; s: string }> = {
   en: { t: "Frequently asked questions", s: "Everything you might want to know before you start." },
   ru: { t: "Частые вопросы", s: "Всё, что стоит знать перед началом." },
   uz: { t: "Кўп бериладиган саволлар", s: "Бошлашдан олдин билишингиз керак бўлган ҳаммаси." },
 };
+const TITLES: Partial<Record<Lang, { t: string; s: string }>> = { ...TITLES_BASE };
+for (const [code, v] of Object.entries(HOME_I18N)) TITLES[code as Lang] = v.homeFaq;
 
 export default function HomeFaq({ lang }: { lang: Lang }) {
   const [open, setOpen] = useState<number>(0);
-  const faqs = FAQS[lang] || FAQS.en;
-  const tt = TITLES[lang] || TITLES.en;
+  const faqs = FAQS[lang] || FAQS.en!;
+  const tt = TITLES[lang] || TITLES.en!;
 
   return (
     <section className="max-w-3xl mx-auto px-5 pb-16 lg:pb-20" aria-label={tt.t}>
@@ -56,7 +58,7 @@ export default function HomeFaq({ lang }: { lang: Lang }) {
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={jsonLd(faqLd(FAQS.en))}
+        dangerouslySetInnerHTML={jsonLd(faqLd(FAQS.en!))}
       />
       <div className="text-center mb-10" data-reveal>
         <h2 className="font-display text-3xl lg:text-4xl font-extrabold" style={{ color: "var(--text)" }}>{tt.t}</h2>

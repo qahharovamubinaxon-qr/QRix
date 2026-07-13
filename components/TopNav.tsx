@@ -14,17 +14,20 @@ import {
   FiGrid, FiPieChart, FiSettings, FiHeart, FiClock, FiPlay, FiFilm,
 } from "react-icons/fi";
 
-const LANGUAGES = [
-  { code: "en", label: "EN", name: "English", flag: "🇬🇧" },
-  { code: "ru", label: "RU", name: "Русский", flag: "🇷🇺" },
-  { code: "uz", label: "UZ", name: "O'zbek", flag: "🇺🇿" },
-];
+import { type Lang, SITE_LANGS, isLang } from "@/lib/lang";
+import { HOME_I18N } from "@/lib/home-i18n";
 
-const NAV = {
+const LANGUAGES = SITE_LANGS;
+
+type NavStrings = { home: string; qr: string; pdf: string; image: string; dashboard: string; pricing: string; blog: string; ai: string; video: string; three: string; signin: string; signout: string; signup: string };
+const NAV_BASE: Record<"en" | "ru" | "uz", NavStrings> = {
   en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", pricing: "Pricing", blog: "Blog", ai: "AI Tools", video: "Video Tools", three: "3D Tools", signin: "Sign in", signout: "Sign out", signup: "Sign up" },
   ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", pricing: "Тарифы", blog: "Блог", ai: "AI Инструменты", video: "Видео", three: "3D Инструменты", signin: "Войти", signout: "Выйти", signup: "Регистрация" },
   uz: { home: "Бош саҳифа", qr: "QR Асбоблар", pdf: "PDF Асбоблар", image: "Расм Асбоблар", dashboard: "Дашбоард", pricing: "Нархлар", blog: "Блог", ai: "AI Асбоблар", video: "Видео Асбоблар", three: "3D Асбоблар", signin: "Кириш", signout: "Чиқиш", signup: "Рўйхатдан ўтиш" },
 };
+// Merge the 12 generated languages; fall back to English per language.
+const NAV: Record<string, NavStrings> = { ...NAV_BASE };
+for (const [code, v] of Object.entries(HOME_I18N)) NAV[code] = { ...NAV_BASE.en, ...(v.nav as Partial<NavStrings>) };
 
 const DROPDOWNS: Record<string, { href: string; label: string; desc: string; icon: React.ReactNode; color: string }[]> = {
   "/qr-tools": [
@@ -128,7 +131,7 @@ export default function TopNav() {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [dark, setDark] = useState(false);
-  const [lang, setLang] = useState<keyof typeof NAV>("en");
+  const [lang, setLang] = useState<Lang>("en");
   const [langOpen, setLangOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -151,7 +154,7 @@ export default function TopNav() {
     document.documentElement.classList.toggle("light", !isDark);
 
     const savedLang = localStorage.getItem("language");
-    if (savedLang && savedLang in NAV) setLang(savedLang as keyof typeof NAV);
+    if (isLang(savedLang)) setLang(savedLang);
 
     let mounted = true;
     supabaseBrowser.auth.getSession().then(({ data }) => {
@@ -171,7 +174,7 @@ export default function TopNav() {
   };
 
   const changeLang = (code: string) => {
-    setLang(code as keyof typeof NAV);
+    setLang(code as Lang);
     localStorage.setItem("language", code);
     setLangOpen(false);
     window.dispatchEvent(new Event("qrix-lang"));
@@ -190,7 +193,7 @@ export default function TopNav() {
     hoverTimer.current = setTimeout(() => setHovered(null), 120);
   };
 
-  const t = NAV[lang];
+  const t = NAV[lang] ?? NAV.en;
   const currentLang = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
 
   const links = [
@@ -278,10 +281,10 @@ export default function TopNav() {
               <FiChevronDown size={11} style={{ transform: langOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}/>
             </button>
             {langOpen && (
-              <div className="absolute right-0 top-full mt-2 w-40 rounded-xl overflow-hidden z-50"
+              <div className="absolute right-0 top-full mt-2 w-44 rounded-xl overflow-y-auto z-50 max-h-[70vh]"
                 style={{ background: "var(--surface-solid)", border: "1px solid var(--border)", boxShadow: "var(--shadow-pop)" }}>
                 {LANGUAGES.map((l) => (
-                  <button key={l.code} onClick={() => changeLang(l.code)}
+                  <button key={l.code} onClick={() => changeLang(l.code)} dir={l.rtl ? "rtl" : "ltr"}
                     className="w-full flex items-center gap-2 px-3.5 py-2.5 text-xs font-medium text-left transition-colors"
                     style={{ color: lang === l.code ? "var(--primary)" : "var(--text-muted)", background: lang === l.code ? "var(--surface-hover)" : "transparent" }}>
                     <span>{l.flag}</span> {l.name}

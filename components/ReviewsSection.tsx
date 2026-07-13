@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { FiStar, FiSend } from "react-icons/fi";
+import { type Lang } from "@/lib/lang";
 
 type Review = {
   id: string | number;
@@ -103,8 +104,8 @@ function Card({ r }: { r: Review }) {
   );
 }
 
-export default function ReviewsSection({ lang }: { lang: "en" | "ru" | "uz" }) {
-  const t = T[lang] || T.en;
+export default function ReviewsSection({ lang }: { lang: Lang }) {
+  const t = (T as Record<string, typeof T.en>)[lang] || T.en;
   const [reviews, setReviews] = useState<Review[]>([]);
   const [name, setName] = useState("");
   const [comment, setComment] = useState("");
