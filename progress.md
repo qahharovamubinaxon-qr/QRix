@@ -234,8 +234,10 @@ QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ B
   - Skips hero + generator bands (both have their own bunny), `pointer-events:none`, off on touch / reduced-motion. Client-gated so absent from SSR. Removal = delete the `<BunnyCompanion />` line in `app/page.tsx` + the file.
   - Choreography simulated: arm peaks (frame 48) as each section centres, ~frame 6 between. tsc clean, page 200, no overlap.
 
+- **Mission 81 — REVERTED the scroll bunny** (`407fda0`): the user found the scroll motion wasn't needed. Missions 79 (hero scroll-scrub) and 80 (full-page companion) are removed. Hero is a **calm still** again (`bunny-hero.webp`) with the existing smoke reveal + parallax; nothing moves on its own. Deleted: `BunnyScrollStage.tsx`, `BunnyCompanion.tsx`, `lib/bunny-frames.ts`, `scripts/gen-bunny-frames.mjs`, `public/scenes/bunny-point/` (50 frames). ⚠️ Did **NOT** restore the old still↔film cross-fade: its film `bunny-hero-live.webm` washes to white 3.50–4.57s (see memory [[bunny-scroll-source-flash]]); the still has no flash. The webm stays on disk, referenced only in comments (never plays). `bunny-point.webp` (a file, QrixPromoFilm) untouched.
+
 ## Last Commit Hash
-`e33eea8` — Mission 80 (full-page scroll companion; gutter-measured, wide-screen only). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
+`407fda0` — Mission 81 (reverted scroll bunny; hero is a calm flash-free still). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
 
 ## Current Git Branch
 `claude/relaxed-turing-bbc58e` (pushed to origin; main checkout `D:\Projects\QRix` must `git checkout` this branch or merge it to see recent work).
