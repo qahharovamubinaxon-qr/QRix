@@ -1,15 +1,12 @@
 "use client";
 
-/* Reviews — the form on the left, the reviews themselves as a chat beside it.
-   They arrive one at a time, hold, then hand over to the next four. The two
-   drifting marquee rows this replaces showed everything at once and never gave
-   any single review a moment to be read.
+/* Reviews — the form on the left, the reviews drifting up beside it.
+   The write-a-review card stays put; the testimonials float continuously through
+   the space between it and the right edge (a masked vertical marquee, seamless
+   because the pool is rendered twice and the track travels exactly one copy). It
+   pauses on hover, and under prefers-reduced-motion it does not move at all. */
 
-   Auto-advancing content has to be stoppable (WCAG 2.2.2), so the rotation pauses
-   on hover and on keyboard focus, the dots below drive it by hand, and under
-   prefers-reduced-motion it does not advance on its own at all. */
-
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import { FiStar, FiSend } from "react-icons/fi";
 import { type Lang } from "@/lib/lang";
@@ -21,19 +18,6 @@ type Review = {
   comment: string;
   created_at: string;
 };
-
-const PAGE_SIZE = 4;
-const STAGGER_MS = 170;       // gap between one bubble arriving and the next
-const HOLD_MS = 4200;         // reading time once the last bubble has landed
-const EXIT_MS = 400;          // how long one bubble takes to leave
-const EXIT_STAGGER_MS = 60;   // they leave in the order they arrived, but briskly
-
-/* The bubbles carry their delay inline, and an inline declaration outranks the
-   animation shorthand in .qx-rv-out — so the exit is staggered too, and the page
-   must not be swapped until the LAST bubble has finished leaving. Deriving the
-   wait instead of guessing it is what stops the final bubble being cut off. */
-const ENTER_TOTAL_MS = (PAGE_SIZE - 1) * STAGGER_MS + 580;      // 580 = .58s enter
-const EXIT_TOTAL_MS = (PAGE_SIZE - 1) * EXIT_STAGGER_MS + EXIT_MS;
 
 const T = {
   en: {
@@ -74,7 +58,7 @@ const T = {
   },
 };
 
-/** Curated testimonials so the chat is never empty; user reviews merge in front. */
+/** Curated testimonials so the marquee is never empty; user reviews merge in front. */
 const SEED: Review[] = [
   { id: "s1", name: "Maya Chen", rating: 5, comment: "Replaced four different subscriptions with QRix. The QR designer alone is worth it — our restaurant menus have never looked better.", created_at: "2026-05-14" },
   { id: "s2", name: "Tom Becker", rating: 5, comment: "PDF merge, compress, watermark — all in the browser, nothing uploaded anywhere. Exactly how privacy should work.", created_at: "2026-05-02" },
@@ -121,13 +105,10 @@ function Avatar({ name }: { name: string }) {
   );
 }
 
-function Bubble({ r, i, accent, leaving }: { r: Review; i: number; accent: boolean; leaving: boolean }) {
+function Bubble({ r, i, accent }: { r: Review; i: number; accent: boolean }) {
   const mine = i % 2 === 1; // alternate sides, the way a conversation reads
   return (
-    <div
-      className={`qx-rv-row${mine ? " qx-rv-row--mine" : ""}${leaving ? " qx-rv-out" : ""}`}
-      style={{ animationDelay: `${i * (leaving ? EXIT_STAGGER_MS : STAGGER_MS)}ms` }}
-    >
+    <div className={`qx-rv-row${mine ? " qx-rv-row--mine" : ""}`}>
       <Avatar name={r.name} />
       <figure className={`qx-rv-bub${accent ? " qx-rv-bub--accent" : ""}`}>
         <figcaption className="qx-rv-head">
@@ -149,6 +130,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
   const [sending, setSending] = useState(false);
   const [thanks, setThanks] = useState(false);
   const [useLocal, setUseLocal] = useState(false);
+  const [freshId, setFreshId] = useState<string | number | null>(null);
 
   // Load: Supabase first, fall back to localStorage.
   useEffect(() => {
@@ -169,49 +151,10 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
     })();
   }, []);
 
-  /* ── the rotating chat ──────────────────────────────────────────────────── */
-  const pool = useMemo(() => [...reviews, ...SEED].slice(0, 16), [reviews]);
-  const pageCount = Math.max(1, Math.ceil(pool.length / PAGE_SIZE));
-
-  const [page, setPage] = useState(0);
-  const [leaving, setLeaving] = useState(false);
-  const [paused, setPaused] = useState(false);
-  const [freshId, setFreshId] = useState<string | number | null>(null);
-  const reduced = useRef(false);
-
-  useEffect(() => {
-    reduced.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  }, []);
-
-  // A page holds long enough for its last bubble to land and then be read.
-  useEffect(() => {
-    if (paused || reduced.current || pageCount < 2) return;
-    const id = window.setTimeout(() => setLeaving(true), ENTER_TOTAL_MS + HOLD_MS);
-    return () => window.clearTimeout(id);
-  }, [page, paused, pageCount]);
-
-  // …then all four clear out — and only once the last one is gone does the next
-  // page arrive, so nothing is ever cut off mid-exit.
-  useEffect(() => {
-    if (!leaving) return;
-    const id = window.setTimeout(() => {
-      setPage((p) => (p + 1) % pageCount);
-      setLeaving(false);
-    }, EXIT_TOTAL_MS);
-    return () => window.clearTimeout(id);
-  }, [leaving, pageCount]);
-
-  const goTo = useCallback((p: number) => { setLeaving(false); setPage(p % pageCount); }, [pageCount]);
-
-  const shown = useMemo(() => {
-    const start = (page % pageCount) * PAGE_SIZE;
-    return pool.slice(start, start + PAGE_SIZE);
-  }, [pool, page, pageCount]);
-
-  /* Exactly one bubble is lit per page. It is the visitor's own review when that is
-     one of the four — otherwise a fixed slot, so the page never goes flat once the
-     carousel has rotated past the review they just left. */
-  const freshOnPage = freshId != null && shown.some((r) => r.id === freshId);
+  // The drifting pool: user reviews in front, seed behind, capped for a calm loop.
+  const pool = useMemo(() => [...reviews, ...SEED].slice(0, 14), [reviews]);
+  // Constant scroll speed regardless of how many are in the pool.
+  const driftSeconds = Math.max(28, pool.length * 3.6);
 
   const submit = async () => {
     if (!name.trim() || !comment.trim() || sending) return;
@@ -247,10 +190,8 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
     setRating(5);
     setSending(false);
     setThanks(true);
-    // Their review goes to the front of the pool — send the chat back to it so they
-    // actually watch it arrive, lit up, instead of waiting a lap for it.
+    // Their review joins the front of the drift, lit up as it floats past.
     setFreshId(newReview.id);
-    goTo(0);
     setTimeout(() => setThanks(false), 3500);
   };
 
@@ -268,10 +209,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
       </div>
 
       <div className="qx-rv-grid max-w-[1240px] mx-auto px-5 lg:px-8" data-reveal>
-        {/* ── left: leave a review ──
-            flex column so the textarea grows to fill the card; combined with the
-            grid's align-items:stretch this makes the form exactly as tall as the
-            reviews beside it, so the two columns share a top and a bottom edge. */}
+        {/* ── left: leave a review (stays put) ── */}
         <div className="qx-card p-6 lg:p-7 flex flex-col">
           <h3 className="font-display text-lg font-bold mb-5" style={{ color: "var(--text)" }}>{t.formTitle}</h3>
           <div className="flex items-center justify-between mb-4">
@@ -303,46 +241,23 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
           )}
         </div>
 
-        {/* ── right: the reviews, arriving one by one ── */}
-        <div
-          className="qx-rv-chat"
-          onMouseEnter={() => setPaused(true)}
-          onMouseLeave={() => setPaused(false)}
-          onFocusCapture={() => setPaused(true)}
-          onBlurCapture={() => setPaused(false)}
-          aria-live="off"
-        >
+        {/* ── right: the reviews, drifting upward ── */}
+        <div className="qx-rv-chat">
           <div className="qx-rv-live">
             <span className="qx-rv-live-dot" aria-hidden />
             {t.live}
           </div>
 
-          <div className="qx-rv-stack">
-            {shown.map((r, i) => (
-              <Bubble
-                key={`${page}-${r.id}`}
-                r={r}
-                i={i}
-                leaving={leaving}
-                accent={freshOnPage ? r.id === freshId : i === 1}
-              />
-            ))}
-          </div>
-
-          {pageCount > 1 && (
-            <div className="qx-rv-dots" role="tablist" aria-label="Reviews">
-              {Array.from({ length: pageCount }, (_, p) => (
-                <button
-                  key={p}
-                  role="tab"
-                  aria-selected={p === page}
-                  aria-label={`Reviews ${p + 1} of ${pageCount}`}
-                  className={`qx-rv-dot${p === page ? " is-on" : ""}`}
-                  onClick={() => goTo(p)}
-                />
-              ))}
+          <div className="qx-rv-float">
+            {/* rendered twice; the track travels exactly one copy, so the loop is seamless */}
+            <div className="qx-rv-track" style={{ animationDuration: `${driftSeconds}s` }}>
+              {[0, 1].map((copy) =>
+                pool.map((r, i) => (
+                  <Bubble key={`${copy}-${r.id}`} r={r} i={i} accent={r.id === freshId} />
+                ))
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
 
@@ -351,16 +266,22 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
           display: grid;
           grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
           gap: clamp(24px, 3.5vw, 56px);
-          align-items: stretch;   /* form + chat share one top and one bottom edge */
+          align-items: stretch;   /* form + drift share one top and one bottom edge */
         }
 
-        .qx-rv-chat { position: relative; min-height: 430px; display: flex; flex-direction: column; }
+        /* the right column is a fixed-height window; the form stretches to match it */
+        .qx-rv-chat {
+          position: relative;
+          height: clamp(440px, 56vh, 560px);
+          display: flex;
+          flex-direction: column;
+        }
         .qx-rv-live {
           display: inline-flex; align-items: center; gap: 7px;
           font-family: "Space Mono", ui-monospace, monospace;
           font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
           color: var(--text-faint);
-          margin-bottom: 18px;
+          margin-bottom: 14px;
         }
         .qx-rv-live-dot {
           width: 6px; height: 6px; border-radius: 50%;
@@ -374,23 +295,39 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
           100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
         }
 
-        .qx-rv-stack { display: flex; flex-direction: column; gap: 14px; flex: 1; }
+        /* the drift viewport — masked so bubbles dissolve at the top and bottom
+           instead of popping at a hard edge */
+        .qx-rv-float {
+          position: relative;
+          flex: 1;
+          overflow: hidden;
+          mask-image: linear-gradient(180deg, transparent, #000 9%, #000 91%, transparent);
+        }
+        .qx-rv-track {
+          display: flex; flex-direction: column;
+          animation-name: qx-rv-drift;
+          animation-timing-function: linear;
+          animation-iteration-count: infinite;
+          will-change: transform;
+        }
+        /* margin-bottom on EVERY row (not flex gap): gap gives N items only N-1
+           gaps, so translateY(-50%) lands half a gap off and the loop jumps. With a
+           trailing margin on all 2N rows, -50% is exactly one copy → seamless. */
+        .qx-rv-track > .qx-rv-row { margin-bottom: 14px; }
+        /* the pool is rendered twice; travelling exactly -50% lands copy 2 where copy
+           1 began, so the seam is invisible */
+        @keyframes qx-rv-drift {
+          from { transform: translateY(0); }
+          to   { transform: translateY(-50%); }
+        }
+        .qx-rv-float:hover .qx-rv-track { animation-play-state: paused; }
 
         /* one message: avatar, then the bubble — mirrored on every other line */
         .qx-rv-row {
           display: flex; align-items: flex-start; gap: 11px;
-          max-width: 88%;
-          animation: qx-rv-in .58s cubic-bezier(.22, 1, .36, 1) backwards;
+          max-width: 90%;
         }
         .qx-rv-row--mine { flex-direction: row-reverse; margin-left: auto; }
-        @keyframes qx-rv-in {
-          from { opacity: 0; transform: translateY(16px) scale(.94); }
-        }
-        /* the four of them clear out in the same order they arrived */
-        .qx-rv-out { animation: qx-rv-exit .4s cubic-bezier(.4, 0, 1, 1) forwards; }
-        @keyframes qx-rv-exit {
-          to { opacity: 0; transform: translateY(-12px) scale(.96); }
-        }
 
         .qx-rv-av {
           width: 34px; height: 34px; flex-shrink: 0;
@@ -402,11 +339,9 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
         }
 
         /* The bubbles sit over the world-map dot field, so the backing has to be
-           near-opaque or the map bleeds through the text — the old --surface-2 was
-           6% white, i.e. almost transparent, which is why it was unreadable. This is
-           the site's own card glass (rgba(24,26,38,.78)→(15,17,26,.82)) pushed to
-           ~92% so text always has a solid ground. Standard backdrop-filter only —
-           Lightning CSS drops the standard property if a -webkit- prefix follows. */
+           near-opaque or the map bleeds through the text. This is the site's own card
+           glass pushed to ~92%. Standard backdrop-filter only — Lightning CSS drops
+           the standard property if a -webkit- prefix follows it. */
         .qx-rv-bub {
           position: relative;
           padding: 11px 15px 12px;
@@ -420,7 +355,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
         .qx-rv-row:not(.qx-rv-row--mine) .qx-rv-bub { border-top-left-radius: 5px; }
         .qx-rv-row--mine .qx-rv-bub { border-top-right-radius: 5px; }
 
-        /* the lit one — brand orange, and a shine that crosses it once in a while */
+        /* the visitor's own review — brand orange, and a shine that crosses it */
         .qx-rv-bub--accent {
           background: var(--grad-primary, linear-gradient(135deg, #ff8a3c, #ff4d1c));
           border-color: transparent;
@@ -451,31 +386,21 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
         }
         .qx-rv-text {
           font-size: 13.5px; line-height: 1.6;
-          /* brighter than --text-muted (#9aa3b2): the review IS the content here, so
-             it reads as body text, not a caption */
           color: #cdd2de;
         }
 
-        .qx-rv-dots { display: flex; gap: 7px; margin-top: 22px; }
-        .qx-rv-dot {
-          width: 22px; height: 4px; border-radius: 99px;
-          background: var(--border, rgba(255,255,255,.12));
-          border: 0; padding: 0; cursor: pointer;
-          transition: background .3s, width .3s;
-        }
-        .qx-rv-dot.is-on { width: 34px; background: var(--primary, #ff4d1c); }
-
         @media (max-width: 900px) {
           .qx-rv-grid { grid-template-columns: 1fr; }
-          .qx-rv-chat { min-height: 0; }
+          .qx-rv-chat { height: clamp(380px, 70vh, 480px); }
           .qx-rv-row { max-width: 96%; }
         }
 
-        /* Auto-advance is off entirely under reduced motion (see the effect above);
-           the dots stay, so every review is still reachable by hand. */
+        /* Auto-motion is decoration, not information: stop the drift entirely and
+           show the reviews as a plain, scrollable column. */
         @media (prefers-reduced-motion: reduce) {
-          .qx-rv-row, .qx-rv-out, .qx-rv-live-dot, .qx-rv-bub--accent::after { animation: none; }
-          .qx-rv-dot { transition: none; }
+          .qx-rv-track { animation: none; }
+          .qx-rv-float { overflow-y: auto; mask-image: none; }
+          .qx-rv-live-dot, .qx-rv-bub--accent::after { animation: none; }
         }
       `}</style>
     </section>

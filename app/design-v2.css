@@ -580,11 +580,16 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 .qx-num-item {
   position: relative; isolation: isolate; overflow: hidden;
   display: flex; flex-direction: column; gap: 12px;
-  padding: 24px 20px 22px; border-radius: 20px;
-  background: linear-gradient(180deg, #141417 0%, #0e0e11 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  transition: transform 0.35s var(--ease-out), box-shadow 0.35s;
+  padding: 24px 20px 22px; border-radius: 22px;
+  /* Same glass as the QR generator card (.qx-fcard): translucent white over the
+     navy canvas + the shared blur, not the near-black graphite these shipped with.
+     The cursor-lit border/spotlight below still sit on top, so the cards keep their
+     life but now belong to the same material as the rest of the page. */
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  transition: transform 0.35s var(--ease-out), box-shadow 0.35s, border-color 0.35s;
 }
 /* Gradient border: a 1px ring lit from wherever the cursor is.
    Standard mask properties only — Lightning CSS emits the -webkit- forms. Writing them
@@ -612,7 +617,8 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
 .qx-num-item > * { position: relative; z-index: 2; }
 .qx-num-item:hover {
   transform: translateY(-4px);
-  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.26);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .qx-num-item:hover::before { opacity: 1; }
 .qx-num-item:hover::after  { opacity: 1; }
