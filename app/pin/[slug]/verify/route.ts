@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
 import { getGeoData } from "@/lib/geoip";
-import { rateLimit } from "@/lib/server/security";
+import { anonymizeIp } from "@/lib/ip";
+import { rateLimit, verifyPassword } from "@/lib/server/security";
 
 export const runtime = "nodejs";
 
@@ -39,7 +40,15 @@ export async function POST(
     return NextResponse.redirect(new URL("/", req.url));
   }
 
-  if (String(pin) !== String(data.pin)) {
+  // PINs are stored hashed (PBKDF2). Legacy rows may still hold plaintext, so
+  // accept those too until they are recreated.
+  const stored = String(data.pin ?? "");
+  const submitted = String(pin ?? "");
+  const pinOk = stored.startsWith("pbkdf2$")
+    ? await verifyPassword(submitted, stored)
+    : stored.length > 0 && submitted === stored;
+
+  if (!pinOk) {
     return NextResponse.redirect(new URL(`/pin/${slug}?error=1`, req.url), 303);
   }
 
@@ -80,7 +89,8 @@ export async function POST(
   await supabase.from("qr_scans").insert({
     slug,
     user_agent: userAgent,
-    ip,
+    // GDPR: the raw IP resolves geo above, but only a coarsened form is stored.
+    ip: anonymizeIp(ip),
     browser,
     os,
     device,

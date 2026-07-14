@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase-server";
-import { rateLimit } from "@/lib/server/security";
+import { rateLimit, hashPassword } from "@/lib/server/security";
 
 /** Only allow safe http(s) destinations — blocks javascript:, data:, etc. */
 function isSafeUrl(raw: unknown): raw is string {
@@ -44,14 +44,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid URL. Use a full http(s) link." }, { status: 400 });
     }
 
-    // ── validate optional PIN (4–10 digits) ──
+    // ── validate optional PIN (4–10 digits) — stored HASHED, never in cleartext ──
     let pin: string | null = null;
     if (pinRaw !== undefined && pinRaw !== null && pinRaw !== "") {
       const p = String(pinRaw);
       if (!/^\d{4,10}$/.test(p)) {
         return NextResponse.json({ error: "PIN must be 4–10 digits." }, { status: 400 });
       }
-      pin = p;
+      pin = await hashPassword(p);
     }
 
     // ── validate / sanitize custom slug ──

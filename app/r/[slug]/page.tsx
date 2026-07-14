@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
 import { getGeoData } from "@/lib/geoip";
+import { anonymizeIp } from "@/lib/ip";
 
 type Props = {
   params: Promise<{
@@ -81,7 +82,8 @@ const scanResult = await supabase
   .insert({
   slug,
   user_agent: userAgent,
-  ip,
+  // GDPR: the raw IP resolves geo above, but only a coarsened form is stored.
+  ip: anonymizeIp(ip),
   browser,
   os,
   device,
