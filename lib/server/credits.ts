@@ -50,7 +50,21 @@ const DEFAULT_COSTS: Record<string, number> = {
   "api-call": 1,
 };
 
-export const creditsEnforced = () => process.env.CREDITS_ENFORCED === "1";
+/**
+ * SAFETY GUARD — credit enforcement requires a PERSISTENT store.
+ *
+ * The repository layer (lib/server/db.ts) is still the in-memory mock: it resets on
+ * every serverless cold start, and each lambda instance has its own copy. Deducting
+ * real credits against that would randomly wipe or resurrect balances and let the
+ * same quota be spent once per instance. So enforcement is refused until a durable
+ * driver is wired — CREDITS_ENFORCED=1 meters usage but never blocks or deducts.
+ *
+ * Flip this to `isLive.db` (config.ts) the moment db.ts actually routes to Prisma.
+ */
+const CREDIT_STORE_PERSISTENT = false;
+
+export const creditsEnforced = () =>
+  process.env.CREDITS_ENFORCED === "1" && CREDIT_STORE_PERSISTENT;
 
 // ── Costs (admin-tunable) ───────────────────────────────────────────────
 export function getCosts(): Record<string, number> {

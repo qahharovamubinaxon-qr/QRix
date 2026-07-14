@@ -25,6 +25,9 @@ export function envValidation(): { ok: boolean; issues: string[] } {
   if (serverConfig.billing.driver === "stripe" && !serverConfig.billing.webhookSecret) issues.push("STRIPE_WEBHOOK_SECRET missing while Stripe is live");
   if (serverConfig.storage.driver === "s3" && (!serverConfig.storage.accessKey || !serverConfig.storage.secretKey)) issues.push("S3 driver selected but S3_ACCESS_KEY_ID/S3_SECRET_ACCESS_KEY missing");
   if (serverConfig.email.driver === "resend" && !serverConfig.email.resendKey) issues.push("EMAIL_DRIVER=resend but RESEND_API_KEY missing");
+  if (process.env.CREDITS_ENFORCED === "1") issues.push("CREDITS_ENFORCED=1 is being IGNORED — the credit store is still the in-memory mock (wire lib/server/db.ts to Prisma before charging users)");
+  if (prod && !process.env.NEXT_PUBLIC_AI_ENGINE) issues.push("NEXT_PUBLIC_AI_ENGINE not set — AI tools stay on their on-device fallbacks even though server keys exist");
+  if (prod && !process.env.CRON_SECRET) issues.push("CRON_SECRET not set — all cron routes are rejected (fail-closed)");
   return { ok: issues.length === 0, issues };
 }
 
