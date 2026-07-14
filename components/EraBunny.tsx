@@ -7,6 +7,7 @@
    alpha film trade places in a slow cycle. Cursor still gets a soft nod. */
 
 import { useEffect, useRef, useState } from "react";
+import BunnyScrollStage from "@/components/BunnyScrollStage";
 
 /* toggle .on both ways so the smoke plays on every entry/exit.
    The synchronous first check guarantees the mascot materializes on load
@@ -56,31 +57,24 @@ function useParallax<T extends HTMLElement>(amp = 16) {
   return ref;
 }
 
-/* hero mascot: still ↔ alpha film, dissolving into each other on a slow cycle */
+/* hero mascot (Mission 79 prototype): the bunny is scrubbed by the scrollbar.
+   It used to be the still cross-fading with bunny-hero-live.webm on a 6.5s timer —
+   a loop that ran whether or not anyone was there, and that flashed the bunny white
+   for a second every pass (the source video washes out from 3.50s to 4.57s; see
+   scripts/gen-bunny-frames.mjs). Now the pointing take is 53 frames and the scroll
+   position chooses which one, so the bunny answers the reader instead of a clock,
+   and the flashing frames are simply not in the sequence.
+   The smoke reveal and the parallax drift are unchanged — BunnyScrollStage slots
+   into the same .qx-hm-in box the film used. */
 export default function EraBunny() {
   const smokeRef = useSmoke<HTMLDivElement>(0.15);
   const paraRef = useParallax<HTMLDivElement>(18);
-  const [showVid, setShowVid] = useState(false);
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    if (mq.matches) return;
-    const id = window.setInterval(() => setShowVid((v) => !v), 6500);
-    return () => window.clearInterval(id);
-  }, []);
 
   return (
     <div className="qx-hm" aria-hidden>
       <div ref={smokeRef} className="qx-smoke">
-        <div ref={paraRef} className={`qx-hm-in${showVid ? " show-vid" : ""}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="qx-hm-img" src="/scenes/bunny-hero.webp" alt="" draggable={false} />
-          {!reduced && (
-            <video className="qx-hm-vid" src="/scenes/bunny-hero-live.webm"
-              autoPlay muted loop playsInline />
-          )}
+        <div ref={paraRef} className="qx-hm-in">
+          <BunnyScrollStage />
         </div>
       </div>
     </div>
