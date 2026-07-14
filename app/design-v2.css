@@ -443,6 +443,47 @@ html.light .qx-scenes { display: none; }
   opacity: 0;
   pointer-events: none;
   will-change: opacity;
+  /* Calm the source colours: the original uses fully-saturated primaries
+     (#f00/#ff0/#0f0/#00f), which fight the orange-on-black brand and drown the copy.
+     Desaturating + dimming here keeps the motion but turns it into atmosphere.
+     The JS gate also caps peak opacity — see GradientDotsBackground. */
+  filter: saturate(0.5) brightness(0.6);
+}
+
+/* ── Legibility plate ─────────────────────────────────────────────────────
+   Sits behind card-less copy that would otherwise fight the dot field. It is
+   deliberately NOT a card: no border, no visible box. Just a soft dark wash plus a
+   backdrop blur, masked with a radial gradient so its edges dissolve into the
+   background instead of drawing a rectangle. */
+.qx-legible {
+  position: relative;
+}
+/* Lift the copy above the plate. NOTE: deliberately no `isolation: isolate` here —
+   isolating turns the element into a backdrop root, which leaves the plate with
+   nothing behind it to blur and silently kills backdrop-filter. */
+.qx-legible > * {
+  position: relative;
+  z-index: 1;
+}
+.qx-legible::before {
+  content: "";
+  position: absolute;
+  inset: -22px -30px;
+  z-index: 0;
+  pointer-events: none;
+  /* The wash alone carries the legibility — it is a radial gradient, so it fades to
+     nothing at the edges by construction (no mask needed, no rectangle to see).
+     backdrop-filter is deliberately NOT used here: this project's CSS pipeline was
+     dropping it (see the browserslist note in package.json), and a blur would also
+     need a mask to avoid a hard-edged blurred box. A soft dark wash is what actually
+     separates the copy from the dot field. */
+  background: radial-gradient(
+    ellipse 90% 88% at 50% 50%,
+    rgba(5, 5, 8, 0.88) 0%,
+    rgba(5, 5, 8, 0.74) 42%,
+    rgba(5, 5, 8, 0.36) 72%,
+    rgba(5, 5, 8, 0) 100%
+  );
 }
 
 

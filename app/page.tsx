@@ -14,7 +14,6 @@ import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { GenBunny } from "@/components/EraBunny";
-import GlitterField from "@/components/GlitterField";
 import QrixPromoFilm from "@/components/QrixPromoFilm";
 import GradientDotsBackground from "@/components/GradientDotsBackground";
 import {
@@ -381,10 +380,10 @@ export default function HomePage() {
         <div className="qx-scene on" data-scene="era" />
         <div className="qx-scene" data-scene="deep" />
         <div className="qx-scene" data-scene="dusk" />
-        {/* 21st.dev gradient-dots — background for the dark sections, below the hero */}
+        {/* 21st.dev gradient-dots — background for the dark sections, below the hero.
+            (The old GlitterField sparks were removed: two competing particle layers
+            made the copy unreadable.) */}
         <GradientDotsBackground />
-        {/* Originkit Glitter Wrap — sparks live on the dark scenes only */}
-        <GlitterField />
       </div>
       <style>{`
         @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(187,169,255,.35)}50%{box-shadow:0 0 0 14px rgba(187,169,255,0)}}
@@ -633,7 +632,7 @@ export default function HomePage() {
 
       {/* ================= QRIX IN NUMBERS — quiet band ================= */}
       <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20 lg:pb-28" aria-label="QRix in numbers">
-        <div className="qx-num" data-reveal>
+        <div className="qx-num qx-legible" data-reveal>
           <p className="qx-mono qx-num-kick">
             {lang === "uz" ? "// QRIX РАҚАМЛАРДА" : lang === "ru" ? "// QRIX В ЦИФРАХ" : "// QRIX IN NUMBERS"}
           </p>
@@ -691,7 +690,7 @@ export default function HomePage() {
       {/* ================= WHY QRIX — BENTO GRID ================= */}
       <section id="why" data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
         <hr className="qx-neon-line mb-16" />
-        <div className="text-center mb-12" data-reveal="perspective">
+        <div className="text-center mb-12 qx-legible" data-reveal="perspective">
           <h2 className="qx-section-title justify-center" style={{ color:"var(--text)", fontSize:"clamp(2rem,5vw,3.2rem)", fontWeight:900 }}>
             {t.whyTitle}{" "}
             <span className="qx-headline-neon-orange">QRix</span>?
@@ -699,7 +698,7 @@ export default function HomePage() {
           <p className="mt-4 text-[16px] max-w-[520px] mx-auto" style={{ color:"var(--text-muted)" }}>{t.whySub}</p>
         </div>
         {/* editorial statements — no cards, the reasons land one after another */}
-        <div className="max-w-[880px] mx-auto">
+        <div className="max-w-[880px] mx-auto qx-legible">
           {features.map((f, i) => (
             <div key={f.title} className="qx-why-line"
               data-reveal={i % 2 ? "right" : "left"}

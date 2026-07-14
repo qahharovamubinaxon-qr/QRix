@@ -15,6 +15,10 @@ import { GradientDots } from "@/components/ui/gradient-dots";
  * Scroll is read in a rAF-throttled passive listener; the dot animation itself is pure
  * CSS (no JS per frame).
  */
+/** Peak opacity of the dot field. Below 1 on purpose: at full strength the dots
+    compete with the copy instead of sitting behind it. */
+const MAX_OPACITY = 0.5;
+
 export default function GradientDotsBackground() {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -26,9 +30,9 @@ export default function GradientDotsBackground() {
     const apply = () => {
       raf = 0;
       const vh = window.innerHeight || 1;
-      // Fade in across the half-viewport after the hero.
-      const op = Math.max(0, Math.min(1, (window.scrollY - vh * 0.6) / (vh * 0.5)));
-      el.style.opacity = String(op);
+      // Fade in across the half-viewport after the hero, up to MAX_OPACITY.
+      const t = Math.max(0, Math.min(1, (window.scrollY - vh * 0.6) / (vh * 0.5)));
+      el.style.opacity = String(t * MAX_OPACITY);
     };
     const onScroll = () => {
       if (!raf) raf = requestAnimationFrame(apply);
