@@ -391,15 +391,6 @@ body { transition: background-color 1.1s var(--ease-in-out), color 0.3s ease; }
 }
 html.light .qx-scenes { display: none; }
 
-/* Mission 72: cinematic warp-tunnel background — sits on top of the era/deep/dusk
-   scene gradients (last child of .qx-scenes) but still behind page content. JS
-   drives its opacity (0 over the orange hero → 1 below it) and its zoom via
-   scroll, so we set no CSS opacity transition here. */
-.qx-warp {
-  position: fixed; inset: 0; width: 100%; height: 100%;
-  pointer-events: none; opacity: 0; will-change: opacity;
-}
-
 
 /* ── Mission 25: katana scene artwork + background motion ────────────── */
 

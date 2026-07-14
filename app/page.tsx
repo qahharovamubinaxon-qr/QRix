@@ -16,7 +16,6 @@ import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { GenBunny } from "@/components/EraBunny";
 import GlitterField from "@/components/GlitterField";
 import QrixPromoFilm from "@/components/QrixPromoFilm";
-import QrixWarpBackground from "@/components/QrixWarpBackground";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -381,8 +380,6 @@ export default function HomePage() {
         <div className="qx-scene on" data-scene="era" />
         <div className="qx-scene" data-scene="deep" />
         <div className="qx-scene" data-scene="dusk" />
-        {/* Mission 72: cinematic warp-tunnel — covers the dark scenes below the hero */}
-        <QrixWarpBackground />
         {/* Originkit Glitter Wrap — sparks live on the dark scenes only */}
         <GlitterField />
       </div>
