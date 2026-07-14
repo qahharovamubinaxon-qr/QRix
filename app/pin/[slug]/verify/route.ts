@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { supabase } from "@/lib/supabase";
-import { getGeoData } from "@/lib/geoip";
+import { getGeo } from "@/lib/geoip";
 import { anonymizeIp } from "@/lib/ip";
 import { rateLimit, verifyPassword } from "@/lib/server/security";
 
@@ -84,7 +84,7 @@ export async function POST(
   const device =
     userAgent.includes("Android") || userAgent.includes("iPhone") ? "Mobile" : "Desktop";
 
-  const geo = await getGeoData(ip);
+  const geo = await getGeo(headersList, ip);
 
   await supabase.from("qr_scans").insert({
     slug,
