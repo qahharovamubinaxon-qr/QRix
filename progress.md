@@ -207,8 +207,14 @@ QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ B
   - The projection is **fitted by least squares against dotted-map's own `getPin()`** and validated against all 129 cities (worst residual 0.632 of a grid cell; the script refuses to emit above 0.75). Do not hand-edit `lib/world-map.ts` — regenerate it.
   - ⚠️ **The automation tab cannot verify this** (or any client effect): it does not lay out `<main>` at all (`.qx-era` measures 0×0 there) and suppresses `useEffect` site-wide (MotionLayer activates 0 of 29 reveal elements). Geometry was proven on a standalone page with the same CSS — pin drift 0.00%.
 
+- **Mission 77 — map sizing + one pricing catalog** (`2211922`):
+  - **Map fit**: it was sized on width alone, so a tall viewport pushed the top off screen (at 1897×907 it came out 1560×787 with only 60px above it — the navbar is 68px). The width cap is now also derived from viewport **height** (`min(1240px, 84vw, 138vh)`; 119/60 ≈ 1.98, so 138vh of width ≈ 70vh of height). ⚠️ **Deliberately a width cap, not `max-height`** — clamping the height breaks `aspect-ratio`, the image letterboxes inside a wider box while the HTML label keeps measuring against the box, and the "We are here" tag drifts off its pin. Verified at 6 viewports (390×844 → 1920×1080): never taller than 70% of screen, always clears the navbar.
+  - **Pricing is single-sourced.** `lib/plans.ts` (previously dead code) is now the one client catalog, mirroring `lib/server/billing.ts` (which does the charging). `PricingPlans` and the new `components/PricingTeaser.tsx` both read it. ⚠️ **The plans had been written out twice and had drifted**: the homepage teaser printed **$4 / $40** under a "/mo" label — those are the *annual-prepay* rates (48/12, 490/12); a monthly subscriber is charged **$5 / $49**. It also rounded Business's annual rate to $40 (it is $40.83) and had **no Enterprise tier**. Never hardcode a price in a component.
+  - Homepage now shows **4 professional cards** (Free · Pro · Business · Enterprise) with monthly headline price, the yearly rate stated *as* a yearly rate, 4 features each, recommended badge — in uz/ru/en (`Lang` has 12 locales; the rest fall back to English).
+  - Two false claims in the pricing UI are now **computed, not asserted**: "Save 20%" (true only of Pro, 60→48; Business/Enterprise are 17%) and "2 months free" (true only of Business, 490/49 = 10 months).
+
 ## Last Commit Hash
-`36c90eb` — Mission 76 (live world map + visitor pin). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
+`2211922` — Mission 77 (map sizing · single pricing catalog · 4-card homepage teaser). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
 
 ## Current Git Branch
 `claude/relaxed-turing-bbc58e` (pushed to origin; main checkout `D:\Projects\QRix` must `git checkout` this branch or merge it to see recent work).
