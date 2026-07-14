@@ -1035,39 +1035,11 @@ html.light .qx-card, html.light .qx-card-glow, html.light .qx-card-premium {
   .qx-logos-track { gap: 3.25rem; }
 }
 
-/* ── testimonial marquee (two rows, opposite directions) ── */
-.qx-tmk {
-  overflow: hidden;
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-          mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-}
-.qx-tmk-row {
-  display: flex; gap: 1.25rem; width: max-content;
-  will-change: transform;
-}
-.qx-tmk-left  { animation: qxTmkL 64s linear infinite; }
-.qx-tmk-right { animation: qxTmkR 72s linear infinite; }
-.qx-tmk:hover .qx-tmk-row { animation-play-state: paused; }
-@keyframes qxTmkL { from { transform: translateX(0); }    to { transform: translateX(-50%); } }
-@keyframes qxTmkR { from { transform: translateX(-50%); } to { transform: translateX(0); } }
-.qx-tcard {
-  width: clamp(280px, 30vw, 380px);
-  flex-shrink: 0;
-  padding: 1.35rem 1.5rem;
-  border-radius: 1.25rem;
-  background: color-mix(in srgb, var(--surface-solid) 72%, transparent);
-  border: 1px solid var(--border-glass);
-  backdrop-filter: blur(14px);
-  box-shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 14px 34px -18px rgba(0,0,0,.5);
-  transition: transform .35s cubic-bezier(.22,.6,.28,1), box-shadow .35s, border-color .35s;
-}
-.qx-tcard:hover {
-  transform: translateY(-4px);
-  border-color: color-mix(in srgb, var(--primary) 35%, var(--border-glass));
-  box-shadow: 0 1px 0 rgba(255,255,255,.06) inset, 0 24px 48px -20px rgba(0,0,0,.6);
-}
+/* The testimonial marquee (.qx-tmk / .qx-tcard) is gone. Reviews are a chat now —
+   they arrive one at a time and hold long enough to be read, which two rows of
+   cards drifting past in opposite directions never did. See ReviewsSection.tsx. */
 @media (prefers-reduced-motion: reduce) {
-  .qx-tmk-row, .qx-logos-track { animation: none; flex-wrap: wrap; width: auto; }
+  .qx-logos-track { animation: none; flex-wrap: wrap; width: auto; }
 }
 
 /* ── FAQ accordion ── */
