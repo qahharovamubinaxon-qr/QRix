@@ -221,8 +221,16 @@ QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ B
   - Submitting sends the chat back to page 0 so the visitor watches their own review arrive, lit up.
   - `.qx-tmk` / `.qx-tcard` removed from `globals.css` (nothing else used them); kept the reduced-motion rule they shared with `.qx-logos-track`.
 
+- **Mission 79 — scroll-scrubbed hero bunny (prototype)** (`2b8916e`):
+  - The user asked whether a Higgsfield subscription ($9/$29 — **note: that is the OLD Jan-2026 pricing; it repriced mid-2026 to Starter $15 / Plus $49 / Ultra $129**) could make premium scroll animations with the bunny. Answer built **without any purchase**: the bunny's pointing take is 50 frames and the scroll position picks which to draw (`components/BunnyScrollStage.tsx` canvas). Higgsfield's blocker isn't price — it outputs **opaque MP4**, and a mascot needs alpha + a stable character; see memory [[higgsfield-bunny-video]].
+  - ⚠️ **This fixed a white flash that was live on the homepage.** `public/scenes/bunny-hero-live.webm` washes the bunny out to a pale ghost **3.50s–4.57s every loop** (body luma ramps 116→232); the old hero looped it on a 6.5s timer, so it flashed once a second. Alpha is fine throughout — it's the RGB. The scroll frames stop at **source frame 98** so the flash is not in the sequence. See memory [[bunny-scroll-source-flash]].
+  - **Frames, not video, for scroll-scrub**: seeking a WebM costs a decode per in-between frame (keyframes are ~2s apart); all-keyframe re-encode inflates ~10×. An image sequence has no seek cost (Apple-style). 50 frames = **0.94 MB**, under half the 2.05 MB video.
+  - `scripts/gen-bunny-frames.mjs` + `lib/bunny-frames.ts`. ⚠️ **Two ffmpeg traps** (documented in the script): `-c:v libvpx-vp9` MUST precede `-i` or WebM alpha is silently dropped; and `-frames:v N` caps OUTPUT not input, so with a `select` every-2nd-frame it read 105 through the flash — enforce the range **inside** `select`. The quality gate measures the frames **actually written** (at 110×192, not 44×77 which hid the ramp) and throws on any washed-out frame.
+  - Three parallax layers (glow / bunny / contact shadow at different rates); frames load in parallel with nearest-loaded fallback; `prefers-reduced-motion` holds a pose. `bunny-point.webp` (a file, used by QrixPromoFilm) is untouched — the new frames live in `bunny-point/` (a folder).
+  - **Still a prototype**: hero only. If approved, extend the choreography down the page (walk between sections, point at each tool family, world-map pin).
+
 ## Last Commit Hash
-`dc5e48e` — Mission 78 (reviews as a chat). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
+`2b8916e` — Mission 79 (scroll-scrubbed hero bunny prototype; fixes the source white-flash). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
 
 ## Current Git Branch
 `claude/relaxed-turing-bbc58e` (pushed to origin; main checkout `D:\Projects\QRix` must `git checkout` this branch or merge it to see recent work).
