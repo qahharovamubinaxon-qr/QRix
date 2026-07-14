@@ -132,26 +132,32 @@ export default function CategoryShowcase() {
         }
 
         /* ── spec-sheet card ── */
+        /* Same spec-sheet layout, but on the SITE's material instead of the near-black
+           graphite it shipped with — that graphite read as a different theme against
+           the navy page. Now it is the site card glass (--card-bg / --glass-blur /
+           --card-border), rounded like the rest of the cards, so the row sits in the
+           same world as everything else. Standard backdrop-filter only (Lightning CSS
+           drops the standard property if a -webkit- prefix follows it). */
         .qx-spec {
           --spec-ink: #0b0b0c;
-          --spec-graphite: #131315;
-          --spec-border: #26262a;
-          --spec-text: #f2f2f3;
-          --spec-muted: #8b8b92;
+          --spec-border: var(--card-border, rgba(255, 255, 255, 0.10));
+          --spec-text: var(--text, #ecebe7);
+          --spec-muted: #9aa3b2;
           --spec-accent: var(--primary, #ff4d1c);
-          --spec-edge: rgba(255, 255, 255, 0.03);
+          --spec-edge: rgba(255, 255, 255, 0.05);
 
           display: flex; flex-direction: column;
-          background: var(--spec-graphite);
+          background: var(--card-bg, linear-gradient(160deg, rgba(24,26,38,0.78), rgba(15,17,26,0.82)));
+          backdrop-filter: var(--glass-blur, blur(20px) saturate(160%));
           border: 1px solid var(--spec-border);
-          border-radius: 4px;
-          box-shadow: inset 0 1px 0 var(--spec-edge);
+          border-radius: 16px;
+          box-shadow: var(--card-shadow, 0 10px 40px rgba(0,0,0,.45));
           overflow: hidden;
           transition: border-color .28s, box-shadow .28s, transform .28s var(--ease-out);
         }
         .qx-spec:hover {
           border-color: color-mix(in srgb, var(--spec-accent) 45%, var(--spec-border));
-          box-shadow: inset 0 1px 0 var(--spec-edge), 0 16px 40px rgba(0,0,0,.45);
+          box-shadow: var(--card-shadow, 0 10px 40px rgba(0,0,0,.45)), 0 16px 44px rgba(255,77,28,.14);
           transform: translateY(-3px);
         }
 

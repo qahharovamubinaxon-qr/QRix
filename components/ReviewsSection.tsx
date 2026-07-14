@@ -268,8 +268,11 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
       </div>
 
       <div className="qx-rv-grid max-w-[1240px] mx-auto px-5 lg:px-8" data-reveal>
-        {/* ── left: leave a review ── */}
-        <div className="qx-card p-6 lg:p-7 self-start">
+        {/* ── left: leave a review ──
+            flex column so the textarea grows to fill the card; combined with the
+            grid's align-items:stretch this makes the form exactly as tall as the
+            reviews beside it, so the two columns share a top and a bottom edge. */}
+        <div className="qx-card p-6 lg:p-7 flex flex-col">
           <h3 className="font-display text-lg font-bold mb-5" style={{ color: "var(--text)" }}>{t.formTitle}</h3>
           <div className="flex items-center justify-between mb-4">
             <label className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>{t.rating}</label>
@@ -288,7 +291,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
             placeholder={t.comment}
             maxLength={400}
             rows={4}
-            className="w-full px-4 py-3 text-sm mb-4 resize-none"
+            className="w-full px-4 py-3 text-sm mb-4 resize-none flex-1 min-h-[128px]"
           />
           <button onClick={submit} disabled={sending || !name.trim() || !comment.trim()} className="qx-btn w-full disabled:opacity-50">
             <FiSend size={14} /> {sending ? t.sending : t.send}
@@ -348,7 +351,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
           display: grid;
           grid-template-columns: minmax(0, 400px) minmax(0, 1fr);
           gap: clamp(24px, 3.5vw, 56px);
-          align-items: start;
+          align-items: stretch;   /* form + chat share one top and one bottom edge */
         }
 
         .qx-rv-chat { position: relative; min-height: 430px; display: flex; flex-direction: column; }
@@ -398,12 +401,20 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
           box-shadow: 0 2px 10px rgba(0, 0, 0, .4);
         }
 
+        /* The bubbles sit over the world-map dot field, so the backing has to be
+           near-opaque or the map bleeds through the text — the old --surface-2 was
+           6% white, i.e. almost transparent, which is why it was unreadable. This is
+           the site's own card glass (rgba(24,26,38,.78)→(15,17,26,.82)) pushed to
+           ~92% so text always has a solid ground. Standard backdrop-filter only —
+           Lightning CSS drops the standard property if a -webkit- prefix follows. */
         .qx-rv-bub {
           position: relative;
           padding: 11px 15px 12px;
           border-radius: 16px;
-          background: var(--surface-2, #16161a);
-          border: 1px solid var(--border, rgba(255,255,255,.07));
+          background: linear-gradient(160deg, rgba(26, 30, 46, 0.93), rgba(15, 18, 30, 0.95));
+          backdrop-filter: blur(12px) saturate(150%);
+          border: 1px solid var(--card-border, rgba(255, 255, 255, 0.10));
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
           min-width: 0;
         }
         .qx-rv-row:not(.qx-rv-row--mine) .qx-rv-bub { border-top-left-radius: 5px; }
@@ -440,7 +451,9 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
         }
         .qx-rv-text {
           font-size: 13.5px; line-height: 1.6;
-          color: var(--text-muted);
+          /* brighter than --text-muted (#9aa3b2): the review IS the content here, so
+             it reads as body text, not a caption */
+          color: #cdd2de;
         }
 
         .qx-rv-dots { display: flex; gap: 7px; margin-top: 22px; }
