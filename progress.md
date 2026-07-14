@@ -229,8 +229,13 @@ QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ B
   - Three parallax layers (glow / bunny / contact shadow at different rates); frames load in parallel with nearest-loaded fallback; `prefers-reduced-motion` holds a pose. `bunny-point.webp` (a file, used by QrixPromoFilm) is untouched — the new frames live in `bunny-point/` (a folder).
   - **Still a prototype**: hero only. If approved, extend the choreography down the page (walk between sections, point at each tool family, world-map pin).
 
+- **Mission 80 — full-page scroll companion** (`e33eea8`): `components/BunnyCompanion.tsx` extends the hero scrub down the page — below the hero the bunny sits in the left gutter and points at each content section (all-tools · reviews · pricing) as it centres, arm down between. Reuses `bunny-point/` frames (frame 0 arm-down → last frame point); no new assets.
+  - ⚠️ **Centred dense layout has no gutter at ~1440px** — a persistent side companion would cover the cards / reviews form. So it **measures the tightest section's left edge** each resize and only appears when the gutter is wide enough (~**1644px+**), sized to fit inside it. Proven no-overlap 1440→2560. Below that: renders nothing, hero bunny only. **Never widen it past the measured gutter.**
+  - Skips hero + generator bands (both have their own bunny), `pointer-events:none`, off on touch / reduced-motion. Client-gated so absent from SSR. Removal = delete the `<BunnyCompanion />` line in `app/page.tsx` + the file.
+  - Choreography simulated: arm peaks (frame 48) as each section centres, ~frame 6 between. tsc clean, page 200, no overlap.
+
 ## Last Commit Hash
-`2b8916e` — Mission 79 (scroll-scrubbed hero bunny prototype; fixes the source white-flash). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
+`e33eea8` — Mission 80 (full-page scroll companion; gutter-measured, wide-screen only). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
 
 ## Current Git Branch
 `claude/relaxed-turing-bbc58e` (pushed to origin; main checkout `D:\Projects\QRix` must `git checkout` this branch or merge it to see recent work).
