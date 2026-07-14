@@ -79,7 +79,7 @@ const CATS: Cat[] = [
 export default function CategoryShowcase() {
   return (
     <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20 lg:pb-28" aria-label="All tools">
-      <div className="mb-12 lg:mb-16 qx-legible" data-reveal>
+      <div className="mb-12 lg:mb-16" data-reveal>
         <p className="qx-mono text-[11px] tracking-[0.28em] uppercase mb-4" style={{ color: "var(--primary-bright)" }}>
           185+ free tools
         </p>

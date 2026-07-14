@@ -427,21 +427,18 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* the reference's brand row — our six tool families, drifting along a
-              black ledge that runs edge to edge under the bunny's feet */}
-          <div className="qx-era-band">
-            <div className="qx-era-marq" aria-label="Tool categories">
-              <div className="qx-era-marq-track">
-                {[0, 1].map((dup) => (
-                  <div className="qx-era-marq-seg" key={dup} aria-hidden={dup === 1}>
-                    {([["QR TOOLS", "/qr-tools"], ["PDF TOOLS", "/pdf-tools"], ["IMAGE TOOLS", "/image-tools"],
-                       ["AI TOOLS", "/ai-tools"], ["VIDEO TOOLS", "/video-tools"], ["3D TOOLS", "/3d-tools"]] as const
-                    ).map(([label, href]) => (
-                      <Link key={`${href}-${dup}`} href={href} className="qx-era-cat" tabIndex={dup === 1 ? -1 : 0}>{label}</Link>
-                    ))}
-                  </div>
-                ))}
-              </div>
+          {/* the reference's brand row — our six tool families, drifting */}
+          <div className="qx-era-marq" aria-label="Tool categories">
+            <div className="qx-era-marq-track">
+              {[0, 1].map((dup) => (
+                <div className="qx-era-marq-seg" key={dup} aria-hidden={dup === 1}>
+                  {([["QR TOOLS", "/qr-tools"], ["PDF TOOLS", "/pdf-tools"], ["IMAGE TOOLS", "/image-tools"],
+                     ["AI TOOLS", "/ai-tools"], ["VIDEO TOOLS", "/video-tools"], ["3D TOOLS", "/3d-tools"]] as const
+                  ).map(([label, href]) => (
+                    <Link key={`${href}-${dup}`} href={href} className="qx-era-cat" tabIndex={dup === 1 ? -1 : 0}>{label}</Link>
+                  ))}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -627,7 +624,7 @@ export default function HomePage() {
 
       {/* ================= QRIX IN NUMBERS — quiet band ================= */}
       <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-20 lg:pb-28" aria-label="QRix in numbers">
-        <div className="qx-num qx-legible" data-reveal>
+        <div className="qx-num" data-reveal>
           <p className="qx-mono qx-num-kick">
             {lang === "uz" ? "// QRIX РАҚАМЛАРДА" : lang === "ru" ? "// QRIX В ЦИФРАХ" : "// QRIX IN NUMBERS"}
           </p>
@@ -685,7 +682,7 @@ export default function HomePage() {
       {/* ================= WHY QRIX — BENTO GRID ================= */}
       <section id="why" data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32">
         <hr className="qx-neon-line mb-16" />
-        <div className="text-center mb-12 qx-legible" data-reveal="perspective">
+        <div className="text-center mb-12" data-reveal="perspective">
           <h2 className="qx-section-title justify-center" style={{ color:"var(--text)", fontSize:"clamp(2rem,5vw,3.2rem)", fontWeight:900 }}>
             {t.whyTitle}{" "}
             <span className="qx-headline-neon-orange">QRix</span>?
@@ -693,7 +690,7 @@ export default function HomePage() {
           <p className="mt-4 text-[16px] max-w-[520px] mx-auto" style={{ color:"var(--text-muted)" }}>{t.whySub}</p>
         </div>
         {/* editorial statements — no cards, the reasons land one after another */}
-        <div className="max-w-[880px] mx-auto qx-legible">
+        <div className="max-w-[880px] mx-auto">
           {features.map((f, i) => (
             <div key={f.title} className="qx-why-line"
               data-reveal={i % 2 ? "right" : "left"}

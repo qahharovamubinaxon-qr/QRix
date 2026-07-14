@@ -214,9 +214,13 @@ export default function TopNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // xl:px-6 — between 1280 and ~1450 the bar is viewport-limited rather than capped
+  // by max-w, so the header's 40px side padding is the difference between the ten
+  // links sitting on one line and "Tools" dropping under "QR". Above that width the
+  // 1400px cap binds instead and the side padding stops mattering.
   return (
-    <header className="qx-topnav qx-nav sticky top-0 z-50 px-5 lg:px-10">
-      <div className="qx-nav-inner max-w-[1400px] mx-auto h-[68px] flex items-center gap-4">
+    <header className="qx-topnav qx-nav sticky top-0 z-50 px-5 lg:px-10 xl:px-6">
+      <div className="qx-nav-inner max-w-[1400px] mx-auto h-[68px] flex items-center gap-2">
         {/* Logo */}
         <Link href="/" className="shrink-0" aria-label="QRix home">
           <Logo size={30} />
@@ -225,7 +229,7 @@ export default function TopNav() {
         {/* Nav links */}
         {/* xl and up only: ten single-line links need ~1280px of window. Below that
             the burger carries the same links rather than a squeezed, wrapping bar. */}
-        <nav aria-label="Primary" className="hidden xl:flex items-center gap-0.5 mx-auto relative" onMouseLeave={moveToActive}>
+        <nav aria-label="Primary" className="hidden xl:flex items-center gap-0 mx-auto relative" onMouseLeave={moveToActive}>
           {/* sliding glass pill */}
           <span className="qx-nav-glasspill" style={{ transform: `translateX(${pill.x}px)`, top: pill.y, width: pill.w, height: pill.h, opacity: pill.show ? 1 : 0 }} />
           {links.map((l, idx) => {

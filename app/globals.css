@@ -964,22 +964,6 @@ html.light .qx-card, html.light .qx-card-glow, html.light .qx-card-premium {
 }
 
 /* ============================================================
-   METEOR CURSOR
-   The default arrow becomes a meteor: a white-hot head sitting exactly on the
-   hotspot, with an ember tail streaking behind it. Only `default` is replaced —
-   links keep the hand and inputs keep the I-beam, because affordance beats
-   decoration. Touch devices have no cursor to restyle, so we hand the arrow
-   back rather than ship an unused image. The moving trail that follows the
-   cursor is drawn by components/MeteorCursor.tsx.
-   ============================================================ */
-:root {
-  cursor: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'><defs><linearGradient id='m' x1='6' y1='6' x2='26' y2='26' gradientUnits='userSpaceOnUse'><stop offset='0' stop-color='%23ffffff'/><stop offset='.22' stop-color='%23ffd0a0'/><stop offset='.55' stop-color='%23ff6a13' stop-opacity='.8'/><stop offset='1' stop-color='%23ff4d1c' stop-opacity='0'/></linearGradient></defs><path d='M7 7 25 25' fill='none' stroke='url(%23m)' stroke-width='6' stroke-linecap='round' opacity='.3'/><path d='M7 7 23 23' fill='none' stroke='url(%23m)' stroke-width='2.4' stroke-linecap='round'/><circle cx='6' cy='6' r='4.6' fill='%23ff4d1c' opacity='.5'/><circle cx='6' cy='6' r='2.6' fill='%23ffffff'/></svg>") 6 6, auto;
-}
-@media (pointer: coarse) {
-  :root { cursor: auto; }
-}
-
-/* ============================================================
    PREMIUM MOTION SYSTEM (MotionLayer.tsx)
    ============================================================ */
 [data-reveal] {
