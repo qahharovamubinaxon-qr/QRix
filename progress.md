@@ -213,8 +213,16 @@ QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ B
   - Homepage now shows **4 professional cards** (Free · Pro · Business · Enterprise) with monthly headline price, the yearly rate stated *as* a yearly rate, 4 features each, recommended badge — in uz/ru/en (`Lang` has 12 locales; the rest fall back to English).
   - Two false claims in the pricing UI are now **computed, not asserted**: "Save 20%" (true only of Pro, 60→48; Business/Enterprise are 17%) and "2 months free" (true only of Business, 490/49 = 10 months).
 
+- **Mission 78 — reviews as a chat** (`dc5e48e`):
+  - `components/ReviewsSection.tsx` rewritten. The two drifting marquee rows are gone (they showed everything at once and gave no review time to be read). Now: **form on the left, reviews arriving beside it as chat bubbles** — 4 at a time, staggered, alternating sides, avatar + stars, one lit in brand orange with a shine sweep. They hold, clear out, and the next 4 arrive, cycling the whole pool.
+  - ⚠️ **Inline `animation-delay` outranks the `animation` shorthand in a class.** The exit inherited the 170ms *entry* stagger, so the last bubble finished leaving at 910ms while the page swapped at 640ms — cut off mid-exit. Fixed by choosing the stagger per phase (170ms in / 60ms out) and **deriving** the wait from it (`EXIT_TOTAL_MS`), never guessing. Simulated: arrive 1090ms · leave starts 5290ms · leave ends 580ms · swap 580ms.
+  - ⚠️ Second bug: once a visitor left a review the accent followed it by id, so **every page without their review had no lit bubble at all**. Falls back to a fixed slot when their review is not on screen.
+  - **WCAG 2.2.2** (auto-advancing content must be stoppable): pauses on hover *and* keyboard focus, dots drive it by hand, and under `prefers-reduced-motion` it does not auto-advance at all (dots still reach every review). `aria-live="off"` so a screen reader is not read a new testimonial every 6s.
+  - Submitting sends the chat back to page 0 so the visitor watches their own review arrive, lit up.
+  - `.qx-tmk` / `.qx-tcard` removed from `globals.css` (nothing else used them); kept the reduced-motion rule they shared with `.qx-logos-track`.
+
 ## Last Commit Hash
-`2211922` — Mission 77 (map sizing · single pricing catalog · 4-card homepage teaser). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
+`dc5e48e` — Mission 78 (reviews as a chat). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
 
 ## Current Git Branch
 `claude/relaxed-turing-bbc58e` (pushed to origin; main checkout `D:\Projects\QRix` must `git checkout` this branch or merge it to see recent work).
