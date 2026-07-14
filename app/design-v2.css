@@ -390,67 +390,21 @@ body { transition: background-color 1.1s var(--ease-in-out), color 0.3s ease; }
 }
 html.light .qx-scenes { display: none; }
 
-/* ── 21st.dev "Gradient Dots" background (components/ui/gradient-dots.tsx) ──
-   Pure-CSS port of the framer-motion original: the animation is only
-   background-position + hue-rotate, so it costs no JS and no ~50KB motion bundle.
-   The dot mask is painted ON TOP (solid fill with tiny transparent holes) and the
-   colour gradients pan underneath, showing through as dots. */
-.qx-gdots {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-color: var(--gd-bg);
-  /* Brand palette instead of the source's raw RGB primaries: QRix is orange
-     (--primary #ff4d1c) + green (--secondary #467434). */
-  background-image:
-    radial-gradient(circle at 50% 50%, #ff4d1c, transparent 60%),
-    radial-gradient(circle at 50% 50%, #ff9124, transparent 60%),
-    radial-gradient(circle at 50% 50%, #4f9438, transparent 60%),
-    radial-gradient(ellipse at 50% 50%, #86d14f, transparent 60%);
-  background-size: 200% 200%, 200% 200%, 200% 200%, 200% var(--gd-hex);
-  /* The hue sweep ALTERNATES over a narrow arc rather than running a full 360°:
-     a full rotation would drag the palette through blue/purple and off-brand. This
-     keeps it swinging inside the orange↔green family. */
-  animation:
-    qx-gdots-pan var(--gd-dur) linear infinite,
-    qx-gdots-hue var(--gd-cycle) ease-in-out infinite alternate;
-  will-change: background-position, filter;
-}
-.qx-gdots::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 50% 50%, transparent 1.5px, var(--gd-bg) 0 var(--gd-dot), transparent var(--gd-dot)),
-    radial-gradient(circle at 50% 50%, transparent 1.5px, var(--gd-bg) 0 var(--gd-dot), transparent var(--gd-dot));
-  background-size: var(--gd-space) var(--gd-hex);
-  background-position: 0 0, calc(var(--gd-space) / 2) calc(var(--gd-hex) / 2);
-}
-@keyframes qx-gdots-pan {
-  from { background-position: 800% 400%, 1000% -400%, -1200% -600%, 400% var(--gd-hex); }
-  to   { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
-}
-@keyframes qx-gdots-hue {
-  from { filter: hue-rotate(-14deg); }
-  to   { filter: hue-rotate(42deg); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .qx-gdots { animation: none; }
-}
-
-/* The fixed layer that carries the dot field behind the DARK sections only. JS drives
-   its opacity from scroll (0 over the orange hero → 1 below it), so the hero is
-   untouched — see components/GradientDotsBackground.tsx. */
-.qx-gdots-layer {
+/* ── Cosmic Swirl background (components/CosmicSwirlBackground.tsx) ──────────
+   A canvas particle vortex on black: thousands of white points orbiting a drifting
+   core, with angular speed rising toward the centre so the field shears itself into
+   spiral filaments. JS drives the opacity from scroll (0 over the orange hero → 1
+   below it), so the hero is untouched and the swirl carries every dark section down
+   to the footer. Everything else — the motion, the twinkle, the flare — is drawn in
+   the canvas, so there is nothing to animate here. */
+.qx-swirl {
   position: fixed;
   inset: 0;
+  width: 100%;
+  height: 100%;
   opacity: 0;
   pointer-events: none;
   will-change: opacity;
-  /* The dots are on-brand now, so they no longer need to be washed out — just held
-     a touch below full strength so the copy still leads. The JS gate also caps peak
-     opacity (see GradientDotsBackground). */
-  filter: saturate(1.05) brightness(0.95);
 }
 
 /* ── Legibility plate ─────────────────────────────────────────────────────
