@@ -199,8 +199,16 @@ Next.js App Router + TS + Tailwind v4, CoolM5 palette. Tool categories follow on
 ## Current Categories
 QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ Barcode, Link-in-Bio, Blog, Help Center, Docs).
 
+- **Mission 76 — live world map behind the navy, with the visitor's own pin** (`36c90eb`):
+  - `components/WorldMapBackground.tsx` — dotted world map on the dark half of the site; 129 city dots pulse on a stagger ("people are using this"), and the visitor gets a **"We are here"** beam over the city they are actually in.
+  - **Geo**: Vercel resolves it at the edge (`x-vercel-ip-latitude` / `-longitude` / `-city` / `-country`) — no permission prompt, no third-party call, nothing stored. `lib/geoip.ts` already read country/city for scan analytics; this adds the coordinates. Served from **`/api/v1/geo`** (`force-dynamic`, `private, no-store`) rather than read in the page, because **touching headers in a page opts it out of static generation** — the homepage must stay static. Cached in `sessionStorage`: one invocation per session, not per navigation.
+  - **Localhost has no edge headers**, so the pin would be dead in dev. Fallback = the browser's own timezone: `Intl` gives `Asia/Tashkent` → the city segment is looked up in the same list the dots come from (**which is why the cities are named after IANA zones**). Both paths resolve Tashkent to the identical point (x=84.02, y=20.10, 0.00 units apart).
+  - **The map is generated at build time** (`scripts/gen-world-map.mjs` → `public/world-dots.svg` + `lib/world-map.ts`), never imported. ⚠️ `dotted-map` is **352 KB of world land data** and emits **3065 points** — importing it would put all of that on the homepage's critical path, and rendering the points as `<circle>` nodes would put 3065 elements in the DOM. The committed SVG is **9 KB gzipped, one `<img>`, zero DOM cost**. `dotted-map` now lives in **devDependencies**.
+  - The projection is **fitted by least squares against dotted-map's own `getPin()`** and validated against all 129 cities (worst residual 0.632 of a grid cell; the script refuses to emit above 0.75). Do not hand-edit `lib/world-map.ts` — regenerate it.
+  - ⚠️ **The automation tab cannot verify this** (or any client effect): it does not lay out `<main>` at all (`.qx-era` measures 0×0 there) and suppresses `useEffect` site-wide (MotionLayer activates 0 of 29 reveal elements). Geometry was proven on a standalone page with the same CSS — pin drift 0.00%.
+
 ## Last Commit Hash
-`57910db` — Mission 75 (flat navy canvas · one-line nav · hero that scrolls; meteor cursor / black ledge / legibility plate reverted). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
+`36c90eb` — Mission 76 (live world map + visitor pin). Earlier: M74 `3381f72`/`09cf174`, M73 audit, and M9 `0fc455e` · M10 `b946eba` · M11 `099ad01` · M12 `5ffba3e` · M13 `4b9e751` · M14 `28dc69a`.
 
 ## Current Git Branch
 `claude/relaxed-turing-bbc58e` (pushed to origin; main checkout `D:\Projects\QRix` must `git checkout` this branch or merge it to see recent work).
