@@ -41,3 +41,8 @@ yarn-error.log*
 next-env.d.ts
 
 public/imgly/
+
+# 63MB GeoLite2 city DB — local dev fallback only. Production uses Vercel's
+# x-vercel-ip-country/city headers (see lib/geoip.ts), so it must NOT ship in
+# the serverless bundle or bloat clones.
+geoip/*.mmdb

@@ -25,6 +25,11 @@ const PLANS = [
     tagline: "Everything unlimited — for teams that scale", cta: "Start Business trial",
     features: ["Everything in Pro", "Unlimited AI credits", "Unlimited team seats & roles", "Unlimited API access + webhooks", "Unlimited API keys", "Unlimited dynamic QR & bulk", "Priority SLA support", "White-label — no QRix badge"],
   },
+  {
+    id: "enterprise", name: "Enterprise", monthly: 199, yearly: 1990,
+    tagline: "Dedicated infrastructure and contracts", cta: "Contact sales",
+    features: ["Everything in Business", "Dedicated infrastructure", "SSO / SAML", "Custom contracts & invoicing", "Audit log exports", "Named support engineer", "99.9% uptime SLA"],
+  },
 ];
 
 export default function PricingPlans() {
@@ -49,7 +54,7 @@ export default function PricingPlans() {
       </div>
 
       {/* Plans */}
-      <div className="grid md:grid-cols-3 gap-5 items-stretch" data-reveal data-stagger>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 items-stretch" data-reveal data-stagger>
         {PLANS.map((p) => {
           const price = yearly ? (p.yearly / 12) : p.monthly;
           return (
@@ -87,9 +92,11 @@ export default function PricingPlans() {
                   ? <Link href="/qr-tools" className="qx-btn-hero-ghost w-full justify-center !text-sm">{p.cta}</Link>
                   : p.id === "pro"
                     ? <UpgradeButton className="qx-btn-hero w-full justify-center" plan="pro" interval={yearly ? "year" : "month"} />
-                    : <UpgradeButton className="qx-btn w-full justify-center !text-sm font-bold" label={p.cta} plan="business" interval={yearly ? "year" : "month"} />}
+                    : p.id === "business"
+                      ? <UpgradeButton className="qx-btn w-full justify-center !text-sm font-bold" label={p.cta} plan="business" interval={yearly ? "year" : "month"} />
+                      : <Link href="/contact" className="qx-btn-hero-ghost w-full justify-center !text-sm">{p.cta}</Link>}
               </div>
-              {p.id !== "free" && <p className="text-[10.5px] text-center mt-2.5" style={{ color: "var(--text-faint)" }}>14-day free trial · cancel anytime</p>}
+              {(p.id === "pro" || p.id === "business") && <p className="text-[10.5px] text-center mt-2.5" style={{ color: "var(--text-faint)" }}>14-day free trial · cancel anytime</p>}
             </div>
           );
         })}

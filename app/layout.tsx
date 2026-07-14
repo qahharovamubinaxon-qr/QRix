@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import TopNav from "@/components/TopNav";
 import DotDistortionBackground from "@/components/DotDistortionBackground";
 import ReferralCapture from "@/components/ReferralCapture";
@@ -16,15 +15,16 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+/* The 8 display/mono families are loaded from Google Fonts by their REAL family
+   names, because the canvas tools (promo film, AI generators, QR studio) set
+   ctx.font = "…px SUSE / Poppins / Unbounded / Space Mono", which a next/font
+   hashed family name would break. They are pulled in with a <link> + preconnect
+   in <head> rather than a CSS @import: an @import inside globals.css is only
+   discovered after the stylesheet parses, so it blocks render late. Geist was
+   previously also self-hosted via next/font but never referenced by any rule —
+   that was a pure double-load and has been removed. */
+const GOOGLE_FONTS_HREF =
+  "https://fonts.googleapis.com/css2?family=SUSE:wght@500;600;700;800&family=Poppins:wght@700;800&family=Inter:wght@400;500;600;700;800&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Anton&family=Oswald:wght@600;700&family=Unbounded:wght@700;800;900&display=swap";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -76,9 +76,13 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       data-scroll-behavior="smooth"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className="h-full antialiased"
     >
       <head>
+        {/* Fonts first, and discoverable by the preload scanner. */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href={GOOGLE_FONTS_HREF} />
         {/* Google Consent Mode v2 — default DENIED until the user opts in.
             Must run before AdSense/GA so no ad/analytics storage is set
             without consent (GDPR / AdSense EEA requirement). */}

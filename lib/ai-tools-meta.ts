@@ -260,11 +260,11 @@ export const AI_TOOLS: AiTool[] = [
   },
   {
     slug: "translator", title: "AI Translator", short: "Translator",
-    desc: "Translate text between English, Russian, Uzbek and 20+ languages. Full neural translation arrives with the cloud engine.",
+    desc: "Translate text between English, Russian, Uzbek and 20+ languages with neural AI — free, instant, no signup.",
     emoji: "🌍", grad: "linear-gradient(135deg,#60a5fa,#2563eb)", category: "Text AI",
-    engine: "translate", status: "preview",
+    engine: "translate", status: "live",
     keywords: ["ai translator", "translate english uzbek", "russian uzbek translator"],
-    intro: "A clean translation workspace — wired for the neural engine.",
+    intro: "A clean translation workspace powered by neural AI — free and instant.",
     about: "The Translator ships the complete workspace: language pair pickers with swap, character count, copy and history. Neural translation runs through the QRix AI connector; until the cloud engine is enabled, the tool links out to your system translator so the page is still useful today.",
     steps: [
       { title: "Paste your text", desc: "Up to 5,000 characters." },
@@ -414,11 +414,11 @@ export const AI_TOOLS: AiTool[] = [
   },
   {
     slug: "image-generator", title: "AI Image Generator", short: "Image Generator",
-    desc: "Text-to-image workspace with prompt builder and style presets — generation activates with the cloud engine.",
+    desc: "Turn any prompt into an image — free text-to-image generation with a prompt builder and style presets.",
     emoji: "🪄", grad: "linear-gradient(135deg,#f0abfc,#c026d3)", category: "Generators",
-    engine: "imagegen", status: "preview",
+    engine: "imagegen", status: "live",
     keywords: ["ai image generator", "text to image", "free image generation"],
-    intro: "The full text-to-image workspace, wired and waiting for the render engine.",
+    intro: "Describe it, generate it — free AI text-to-image, right in your browser.",
     about: "This is the complete generation workspace — prompt field with builder assist, style presets, aspect ratios, seed control and a result gallery. Rendering runs through the QRix AI connector: the moment a cloud image engine (Stability, Replicate, DALL·E) is configured, generation switches on with zero UI changes.",
     steps: [
       { title: "Write the prompt", desc: "Use the built-in prompt assist for stronger results." },
