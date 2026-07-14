@@ -52,7 +52,9 @@ export default async function Page({ params, searchParams }: Props) {
         {error && (
           <div className="mb-4 p-3 rounded-xl text-xs text-center"
             style={{ background: "rgba(248,113,113,.1)", border: "1px solid rgba(248,113,113,.3)", color: "var(--danger)" }}>
-            ❌ Wrong PIN — try again
+            {error === "rate"
+              ? "🔒 Too many attempts — please wait a few minutes and try again"
+              : "❌ Wrong PIN — try again"}
           </div>
         )}
 

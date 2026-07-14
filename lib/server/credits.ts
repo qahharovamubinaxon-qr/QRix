@@ -30,12 +30,15 @@ export interface CreditEntry {
   createdAt: string;
 }
 
-/** Plan allowances (credits per month). Enterprise is custom via env/admin. */
+/** Plan allowances (credits per month). Enterprise is custom via env/admin.
+    BUSINESS is "everything unlimited" (see lib/server/billing.ts PLANS) — a
+    sentinel ceiling keeps the pricing promise true even once CREDITS_ENFORCED=1. */
+export const UNLIMITED_CREDITS = 1_000_000;
 export const PLAN_CREDITS: Record<Plan, number> = {
   FREE: 60,
   PRO: 1000,
-  BUSINESS: 5000,
-  ENTERPRISE: Number(process.env.ENTERPRISE_CREDITS || 50_000),
+  BUSINESS: UNLIMITED_CREDITS,
+  ENTERPRISE: Number(process.env.ENTERPRISE_CREDITS || UNLIMITED_CREDITS),
 };
 
 /** Default action costs — admin-modifiable at runtime (stored in db). */

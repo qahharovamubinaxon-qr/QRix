@@ -9,7 +9,7 @@ import { FAQ_I18N } from "@/lib/home-faq-i18n";
 
 const FAQS_BASE: Partial<Record<Lang, { q: string; a: string }[]>> = {
   en: [
-    { q: "Is QRix really free?", a: "Yes — all 55+ tools are free with no watermark and no signup. Pro adds unlimited dynamic QR codes, deeper analytics and an ad-free experience." },
+    { q: "Is QRix really free?", a: "Yes — all 185+ tools are free with no watermark and no signup. Pro adds unlimited dynamic QR codes, deeper analytics and an ad-free experience." },
     { q: "Are my files uploaded to a server?", a: "No. PDF, image and QR tools run entirely in your browser — your files never leave your device." },
     { q: "Do my QR codes expire?", a: "Static QR codes never expire. Dynamic QR codes stay active while your link exists, and you can edit their destination anytime." },
     { q: "Can I add my logo and brand colors to a QR code?", a: "Yes — the Design Studio supports logos, custom colors, dot shapes and 'Scan me' frames while keeping the code scannable." },
@@ -19,7 +19,7 @@ const FAQS_BASE: Partial<Record<Lang, { q: string; a: string }[]>> = {
     { q: "How is QRix different from other QR generators?", a: "It's a full toolbox: 30+ QR types, barcode studio, link-in-bio pages, poster maker, plus complete PDF and image toolkits — private, fast and free." },
   ],
   ru: [
-    { q: "QRix действительно бесплатный?", a: "Да — все 55+ инструментов бесплатны, без водяных знаков и регистрации. Pro добавляет безлимитные динамические QR и расширенную аналитику." },
+    { q: "QRix действительно бесплатный?", a: "Да — все 185+ инструментов бесплатны, без водяных знаков и регистрации. Pro добавляет безлимитные динамические QR и расширенную аналитику." },
     { q: "Мои файлы загружаются на сервер?", a: "Нет. PDF, изображения и QR обрабатываются прямо в браузере — файлы не покидают ваше устройство." },
     { q: "Истекают ли QR коды?", a: "Статические QR не истекают никогда. Динамические работают, пока активна ссылка, и их назначение можно менять." },
     { q: "Можно добавить логотип и цвета бренда?", a: "Да — студия дизайна поддерживает логотипы, цвета, формы точек и рамки «Scan me»." },
@@ -29,7 +29,7 @@ const FAQS_BASE: Partial<Record<Lang, { q: string; a: string }[]>> = {
     { q: "Чем QRix отличается от других?", a: "Это полный набор: 30+ типов QR, штрих-коды, link-in-bio, постеры, плюс PDF и графические инструменты — приватно и бесплатно." },
   ],
   uz: [
-    { q: "QRix ҳақиқатан бепулми?", a: "Ҳа — барча 55+ асбоб бепул, ватермарксиз ва рўйхатсиз. Pro чексиз динамик QR ва чуқур аналитика беради." },
+    { q: "QRix ҳақиқатан бепулми?", a: "Ҳа — барча 185+ асбоб бепул, ватермарксиз ва рўйхатсиз. Pro чексиз динамик QR ва чуқур аналитика беради." },
     { q: "Файлларим серверга юкланадими?", a: "Йўқ. PDF, расм ва QR асбоблари тўлиқ браузерингизда ишлайди — файллар қурилмангиздан чиқмайди." },
     { q: "QR кодлар муддати тугайдими?", a: "Статик QR ҳеч қачон тугамайди. Динамик QR ҳаволангиз актив бўлса ишлайверади ва манзилини ўзгартириш мумкин." },
     { q: "Логотип ва бренд рангларини қўшсам бўладими?", a: "Ҳа — Дизайн студияси логотип, ранглар, нуқта шакллари ва «Scan me» рамкаларини қўллайди." },

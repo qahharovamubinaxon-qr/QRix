@@ -4,7 +4,7 @@ export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://qrix.uz").
 export const SITE_NAME = "QRix";
 export const SITE_TAGLINE = "Free QR Code, PDF & Image Tools";
 export const SITE_DESCRIPTION =
-  "QRix is an all-in-one toolkit: generate dynamic QR codes with logos & analytics, plus 25+ free PDF tools (merge, split, compress, convert, OCR, sign) and image tools — fast, secure and right in your browser.";
+  "QRix is an all-in-one toolkit: 185+ free tools — dynamic QR codes with logos & analytics, 20+ PDF tools (merge, split, compress, convert, OCR, sign), image, video and AI tools — fast, private and right in your browser.";
 
 /** Build per-page metadata with canonical + Open Graph + Twitter. */
 export function pageMeta(opts: {

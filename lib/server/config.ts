@@ -60,7 +60,10 @@ export const serverConfig = {
       openai: env("OPENAI_API_KEY"),
       gemini: env("GEMINI_API_KEY"),
       replicate: env("REPLICATE_API_TOKEN"),
-      cloudflare: env("CLOUDFLARE_AI_TOKEN"),
+      // Must match the envKey the Cloudflare adapter/manager actually resolve
+      // (lib/server/ai/providers.ts). CLOUDFLARE_AI_TOKEN is kept as a fallback
+      // alias so an older deployment's value still works.
+      cloudflare: env("CLOUDFLARE_API_KEY") || env("CLOUDFLARE_AI_TOKEN"),
       cloudflareAccount: env("CLOUDFLARE_ACCOUNT_ID"),
       encoderUrl: env("VIDEO_ENCODER_URL"),
     },

@@ -46,7 +46,7 @@ export default function OpengraphImage() {
           {SITE_TAGLINE}
         </div>
         <div style={{ color: "#e1ff04", fontSize: 34, fontWeight: 600, marginTop: 28 }}>
-          55+ tools · 100% free · private in your browser
+          185+ tools · 100% free · private in your browser
         </div>
       </div>
     ),

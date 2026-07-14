@@ -20,7 +20,7 @@ export const DOC_PAGES: DocPage[] = [
       {
         "h": "What QRix is",
         "p": [
-          "QRix is a collection of practical creation and conversion tools that run in your web browser. It brings together roughly 187 tools across six areas — QR codes, PDFs, images, AI, video, and 3D — plus extras like a barcode studio, a link-in-bio builder, and bulk QR generation.",
+          "QRix is a collection of practical creation and conversion tools that run in your web browser. It brings together more than 185 tools across six areas — QR codes, PDFs, images, AI, video, and 3D — plus extras like a barcode studio, a link-in-bio builder, and bulk QR generation.",
           "Every tool is free to use, adds no watermark to your output, and requires no account to get started. You open a page, work with your file, and download the result. There is no trial timer, no export cap, and no upsell blocking the download button.",
           "The defining trait is where the work happens. For the browser tools, your files are processed on your own device — they are never uploaded to a server. This is explained in detail in How it works, and it is the reason QRix can be both free and private at the same time."
         ]

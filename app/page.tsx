@@ -768,7 +768,7 @@ export default function HomePage() {
           {lang === "uz" ? "Бугуноқ бошланг — бепул" : lang === "ru" ? "Начните сегодня — бесплатно" : "Start creating today — free"}
         </h2>
         <p className="mt-4 text-[15px] max-w-md mx-auto" style={{ color: "var(--text-muted)" }}>
-          {lang === "uz" ? "Рўйхатсиз. Ватермарксиз. 55+ асбоб — браузерингизда." : lang === "ru" ? "Без регистрации. Без водяных знаков. 55+ инструментов в браузере." : "No signup. No watermark. 55+ tools right in your browser."}
+          {lang === "uz" ? "Рўйхатсиз. Ватермарксиз. 185+ асбоб — браузерингизда." : lang === "ru" ? "Без регистрации. Без водяных знаков. 185+ инструментов в браузере." : "No signup. No watermark. 185+ tools right in your browser."}
         </p>
         <a href="#generator" className="qx-btn-hero inline-flex mt-8" data-magnetic>
           {t.cta} <FiArrowRight size={15} />

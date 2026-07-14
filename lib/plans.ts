@@ -13,7 +13,7 @@ export const PRO_FEATURES = [
 ];
 
 export const FREE_FEATURES = [
-  "All 55+ tools, free forever",
+  "All 185+ tools, free forever",
   "QR codes with logo & colors",
   "PDF / image tools in your browser",
   "Basic scan analytics",

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase-server";
+import { rateLimit } from "@/lib/server/security";
 
 /** Only allow safe http(s) destinations — blocks javascript:, data:, etc. */
 function isSafeUrl(raw: unknown): raw is string {
@@ -13,6 +15,19 @@ function isSafeUrl(raw: unknown): raw is string {
 }
 
 export async function POST(req: Request) {
+  // Anti-abuse: links can be minted anonymously, so cap creation per IP —
+  // otherwise the QRix domain could be used in bulk to host phishing redirects.
+  const h = await headers();
+  const ip =
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
+  const rl = await rateLimit(`dyn:${ip}`, { max: 20, windowMs: 3_600_000 });
+  if (!rl.ok) {
+    return NextResponse.json(
+      { error: "Too many links created. Please try again later." },
+      { status: 429 },
+    );
+  }
+
   const supabase = await createClient();
   const {
     data: { session },

@@ -5,7 +5,7 @@ export const FAQ_I18N: Record<string, { q: string; a: string }[]> = {
   "fr": [
     {
       "q": "QRix est-il vraiment gratuit ?",
-      "a": "Oui — les 55+ outils sont gratuits, sans filigrane et sans inscription. La version Pro ajoute des QR codes dynamiques illimités, des analyses plus poussées et une expérience sans publicité."
+      "a": "Oui — les 185+ outils sont gratuits, sans filigrane et sans inscription. La version Pro ajoute des QR codes dynamiques illimités, des analyses plus poussées et une expérience sans publicité."
     },
     {
       "q": "Mes fichiers sont-ils envoyés sur un serveur ?",
@@ -39,7 +39,7 @@ export const FAQ_I18N: Record<string, { q: string; a: string }[]> = {
   "pt": [
     {
       "q": "O QRix é mesmo gratuito?",
-      "a": "Sim — todas as 55+ ferramentas são gratuitas, sem marca d'água e sem cadastro. O Pro acrescenta QR codes dinâmicos ilimitados, análises mais detalhadas e uma experiência sem anúncios."
+      "a": "Sim — todas as 185+ ferramentas são gratuitas, sem marca d'água e sem cadastro. O Pro acrescenta QR codes dinâmicos ilimitados, análises mais detalhadas e uma experiência sem anúncios."
     },
     {
       "q": "Meus arquivos são enviados para um servidor?",
@@ -73,7 +73,7 @@ export const FAQ_I18N: Record<string, { q: string; a: string }[]> = {
   "id": [
     {
       "q": "Apakah QRix benar-benar gratis?",
-      "a": "Ya — semua 55+ alat gratis tanpa watermark dan tanpa perlu daftar. Pro menambahkan QR code dinamis tanpa batas, analitik lebih mendalam, dan pengalaman bebas iklan."
+      "a": "Ya — semua 185+ alat gratis tanpa watermark dan tanpa perlu daftar. Pro menambahkan QR code dinamis tanpa batas, analitik lebih mendalam, dan pengalaman bebas iklan."
     },
     {
       "q": "Apakah file saya diunggah ke server?",
@@ -107,7 +107,7 @@ export const FAQ_I18N: Record<string, { q: string; a: string }[]> = {
   "de": [
     {
       "q": "Ist QRix wirklich kostenlos?",
-      "a": "Ja – alle 55+ Tools sind kostenlos, ohne Wasserzeichen und ohne Anmeldung. Pro bringt unbegrenzte dynamische QR-Codes, ausführlichere Analysen und ein werbefreies Erlebnis."
+      "a": "Ja – alle 185+ Tools sind kostenlos, ohne Wasserzeichen und ohne Anmeldung. Pro bringt unbegrenzte dynamische QR-Codes, ausführlichere Analysen und ein werbefreies Erlebnis."
     },
     {
       "q": "Werden meine Dateien auf einen Server hochgeladen?",
@@ -209,7 +209,7 @@ export const FAQ_I18N: Record<string, { q: string; a: string }[]> = {
   "ur": [
     {
       "q": "کیا QRix واقعی مفت ہے؟",
-      "a": "جی ہاں — تمام 55+ ٹولز مفت ہیں، نہ کوئی واٹر مارک اور نہ سائن اپ کی ضرورت۔ Pro لامحدود ڈائنامک QR کوڈز، مزید تفصیلی اینالٹکس اور اشتہارات سے پاک تجربہ دیتا ہے۔"
+      "a": "جی ہاں — تمام 185+ ٹولز مفت ہیں، نہ کوئی واٹر مارک اور نہ سائن اپ کی ضرورت۔ Pro لامحدود ڈائنامک QR کوڈز، مزید تفصیلی اینالٹکس اور اشتہارات سے پاک تجربہ دیتا ہے۔"
     },
     {
       "q": "کیا میری فائلیں سرور پر اپ لوڈ ہوتی ہیں؟",
@@ -277,7 +277,7 @@ export const FAQ_I18N: Record<string, { q: string; a: string }[]> = {
   "zh": [
     {
       "q": "QRix 真的免费吗？",
-      "a": "是的——全部 55+ 款工具都免费，没有水印，也无需注册。Pro 版则额外提供不限量的动态 QR 码、更深入的数据分析和无广告体验。"
+      "a": "是的——全部 185+ 款工具都免费，没有水印，也无需注册。Pro 版则额外提供不限量的动态 QR 码、更深入的数据分析和无广告体验。"
     },
     {
       "q": "我的文件会被上传到服务器吗？",
@@ -311,7 +311,7 @@ export const FAQ_I18N: Record<string, { q: string; a: string }[]> = {
   "hi": [
     {
       "q": "क्या QRix सचमुच मुफ़्त है?",
-      "a": "हाँ — सभी 55+ टूल्स बिना वॉटरमार्क और बिना साइनअप के मुफ़्त हैं। Pro में असीमित डायनामिक QR कोड, गहरा एनालिटिक्स और विज्ञापन-रहित अनुभव मिलता है।"
+      "a": "हाँ — सभी 185+ टूल्स बिना वॉटरमार्क और बिना साइनअप के मुफ़्त हैं। Pro में असीमित डायनामिक QR कोड, गहरा एनालिटिक्स और विज्ञापन-रहित अनुभव मिलता है।"
     },
     {
       "q": "क्या मेरी फ़ाइलें किसी सर्वर पर अपलोड होती हैं?",
@@ -379,7 +379,7 @@ export const FAQ_I18N: Record<string, { q: string; a: string }[]> = {
   "ar": [
     {
       "q": "هل QRix مجاني فعلاً؟",
-      "a": "نعم — جميع الأدوات الـ 55+ مجانية بلا علامة مائية وبدون تسجيل. تضيف باقة Pro رموز QR ديناميكية غير محدودة وتحليلات أعمق وتجربة خالية من الإعلانات."
+      "a": "نعم — جميع الأدوات الـ 185+ مجانية بلا علامة مائية وبدون تسجيل. تضيف باقة Pro رموز QR ديناميكية غير محدودة وتحليلات أعمق وتجربة خالية من الإعلانات."
     },
     {
       "q": "هل تُرفع ملفاتي إلى خادم؟",
