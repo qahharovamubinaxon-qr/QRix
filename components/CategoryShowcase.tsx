@@ -1,9 +1,11 @@
 "use client";
 
-/* Homepage — ALL TOOLS as a quiet index (Mission 54).
-   After nine louder takes, restraint: no cards, no borders, no per-category
-   colors, no motion tricks. A whitespace grid where type does the premium
-   work — one orange accent, mono indexes, real links. */
+/* Homepage — ALL TOOLS.
+   The six categories are rendered as "spec sheet" cards (adapted from a Uiverse
+   concept by uiverse-astronaut): a mono header bar with an index badge, the category
+   name and a LIVE chip, then the tool count as the headline figure, the top tools as
+   links, and a jump to the full category. The source's ember accent (#f65a1a) is
+   swapped for the QRix brand orange. */
 
 import Link from "next/link";
 import { FiArrowRight, FiArrowUpRight } from "react-icons/fi";
@@ -89,73 +91,153 @@ export default function CategoryShowcase() {
 
       <div className="qx-qi" data-stagger>
         {CATS.map((cat, i) => (
-          <div key={cat.name} className="qx-qi-col qx-legible" data-reveal
+          <article key={cat.name} className="qx-spec" data-reveal
             style={{ ["--rv-delay" as string]: `${i * 60}ms` } as React.CSSProperties}>
-            <div className="qx-qi-head">
-              <span className="qx-mono qx-qi-idx">0{i + 1}</span>
-              <h3 className="qx-qi-name">{cat.name}</h3>
-              <span className="qx-mono qx-qi-count">{cat.count}</span>
+            <header className="qx-spec__bar">
+              <span className="qx-spec__id">0{i + 1}</span>
+              <span className="qx-spec__title">{cat.name}</span>
+              <span className="qx-spec__status qx-spec__status--live">Live</span>
+            </header>
+
+            <div className="qx-spec__body">
+              <div className="qx-spec__eyebrow">Tools available</div>
+              <div className="qx-spec__figure">
+                {cat.count}
+                {/\d/.test(cat.count) && <span className="qx-spec__unit">tools</span>}
+              </div>
+
+              <ul className="qx-spec__list">
+                {cat.tools.map((tool) => (
+                  <li key={tool.label}>
+                    <Link href={tool.href} className="qx-spec__link">
+                      <span>{tool.label}</span>
+                      <FiArrowUpRight size={13} className="qx-spec__ic" aria-hidden />
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              <Link href={cat.href} className="qx-spec__all">
+                All {cat.name.toLowerCase()} <FiArrowRight size={12} aria-hidden />
+              </Link>
             </div>
-            <ul className="qx-qi-list">
-              {cat.tools.map((tool) => (
-                <li key={tool.label}>
-                  <Link href={tool.href} className="qx-qi-link">
-                    <span>{tool.label}</span>
-                    <FiArrowUpRight size={13} className="qx-qi-ic" aria-hidden />
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <Link href={cat.href} className="qx-qi-all">
-              All {cat.name.toLowerCase()} <FiArrowRight size={12} aria-hidden />
-            </Link>
-          </div>
+          </article>
         ))}
       </div>
 
       <style>{`
         .qx-qi {
           display: grid; grid-template-columns: repeat(3, 1fr);
-          column-gap: clamp(32px, 5vw, 84px); row-gap: clamp(44px, 6vh, 72px);
+          column-gap: clamp(20px, 2.4vw, 32px); row-gap: clamp(20px, 2.4vw, 32px);
         }
-        .qx-qi-head {
-          display: flex; align-items: baseline; gap: 12px;
-          padding-bottom: 14px; margin-bottom: 6px;
-          border-bottom: 1px solid rgba(255, 106, 19, 0.22);
-        }
-        .qx-qi-idx { font-size: 11px; letter-spacing: 0.2em; color: var(--primary-bright); }
-        .qx-qi-name {
-          font-family: var(--font-display); font-weight: 800;
-          font-size: 19px; letter-spacing: -0.01em; color: var(--text);
-        }
-        .qx-qi-count { margin-left: auto; font-size: 11px; letter-spacing: 0.14em; color: var(--text-faint); }
 
-        .qx-qi-list { display: flex; flex-direction: column; }
-        .qx-qi-link {
+        /* ── spec-sheet card ── */
+        .qx-spec {
+          --spec-ink: #0b0b0c;
+          --spec-graphite: #131315;
+          --spec-border: #26262a;
+          --spec-text: #f2f2f3;
+          --spec-muted: #8b8b92;
+          --spec-accent: var(--primary, #ff4d1c);
+          --spec-edge: rgba(255, 255, 255, 0.03);
+
+          display: flex; flex-direction: column;
+          background: var(--spec-graphite);
+          border: 1px solid var(--spec-border);
+          border-radius: 4px;
+          box-shadow: inset 0 1px 0 var(--spec-edge);
+          overflow: hidden;
+          transition: border-color .28s, box-shadow .28s, transform .28s var(--ease-out);
+        }
+        .qx-spec:hover {
+          border-color: color-mix(in srgb, var(--spec-accent) 45%, var(--spec-border));
+          box-shadow: inset 0 1px 0 var(--spec-edge), 0 16px 40px rgba(0,0,0,.45);
+          transform: translateY(-3px);
+        }
+
+        .qx-spec__bar {
+          display: flex; align-items: center; gap: 12px;
+          padding: 12px 16px;
+          border-bottom: 1px solid var(--spec-border);
+          background: linear-gradient(180deg, rgba(255,255,255,.02), transparent);
+        }
+        .qx-spec__id {
+          display: inline-flex; align-items: center; justify-content: center;
+          min-width: 28px; height: 22px; padding: 0 4px;
+          border-radius: 2px;
+          background: var(--spec-accent); color: var(--spec-ink);
+          font-family: "Space Mono", ui-monospace, monospace;
+          font-size: 11px; font-weight: 700; letter-spacing: .04em;
+        }
+        .qx-spec__title {
+          flex: 1;
+          font-family: "Space Mono", ui-monospace, monospace;
+          font-size: 11px; text-transform: uppercase; letter-spacing: .12em;
+          color: var(--spec-text);
+        }
+        .qx-spec__status {
+          font-family: "Space Mono", ui-monospace, monospace;
+          font-size: 11px; text-transform: uppercase; letter-spacing: .04em;
+          color: var(--spec-muted);
+          padding: 2px 8px;
+          border: 1px solid var(--spec-border); border-radius: 2px;
+        }
+        .qx-spec__status--live {
+          color: var(--spec-accent);
+          border-color: color-mix(in srgb, var(--spec-accent) 55%, transparent);
+        }
+
+        .qx-spec__body { padding: 24px; display: flex; flex-direction: column; flex: 1; }
+        .qx-spec__eyebrow {
+          font-family: "Space Mono", ui-monospace, monospace;
+          font-size: 10px; letter-spacing: .16em; text-transform: uppercase;
+          color: var(--spec-muted); margin-bottom: 8px;
+        }
+        .qx-spec__figure {
+          font-family: var(--font-display);
+          font-size: 40px; font-weight: 800; letter-spacing: -.02em;
+          color: var(--spec-text); line-height: 1.05;
+          margin-bottom: 18px;
+        }
+        .qx-spec__unit {
+          font-family: "Space Mono", ui-monospace, monospace;
+          font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+          color: var(--spec-muted); margin-left: 8px;
+        }
+
+        .qx-spec__list {
+          display: flex; flex-direction: column;
+          border-top: 1px solid var(--spec-border);
+          padding-top: 6px; margin-bottom: 6px;
+        }
+        .qx-spec__link {
           display: flex; align-items: center; justify-content: space-between; gap: 10px;
-          padding: 8px 0; font-size: 14.5px; color: var(--text-muted);
+          padding: 8px 0; font-size: 14px; color: var(--spec-muted);
           text-decoration: none;
-          transition: color 0.22s, padding-left 0.22s;
+          transition: color .22s, padding-left .22s;
         }
-        .qx-qi-link:hover { color: var(--text); padding-left: 6px; }
-        .qx-qi-ic {
+        .qx-spec__link:hover { color: var(--spec-text); padding-left: 5px; }
+        .qx-spec__ic {
           opacity: 0; transform: translate(-4px, 4px); flex-shrink: 0;
-          color: var(--primary-bright);
-          transition: opacity 0.22s, transform 0.22s;
+          color: var(--spec-accent);
+          transition: opacity .22s, transform .22s;
         }
-        .qx-qi-link:hover .qx-qi-ic { opacity: 1; transform: none; }
+        .qx-spec__link:hover .qx-spec__ic { opacity: 1; transform: none; }
 
-        .qx-qi-all {
-          margin-top: 14px; display: inline-flex; align-items: center; gap: 7px;
-          font-size: 13px; font-weight: 700; color: var(--primary-bright);
-          text-decoration: none; transition: gap 0.25s;
+        .qx-spec__all {
+          margin-top: auto; padding-top: 12px;
+          display: inline-flex; align-items: center; gap: 7px;
+          font-family: "Space Mono", ui-monospace, monospace;
+          font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+          color: var(--spec-accent); text-decoration: none;
+          transition: gap .25s;
         }
-        .qx-qi-all:hover { gap: 11px; }
+        .qx-spec__all:hover { gap: 11px; }
 
         @media (max-width: 1023px) { .qx-qi { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 620px) { .qx-qi { grid-template-columns: 1fr; row-gap: 36px; } }
+        @media (max-width: 620px)  { .qx-qi { grid-template-columns: 1fr; } }
         @media (prefers-reduced-motion: reduce) {
-          .qx-qi-link, .qx-qi-ic { transition: none; }
+          .qx-spec, .qx-spec__link, .qx-spec__ic, .qx-spec__all { transition: none; }
         }
       `}</style>
     </section>

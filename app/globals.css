@@ -508,22 +508,57 @@ html.light .qx-topnav {
   color: var(--text) !important;
 }
 
-/* Sliding glass pill that follows the hovered / active nav item (video 2) */
+/* Sliding SPARKLE pill that follows the hovered / active nav item.
+   Adapted from a Uiverse concept by JkHuger. Two deliberate changes:
+   • Palette: the source's purple/blue becomes QRix orange.
+   • It is applied to the ONE sliding pill, not to each nav link. Cloning the button
+     onto all 8 links would mean 8 bloom layers and ~160 floating particle SVGs sitting
+     in the navbar; moving the effect onto the pill gives the same sparkle on whatever
+     you hover, for the cost of a single element. The particle pen is dropped for the
+     same reason — it is a per-button decoration that does not survive being octupled.
+
+   Structure mirrors the original: a conic "spark" sweeps the full pill (::before), and
+   an inset backdrop (::after) covers the interior so the spark only reads as a lit rim. */
 .qx-nav-glasspill {
   position: absolute;
-  border-radius: 12px;
-  background: rgba(255,255,255,0.08);
-  backdrop-filter: blur(8px) saturate(140%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), inset 0 -1px 0 rgba(0,0,0,0.08);
+  border-radius: 999px;
+  overflow: hidden;
   pointer-events: none;
   z-index: 0;
   opacity: 0;
+  background: rgba(255,77,28,0.10);
+  box-shadow:
+    0 0 22px 5px rgba(255,77,28,0.32),
+    0 0 0 1px rgba(255,77,28,0.18);
   transition: transform .38s cubic-bezier(.34,1.25,.45,1), width .38s cubic-bezier(.34,1.25,.45,1), height .25s, opacity .25s;
 }
+/* the spark: a bright arc travelling around the rim */
+.qx-nav-glasspill::before {
+  content: "";
+  position: absolute;
+  width: 220%;
+  aspect-ratio: 1;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  background: conic-gradient(from 0deg, transparent 0 320deg, rgba(255,214,190,0.95) 360deg);
+  animation: qx-spark-spin 2.4s linear infinite;
+}
+/* the backdrop: cuts the spark down to a 1.5px lit rim and tints the interior */
 .qx-nav-glasspill::after {
-  content: ""; position: absolute; inset: 0; border-radius: inherit;
-  background: linear-gradient(120deg, rgba(255,255,255,0.18), transparent 45%);
-  opacity: .6;
+  content: "";
+  position: absolute;
+  inset: 1.5px;
+  border-radius: inherit;
+  background:
+    radial-gradient(40% 50% at center 100%, rgba(255,122,80,0.5), transparent),
+    radial-gradient(80% 100% at center 120%, rgba(255,77,28,0.4), transparent),
+    rgba(255,77,28,0.12);
+  backdrop-filter: blur(8px) saturate(150%);
+}
+@keyframes qx-spark-spin { to { rotate: 360deg; } }
+@media (prefers-reduced-motion: reduce) {
+  .qx-nav-glasspill::before { animation: none; }
 }
 html.light .qx-nav-glasspill {
   background: rgba(0,0,0,0.055);
