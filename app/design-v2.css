@@ -124,7 +124,6 @@ html.light .qx-rays { opacity: .06; }
 html[data-scrolled="1"] .qx-nav {
   background: color-mix(in srgb, var(--surface-solid) 82%, transparent);
   backdrop-filter: blur(var(--blur-l)) saturate(160%);
-  -webkit-backdrop-filter: blur(var(--blur-l)) saturate(160%);
   box-shadow: var(--el-2);
   border-bottom: 1px solid var(--border-glass);
 }
@@ -599,7 +598,7 @@ html.light .qx-hsearch-bar { box-shadow: 0 14px 40px rgba(40, 30, 20, 0.16), 0 0
   width: 56px; height: 56px; border-radius: 16px;
   display: flex; align-items: center; justify-content: center; color: var(--tc, #fff);
   background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.11);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   transition: transform 0.28s var(--ease-out), background 0.28s, border-color 0.28s, box-shadow 0.28s;
 }
 .qx-htool:hover {
@@ -1244,7 +1243,6 @@ html.light .qx-glitter { display: none; }
 .qx-fcard {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(22px) saturate(150%);
-  -webkit-backdrop-filter: blur(22px) saturate(150%);
   border: 1px solid rgba(255, 255, 255, 0.13);
   border-radius: 22px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.07) inset;
