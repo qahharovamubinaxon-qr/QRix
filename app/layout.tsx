@@ -3,6 +3,7 @@ import TopNav from "@/components/TopNav";
 import DotDistortionBackground from "@/components/DotDistortionBackground";
 import ReferralCapture from "@/components/ReferralCapture";
 import MotionLayer from "@/components/MotionLayer";
+import MeteorCursor from "@/components/MeteorCursor";
 import CommandSearch from "@/components/CommandSearch";
 import Toaster from "@/components/Toaster";
 import PwaVitals from "@/components/PwaVitals";
@@ -128,6 +129,7 @@ export default function RootLayout({
         <DotDistortionBackground />
         <ReferralCapture />
         <MotionLayer />
+        <MeteorCursor />
         <CommandSearch />
         <Toaster />
         <PwaVitals />

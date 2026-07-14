@@ -15,7 +15,6 @@ import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { GenBunny } from "@/components/EraBunny";
 import QrixPromoFilm from "@/components/QrixPromoFilm";
-import MatrixBackground from "@/components/MatrixBackground";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -374,15 +373,10 @@ export default function HomePage() {
 
   return (
     <main className="relative overflow-x-clip">
-      {/* Katana-style scroll scenes: fixed full-viewport canvas that cross-fades
-          between rich gradient scenes as sections pass the viewport center. */}
-      <div className="qx-scenes" aria-hidden>
-        <div className="qx-scene on" data-scene="era" />
-        <div className="qx-scene" data-scene="deep" />
-        <div className="qx-scene" data-scene="dusk" />
-        {/* Matrix glyph field — background for the dark sections, below the hero. */}
-        <MatrixBackground />
-      </div>
+      {/* Page canvas: one flat navy, fixed behind everything. The cross-fading
+          gradient scenes and the katakana field are gone — the hero paints its
+          own orange (.qx-era), so it scrolls away instead of dissolving. */}
+      <div className="qx-scenes" aria-hidden />
       <style>{`
         @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(187,169,255,.35)}50%{box-shadow:0 0 0 14px rgba(187,169,255,0)}}
         .qx-toggle{width:44px;height:24px;border-radius:99px;position:relative;transition:background .25s;cursor:pointer;border:1px solid var(--border)}
@@ -433,18 +427,21 @@ export default function HomePage() {
             </div>
           </div>
 
-          {/* the reference's brand row — our six tool families, drifting */}
-          <div className="qx-era-marq" aria-label="Tool categories">
-            <div className="qx-era-marq-track">
-              {[0, 1].map((dup) => (
-                <div className="qx-era-marq-seg" key={dup} aria-hidden={dup === 1}>
-                  {([["QR TOOLS", "/qr-tools"], ["PDF TOOLS", "/pdf-tools"], ["IMAGE TOOLS", "/image-tools"],
-                     ["AI TOOLS", "/ai-tools"], ["VIDEO TOOLS", "/video-tools"], ["3D TOOLS", "/3d-tools"]] as const
-                  ).map(([label, href]) => (
-                    <Link key={`${href}-${dup}`} href={href} className="qx-era-cat" tabIndex={dup === 1 ? -1 : 0}>{label}</Link>
-                  ))}
-                </div>
-              ))}
+          {/* the reference's brand row — our six tool families, drifting along a
+              black ledge that runs edge to edge under the bunny's feet */}
+          <div className="qx-era-band">
+            <div className="qx-era-marq" aria-label="Tool categories">
+              <div className="qx-era-marq-track">
+                {[0, 1].map((dup) => (
+                  <div className="qx-era-marq-seg" key={dup} aria-hidden={dup === 1}>
+                    {([["QR TOOLS", "/qr-tools"], ["PDF TOOLS", "/pdf-tools"], ["IMAGE TOOLS", "/image-tools"],
+                       ["AI TOOLS", "/ai-tools"], ["VIDEO TOOLS", "/video-tools"], ["3D TOOLS", "/3d-tools"]] as const
+                    ).map(([label, href]) => (
+                      <Link key={`${href}-${dup}`} href={href} className="qx-era-cat" tabIndex={dup === 1 ? -1 : 0}>{label}</Link>
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

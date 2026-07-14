@@ -216,14 +216,16 @@ export default function TopNav() {
 
   return (
     <header className="qx-topnav qx-nav sticky top-0 z-50 px-5 lg:px-10">
-      <div className="qx-nav-inner max-w-[1400px] mx-auto h-[68px] flex items-center gap-6">
+      <div className="qx-nav-inner max-w-[1400px] mx-auto h-[68px] flex items-center gap-4">
         {/* Logo */}
         <Link href="/" className="shrink-0" aria-label="QRix home">
           <Logo size={30} />
         </Link>
 
         {/* Nav links */}
-        <nav aria-label="Primary" className="hidden md:flex items-center gap-0.5 mx-auto relative" onMouseLeave={moveToActive}>
+        {/* xl and up only: ten single-line links need ~1280px of window. Below that
+            the burger carries the same links rather than a squeezed, wrapping bar. */}
+        <nav aria-label="Primary" className="hidden xl:flex items-center gap-0.5 mx-auto relative" onMouseLeave={moveToActive}>
           {/* sliding glass pill */}
           <span className="qx-nav-glasspill" style={{ transform: `translateX(${pill.x}px)`, top: pill.y, width: pill.w, height: pill.h, opacity: pill.show ? 1 : 0 }} />
           {links.map((l, idx) => {
@@ -236,10 +238,18 @@ export default function TopNav() {
                 onFocus={hasDropdown ? () => { moveTo(idx); onEnter(l.dropdown!); } : undefined}
                 onBlur={hasDropdown ? (e) => { if (!e.currentTarget.contains(e.relatedTarget as Node | null)) onLeave(); } : undefined}
                 onKeyDown={hasDropdown ? (e) => { if (e.key === "Escape") { setHovered(null); (e.currentTarget.querySelector("a") as HTMLElement | null)?.focus(); } } : undefined}>
+                {/* "QR Tools" was breaking onto two lines — not because the label was
+                    allowed to wrap, but because ten flex items were being squeezed
+                    below their content width. The fix is room, not white-space:nowrap:
+                    forcing nowrap makes the bar overflow (ru/uz labels need ~1500px of
+                    a 1400px bar) and pushes Sign in off the edge. With the padding and
+                    type below, English needs ~1170px of the ~1234px bar at xl, so it
+                    never squeezes and never wraps — and a locale whose labels genuinely
+                    do not fit still wraps instead of breaking the bar. */}
                 <Link href={l.href}
                   aria-haspopup={hasDropdown ? "true" : undefined}
                   aria-expanded={hasDropdown ? hovered === l.dropdown : undefined}
-                  className={`relative flex items-center gap-1 px-4 py-2.5 rounded-xl text-[13.5px] font-semibold transition-colors ${active ? "qx-nav-active" : ""}`}
+                  className={`relative flex items-center gap-1 px-2 2xl:px-3 py-2.5 rounded-xl text-[12.5px] 2xl:text-[13.5px] font-semibold transition-colors ${active ? "qx-nav-active" : ""}`}
                   style={{ color: active ? "var(--text)" : "var(--text-muted)" }}>
                   {l.label}
                   {hasDropdown && <FiChevronDown size={11} style={{ opacity: 0.6, transform: hovered === l.dropdown ? "rotate(180deg)" : "none", transition: "transform .2s" }}/>}
@@ -323,7 +333,7 @@ export default function TopNav() {
           {!user && <Link href="/register" className="qx-btn !py-2 !px-4 text-[13px] font-bold hidden lg:inline-flex">{t.signup}</Link>}
 
           {/* Hamburger — mobile only */}
-          <button onClick={() => setMobileOpen((v) => !v)} className="qx-btn-ghost !p-2.5 md:hidden" aria-label="Menu" aria-haspopup="true" aria-expanded={mobileOpen}>
+          <button onClick={() => setMobileOpen((v) => !v)} className="qx-btn-ghost !p-2.5 xl:hidden" aria-label="Menu" aria-haspopup="true" aria-expanded={mobileOpen}>
             {mobileOpen ? <FiX size={18} /> : <FiMenu size={18} />}
           </button>
         </div>
@@ -331,7 +341,7 @@ export default function TopNav() {
 
       {/* ── Mobile menu ── */}
       {mobileOpen && (
-        <div className="md:hidden pb-4 pt-1 max-w-[1400px] mx-auto">
+        <div className="xl:hidden pb-4 pt-1 max-w-[1400px] mx-auto">
           <nav aria-label="Mobile" className="flex flex-col gap-1">
             {links.map((l) => {
               const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);

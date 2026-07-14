@@ -226,6 +226,19 @@ html.light .qx-hero-light {
     rgba(91,70,214,.10), transparent 70%);
 }
 
+/* ── Meteor trail (components/MeteorCursor.tsx) ────────────────────────────
+   The ember trail the cursor leaves behind. One canvas for the whole page: the
+   embers are additively composited inside it, so overlapping sparks bloom
+   without a mix-blend-mode — which would have made the trail vanish over the
+   white QR previews. Above everything, but pointer-events:none, so it cannot
+   swallow a click. The cursor glyph itself is a CSS cursor (see globals.css). */
+.qx-meteor {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+}
+
 /* soft floating particles (pure CSS, 6 dots) */
 .qx-particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .qx-particles i {
@@ -353,120 +366,17 @@ html.light .qx-watermark { opacity: 0.07; }
 body { transition: background-color 1.1s var(--ease-in-out), color 0.3s ease; }
 
 
-/* ── Mission 24: katana-style scene canvas ─────────────────────────────
-   Fixed full-viewport layer behind all content; MotionLayer toggles .on
-   per the [data-scene] section crossing the viewport center. Dark only. */
-.qx-scenes { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-.qx-scene { position: absolute; inset: 0; opacity: 0; transition: opacity 1.3s var(--ease-in-out); }
-.qx-scene.on { opacity: 1; }
-/* Mission 30: the user's Gemini artworks ARE the scenes — the gradient
-   underlayers keep the canvas alive while the webp streams in. */
-/* Mission 41: NEW TOOLS ERA — saturated orange hero that fades to a clean
-   professional near-black as you scroll (katana crossfade engine reused). */
-.qx-scene[data-scene="era"] {
-  background:
-    radial-gradient(90% 70% at 50% 6%, rgba(255, 178, 102, 0.55) 0%, transparent 55%),
-    linear-gradient(178deg, #ff8a3c 0%, #ff6a13 42%, #f05a08 78%, #d94e05 100%);
-}
-.qx-scene[data-scene="era"]::after { content: none; }
-.qx-scene[data-scene="deep"] {
-  /* Mission 42: deep-orange breath in the black — never plain */
-  background:
-    radial-gradient(58% 44% at 84% -8%, rgba(255, 106, 19, 0.14) 0%, transparent 60%),
-    radial-gradient(48% 40% at 6% 106%, rgba(255, 77, 28, 0.1) 0%, transparent 62%),
-    radial-gradient(120% 90% at 50% -12%, #18120e 0%, #0e0b09 42%, #090707 72%, #050505 100%);
-}
-.qx-scene[data-scene="dusk"] {
-  background:
-    radial-gradient(52% 40% at 12% -6%, rgba(255, 106, 19, 0.12) 0%, transparent 58%),
-    radial-gradient(110% 80% at 50% 112%, #2a1409 0%, #120b07 46%, #060505 100%);
-}
-/* readability veil: darker top and bottom, gentle vignette */
-.qx-scene::after {
-  content: ""; position: absolute; inset: 0;
-  background:
-    linear-gradient(to bottom, rgba(3, 3, 5, 0.66) 0%, rgba(3, 3, 5, 0.22) 26%, rgba(3, 3, 5, 0.18) 68%, rgba(3, 3, 5, 0.72) 100%),
-    radial-gradient(130% 100% at 50% 50%, transparent 55%, rgba(2, 2, 4, 0.45) 100%);
-}
-html.light .qx-scenes { display: none; }
-
-/* ── Matrix rain background (components/MatrixBackground.tsx) ────────────────
-   Adapted from a Uiverse concept by solowzrd. The source pulses blue → cyan → pink →
-   white; that fights an orange/black brand, so the glyphs breathe in QRix's colours
-   instead: dim orange at rest, rising through amber and a green accent to a white
-   peak. Pure CSS animation — the component only generates the grid and drives the
-   scroll opacity. */
-.qx-matrix-layer {
-  position: fixed;
-  inset: 0;
-  opacity: 0;
-  pointer-events: none;
-  overflow: hidden;
-  will-change: opacity;
-}
-.qx-matrix {
-  --mx-cell: 44px;
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(var(--mx-cell), 1fr));
-  grid-auto-rows: var(--mx-cell);
-  align-content: start;
-  font-family: "Space Mono", ui-monospace, monospace;
-  font-size: 28px;
-  line-height: 1;
-  color: rgba(255, 77, 28, 0.26);
-  user-select: none;
-}
-.qx-matrix > span {
-  display: grid;
-  place-items: center;
-  text-shadow: 0 0 5px rgba(255, 77, 28, 0.35);
-}
-
-/* Staggered pulses — coprime multipliers keep the field from looking like a pattern. */
-.qx-matrix > span:nth-child(19n + 2)  { animation: qx-mx-pulse 3.5s ease-in-out infinite 0.2s; }
-.qx-matrix > span:nth-child(29n + 1)  { animation: qx-mx-pulse 4.1s ease-in-out infinite 0.7s; }
-.qx-matrix > span:nth-child(11n)      { color: rgba(255, 145, 36, 0.55); animation: qx-mx-pulse 2.9s ease-in-out infinite 1.1s; }
-.qx-matrix > span:nth-child(37n + 10) { animation: qx-mx-pulse 5.3s ease-in-out infinite 1.5s; }
-.qx-matrix > span:nth-child(41n + 1)  { animation: qx-mx-pulse 3.9s ease-in-out infinite 0.4s; }
-.qx-matrix > span:nth-child(17n + 9)  { animation: qx-mx-pulse 2.8s ease-in-out infinite 0.9s; }
-.qx-matrix > span:nth-child(23n + 18) { animation: qx-mx-pulse 4.3s ease-in-out infinite 1.3s; }
-.qx-matrix > span:nth-child(31n + 4)  { animation: qx-mx-pulse 5.6s ease-in-out infinite 0.1s; }
-.qx-matrix > span:nth-child(43n + 20) { animation: qx-mx-pulse 3.6s ease-in-out infinite 1.8s; }
-.qx-matrix > span:nth-child(13n + 6)  { animation: qx-mx-pulse 3.2s ease-in-out infinite 1.2s; }
-.qx-matrix > span:nth-child(53n + 5)  { animation: qx-mx-pulse 4.9s ease-in-out infinite 0.5s; }
-.qx-matrix > span:nth-child(47n + 15) { animation: qx-mx-pulse 5.9s ease-in-out infinite 1s; }
-
-@keyframes qx-mx-pulse {
-  0%, 100% {
-    color: rgba(255, 77, 28, 0.26);
-    text-shadow: 0 0 5px rgba(255, 77, 28, 0.35);
-  }
-  30% {
-    color: rgba(255, 145, 36, 1);
-    text-shadow: 0 0 10px rgba(255, 145, 36, 0.9), 0 0 16px rgba(255, 145, 36, 0.55);
-  }
-  50% {
-    color: rgba(134, 209, 79, 1); /* brand green accent */
-    text-shadow: 0 0 10px rgba(134, 209, 79, 0.9), 0 0 16px rgba(134, 209, 79, 0.5);
-  }
-  70% {
-    color: #fff;
-    text-shadow: 0 0 10px #fff, 0 0 16px #fff, 0 0 22px rgba(255, 145, 36, 0.6);
-  }
-}
-
-/* Vignette so the glyphs dissolve at the edges instead of tiling to a hard border. */
-.qx-matrix-layer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(ellipse 120% 90% at 50% 45%, transparent 35%, rgba(5, 5, 8, 0.55) 78%, rgba(5, 5, 8, 0.9) 100%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .qx-matrix > span { animation: none !important; }
+/* ── Page canvas ───────────────────────────────────────────────────────────
+   Fixed full-viewport layer behind all content. It used to cross-fade between
+   three gradient scenes, and briefly carried a katakana glyph field; both are
+   gone. The dark half of the site is now one flat navy — nothing moves, nothing
+   gradients, so the orange hero and the cards are the only things with colour.
+   It stays opaque on purpose: it also covers the site-wide dot canvas (-z-10)
+   that every other page still uses. */
+.qx-scenes {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background: var(--bg);
+  transition: background-color 1.1s var(--ease-in-out);
 }
 
 
@@ -541,15 +451,8 @@ html.light .qx-ksword { display: none; }
 }
 html.light .qx-embers { display: none; }
 
-/* slow drift breathes life into the active scene canvas */
-.qx-scene.on { animation: qxSceneDrift 26s ease-in-out infinite alternate; }
-@keyframes qxSceneDrift {
-  from { transform: scale(1.02) translate(0, 0); }
-  to   { transform: scale(1.1) translate(-0.8%, -1.6%); }
-}
 
 @media (prefers-reduced-motion: reduce) {
-  .qx-scene.on { animation: none; }
   .qx-embers { display: none; }
 }
 
@@ -625,15 +528,6 @@ html.light .qx-hsearch-bar { box-shadow: 0 14px 40px rgba(40, 30, 20, 0.16), 0 0
   box-shadow: 0 10px 28px -8px color-mix(in srgb, var(--tc) 60%, transparent);
 }
 html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.12); }
-
-/* Mission 32: the user's own animated samurai runs as the hero scene */
-.qx-scene-video {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; pointer-events: none;
-}
-/* the film brings its own motion — no Ken Burns on top of it */
-.qx-scene.on:has(.qx-scene-video) { animation: none; }
-@media (prefers-reduced-motion: reduce) { .qx-scene-video { display: none; } }
 
 /* ── Mission 33: samurai-game HUD panels (Why QRix grid) ─────────────── */
 .qx-gpanel {
@@ -1083,10 +977,19 @@ html.light .qx-auth-ov .qx-embers { display: block; }
 }
 
 /* ── Mission 41: NEW TOOLS ERA hero ─────────────────────────────────── */
-.qx-era { color: #fff; }
-/* scenes canvas is dark-theme only — paint the section itself in light mode */
-html.light .qx-era {
+/* The orange belongs to the SECTION, not to a fixed canvas behind it. It used
+   to live on .qx-scene[data-scene="era"], which cross-faded to black as you
+   scrolled — so the hero dissolved in place and its colour bled over the top of
+   the generator cards. Painted here, the hero simply scrolls up and out like any
+   other block, and the orange stops dead at the section's bottom edge.
+   Layer order: readability veil first (it must sit under every child, exactly as
+   the old .qx-scene::after did), then the glow, then the orange field. */
+.qx-era {
+  position: relative;
+  color: #fff;
   background:
+    linear-gradient(to bottom, rgba(3, 3, 5, 0.66) 0%, rgba(3, 3, 5, 0.22) 26%, rgba(3, 3, 5, 0.18) 68%, rgba(3, 3, 5, 0.72) 100%),
+    radial-gradient(130% 100% at 50% 50%, transparent 55%, rgba(2, 2, 4, 0.45) 100%),
     radial-gradient(90% 70% at 50% 6%, rgba(255, 178, 102, 0.55) 0%, transparent 55%),
     linear-gradient(178deg, #ff8a3c 0%, #ff6a13 42%, #f05a08 78%, #d94e05 100%);
 }
@@ -1126,12 +1029,12 @@ html.light .qx-era {
 }
 
 /* the rest of the hero rises after the headline */
-.qx-era-side, .qx-era-marq {
+.qx-era-side, .qx-era-band {
   animation: qxEraUp 0.65s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 .qx-era-side--left { animation-delay: 0.55s; }
 .qx-era-side--right { animation-delay: 0.7s; }
-.qx-era-marq { animation-delay: 0.9s; }
+.qx-era-band { animation-delay: 0.9s; }
 @keyframes qxEraUp {
   from { opacity: 0; transform: translateY(18px); }
 }
@@ -1156,12 +1059,27 @@ html.light .qx-era {
 }
 .qx-era .qx-hsearch { width: 100%; margin: 0; }
 
-/* six families drift like the reference's brand row */
+/* six families drift like the reference's brand row — now on a black ledge that
+   runs the full width of the page, so the drifting type reads against black
+   instead of against the orange. The ledge is the band; the marquee is its
+   content, and only the marquee is masked (the black must reach both edges
+   solid, the type must still fade in and out at them). */
+.qx-era-band {
+  position: relative; z-index: 6;
+  margin-top: auto;
+  /* break out of the padded, centred container to the viewport edges. <main> is
+     overflow-x-clip, so the scrollbar-width overhang can never raise a scrollbar. */
+  margin-inline: calc(50% - 50vw);
+  background: #050508;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 -20px 44px rgba(0, 0, 0, 0.34);
+}
 .qx-era-marq {
-  position: relative; z-index: 6; overflow: hidden;
-  margin-top: auto; padding: 20px 0 26px;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  position: relative; overflow: hidden;
+  /* the ledge stands taller than the type, above and below */
+  padding: 22px 0 24px;
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
 .qx-era-marq-track { display: flex; width: max-content; animation: qxEraMarq 28s linear infinite; }
 .qx-era-marq:hover .qx-era-marq-track { animation-play-state: paused; }
