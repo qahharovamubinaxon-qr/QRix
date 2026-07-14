@@ -390,22 +390,6 @@ body { transition: background-color 1.1s var(--ease-in-out), color 0.3s ease; }
 }
 html.light .qx-scenes { display: none; }
 
-/* ── Cosmic Swirl background (components/CosmicSwirlBackground.tsx) ──────────
-   A canvas particle vortex on black: thousands of white points orbiting a drifting
-   core, with angular speed rising toward the centre so the field shears itself into
-   spiral filaments. JS drives the opacity from scroll (0 over the orange hero → 1
-   below it), so the hero is untouched and the swirl carries every dark section down
-   to the footer. Everything else — the motion, the twinkle, the flare — is drawn in
-   the canvas, so there is nothing to animate here. */
-.qx-swirl {
-  position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  pointer-events: none;
-  will-change: opacity;
-}
 
 /* ── Legibility plate ─────────────────────────────────────────────────────
    Sits behind card-less copy that would otherwise fight the dot field. It is
