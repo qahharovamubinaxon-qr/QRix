@@ -4,33 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { FiCheck, FiZap, FiShield, FiLock, FiTrendingUp } from "react-icons/fi";
 import UpgradeButton from "@/components/UpgradeButton";
+import { PLANS, yearlySavingPct } from "@/lib/plans";
 
 /* CRO pricing (Mission 19): monthly/yearly toggle with animated savings,
-   recommended plan spotlight, comparison rows, trust strip. Mirrors the
-   server plan catalog (lib/server/billing PLANS). */
+   recommended plan spotlight, comparison rows, trust strip.
 
-const PLANS = [
-  {
-    id: "free", name: "Free", monthly: 0, yearly: 0,
-    tagline: "Everything you need to start", cta: "Start creating — it's free",
-    features: ["All 185+ tools, free forever", "QR codes with logo & colors", "On-device PDF / image / video tools", "60 AI credits every month", "3 free 3D generations", "Basic scan analytics"],
-  },
-  {
-    id: "pro", name: "Pro", monthly: 5, yearly: 48, recommended: true,
-    tagline: "For creators and small teams", cta: "Upgrade to Pro",
-    features: ["Unlimited dynamic QR codes", "Real-time scan analytics", "1,000 AI credits / month", "Priority processing queue", "No ads, anywhere", "Custom branding — no QRix badge", "Email support"],
-  },
-  {
-    id: "business", name: "Business", monthly: 49, yearly: 490,
-    tagline: "Everything unlimited — for teams that scale", cta: "Start Business trial",
-    features: ["Everything in Pro", "Unlimited AI credits", "Unlimited team seats & roles", "Unlimited API access + webhooks", "Unlimited API keys", "Unlimited dynamic QR & bulk", "Priority SLA support", "White-label — no QRix badge"],
-  },
-  {
-    id: "enterprise", name: "Enterprise", monthly: 199, yearly: 1990,
-    tagline: "Dedicated infrastructure and contracts", cta: "Contact sales",
-    features: ["Everything in Business", "Dedicated infrastructure", "SSO / SAML", "Custom contracts & invoicing", "Audit log exports", "Named support engineer", "99.9% uptime SLA"],
-  },
-];
+   The plans themselves live in lib/plans.ts, which mirrors the server catalog
+   (lib/server/billing PLANS) — this file used to keep its own copy, and the
+   homepage kept a third, which is how the homepage ended up advertising prices
+   that did not match checkout. */
+
+/** The best saving any plan offers, for the toggle's badge. Pro saves 20%,
+    Business and Enterprise 17% — the badge used to hardcode 20% for all of them. */
+const BEST_SAVING = Math.max(...PLANS.map(yearlySavingPct));
 
 export default function PricingPlans() {
   const [yearly, setYearly] = useState(true);
@@ -49,7 +35,7 @@ export default function PricingPlans() {
         <span className="text-[13px] font-semibold" style={{ color: yearly ? "var(--text)" : "var(--text-faint)" }}>
           Yearly
           <span className="ml-2 text-[10px] font-bold px-2 py-0.5 rounded-full align-middle"
-            style={{ background: "rgba(74,222,128,.14)", color: "#4ade80" }}>Save 20%</span>
+            style={{ background: "rgba(74,222,128,.14)", color: "#4ade80" }}>Save up to {BEST_SAVING}%</span>
         </span>
       </div>
 
@@ -78,7 +64,12 @@ export default function PricingPlans() {
                 )}
               </div>
               {yearly && p.yearly > 0 && (
-                <p className="text-[11px] -mt-4 mb-4" style={{ color: "#4ade80" }}>Billed ${p.yearly}/year — 2 months free</p>
+                /* "2 months free" was only true of Business and Enterprise (490/49 = 10
+                   months). Pro's year is 9.6 months of its monthly rate, so state the
+                   saving each plan actually gives. */
+                <p className="text-[11px] -mt-4 mb-4" style={{ color: "#4ade80" }}>
+                  Billed ${p.yearly}/year — save {yearlySavingPct(p)}%
+                </p>
               )}
               <ul className="space-y-2.5 flex-1">
                 {p.features.map((f) => (

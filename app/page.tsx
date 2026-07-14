@@ -16,6 +16,7 @@ import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { GenBunny } from "@/components/EraBunny";
 import QrixPromoFilm from "@/components/QrixPromoFilm";
 import WorldMapBackground from "@/components/WorldMapBackground";
+import PricingTeaser from "@/components/PricingTeaser";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -731,34 +732,7 @@ export default function HomePage() {
       <div data-scene="dusk"><ReviewsSection lang={lang} /></div>
 
       {/* ================= PRICING TEASER (trust sits right above) ================= */}
-      <section data-scene="dusk" className="max-w-4xl mx-auto px-5 pb-24 relative" data-reveal="perspective" aria-label="Pricing">
-        <div className="text-center mb-8">
-          <h2 className="font-display text-3xl lg:text-4xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
-            {lang === "uz" ? "Оддий нархлар" : lang === "ru" ? "Простые тарифы" : "Simple pricing"}
-          </h2>
-          <p className="mt-2 text-[14px]" style={{ color: "var(--text-muted)" }}>
-            {lang === "uz" ? "Ҳаммаси бепул бошланади — керак бўлгандагина Pro" : lang === "ru" ? "Всё начинается бесплатно — Pro только когда нужно" : "Everything starts free — go Pro only when you need scale"}
-          </p>
-        </div>
-        <div className="grid sm:grid-cols-3 gap-4">
-          {[
-            { n: "Free", p: "$0", d: lang === "uz" ? "185+ асбоб, абадий" : lang === "ru" ? "185+ инструментов навсегда" : "185+ tools, forever", hot: false },
-            { n: "Pro", p: "$4", d: lang === "uz" ? "1000 AI кредит · чексиз динамик QR" : lang === "ru" ? "1000 AI кредитов · безлимит QR" : "1,000 AI credits · unlimited dynamic QR", hot: true },
-            { n: "Business", p: "$40", d: lang === "uz" ? "Ҳаммаси чексиз · Жамоа · API" : lang === "ru" ? "Всё безлимитно · Команда · API" : "Unlimited everything · Teams · API", hot: false },
-          ].map((t) => (
-            <Link key={t.n} href="/pricing"
-              className={`qx-card qx-card-lift p-6 text-center rounded-2xl${t.hot ? " qx-border-anim" : ""}`}
-              style={t.hot ? { border: "1.5px solid var(--primary)" } : undefined}>
-              <span className="block font-display text-lg font-extrabold" style={{ color: "var(--text)" }}>{t.n}</span>
-              <span className="block font-display text-4xl font-extrabold mt-2 qx-stat-num" style={{ color: "var(--text)" }}>{t.p}<span className="text-sm font-semibold" style={{ color: "var(--text-faint)" }}>/mo</span></span>
-              <span className="block text-[12.5px] mt-2 leading-relaxed" style={{ color: "var(--text-muted)" }}>{t.d}</span>
-              <span className="inline-flex items-center gap-1 text-[12px] font-bold mt-4" style={{ color: "var(--primary-bright)" }}>
-                {lang === "uz" ? "Батафсил" : lang === "ru" ? "Подробнее" : "See plans"} <FiArrowRight size={12} />
-              </span>
-            </Link>
-          ))}
-        </div>
-      </section>
+      <PricingTeaser lang={lang} />
 
       {/* ================= FINAL CTA ================= */}
       <section className="max-w-3xl mx-auto px-5 pb-24 lg:pb-32 text-center relative" data-reveal="scale">

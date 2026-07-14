@@ -172,10 +172,19 @@ export default function WorldMapBackground() {
         }
         /* One box, one aspect ratio, one coordinate space: the image, the dots and
            the label all measure themselves against the same 119x60 frame, so a
-           city cannot drift away from the landmass it sits on. */
+           city cannot drift away from the landmass it sits on.
+
+           The third term in the min() is what keeps the whole map on screen. Sizing
+           on width alone let a tall viewport push the map past the top and bottom
+           edges. Deriving a width cap from the viewport HEIGHT instead
+           (${VIEW_W}/${VIEW_H} ≈ 1.98, so 138vh of width ≈ 70vh of height) bounds
+           the map vertically without ever clamping the aspect-ratio — which matters
+           because a clamped ratio would letterbox the image inside a wider box while
+           the HTML label kept measuring against the box, and the label would drift
+           off its pin. */
         .qx-wm-stage {
           position: relative;
-          width: min(1560px, 94vw);
+          width: min(1240px, 84vw, 138vh);
           aspect-ratio: ${VIEW_W} / ${VIEW_H};
         }
         .qx-wm-land {
