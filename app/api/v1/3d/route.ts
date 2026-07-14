@@ -1,6 +1,7 @@
 import { handler, ok, badRequest } from "@/lib/server/api";
 import { enqueue, listJobs } from "@/lib/server/queue";
 import { chargeCredits, getAccount, costOf } from "@/lib/server/credits";
+import { hasProviderFor } from "@/lib/server/ai/manager";
 import { db } from "@/lib/server/db";
 import { track } from "@/lib/server/analytics";
 
@@ -26,6 +27,13 @@ export const GET = handler(async ({ user }) => {
 export const POST = handler(async ({ req, user }) => {
   const body = (await req.json().catch(() => ({}))) as { image?: string; name?: string };
   if (!body.image || typeof body.image !== "string" || body.image.length > 8_000_000) throw badRequest("image (data-URL or https) required, max ~6MB");
+
+  // Refuse up front when no provider can serve 3d-generate. Without this the job is
+  // enqueued, fails, and the user has already been charged 20 credits for nothing —
+  // the charge below uses force:true, and nothing refunds a failed 3D job.
+  if (!(await hasProviderFor("3d-generate"))) {
+    return ok({ error: "engine_not_configured" });
+  }
 
   const used = db.jobs.count((j) => j.userId === user!.id && is3d(j.tool) && j.status !== "CANCELED" && j.status !== "FAILED");
   let charged = 0;

@@ -159,6 +159,16 @@ export default function ImageTo3DClient() {
     setBusy(true); setEta(18);
     const r = await fetch("/api/v1/3d", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ image: imageUrl, name: fileName }) });
     const j = await r.json().catch(() => null);
+
+    // No 3D provider configured — say so plainly instead of queueing a job that is
+    // certain to fail. Nothing is charged; the on-device relief stays on screen.
+    if (j?.ok && j.data?.error === "engine_not_configured") {
+      setBusy(false);
+      setMeshUrl(null);
+      toast.error("AI 3D engine isn't connected — showing the on-device relief instead");
+      return;
+    }
+
     if (!j?.ok || j.data?.error === "insufficient_credits") {
       setBusy(false);
       if (j?.data?.error === "insufficient_credits") setNeedCredits({ required: j.data.required, balance: j.data.balance });

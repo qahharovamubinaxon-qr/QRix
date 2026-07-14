@@ -167,6 +167,13 @@ function defaultTtl(task: AiTaskKind): number {
   }
 }
 
+/** True when at least one enabled + keyed provider can actually serve this task.
+    Lets a caller refuse the work up front instead of charging for a job that is
+    guaranteed to fail (e.g. 3D with no FAL/REPLICATE key configured). */
+export async function hasProviderFor(task: AiTaskKind): Promise<boolean> {
+  return (await candidates(task)).length > 0;
+}
+
 // ── Admin status/analytics view ─────────────────────────────────────────
 export async function providerStatus() {
   const out = [];

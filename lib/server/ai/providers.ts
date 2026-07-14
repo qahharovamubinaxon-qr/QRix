@@ -245,11 +245,22 @@ const fal: ProviderDef = {
   costPerUnit: 0.003,
   async call(task, input, apiKey) {
     if (task === "3d-generate") {
-      // Image → 3D mesh (GLB) via TripoSR on fal.
-      const j = await post("https://fal.run/fal-ai/triposr",
-        { image_url: input.image, output_format: "glb" },
+      // Image → real 3D mesh (textured GLB) via Tripo v2.5 on fal.
+      // Was fal-ai/triposr: an early single-image model whose meshes are mushy on
+      // illustration/cartoon inputs. v2.5 reconstructs actual geometry and bakes a
+      // PBR texture, which is what the tool actually promises.
+      const j = await post(`https://fal.run/${process.env.FAL_3D_MODEL?.trim() || "tripo3d/tripo/v2.5/image-to-3d"}`,
+        {
+          image_url: input.image,
+          texture: "standard",
+          pbr: true,
+          texture_alignment: "original_image",
+        },
         { Authorization: `Key ${apiKey}` });
-      const mesh = (j.model_mesh as { url?: string } | undefined)?.url || (j.mesh as { url?: string } | undefined)?.url;
+      const mesh =
+        (j.pbr_model as { url?: string } | undefined)?.url ||
+        (j.model_mesh as { url?: string } | undefined)?.url ||
+        (j.base_model as { url?: string } | undefined)?.url;
       return { imageUrl: mesh, raw: j };
     }
     const j = await post("https://fal.run/fal-ai/flux/schnell",
