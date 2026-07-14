@@ -390,6 +390,85 @@ body { transition: background-color 1.1s var(--ease-in-out), color 0.3s ease; }
 }
 html.light .qx-scenes { display: none; }
 
+/* ── Matrix rain background (components/MatrixBackground.tsx) ────────────────
+   Adapted from a Uiverse concept by solowzrd. The source pulses blue → cyan → pink →
+   white; that fights an orange/black brand, so the glyphs breathe in QRix's colours
+   instead: dim orange at rest, rising through amber and a green accent to a white
+   peak. Pure CSS animation — the component only generates the grid and drives the
+   scroll opacity. */
+.qx-matrix-layer {
+  position: fixed;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  overflow: hidden;
+  will-change: opacity;
+}
+.qx-matrix {
+  --mx-cell: 44px;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--mx-cell), 1fr));
+  grid-auto-rows: var(--mx-cell);
+  align-content: start;
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 28px;
+  line-height: 1;
+  color: rgba(255, 77, 28, 0.26);
+  user-select: none;
+}
+.qx-matrix > span {
+  display: grid;
+  place-items: center;
+  text-shadow: 0 0 5px rgba(255, 77, 28, 0.35);
+}
+
+/* Staggered pulses — coprime multipliers keep the field from looking like a pattern. */
+.qx-matrix > span:nth-child(19n + 2)  { animation: qx-mx-pulse 3.5s ease-in-out infinite 0.2s; }
+.qx-matrix > span:nth-child(29n + 1)  { animation: qx-mx-pulse 4.1s ease-in-out infinite 0.7s; }
+.qx-matrix > span:nth-child(11n)      { color: rgba(255, 145, 36, 0.55); animation: qx-mx-pulse 2.9s ease-in-out infinite 1.1s; }
+.qx-matrix > span:nth-child(37n + 10) { animation: qx-mx-pulse 5.3s ease-in-out infinite 1.5s; }
+.qx-matrix > span:nth-child(41n + 1)  { animation: qx-mx-pulse 3.9s ease-in-out infinite 0.4s; }
+.qx-matrix > span:nth-child(17n + 9)  { animation: qx-mx-pulse 2.8s ease-in-out infinite 0.9s; }
+.qx-matrix > span:nth-child(23n + 18) { animation: qx-mx-pulse 4.3s ease-in-out infinite 1.3s; }
+.qx-matrix > span:nth-child(31n + 4)  { animation: qx-mx-pulse 5.6s ease-in-out infinite 0.1s; }
+.qx-matrix > span:nth-child(43n + 20) { animation: qx-mx-pulse 3.6s ease-in-out infinite 1.8s; }
+.qx-matrix > span:nth-child(13n + 6)  { animation: qx-mx-pulse 3.2s ease-in-out infinite 1.2s; }
+.qx-matrix > span:nth-child(53n + 5)  { animation: qx-mx-pulse 4.9s ease-in-out infinite 0.5s; }
+.qx-matrix > span:nth-child(47n + 15) { animation: qx-mx-pulse 5.9s ease-in-out infinite 1s; }
+
+@keyframes qx-mx-pulse {
+  0%, 100% {
+    color: rgba(255, 77, 28, 0.26);
+    text-shadow: 0 0 5px rgba(255, 77, 28, 0.35);
+  }
+  30% {
+    color: rgba(255, 145, 36, 1);
+    text-shadow: 0 0 10px rgba(255, 145, 36, 0.9), 0 0 16px rgba(255, 145, 36, 0.55);
+  }
+  50% {
+    color: rgba(134, 209, 79, 1); /* brand green accent */
+    text-shadow: 0 0 10px rgba(134, 209, 79, 0.9), 0 0 16px rgba(134, 209, 79, 0.5);
+  }
+  70% {
+    color: #fff;
+    text-shadow: 0 0 10px #fff, 0 0 16px #fff, 0 0 22px rgba(255, 145, 36, 0.6);
+  }
+}
+
+/* Vignette so the glyphs dissolve at the edges instead of tiling to a hard border. */
+.qx-matrix-layer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 120% 90% at 50% 45%, transparent 35%, rgba(5, 5, 8, 0.55) 78%, rgba(5, 5, 8, 0.9) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .qx-matrix > span { animation: none !important; }
+}
+
 
 /* ── Legibility plate ─────────────────────────────────────────────────────
    Sits behind card-less copy that would otherwise fight the dot field. It is
@@ -638,60 +717,74 @@ html.light .qx-htool { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0,
   font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase;
   color: var(--primary-bright); margin-bottom: clamp(22px, 3.6vh, 38px);
 }
-/* Mission 64: five modern orange stat cards — glass icon chip, big white
-   figure, refined depth. */
+/* The five stat cards, restyled as Magic UI "MagicCard": a dark graphite card whose
+   gradient border AND inner spotlight both track the cursor.
+
+   Built without framer-motion. The real MagicCard drives this with useMotionValue,
+   which would pull ~50KB of `motion` into the homepage for an effect that is two
+   radial gradients. MotionLayer already publishes --mx/--my on pointermove (it now
+   also targets .qx-num-item), so the whole thing is CSS. */
 .qx-num-row {
   display: grid; gap: 16px;
   grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 .qx-num-item {
-  position: relative; overflow: hidden;
+  position: relative; isolation: isolate; overflow: hidden;
   display: flex; flex-direction: column; gap: 12px;
-  padding: 24px 20px 22px; border-radius: 22px;
-  background:
-    radial-gradient(130% 110% at 50% -25%, rgba(255, 208, 156, 0.5) 0%, transparent 55%),
-    linear-gradient(165deg, #ff933f 0%, #ff6a13 46%, #e2530a 100%);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow:
-    0 20px 46px rgba(206, 74, 8, 0.28),
-    0 1px 0 rgba(255, 255, 255, 0.4) inset,
-    0 -18px 40px rgba(120, 40, 0, 0.28) inset;
+  padding: 24px 20px 22px; border-radius: 20px;
+  background: linear-gradient(180deg, #141417 0%, #0e0e11 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   transition: transform 0.35s var(--ease-out), box-shadow 0.35s;
 }
-/* soft sheen sweeping the top edge */
+/* Gradient border: a 1px ring lit from wherever the cursor is.
+   Standard mask properties only — Lightning CSS emits the -webkit- forms. Writing them
+   by hand would DELETE the standard ones (same trap as the .qx-topnav glass bug). */
 .qx-num-item::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, transparent 26%);
+  content: ""; position: absolute; inset: 0; z-index: 1;
+  border-radius: inherit; padding: 1px; pointer-events: none;
+  background: radial-gradient(
+    240px circle at var(--mx, 50%) var(--my, 0%),
+    rgba(255, 138, 70, 0.95), rgba(255, 77, 28, 0.4) 40%, rgba(255, 255, 255, 0.05) 72%
+  );
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0.5;
+  transition: opacity 0.35s;
 }
+/* Inner spotlight. */
+.qx-num-item::after {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  border-radius: inherit; pointer-events: none;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(255, 106, 19, 0.16), transparent 72%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.qx-num-item > * { position: relative; z-index: 2; }
 .qx-num-item:hover {
-  transform: translateY(-5px) scale(1.015);
-  box-shadow:
-    0 30px 66px rgba(206, 74, 8, 0.4),
-    0 1px 0 rgba(255, 255, 255, 0.5) inset,
-    0 -18px 40px rgba(120, 40, 0, 0.28) inset;
+  transform: translateY(-4px);
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
+.qx-num-item:hover::before { opacity: 1; }
+.qx-num-item:hover::after  { opacity: 1; }
+
 .qx-num-ic {
-  position: relative;
-  width: 40px; height: 40px; border-radius: 13px;
+  width: 40px; height: 40px; border-radius: 12px;
   display: inline-flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 18px;
-  background: rgba(255, 255, 255, 0.18);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: 0 4px 14px rgba(120, 40, 0, 0.25), 0 1px 0 rgba(255, 255, 255, 0.4) inset;
-  backdrop-filter: var(--glass-blur, blur(6px));
+  color: var(--primary-bright); font-size: 18px;
+  background: rgba(255, 77, 28, 0.10);
+  border: 1px solid rgba(255, 77, 28, 0.28);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .qx-num-val {
-  position: relative;
   font-family: var(--font-display); font-weight: 800;
   font-size: clamp(24px, 2.5vw, 38px); line-height: 1;
-  letter-spacing: -0.03em; color: #ffffff;
+  letter-spacing: -0.03em; color: #f2f2f3;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 2px 18px rgba(130, 42, 0, 0.45);
 }
 .qx-num-lbl {
-  position: relative;
   font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-  font-weight: 600; color: rgba(255, 255, 255, 0.92);
+  font-weight: 600; color: var(--text-muted);
 }
 @media (max-width: 1080px) {
   .qx-num-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }

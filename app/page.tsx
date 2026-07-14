@@ -15,6 +15,7 @@ import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { GenBunny } from "@/components/EraBunny";
 import QrixPromoFilm from "@/components/QrixPromoFilm";
+import MatrixBackground from "@/components/MatrixBackground";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -379,10 +380,8 @@ export default function HomePage() {
         <div className="qx-scene on" data-scene="era" />
         <div className="qx-scene" data-scene="deep" />
         <div className="qx-scene" data-scene="dusk" />
-        {/* No decorative background layer here right now — the dark sections run on the
-            era/deep/dusk scene gradients above. (The GlitterField sparks were removed
-            earlier; the gradient-dots and cosmic-swirl fields were both tried and
-            dropped. A replacement is being chosen from a code-based source.) */}
+        {/* Matrix glyph field — background for the dark sections, below the hero. */}
+        <MatrixBackground />
       </div>
       <style>{`
         @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(187,169,255,.35)}50%{box-shadow:0 0 0 14px rgba(187,169,255,0)}}

@@ -8,8 +8,8 @@ import { useEffect } from "react";
  *  • Scroll reveal: any element with [data-reveal] animates in once when it
  *    enters the viewport. Variants: fade-up (default) | left | right | scale |
  *    blur. Children of [data-stagger] get an automatic 90ms cascade.
- *  • Mouse-follow glow: .qx-card gets --mx/--my custom props on pointermove
- *    (used by the CSS ::before spotlight).
+ *  • Mouse-follow glow: .qx-card and .qx-num-item get --mx/--my custom props on
+ *    pointermove (used by the CSS ::before spotlight / MagicCard gradient border).
  *  • Magnetic buttons: [data-magnetic] elements gently follow the cursor.
  *
  * Respects prefers-reduced-motion (everything stays visible & static).
@@ -64,7 +64,9 @@ export default function MotionLayer() {
       // Root-level cursor vars drive the hero spotlight (.qx-hero-light).
       root.style.setProperty("--px", `${ev.clientX}px`);
       root.style.setProperty("--py", `${ev.clientY}px`);
-      const card = (ev.target as HTMLElement).closest?.(".qx-card, .qx-card-glow, .qx-card-premium") as HTMLElement | null;
+      // .qx-num-item is the MagicCard-style stat card: its gradient border and inner
+      // spotlight are both driven off --mx/--my (see .qx-num-item in design-v2.css).
+      const card = (ev.target as HTMLElement).closest?.(".qx-card, .qx-card-glow, .qx-card-premium, .qx-num-item") as HTMLElement | null;
       if (!card) return;
       const r = card.getBoundingClientRect();
       card.style.setProperty("--mx", `${(((ev.clientX - r.left) / r.width) * 100).toFixed(1)}%`);
