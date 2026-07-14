@@ -15,7 +15,7 @@ export type ProviderId =
   | "gemini" | "groq" | "openrouter" | "cloudflare" | "huggingface"
   | "mistral" | "cerebras" | "cohere" | "nvidia" | "github"
   | "openai" | "anthropic" | "replicate" | "fal" | "stability"
-  | "muapi" | "custom";
+  | "muapi" | "ollama" | "custom";
 
 export interface AiInput {
   prompt: string;
@@ -315,6 +315,46 @@ const muapi: ProviderDef = {
   },
 };
 
+/**
+ * Ollama — a SELF-HOSTED model server (github.com/ollama/ollama). It runs on a machine
+ * you control and exposes an OpenAI-compatible API on :11434. There is no hosted Ollama
+ * cloud.
+ *
+ * It can NOT power a Vercel deployment: serverless has no GPU and no long-lived process.
+ * It is wired for the two cases where it genuinely wins:
+ *   1. Local development — exercise the AI tools offline without spending free-tier quota.
+ *   2. On-prem / "bring your own model" — an Enterprise customer whose data must never
+ *      leave their network points QRix at their own Ollama server.
+ *
+ * It sits LAST in every route, so the free cloud providers always win by default; an admin
+ * can promote it to primary when on-prem inference is required.
+ *
+ * OLLAMA_URL doubles as the credential — its presence is what marks the provider ready
+ * (e.g. http://localhost:11434). OLLAMA_MODEL picks the model. OLLAMA_API_KEY is optional
+ * and only needed when the server sits behind an authenticating proxy.
+ */
+const ollama: ProviderDef = {
+  id: "ollama", name: "Ollama (self-hosted)", envKey: "OLLAMA_URL", free: true,
+  capabilities: ["text", "summarize", "translate", "code"],
+  costPerUnit: 0,
+  async call(task, input, apiKey) {
+    const base = apiKey.trim().replace(/\/+$/, ""); // the "key" IS the base URL
+    const token = process.env.OLLAMA_API_KEY?.trim();
+    const j = await post(
+      `${base}/v1/chat/completions`,
+      {
+        model: process.env.OLLAMA_MODEL?.trim() || "llama3.2",
+        messages: asChat({ ...input, prompt: taskPrompt(task, input) }),
+        max_tokens: input.maxTokens || 2048,
+      },
+      token ? { Authorization: `Bearer ${token}` } : {},
+    );
+    const choice = (j.choices as { message?: { content?: string } }[] | undefined)?.[0];
+    const usage = (j.usage as { total_tokens?: number } | undefined)?.total_tokens;
+    return { text: choice?.message?.content || "", raw: j, tokens: usage };
+  },
+};
+
 /** Future custom provider — any endpoint speaking {task, input} → {text|imageUrl}. */
 const custom: ProviderDef = {
   id: "custom", name: "Custom Provider", envKey: "CUSTOM_AI_KEY", free: true,
@@ -331,22 +371,24 @@ const custom: ProviderDef = {
 export const PROVIDERS: Record<ProviderId, ProviderDef> = {
   gemini, groq, openrouter, cloudflare, huggingface,
   mistral, cerebras, cohere, nvidia, github,
-  openai, anthropic, replicate, fal, stability, muapi, custom,
+  openai, anthropic, replicate, fal, stability, muapi, ollama, custom,
 };
 
-/** Mission-defined default priority: free providers first. */
+/** Mission-defined default priority: free providers first. Self-hosted Ollama sits at
+    the end — it only serves when nothing else is available, or when an admin promotes
+    it to primary for on-prem inference. */
 export const DEFAULT_PRIORITY: ProviderId[] = [
   "gemini", "groq", "openrouter", "cloudflare", "huggingface",
   "cerebras", "mistral", "cohere", "nvidia", "github",
-  "openai", "anthropic", "replicate", "fal", "stability", "muapi", "custom",
+  "openai", "anthropic", "replicate", "fal", "stability", "muapi", "ollama", "custom",
 ];
 
 /** Smart routing — preferred provider order per task kind. */
 export const TASK_ROUTES: Record<AiTaskKind, ProviderId[]> = {
-  "text":           ["gemini", "groq", "openrouter", "cerebras", "mistral", "cohere", "nvidia", "github", "cloudflare", "huggingface", "openai", "anthropic", "custom"],
-  "summarize":      ["gemini", "groq", "openrouter", "cerebras", "mistral", "cohere", "cloudflare", "openai", "anthropic", "custom"],
-  "translate":      ["gemini", "groq", "openrouter", "mistral", "cohere", "cerebras", "cloudflare", "openai", "anthropic", "custom"],
-  "code":           ["groq", "cerebras", "gemini", "openrouter", "mistral", "nvidia", "github", "openai", "anthropic", "custom"],
+  "text":           ["gemini", "groq", "openrouter", "cerebras", "mistral", "cohere", "nvidia", "github", "cloudflare", "huggingface", "openai", "anthropic", "ollama", "custom"],
+  "summarize":      ["gemini", "groq", "openrouter", "cerebras", "mistral", "cohere", "cloudflare", "openai", "anthropic", "ollama", "custom"],
+  "translate":      ["gemini", "groq", "openrouter", "mistral", "cohere", "cerebras", "cloudflare", "openai", "anthropic", "ollama", "custom"],
+  "code":           ["groq", "cerebras", "gemini", "openrouter", "mistral", "nvidia", "github", "openai", "anthropic", "ollama", "custom"],
   "image-generate": ["fal", "replicate", "muapi", "cloudflare", "huggingface", "stability", "custom"],
   "image-analyze":  ["gemini", "anthropic", "custom"],
   "ocr":            ["gemini", "anthropic", "custom"],
