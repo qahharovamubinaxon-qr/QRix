@@ -15,6 +15,7 @@ import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { GenBunny } from "@/components/EraBunny";
 import QrixPromoFilm from "@/components/QrixPromoFilm";
+import WorldMapBackground from "@/components/WorldMapBackground";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -375,8 +376,11 @@ export default function HomePage() {
     <main className="relative overflow-x-clip">
       {/* Page canvas: one flat navy, fixed behind everything. The cross-fading
           gradient scenes and the katakana field are gone — the hero paints its
-          own orange (.qx-era), so it scrolls away instead of dissolving. */}
-      <div className="qx-scenes" aria-hidden />
+          own orange (.qx-era), so it scrolls away instead of dissolving.
+          The world map lives on the navy and fades in as the orange scrolls off. */}
+      <div className="qx-scenes" aria-hidden>
+        <WorldMapBackground />
+      </div>
       <style>{`
         @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(187,169,255,.35)}50%{box-shadow:0 0 0 14px rgba(187,169,255,0)}}
         .qx-toggle{width:44px;height:24px;border-radius:99px;position:relative;transition:background .25s;cursor:pointer;border:1px solid var(--border)}

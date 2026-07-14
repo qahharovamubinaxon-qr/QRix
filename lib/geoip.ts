@@ -13,9 +13,16 @@
  * bundle unless the fallback actually runs.
  */
 
-export type Geo = { country: string | null; city: string | null };
+export type Geo = {
+  country: string | null;
+  city: string | null;
+  /** Coarse coordinates of the city, not of the visitor. Used to place the pin on
+      the homepage world map; never persisted with the scan record. */
+  lat: number | null;
+  lon: number | null;
+};
 
-const EMPTY: Geo = { country: null, city: null };
+const EMPTY: Geo = { country: null, city: null, lat: null, lon: null };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let reader: any = null;
@@ -34,6 +41,8 @@ export async function getGeoData(ip: string): Promise<Geo> {
     return {
       country: result?.country?.names?.en || null,
       city: result?.city?.names?.en || null,
+      lat: num(result?.location?.latitude),
+      lon: num(result?.location?.longitude),
     };
   } catch {
     // No database available (e.g. serverless) — degrade quietly.
@@ -48,16 +57,26 @@ export async function getGeoData(ip: string): Promise<Geo> {
 export async function getGeo(h: Headers, ip: string): Promise<Geo> {
   const country = h.get("x-vercel-ip-country");
   const city = h.get("x-vercel-ip-city");
+  const lat = h.get("x-vercel-ip-latitude");
+  const lon = h.get("x-vercel-ip-longitude");
 
   if (country || city) {
     return {
       country: country || null,
       // Vercel percent-encodes the city (e.g. "San%20Francisco").
       city: city ? safeDecode(city) : null,
+      // Vercel sends these as strings ("37.7749"); they are absent on some plans.
+      lat: num(lat),
+      lon: num(lon),
     };
   }
 
   return getGeoData(ip);
+}
+
+function num(v: unknown): number | null {
+  const n = typeof v === "string" ? parseFloat(v) : typeof v === "number" ? v : NaN;
+  return Number.isFinite(n) ? n : null;
 }
 
 function safeDecode(v: string): string {

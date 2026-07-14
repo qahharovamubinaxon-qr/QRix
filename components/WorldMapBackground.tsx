@@ -1,158 +1,280 @@
 "use client";
 
+/* ============================================================================
+   QRix — the live world map behind the dark half of the site.
+
+   Three layers, all sharing one coordinate space (the map's own viewBox), so a
+   latitude/longitude lands in the same place on every one of them:
+
+     1. the land        — public/world-dots.svg, a single <img>. The dots are
+                          generated at build time by scripts/gen-world-map.mjs;
+                          `dotted-map` is 352 KB of world data and 3065 points, and
+                          neither the bytes nor the DOM nodes belong on a homepage.
+     2. the field       — one dot per real city (129 of them). A rotating handful
+                          pulse at any moment, so the map reads as people using the
+                          site rather than as a static decoration.
+     3. the visitor     — "We are here": a beam, a bloom, and the city they are
+                          actually in.
+
+   The visitor's location comes from /api/v1/geo (Vercel resolves it at the edge —
+   no permission prompt, no third-party call, nothing stored). On localhost there
+   are no such headers, so we fall back to the browser's own timezone: Intl gives
+   "Asia/Tashkent", and the city segment is looked up in the same list the dots are
+   drawn from. If neither resolves, the map simply shows no pin.
+   ============================================================================ */
+
 import { useEffect, useRef, useState } from "react";
+import { CITIES, VIEW_BOX, VIEW_W, VIEW_H, project } from "@/lib/world-map";
 
-/* ============================================================
-   QRix — текис (flat) неон дунё харитаси фон.
-   - dotted-map нуқталари: бутун дунё нуқталар билан чизилади.
-   - Курсор реакцияси: курсор атрофидаги нуқталар ёрқин ёнади
-     (radial mask курсорни кузатади) + енгил parallax.
-   - Шаҳарлар орасида оқувчи неон уланиш чизиқлари (arcs).
-   - Тема: кундузги (.light) → пурпле/бинафша, тунги → кўк-яшил.
-   ============================================================ */
+type Pin = { x: number; y: number; city: string | null; country: string | null };
 
-type Pt = { x: number; y: number };
+/** ISO code → the visitor's own language ("UZ" → "Ўзбекистон"). Browser-native. */
+function countryName(code: string | null): string | null {
+  if (!code) return null;
+  if (!/^[A-Za-z]{2}$/.test(code)) return code; // the dev fallback already gives a name
+  try {
+    return new Intl.DisplayNames(undefined, { type: "region" }).of(code.toUpperCase()) ?? code;
+  } catch {
+    return code;
+  }
+}
 
-const CITIES: [number, number][] = [
-  [40.71, -74.0], [34.05, -118.24], [19.43, -99.13], [-23.55, -46.63],
-  [51.51, -0.13], [48.85, 2.35], [55.75, 37.62], [41.0, 28.98],
-  [30.04, 31.24], [6.52, 3.38], [-26.2, 28.04], [25.2, 55.27],
-  [28.61, 77.21], [41.31, 69.24], [39.91, 116.4], [35.68, 139.69],
-  [1.35, 103.82], [-6.21, 106.85], [-33.87, 151.21], [37.77, -122.42],
-];
+/** No geo headers (localhost, or a plan without them) — ask the browser instead. */
+function pinFromTimezone(): Pin | null {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone; // "Asia/Tashkent"
+    const name = tz.split("/").pop()?.replace(/_/g, " ").toLowerCase();
+    if (!name) return null;
+    const hit = CITIES.find((c) => c.n.toLowerCase() === name);
+    if (!hit) return null;
+    return { x: hit.x, y: hit.y, city: hit.n, country: hit.c };
+  } catch {
+    return null;
+  }
+}
 
 export default function WorldMapBackground() {
-  const [dots, setDots] = useState<Pt[]>([]);
-  const [arcs, setArcs] = useState<string[]>([]);
-  const [vb, setVb] = useState("0 0 119 60");
-  const wrapRef = useRef<HTMLDivElement>(null);
+  const [pin, setPin] = useState<Pin | null>(null);
+  const layerRef = useRef<HTMLDivElement>(null);
 
-  // нуқталарни бир марта ҳисоблаш
+  /* ── where is the visitor? ───────────────────────────────────────────────── */
   useEffect(() => {
     let dead = false;
-    (async () => {
-      const DottedMap = (await import("dotted-map")).default;
-      const map = new DottedMap({ height: 60, grid: "diagonal" });
-      if (dead) return;
-      const pts = map.getPoints().map((p) => ({ x: p.x, y: p.y }));
-      const xs = pts.map((p) => p.x), ys = pts.map((p) => p.y);
-      const minX = Math.min(...xs), maxX = Math.max(...xs);
-      const minY = Math.min(...ys), maxY = Math.max(...ys);
-      setVb(`${minX - 1} ${minY - 1} ${maxX - minX + 2} ${maxY - minY + 2}`);
-      setDots(pts);
+    const CACHE = "qx-geo-pin";
 
-      // шаҳар координаталари → arcs
-      const pins = CITIES.map(([lat, lng]) => map.getPin({ lat, lng })).filter(Boolean) as Pt[];
-      const pairs: [number, number][] = [
-        [0, 4], [4, 6], [6, 14], [14, 15], [3, 0], [9, 5],
-        [11, 12], [12, 14], [13, 14], [19, 0], [16, 18], [7, 8],
-      ];
-      const paths: string[] = [];
-      for (const [a, b] of pairs) {
-        if (!pins[a] || !pins[b]) continue;
-        const p1 = pins[a], p2 = pins[b];
-        const mx = (p1.x + p2.x) / 2;
-        const my = (p1.y + p2.y) / 2 - Math.hypot(p2.x - p1.x, p2.y - p1.y) * 0.32;
-        paths.push(`M ${p1.x} ${p1.y} Q ${mx} ${my} ${p2.x} ${p2.y}`);
-      }
-      setArcs(paths);
+    // The visitor does not move between page views. Resolving once per session
+    // keeps this to a single function invocation instead of one per navigation.
+    try {
+      const cached = sessionStorage.getItem(CACHE);
+      if (cached) { setPin(JSON.parse(cached) as Pin); return; }
+    } catch { /* private mode — just resolve it again */ }
+
+    (async () => {
+      const resolve = async (): Promise<Pin | null> => {
+        try {
+          const res = await fetch("/api/v1/geo", { cache: "no-store" });
+          if (!res.ok) throw new Error(String(res.status));
+          const geo = (await res.json()) as {
+            country: string | null; city: string | null; lat: number | null; lon: number | null;
+          };
+
+          if (typeof geo.lat === "number" && typeof geo.lon === "number") {
+            const { x, y } = project(geo.lat, geo.lon);
+            // Guard against a bogus coordinate throwing the pin off the canvas.
+            if (x >= 0 && x <= VIEW_W && y >= 0 && y <= VIEW_H) {
+              return { x, y, city: geo.city, country: geo.country };
+            }
+          }
+        } catch { /* offline, blocked, or no geo — the timezone still knows */ }
+
+        // No coordinates from the edge (localhost, or a plan without them).
+        return pinFromTimezone();
+      };
+
+      const next = await resolve();
+      if (dead || !next) return;
+      setPin(next);
+      try { sessionStorage.setItem(CACHE, JSON.stringify(next)); } catch { /* ignore */ }
     })();
+
     return () => { dead = true; };
   }, []);
 
-  // курсорни кузатиш (mask + parallax)
+  /* ── the map belongs to the dark half: invisible over the orange hero ────── */
   useEffect(() => {
-    const wrap = wrapRef.current;
-    if (!wrap) return;
-    const onMove = (e: PointerEvent) => {
-      const x = (e.clientX / window.innerWidth) * 100;
-      const y = (e.clientY / window.innerHeight) * 100;
-      wrap.style.setProperty("--mx", `${x}%`);
-      wrap.style.setProperty("--my", `${y}%`);
-      const px = (e.clientX / window.innerWidth - 0.5) * 2;
-      const py = (e.clientY / window.innerHeight - 0.5) * 2;
-      wrap.style.setProperty("--px", `${px * 10}px`);
-      wrap.style.setProperty("--py", `${py * 6}px`);
+    const layer = layerRef.current;
+    if (!layer) return;
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const vh = window.innerHeight;
+        // 0 while the orange hero owns the screen, 1 once the navy does.
+        const t = (window.scrollY - vh * 0.55) / (vh * 0.45);
+        layer.style.opacity = String(Math.min(1, Math.max(0, t)));
+      });
     };
-    window.addEventListener("pointermove", onMove, { passive: true });
-    return () => window.removeEventListener("pointermove", onMove);
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const pct = (v: number, span: number) => `${(v / span) * 100}%`;
+
   return (
-    <div
-      ref={wrapRef}
-      aria-hidden="true"
-      className="qx-wm pointer-events-none fixed inset-0 -z-10 overflow-hidden"
-      style={{ ["--mx" as string]: "50%", ["--my" as string]: "40%" }}
-    >
-      {/* база нуқталар (хира) */}
-      <svg className="qx-wm-svg qx-wm-base" viewBox={vb} preserveAspectRatio="xMidYMid slice">
-        {dots.map((d, i) => (
-          <circle key={i} cx={d.x} cy={d.y} r={0.42} />
-        ))}
-      </svg>
+    <div ref={layerRef} className="qx-wm" aria-hidden style={{ opacity: 0 }}>
+      <div className="qx-wm-stage">
+        {/* 1 — the land. One node; the 3065 dots are inside the image. */}
+        <img src="/world-dots.svg" alt="" className="qx-wm-land" draggable={false} />
 
-      {/* ёрқин нуқталар — курсор атрофида очилади (mask) */}
-      <div className="qx-wm-glow">
-        <svg className="qx-wm-svg qx-wm-bright" viewBox={vb} preserveAspectRatio="xMidYMid slice">
-          {dots.map((d, i) => (
-            <circle key={i} cx={d.x} cy={d.y} r={0.55} />
+        {/* 2 — the field: someone, somewhere, is using this */}
+        <svg className="qx-wm-svg" viewBox={VIEW_BOX} preserveAspectRatio="xMidYMid meet">
+          {CITIES.map((c, i) => (
+            <circle key={c.n + i} className="qx-wm-user" cx={c.x} cy={c.y} r={0.42}
+              style={{ animationDelay: `${(i % 17) * 0.55}s` }} />
           ))}
-        </svg>
-      </div>
 
-      {/* уланиш чизиқлари */}
-      <svg className="qx-wm-svg qx-wm-arcs" viewBox={vb} preserveAspectRatio="xMidYMid slice">
-        {arcs.map((d, i) => (
-          <path key={i} d={d} className="qx-wm-arc" style={{ animationDelay: `${i * 0.5}s` }} />
-        ))}
-      </svg>
+          {/* 3 — the visitor */}
+          {pin && (
+            <g className="qx-wm-me">
+              <line x1={pin.x} y1={pin.y} x2={pin.x} y2={Math.max(1.5, pin.y - 9)} className="qx-wm-beam" />
+              <circle cx={pin.x} cy={pin.y} r={3.2} className="qx-wm-bloom" />
+              <circle cx={pin.x} cy={pin.y} r={0.75} className="qx-wm-core" />
+              <circle cx={pin.x} cy={pin.y} r={0.75} className="qx-wm-ping" />
+            </g>
+          )}
+        </svg>
+
+        {/* the label is HTML, not SVG: real fonts, real text rendering */}
+        {pin && (
+          <div className="qx-wm-tag" style={{ left: pct(pin.x, VIEW_W), top: pct(pin.y - 10.5, VIEW_H) }}>
+            <span className="qx-wm-tag-title">We are here</span>
+            {(pin.city || pin.country) && (
+              <span className="qx-wm-tag-place">
+                {[pin.city, countryName(pin.country)].filter(Boolean).join(", ")}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
 
       <style>{`
         .qx-wm {
-          --wm-dim: rgba(34,211,238,0.16);
-          --wm-bright: rgba(90,240,205,0.95);
-          --wm-arc: rgba(45,230,200,0.85);
-          background:
-            radial-gradient(120% 90% at 50% 0%, rgba(34,211,238,.06), transparent 60%),
-            transparent;
+          position: absolute; inset: 0;
+          display: grid; place-items: center;
+          pointer-events: none;
+          transition: opacity .5s var(--ease-out, ease-out);
+          will-change: opacity;
         }
-        html.light .qx-wm {
-          --wm-dim: rgba(124,58,237,0.18);
-          --wm-bright: rgba(180,110,255,0.95);
-          --wm-arc: rgba(150,90,255,0.85);
-          background:
-            radial-gradient(120% 90% at 50% 0%, rgba(124,58,237,.06), transparent 60%),
-            transparent;
+        /* One box, one aspect ratio, one coordinate space: the image, the dots and
+           the label all measure themselves against the same 119x60 frame, so a
+           city cannot drift away from the landmass it sits on. */
+        .qx-wm-stage {
+          position: relative;
+          width: min(1560px, 94vw);
+          aspect-ratio: ${VIEW_W} / ${VIEW_H};
         }
-        .qx-wm-svg {
+        .qx-wm-land {
           position: absolute; inset: 0;
           width: 100%; height: 100%;
-          transform: translate(var(--px,0), var(--py,0));
-          transition: transform .25s ease-out;
-        }
-        .qx-wm-base circle { fill: var(--wm-dim); }
-        .qx-wm-bright circle { fill: var(--wm-bright); }
-        .qx-wm-glow {
-          position: absolute; inset: 0;
-          -webkit-mask-image: radial-gradient(circle 220px at var(--mx) var(--my), #000 0%, rgba(0,0,0,.4) 45%, transparent 72%);
-                  mask-image: radial-gradient(circle 220px at var(--mx) var(--my), #000 0%, rgba(0,0,0,.4) 45%, transparent 72%);
-          filter: drop-shadow(0 0 4px var(--wm-bright));
-        }
-        .qx-wm-arc {
-          fill: none;
-          stroke: var(--wm-arc);
-          stroke-width: 0.28;
-          stroke-linecap: round;
-          stroke-dasharray: 6 60;
-          filter: drop-shadow(0 0 1.5px var(--wm-arc));
-          animation: qxWmFlow 5s linear infinite;
+          object-fit: contain;
           opacity: .85;
+          user-select: none;
         }
-        @keyframes qxWmFlow { to { stroke-dashoffset: -66; } }
+        .qx-wm-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+
+        /* ── the field ──
+           Scale, not the SVG r attribute: r only became animatable as a CSS
+           property in Safari 17.4, and this project ships to safari >= 16.4. */
+        .qx-wm-user {
+          fill: #38bdf8;
+          opacity: .22;
+          transform-origin: center;
+          transform-box: fill-box;
+          animation: qx-wm-live 6.5s ease-in-out infinite;
+        }
+        @keyframes qx-wm-live {
+          0%, 88%, 100% { opacity: .2; transform: scale(1); }
+          92%           { opacity: 1;  transform: scale(1.5); }
+        }
+
+        /* ── the visitor ── */
+        .qx-wm-beam {
+          stroke: #7dd3fc;
+          stroke-width: .28;
+          opacity: .5;
+          filter: drop-shadow(0 0 1.2px #38bdf8);
+        }
+        .qx-wm-bloom {
+          fill: #38bdf8;
+          opacity: .16;
+          filter: blur(1.4px);
+          animation: qx-wm-breathe 3.4s ease-in-out infinite;
+        }
+        @keyframes qx-wm-breathe {
+          0%, 100% { opacity: .12; }
+          50%      { opacity: .3; }
+        }
+        .qx-wm-core {
+          fill: #e0f2fe;
+          filter: drop-shadow(0 0 2px #38bdf8) drop-shadow(0 0 5px #0ea5e9);
+        }
+        .qx-wm-ping {
+          fill: none;
+          stroke: #7dd3fc;
+          stroke-width: .3;
+          transform-origin: center;
+          transform-box: fill-box;
+          animation: qx-wm-ping 2.6s cubic-bezier(0, .55, .45, 1) infinite;
+        }
+        @keyframes qx-wm-ping {
+          0%        { transform: scale(1);   opacity: .9; }
+          70%, 100% { transform: scale(5.5); opacity: 0; }
+        }
+
+        /* ── the label ── */
+        .qx-wm-tag {
+          position: absolute;
+          transform: translate(-50%, -100%);
+          display: flex; flex-direction: column; align-items: center; gap: 1px;
+          padding: 7px 13px;
+          border-radius: 10px;
+          background: rgba(10, 18, 38, .92);
+          border: 1px solid rgba(125, 211, 252, .3);
+          box-shadow: 0 8px 26px rgba(0, 0, 0, .55), 0 0 22px rgba(56, 189, 248, .18);
+          white-space: nowrap;
+          animation: qx-wm-tag-in .7s cubic-bezier(.22, 1, .36, 1) backwards;
+        }
+        @keyframes qx-wm-tag-in {
+          from { opacity: 0; transform: translate(-50%, calc(-100% + 8px)); }
+        }
+        .qx-wm-tag-title {
+          font-size: 12.5px; font-weight: 600; letter-spacing: .01em;
+          color: #f1f5f9;
+        }
+        .qx-wm-tag-place {
+          font-family: "Space Mono", ui-monospace, monospace;
+          font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
+          color: #7dd3fc;
+        }
+
+        @media (max-width: 640px) {
+          .qx-wm-tag { padding: 5px 9px; border-radius: 8px; }
+          .qx-wm-tag-title { font-size: 11px; }
+          .qx-wm-tag-place { font-size: 9px; }
+        }
+
+        /* Motion is the whole point of the field, but it is decoration, not
+           information — the map and the pin stay, the pulsing stops. */
         @media (prefers-reduced-motion: reduce) {
-          .qx-wm-arc { animation: none; }
-          .qx-wm-svg { transition: none; }
+          .qx-wm-user, .qx-wm-bloom, .qx-wm-tag { animation: none; }
+          .qx-wm-ping { display: none; }
+          .qx-wm-user { opacity: .3; }
+          .qx-wm { transition: none; }
         }
       `}</style>
     </div>
