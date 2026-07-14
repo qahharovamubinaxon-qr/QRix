@@ -105,7 +105,10 @@ export default function RootLayout({
         <script
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem("theme")!=="dark"){document.documentElement.classList.add("light")}var s=JSON.parse(localStorage.getItem("qrix_settings")||"{}");if(s.performance||s.animations===false){document.documentElement.classList.add("qx-perf")}}catch(e){document.documentElement.classList.add("light")}`,
+            // QRix is dark-only. The light theme was removed — note this script used to
+            // ADD `light` whenever no theme was stored (and in its catch), so every new
+            // visitor actually landed in light mode on a design built for dark.
+            __html: `try{document.documentElement.classList.remove("light");localStorage.removeItem("theme");var s=JSON.parse(localStorage.getItem("qrix_settings")||"{}");if(s.performance||s.animations===false){document.documentElement.classList.add("qx-perf")}}catch(e){}`,
           }}
         />
         {/* Organization + WebSite structured data */}

@@ -8,7 +8,7 @@ import Illustration from "@/components/Illustrations";
 import { useEffect, useState } from "react";
 import {
   FiHeart, FiClock, FiTrash2, FiDownload, FiArrowRight, FiSettings, FiUser,
-  FiCheckCircle, FiSearch, FiAward, FiZap, FiShield, FiBell, FiGlobe, FiSun, FiMoon,
+  FiCheckCircle, FiSearch, FiAward, FiZap, FiShield, FiBell, FiGlobe,
 } from "react-icons/fi";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import {
@@ -126,19 +126,13 @@ export function HistoryView() {
 /* ── Settings ── */
 export function SettingsView() {
   const [s, set] = useSettings();
-  const [dark, setDark] = useState(true);
   const [lang, setLangState] = useState("en");
-  useEffect(() => { setDark(!document.documentElement.classList.contains("light")); setLangState(localStorage.getItem("language") || "en"); }, []);
+  useEffect(() => { setLangState(localStorage.getItem("language") || "en"); }, []);
   useEffect(() => {
     const perf = s.performance || !s.animations;
     document.documentElement.classList.toggle("qx-perf", perf);
   }, [s.performance, s.animations]);
 
-  function toggleTheme() {
-    const nextDark = !dark; setDark(nextDark);
-    if (nextDark) { document.documentElement.classList.remove("light"); localStorage.setItem("theme", "dark"); }
-    else { document.documentElement.classList.add("light"); localStorage.setItem("theme", "light"); }
-  }
   function changeLang(code: string) { setLangState(code); localStorage.setItem("language", code); toast.success("Language saved — reloading…"); setTimeout(() => location.reload(), 700); }
 
   const Toggle = ({ on, onClick }: { on: boolean; onClick: () => void }) => (
@@ -158,7 +152,7 @@ export function SettingsView() {
     <main className="max-w-2xl mx-auto px-5 py-12">
       <PageHead icon={<FiSettings size={22} />} title="Settings" sub="Personalize your QRix experience." />
       <div className="qx-card px-6 py-2" data-reveal="scale">
-        <Row icon={dark ? <FiMoon size={17} /> : <FiSun size={17} />} title="Theme" desc={dark ? "Dark mode" : "Light mode"}><Toggle on={dark} onClick={toggleTheme} /></Row>
+        {/* Theme row removed — QRix is dark-only. */}
         <Row icon={<FiGlobe size={17} />} title="Language" desc="Interface language">
           <select value={lang} onChange={(e) => changeLang(e.target.value)} className="qx-auth-input !py-1.5 !px-3 w-32 !text-[13px]"><option value="en">English</option><option value="ru">Русский</option><option value="uz">Oʻzbek</option></select>
         </Row>

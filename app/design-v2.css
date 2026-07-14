@@ -401,15 +401,20 @@ html.light .qx-scenes { display: none; }
   inset: 0;
   pointer-events: none;
   background-color: var(--gd-bg);
+  /* Brand palette instead of the source's raw RGB primaries: QRix is orange
+     (--primary #ff4d1c) + green (--secondary #467434). */
   background-image:
-    radial-gradient(circle at 50% 50%, #f00, transparent 60%),
-    radial-gradient(circle at 50% 50%, #ff0, transparent 60%),
-    radial-gradient(circle at 50% 50%, #0f0, transparent 60%),
-    radial-gradient(ellipse at 50% 50%, #00f, transparent 60%);
+    radial-gradient(circle at 50% 50%, #ff4d1c, transparent 60%),
+    radial-gradient(circle at 50% 50%, #ff9124, transparent 60%),
+    radial-gradient(circle at 50% 50%, #4f9438, transparent 60%),
+    radial-gradient(ellipse at 50% 50%, #86d14f, transparent 60%);
   background-size: 200% 200%, 200% 200%, 200% 200%, 200% var(--gd-hex);
+  /* The hue sweep ALTERNATES over a narrow arc rather than running a full 360°:
+     a full rotation would drag the palette through blue/purple and off-brand. This
+     keeps it swinging inside the orange↔green family. */
   animation:
     qx-gdots-pan var(--gd-dur) linear infinite,
-    qx-gdots-hue var(--gd-cycle) linear infinite;
+    qx-gdots-hue var(--gd-cycle) ease-in-out infinite alternate;
   will-change: background-position, filter;
 }
 .qx-gdots::after {
@@ -427,8 +432,8 @@ html.light .qx-scenes { display: none; }
   to   { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
 }
 @keyframes qx-gdots-hue {
-  from { filter: hue-rotate(0deg); }
-  to   { filter: hue-rotate(360deg); }
+  from { filter: hue-rotate(-14deg); }
+  to   { filter: hue-rotate(42deg); }
 }
 @media (prefers-reduced-motion: reduce) {
   .qx-gdots { animation: none; }
@@ -443,11 +448,10 @@ html.light .qx-scenes { display: none; }
   opacity: 0;
   pointer-events: none;
   will-change: opacity;
-  /* Calm the source colours: the original uses fully-saturated primaries
-     (#f00/#ff0/#0f0/#00f), which fight the orange-on-black brand and drown the copy.
-     Desaturating + dimming here keeps the motion but turns it into atmosphere.
-     The JS gate also caps peak opacity — see GradientDotsBackground. */
-  filter: saturate(0.5) brightness(0.6);
+  /* The dots are on-brand now, so they no longer need to be washed out — just held
+     a touch below full strength so the copy still leads. The JS gate also caps peak
+     opacity (see GradientDotsBackground). */
+  filter: saturate(1.05) brightness(0.95);
 }
 
 /* ── Legibility plate ─────────────────────────────────────────────────────

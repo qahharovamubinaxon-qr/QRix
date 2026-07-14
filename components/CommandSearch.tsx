@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  FiSearch, FiCornerDownLeft, FiHeart, FiClock, FiSun, FiGlobe,
+  FiSearch, FiCornerDownLeft, FiHeart, FiClock, FiGlobe,
   FiGrid, FiSettings, FiUser, FiHome, FiArrowRight, FiTrendingUp,
   FiStar, FiZap, FiMic,
 } from "react-icons/fi";
@@ -61,12 +61,6 @@ export default function CommandSearch() {
     router.push(href);
   }, [q, close, router]);
 
-  const toggleTheme = useCallback(() => {
-    const dark = !document.documentElement.classList.contains("light");
-    if (dark) { document.documentElement.classList.add("light"); localStorage.setItem("theme", "light"); }
-    else { document.documentElement.classList.remove("light"); localStorage.setItem("theme", "dark"); }
-    close();
-  }, [close]);
   const setLang = useCallback((code: string) => { localStorage.setItem("language", code); close(); location.reload(); }, [close]);
 
   useEffect(() => {
@@ -114,7 +108,6 @@ export default function CommandSearch() {
     const groups = FILTERS.find((f) => f.id === filter)?.groups;
 
     const COMMANDS: Row[] = [
-      { key: "c-theme", group: "Actions", label: "Toggle theme", icon: <FiSun size={15} />, run: toggleTheme },
       { key: "c-en", group: "Actions", label: "Language: English", icon: <FiGlobe size={15} />, run: () => setLang("en") },
       { key: "c-ru", group: "Actions", label: "Language: Русский", icon: <FiGlobe size={15} />, run: () => setLang("ru") },
       { key: "c-uz", group: "Actions", label: "Language: Oʻzbek", icon: <FiGlobe size={15} />, run: () => setLang("uz") },
@@ -147,7 +140,7 @@ export default function CommandSearch() {
     recentSearches.slice(0, 4).forEach((rs) => out.push({ key: "s" + rs, group: "Recent searches", label: rs, icon: <FiSearch size={13} />, run: () => setQ(rs) }));
     COMMANDS.forEach((c) => out.push(c));
     return out;
-  }, [dq, filter, favorites, recents, recentSearches, trending, popular, pins, nav, toggleTheme, setLang]);
+  }, [dq, filter, favorites, recents, recentSearches, trending, popular, pins, nav, setLang]);
 
   useEffect(() => { setSel(0); }, [dq, filter]);
 

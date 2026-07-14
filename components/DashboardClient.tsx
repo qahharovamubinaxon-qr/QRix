@@ -11,7 +11,7 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
 import {
-  FiSearch, FiBell, FiMoon, FiSun, FiPlus, FiGrid, FiBarChart2,
+  FiSearch, FiBell, FiPlus, FiGrid, FiBarChart2,
   FiLink, FiWifi, FiMail, FiSend, FiMessageSquare, FiUser,
   FiFileText, FiImage, FiMessageCircle, FiChevronDown, FiZap,
 } from "react-icons/fi";
@@ -66,7 +66,6 @@ function pctChange(current: number, prev: number) {
 }
 
 export default function DashboardClient({ links, scans, email, now }: Props) {
-  const [dark, setDark] = useState(true);
   const [search, setSearch] = useState("");
   const [range, setRange] = useState(7);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -74,19 +73,6 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
   const nowMs = useMemo(() => new Date(now).getTime(), [now]);
   const userName = email.split("@")[0] || "User";
 
-  useEffect(() => {
-    if (localStorage.getItem("theme") === "light") {
-      setDark(false);
-      document.documentElement.classList.add("light");
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const next = !dark;
-    setDark(next);
-    localStorage.setItem("theme", next ? "dark" : "light");
-    document.documentElement.classList.toggle("light", !next);
-  };
 
   /* ============ РЕАЛ ҲИСОБ-КИТОБЛАР ============ */
 
@@ -334,10 +320,6 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
             <Link href="/url-qr" className="qx-btn !py-2.5">
               <FiPlus size={15} /> Create QR
             </Link>
-
-            <button onClick={toggleTheme} className="qx-btn-ghost !p-2.5" aria-label="Theme">
-              {dark ? <FiMoon size={15} /> : <FiSun size={15} style={{ color: "#f59e0b" }} />}
-            </button>
 
             {/* Notifications — реал (охирги 24 соат) */}
             <div className="relative">

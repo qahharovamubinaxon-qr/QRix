@@ -6,7 +6,7 @@ import LogoutButton from "@/components/LogoutButton";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 import {
-  FiSun, FiMoon, FiChevronDown, FiHome, FiLink, FiWifi,
+  FiChevronDown, FiHome, FiLink, FiWifi,
   FiMessageCircle, FiMail, FiSend, FiMessageSquare, FiUser,
   FiFileText, FiImage,
 } from "react-icons/fi";
@@ -19,17 +19,11 @@ const LANGUAGES = [
 
 export default function Sidebar() {
   const [user, setUser] = useState<User | null>(null);
-  const [dark, setDark] = useState(true);
   const [lang, setLang] = useState("en");
   const [langOpen, setLangOpen] = useState(false);
 
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
     const savedLang = localStorage.getItem("language");
-    if (savedTheme === "light") {
-      setDark(false);
-      document.documentElement.classList.add("light");
-    }
     if (savedLang) setLang(savedLang);
 
     let mounted = true;
@@ -49,13 +43,6 @@ export default function Sidebar() {
       listener.subscription.unsubscribe();
     };
   }, []);
-
-  const toggleTheme = () => {
-    const next = !dark;
-    setDark(next);
-    localStorage.setItem("theme", next ? "dark" : "light");
-    document.documentElement.classList.toggle("light", !next);
-  };
 
   const changeLang = (code: string) => {
     setLang(code);
@@ -131,16 +118,8 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* Theme + Language */}
+      {/* Language (QRix is dark-only — the theme toggle was removed) */}
       <div className="flex gap-2 mb-7">
-        <button
-          onClick={toggleTheme}
-          className="qx-btn-ghost flex-1 !px-2"
-          aria-label="Toggle theme"
-          style={{ color: dark ? "#fbbf24" : "var(--primary)" }}
-        >
-          {dark ? <FiSun size={15} /> : <FiMoon size={15} />}
-        </button>
         <div className="flex-1 relative">
           <button
             onClick={() => setLangOpen(!langOpen)}

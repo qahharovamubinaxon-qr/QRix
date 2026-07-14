@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabaseBrowser } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 import {
-  FiMoon, FiSun, FiGlobe, FiChevronDown, FiLogOut, FiSend, FiMenu, FiX,
+  FiGlobe, FiChevronDown, FiLogOut, FiSend, FiMenu, FiX,
   FiLink, FiWifi, FiUser, FiMessageCircle, FiType, FiRefreshCw,
   FiLayers, FiScissors, FiMinimize2, FiLock, FiDroplet,
   FiZap, FiBarChart2, FiCamera, FiImage, FiMaximize2,
@@ -131,7 +131,6 @@ function NavDropdown({ items }: { items: typeof DROPDOWNS[string] }) {
 export default function TopNav() {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
-  const [dark, setDark] = useState(false);
   const [lang, setLang] = useState<Lang>("en");
   const [langOpen, setLangOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -149,11 +148,6 @@ export default function TopNav() {
   };
 
   useEffect(() => {
-    const saved = localStorage.getItem("theme");
-    const isDark = saved === "dark";
-    setDark(isDark);
-    document.documentElement.classList.toggle("light", !isDark);
-
     const savedLang = localStorage.getItem("language");
     if (isLang(savedLang)) setLang(savedLang);
 
@@ -166,13 +160,6 @@ export default function TopNav() {
     });
     return () => { mounted = false; listener.subscription.unsubscribe(); };
   }, []);
-
-  const toggleTheme = () => {
-    const next = !dark;
-    setDark(next);
-    localStorage.setItem("theme", next ? "dark" : "light");
-    document.documentElement.classList.toggle("light", !next);
-  };
 
   const changeLang = (code: string) => {
     setLang(code as Lang);
@@ -268,10 +255,6 @@ export default function TopNav() {
         </nav>
 
         <div className="flex items-center gap-2 ml-auto md:ml-0">
-          {/* Theme */}
-          <button onClick={toggleTheme} className="qx-btn-ghost !p-2.5" aria-label="Toggle theme">
-            {dark ? <FiMoon size={16}/> : <FiSun size={16} style={{ color: "#f59e0b" }}/>}
-          </button>
 
           {/* Language */}
           <div className="relative">

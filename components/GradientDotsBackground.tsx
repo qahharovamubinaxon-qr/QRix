@@ -16,8 +16,9 @@ import { GradientDots } from "@/components/ui/gradient-dots";
  * CSS (no JS per frame).
  */
 /** Peak opacity of the dot field. Below 1 on purpose: at full strength the dots
-    compete with the copy instead of sitting behind it. */
-const MAX_OPACITY = 0.5;
+    compete with the copy instead of sitting behind it. The .qx-legible plates behind
+    the card-less copy are what let this sit this high. */
+const MAX_OPACITY = 0.68;
 
 export default function GradientDotsBackground() {
   const ref = useRef<HTMLDivElement>(null);
@@ -50,7 +51,8 @@ export default function GradientDotsBackground() {
 
   return (
     <div ref={ref} className="qx-gdots-layer" aria-hidden>
-      <GradientDots dotSize={8} spacing={10} duration={20} colorCycleDuration={6} backgroundColor="#080808" />
+      {/* colorCycleDuration drives the orange↔green sweep — lower is faster. */}
+      <GradientDots dotSize={8} spacing={10} duration={18} colorCycleDuration={3.2} backgroundColor="#080808" />
     </div>
   );
 }
