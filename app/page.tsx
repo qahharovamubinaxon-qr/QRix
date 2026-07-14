@@ -17,7 +17,6 @@ import EraBunny, { GenBunny } from "@/components/EraBunny";
 import QrixPromoFilm from "@/components/QrixPromoFilm";
 import WorldMapBackground from "@/components/WorldMapBackground";
 import PricingTeaser from "@/components/PricingTeaser";
-import BunnyCompanion from "@/components/BunnyCompanion";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -383,10 +382,6 @@ export default function HomePage() {
       <div className="qx-scenes" aria-hidden>
         <WorldMapBackground />
       </div>
-
-      {/* Scroll companion — the hero bunny, travelling the page in the left gutter.
-          Renders nothing below 1440px / on touch / under reduced motion. */}
-      <BunnyCompanion />
       <style>{`
         @keyframes qxPulse{0%,100%{box-shadow:0 0 0 0 rgba(187,169,255,.35)}50%{box-shadow:0 0 0 14px rgba(187,169,255,0)}}
         .qx-toggle{width:44px;height:24px;border-radius:99px;position:relative;transition:background .25s;cursor:pointer;border:1px solid var(--border)}

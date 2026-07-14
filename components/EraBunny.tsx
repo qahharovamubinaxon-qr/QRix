@@ -7,7 +7,6 @@
    alpha film trade places in a slow cycle. Cursor still gets a soft nod. */
 
 import { useEffect, useRef, useState } from "react";
-import BunnyScrollStage from "@/components/BunnyScrollStage";
 
 /* toggle .on both ways so the smoke plays on every entry/exit.
    The synchronous first check guarantees the mascot materializes on load
@@ -57,15 +56,13 @@ function useParallax<T extends HTMLElement>(amp = 16) {
   return ref;
 }
 
-/* hero mascot (Mission 79 prototype): the bunny is scrubbed by the scrollbar.
-   It used to be the still cross-fading with bunny-hero-live.webm on a 6.5s timer —
-   a loop that ran whether or not anyone was there, and that flashed the bunny white
-   for a second every pass (the source video washes out from 3.50s to 4.57s; see
-   scripts/gen-bunny-frames.mjs). Now the pointing take is 53 frames and the scroll
-   position chooses which one, so the bunny answers the reader instead of a clock,
-   and the flashing frames are simply not in the sequence.
-   The smoke reveal and the parallax drift are unchanged — BunnyScrollStage slots
-   into the same .qx-hm-in box the film used. */
+/* hero mascot: a calm standing bunny. It briefly cross-faded a still with an alpha
+   film, then (Mission 79-80) became a scroll-scrubbed canvas and a full-page
+   companion — all reverted at the user's request; the scroll motion "wasn't needed".
+   Back to the still it always was, with the smoke reveal on entry and the soft
+   parallax drift, and nothing that moves on its own. The film (bunny-hero-live.webm)
+   is deliberately not used: it washes out to white from 3.50s to 4.57s, which is the
+   flash the scrub had been hiding — a still has no such problem. */
 export default function EraBunny() {
   const smokeRef = useSmoke<HTMLDivElement>(0.15);
   const paraRef = useParallax<HTMLDivElement>(18);
@@ -74,7 +71,8 @@ export default function EraBunny() {
     <div className="qx-hm" aria-hidden>
       <div ref={smokeRef} className="qx-smoke">
         <div ref={paraRef} className="qx-hm-in">
-          <BunnyScrollStage />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="qx-hm-img" src="/scenes/bunny-hero.webp" alt="" draggable={false} />
         </div>
       </div>
     </div>
