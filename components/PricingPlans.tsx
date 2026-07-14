@@ -86,8 +86,8 @@ export default function PricingPlans() {
                 {p.id === "free"
                   ? <Link href="/qr-tools" className="qx-btn-hero-ghost w-full justify-center !text-sm">{p.cta}</Link>
                   : p.id === "pro"
-                    ? <UpgradeButton className="qx-btn-hero w-full justify-center" />
-                    : <Link href="/register?plan=business" className="qx-btn w-full justify-center !text-sm font-bold">{p.cta}</Link>}
+                    ? <UpgradeButton className="qx-btn-hero w-full justify-center" plan="pro" interval={yearly ? "year" : "month"} />
+                    : <UpgradeButton className="qx-btn w-full justify-center !text-sm font-bold" label={p.cta} plan="business" interval={yearly ? "year" : "month"} />}
               </div>
               {p.id !== "free" && <p className="text-[10.5px] text-center mt-2.5" style={{ color: "var(--text-faint)" }}>14-day free trial · cancel anytime</p>}
             </div>

@@ -6,11 +6,34 @@ import { SITE_URL } from "@/lib/seo";
 
 export const runtime = "nodejs";
 
-/** POST — starts a Stripe Checkout session for the Pro subscription. */
-export async function POST() {
+type PaidPlan = "pro" | "business";
+type Interval = "month" | "year";
+
+/** Resolve the Stripe price for a (plan, interval) pair. */
+function priceFor(plan: PaidPlan, interval: Interval): string | undefined {
+  const prices: Record<string, string | undefined> = {
+    "pro:month": process.env.STRIPE_PRICE_PRO_MONTHLY,
+    "pro:year": process.env.STRIPE_PRICE_PRO_YEARLY,
+    "business:month": process.env.STRIPE_PRICE_BUSINESS_MONTHLY,
+    "business:year": process.env.STRIPE_PRICE_BUSINESS_YEARLY,
+  };
+  return prices[`${plan}:${interval}`];
+}
+
+/** POST { plan?: "pro"|"business", interval?: "month"|"year" } — starts Stripe Checkout.
+    Defaults to Pro monthly so older callers keep working. */
+export async function POST(request: Request) {
   const stripe = getStripe();
-  const priceId = process.env.STRIPE_PRICE_PRO_MONTHLY;
-  if (!stripe || !priceId) {
+  if (!stripe) {
+    return NextResponse.json({ ok: false, error: "billing_not_configured" }, { status: 503 });
+  }
+
+  const body = await request.json().catch(() => ({}));
+  const plan: PaidPlan = body?.plan === "business" ? "business" : "pro";
+  const interval: Interval = body?.interval === "year" ? "year" : "month";
+
+  const priceId = priceFor(plan, interval);
+  if (!priceId) {
     return NextResponse.json({ ok: false, error: "billing_not_configured" }, { status: 503 });
   }
 
@@ -45,7 +68,9 @@ export async function POST() {
     allow_promotion_codes: true,
     success_url: `${SITE_URL}/dashboard?upgraded=1`,
     cancel_url: `${SITE_URL}/pricing?canceled=1`,
-    metadata: { supabase_uid: auth.user.id },
+    metadata: { supabase_uid: auth.user.id, plan },
+    // The webhook reads plan off the subscription, so stamp it there too.
+    subscription_data: { metadata: { supabase_uid: auth.user.id, plan } },
   });
 
   return NextResponse.json({ ok: true, url: session.url });

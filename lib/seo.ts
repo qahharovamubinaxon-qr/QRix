@@ -6,6 +6,9 @@ export const SITE_TAGLINE = "Free QR Code, PDF & Image Tools";
 export const SITE_DESCRIPTION =
   "QRix is an all-in-one toolkit: 185+ free tools — dynamic QR codes with logos & analytics, 20+ PDF tools (merge, split, compress, convert, OCR, sign), image, video and AI tools — fast, private and right in your browser.";
 
+/** The generated 1200×630 social card (app/opengraph-image.tsx), served at this route. */
+export const OG_IMAGE = `${SITE_URL}/opengraph-image`;
+
 /** Build per-page metadata with canonical + Open Graph + Twitter. */
 export function pageMeta(opts: {
   title: string;
@@ -33,13 +36,17 @@ export function pageMeta(opts: {
       siteName: SITE_NAME,
       title: opts.title,
       description,
-      // No images override → Next's file-based app/opengraph-image.tsx (generated
-      // 1200×630) applies to every page. Prevents referencing a missing /og.png.
+      // Next only applies the file-based opengraph-image.tsx to the root route —
+      // nested segments do NOT inherit it. So point every page at that generated
+      // route explicitly (a real, served 1200×630 PNG). The previous /og.png did
+      // not exist, so every non-root page advertised a 404 og:image.
+      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: opts.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: opts.title,
       description,
+      images: [OG_IMAGE],
     },
   };
 }

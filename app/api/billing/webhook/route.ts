@@ -36,7 +36,17 @@ export async function POST(request: Request) {
     return new Date((ts ?? Math.floor(Date.now() / 1000) + 30 * 86400) * 1000).toISOString();
   }
 
-  async function setPlanByCustomer(customerId: string, plan: "free" | "pro", proUntil: string | null, subId: string | null) {
+  /** Which paid tier this subscription is for — stamped by the checkout route. */
+  function planOf(sub: Stripe.Subscription): "pro" | "business" {
+    return sub.metadata?.plan === "business" ? "business" : "pro";
+  }
+
+  async function setPlanByCustomer(
+    customerId: string,
+    plan: "free" | "pro" | "business",
+    proUntil: string | null,
+    subId: string | null,
+  ) {
     await admin!
       .from("profiles")
       .update({ plan, pro_until: proUntil, stripe_subscription_id: subId })
@@ -49,7 +59,7 @@ export async function POST(request: Request) {
         const s = event.data.object as Stripe.Checkout.Session;
         if (s.customer && s.subscription) {
           const sub = await stripe.subscriptions.retrieve(s.subscription as string);
-          await setPlanByCustomer(s.customer as string, "pro", periodEnd(sub), sub.id);
+          await setPlanByCustomer(s.customer as string, planOf(sub), periodEnd(sub), sub.id);
         }
         break;
       }
@@ -57,7 +67,7 @@ export async function POST(request: Request) {
       case "customer.subscription.created": {
         const sub = event.data.object as Stripe.Subscription;
         const active = sub.status === "active" || sub.status === "trialing";
-        await setPlanByCustomer(sub.customer as string, active ? "pro" : "free", active ? periodEnd(sub) : null, sub.id);
+        await setPlanByCustomer(sub.customer as string, active ? planOf(sub) : "free", active ? periodEnd(sub) : null, sub.id);
         break;
       }
       case "customer.subscription.deleted": {

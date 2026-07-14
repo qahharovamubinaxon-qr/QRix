@@ -20,12 +20,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const post = getPost(slug) || (await getAutopilotPost(slug));
   if (!post) return pageMeta({ title: "Article not found", path: `/blog/${slug}`, noindex: true });
-  return pageMeta({
+  const meta = pageMeta({
     title: post.title,
     description: post.description,
     path: `/blog/${post.slug}`,
     keywords: post.keywords,
   });
+  // Articles deserve og:type=article + published time (richer social/rich results).
+  return {
+    ...meta,
+    openGraph: {
+      ...meta.openGraph,
+      type: "article",
+      publishedTime: post.date,
+      modifiedTime: post.date,
+      authors: [SITE_NAME],
+      section: post.category,
+      tags: post.keywords,
+    },
+  };
 }
 
 export default async function BlogArticle({ params }: { params: Promise<{ slug: string }> }) {

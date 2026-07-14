@@ -8,6 +8,7 @@ import CommandSearch from "@/components/CommandSearch";
 import Toaster from "@/components/Toaster";
 import PwaVitals from "@/components/PwaVitals";
 import CookieConsent from "@/components/CookieConsent";
+import HtmlLangSync from "@/components/HtmlLangSync";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import ErrorMonitor from "@/components/ErrorMonitor";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, jsonLd } from "@/lib/seo";
@@ -114,6 +115,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col">
+        <HtmlLangSync />
         <a href="#main" className="qx-skip-link">Skip to content</a>
         {/* Бутун сайт фони — barcha sahifalarda chiqadi */}
         <DotDistortionBackground />

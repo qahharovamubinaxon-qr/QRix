@@ -8,9 +8,13 @@ import { supabaseBrowser } from "@/lib/supabase-browser";
 export default function UpgradeButton({
   className = "qx-btn-hero",
   label = "Upgrade to Pro",
+  plan = "pro",
+  interval = "month",
 }: {
   className?: string;
   label?: string;
+  plan?: "pro" | "business";
+  interval?: "month" | "year";
 }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -26,7 +30,12 @@ export default function UpgradeButton({
         router.push("/register?next=/pricing");
         return;
       }
-      const r = await fetch("/api/billing/checkout", { method: "POST", credentials: "include" });
+      const r = await fetch("/api/billing/checkout", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan, interval }),
+      });
       const data = await r.json();
       if (data.ok && data.url) {
         window.location.assign(data.url);
@@ -34,7 +43,7 @@ export default function UpgradeButton({
       }
       setMsg(
         data.error === "billing_not_configured"
-          ? "Pro checkout isn’t live yet — coming very soon."
+          ? "Checkout isn’t live yet — coming very soon."
           : "Couldn’t start checkout. Please try again."
       );
     } catch {

@@ -26,8 +26,12 @@ const LEGAL = ["about", "privacy", "terms", "contact"];
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const autoPosts = await getAutopilotPosts();
-  const entry = (path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly") =>
-    ({ url: `${SITE_URL}${path}`, lastModified: now, changeFrequency, priority });
+  const entry = (
+    path: string,
+    priority: number,
+    changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly",
+    lastModified: Date = now,
+  ) => ({ url: `${SITE_URL}${path}`, lastModified, changeFrequency, priority });
 
   // Programmatic SEO use-case pages (localized, with hreflang alternates).
   const langReady = (l: string) => l === "en" || USE_CASES_EN.some((u) => hasTranslation(u.slug, l as never));
@@ -73,8 +77,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/pricing", 0.7, "monthly"),
     entry("/developers", 0.7, "monthly"),
     entry("/blog", 0.7, "weekly"),
-    ...POSTS.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly")),
-    ...autoPosts.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly")),
+    // Real publish dates → an honest freshness signal (not "everything edited now").
+    ...POSTS.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly", new Date(p.date))),
+    ...autoPosts.map((p) => entry(`/blog/${p.slug}`, 0.6, "monthly", new Date(p.date))),
     entry("/help", 0.6, "monthly"),
     ...HELP_CATEGORIES.map((c) => entry(`/help/${c.slug}`, 0.5, "monthly")),
     entry("/docs", 0.6, "monthly"),

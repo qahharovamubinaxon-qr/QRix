@@ -1,7 +1,9 @@
 import { allPostsSorted } from "@/lib/blog";
+import { getAutopilotPosts } from "@/lib/server/autopilot";
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from "@/lib/seo";
 
-export const dynamic = "force-static";
+// ISR (was force-static) so autopilot-published articles reach the feed too.
+export const revalidate = 3600;
 
 function esc(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -9,7 +11,9 @@ function esc(s: string) {
 
 /** RSS 2.0 feed of the blog. */
 export async function GET() {
-  const items = allPostsSorted()
+  const auto = await getAutopilotPosts();
+  const items = [...allPostsSorted(), ...auto]
+    .sort((a, b) => (a.date < b.date ? 1 : -1))
     .map(
       (p) => `    <item>
       <title>${esc(p.title)}</title>
