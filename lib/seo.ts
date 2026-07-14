@@ -33,13 +33,13 @@ export function pageMeta(opts: {
       siteName: SITE_NAME,
       title: opts.title,
       description,
-      images: [{ url: `${SITE_URL}/og.png`, width: 1200, height: 630, alt: opts.title }],
+      // No images override → Next's file-based app/opengraph-image.tsx (generated
+      // 1200×630) applies to every page. Prevents referencing a missing /og.png.
     },
     twitter: {
       card: "summary_large_image",
       title: opts.title,
       description,
-      images: [`${SITE_URL}/og.png`],
     },
   };
 }

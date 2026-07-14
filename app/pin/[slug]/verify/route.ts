@@ -50,9 +50,6 @@ export async function POST(
 
   const geo = await getGeoData(ip);
 
-  console.log("IP:", ip);
-  console.log("GEO DATA:", geo);
-
   let browser = "Unknown";
 
   if (userAgent.includes("Chrome"))
@@ -84,7 +81,7 @@ export async function POST(
     device = "Mobile";
   }
 
-  const scanResult = await supabase
+  await supabase
     .from("qr_scans")
     .insert({
       slug,
@@ -97,22 +94,12 @@ export async function POST(
       city: geo.city,
     });
 
-  console.log(
-    "PIN SCAN RESULT:",
-    JSON.stringify(scanResult, null, 2)
-  );
-
   await supabase
     .from("dynamic_links")
     .update({
       scans: (data.scans || 0) + 1,
     })
     .eq("slug", slug);
-
-  console.log(
-    "TARGET URL:",
-    data.target_url
-  );
 
   // target_url'ni to'g'rilash: http/https bo'lmasa qo'shamiz
   let target = String(data.target_url || "").trim();

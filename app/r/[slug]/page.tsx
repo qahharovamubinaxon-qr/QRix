@@ -45,8 +45,6 @@ const userAgent =
 
 const geo = await getGeoData(ip);
 
-console.log("GEO DATA:", geo);
-
 let browser = "Unknown";
 
 if (userAgent.includes("Chrome"))

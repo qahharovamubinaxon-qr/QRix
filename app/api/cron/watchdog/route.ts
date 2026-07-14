@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { systemHealth } from "@/lib/server/monitor";
 import { notifyOwner } from "@/lib/server/telegram/notify";
+import { cronAuthorized } from "@/lib/server/cron-auth";
 
 export const runtime = "nodejs";
 
 /** Health watchdog: checks every subsystem and pings the owner on Telegram when
     something degrades. CRON_SECRET-protected. Schedule every few hours. */
 export async function GET(req: NextRequest) {
-  const secret = process.env.CRON_SECRET;
-  if (secret && req.headers.get("authorization") !== `Bearer ${secret}`) {
+  if (!cronAuthorized(req)) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
