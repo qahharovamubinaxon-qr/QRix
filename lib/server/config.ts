@@ -86,7 +86,7 @@ export const serverConfig = {
   /** Transactional email. smtp | resend | mailgun | console(mock). */
   email: {
     driver: (env("EMAIL_DRIVER") as "smtp" | "resend" | "mailgun" | "console") || "console",
-    from: env("EMAIL_FROM") || "QRix <no-reply@qrix.app>",
+    from: env("EMAIL_FROM") || "QRix <no-reply@qrixtools.com>",
     resendKey: env("RESEND_API_KEY"),
     smtp: env("EMAIL_SERVER"),
   },

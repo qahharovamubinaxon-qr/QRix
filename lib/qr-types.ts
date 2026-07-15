@@ -6,7 +6,7 @@ export const QR_TYPES: Record<string, QrType> = {
   url: {
     id: "url",
     fields: [{ key: "url", label: "Website URL", placeholder: "https://example.com", type: "url", full: true }],
-    build: (v) => v.url?.trim() || "https://qrix.uz",
+    build: (v) => v.url?.trim() || "https://qrixtools.com",
   },
   text: {
     id: "text",
@@ -224,12 +224,12 @@ export const QR_TYPES: Record<string, QrType> = {
   pdf: {
     id: "pdf",
     fields: [{ key: "url", label: "PDF file URL", placeholder: "https://example.com/file.pdf", type: "url", full: true }],
-    build: (v) => v.url?.trim() || "https://qrix.uz",
+    build: (v) => v.url?.trim() || "https://qrixtools.com",
   },
   app: {
     id: "app",
     fields: [{ key: "url", label: "App / website link", placeholder: "https://example.com", type: "url", full: true }],
-    build: (v) => v.url?.trim() || "https://qrix.uz",
+    build: (v) => v.url?.trim() || "https://qrixtools.com",
   },
   crypto: {
     id: "crypto",

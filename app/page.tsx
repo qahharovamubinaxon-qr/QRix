@@ -212,7 +212,7 @@ export default function HomePage() {
   const [protectedUrl, setProtectedUrl] = useState("");
 
   /* ===== QR & design ===== */
-  const [qrValue, setQrValue] = useState("https://qrix.uz");
+  const [qrValue, setQrValue] = useState("https://qrixtools.com");
   const [busy, setBusy] = useState(false);
   const [fg, setFg] = useState("#000000");
   const [bg, setBg] = useState("#ffffff");
@@ -253,7 +253,7 @@ export default function HomePage() {
 
   const buildValue = (): string => {
     switch (tab) {
-      case "url": return buildUrlWithUtm(url.trim() || "https://qrix.uz");
+      case "url": return buildUrlWithUtm(url.trim() || "https://qrixtools.com");
       case "text": return textVal.trim() || "QRix";
       case "wifi": return `WIFI:T:WPA;S:${ssid};P:${wifiPass};;`;
       case "vcard":
@@ -262,7 +262,7 @@ export default function HomePage() {
       case "sms": return `SMSTO:${smsNum}:${smsMsg}`;
       case "whatsapp": return `https://wa.me/${waNum.replace(/\D/g, "")}${waMsg ? `?text=${encodeURIComponent(waMsg)}` : ""}`;
       case "telegram": return `https://t.me/${tgUser.replace("@", "")}`;
-      default: return "https://qrix.uz";
+      default: return "https://qrixtools.com";
     }
   };
 

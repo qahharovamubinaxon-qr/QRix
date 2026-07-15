@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://qrix.uz").replace(/\/$/, "");
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://qrixtools.com").replace(/\/$/, "");
 export const SITE_NAME = "QRix";
 export const SITE_TAGLINE = "Free QR Code, PDF & Image Tools";
 export const SITE_DESCRIPTION =

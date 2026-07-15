@@ -5,6 +5,7 @@
  */
 import { serverConfig } from "./config";
 import { escapeHtml } from "./security";
+import { SITE_URL } from "@/lib/seo";
 
 export interface Mail { to: string; subject: string; html: string; text?: string }
 
@@ -104,7 +105,7 @@ const shell = (title: string, body: string, cta?: { label: string; url: string }
 export const emails = {
   welcome: (to: string, name?: string) => sendMail({
     to, subject: "Welcome to QRix 🎉",
-    html: shell(`Welcome${name ? `, ${escapeHtml(name)}` : ""}!`, "Your account is ready. 150+ tools, favorites, history and cloud processing are waiting.", { label: "Open dashboard", url: "https://qrix.app/dashboard" }),
+    html: shell(`Welcome${name ? `, ${escapeHtml(name)}` : ""}!`, "Your account is ready. 150+ tools, favorites, history and cloud processing are waiting.", { label: "Open dashboard", url: `${SITE_URL}/dashboard` }),
   }),
   verify: (to: string, url: string) => sendMail({
     to, subject: "Verify your email",
@@ -120,7 +121,7 @@ export const emails = {
   }),
   subscriptionStarted: (to: string, plan: string) => sendMail({
     to, subject: `Your ${plan} plan is active`,
-    html: shell("Subscription active", `Your <b>${escapeHtml(plan)}</b> plan is now active. Enjoy the full platform.`, { label: "Manage billing", url: "https://qrix.app/account" }),
+    html: shell("Subscription active", `Your <b>${escapeHtml(plan)}</b> plan is now active. Enjoy the full platform.`, { label: "Manage billing", url: `${SITE_URL}/account` }),
   }),
   invoice: (to: string, amount: number, url?: string) => sendMail({
     to, subject: "Your QRix invoice",
