@@ -15,7 +15,7 @@ export default function LatestPosts({ heading, cta }: { heading: string; cta: st
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {posts.map((p, i) => (
-          <Link key={p.slug} href={`/blog/${p.slug}`} className="group qx-card qx-card-lift p-6 flex flex-col"
+          <Link key={p.slug} href={`/blog/${p.slug}`} className="group qx-glass qx-card-lift p-6 flex flex-col"
             data-reveal="scale" style={{ ["--rv-delay" as string]: `${i * 90}ms` } as React.CSSProperties}>
             <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full self-start mb-3" style={{ background: "var(--primary-dim)", color: "var(--primary-bright)" }}>
               {p.category}

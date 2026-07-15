@@ -210,7 +210,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
 
       <div className="qx-rv-grid max-w-[1240px] mx-auto px-5 lg:px-8" data-reveal>
         {/* ── left: leave a review (stays put) ── */}
-        <div className="qx-card p-6 lg:p-7 flex flex-col">
+        <div className="qx-glass p-6 lg:p-7 flex flex-col">
           <h3 className="font-display text-lg font-bold mb-5" style={{ color: "var(--text)" }}>{t.formTitle}</h3>
           <div className="flex items-center justify-between mb-4">
             <label className="text-xs font-semibold" style={{ color: "var(--text-muted)" }}>{t.rating}</label>

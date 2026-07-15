@@ -332,6 +332,32 @@ html.light {
 }
 
 /* ============================================================
+   GLASS CONTENT CARD — the exact material of the QR generator card (.qx-fcard):
+   a see-through white film over the navy canvas, so the scene glows through it,
+   with the shared blur and a hairline. Used for the homepage content cards (reviews
+   form, latest guides, brand-film panel) so the whole page reads as one glass. It
+   is material only — no padding or radius assumptions — so it drops onto any card.
+   ============================================================ */
+.qx-glass {
+  position: relative;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255,255,255,0.13);
+  border-radius: 22px;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.35), 0 1px 0 rgba(255,255,255,0.07) inset;
+  transition: transform .22s cubic-bezier(.4,0,.2,1), box-shadow .22s, border-color .22s;
+}
+.qx-glass:hover {
+  border-color: rgba(255,255,255,0.26);
+  box-shadow: 0 28px 70px rgba(0,0,0,0.45), 0 1px 0 rgba(255,255,255,0.1) inset;
+}
+html.light .qx-glass {
+  background: rgba(255,255,255,0.6);
+  border-color: rgba(0,0,0,0.1);
+  box-shadow: 0 18px 50px rgba(0,0,0,0.12);
+}
+
+/* ============================================================
    BUTTONS
    ============================================================ */
 .qx-btn {

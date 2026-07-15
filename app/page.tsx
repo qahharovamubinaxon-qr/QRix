@@ -648,7 +648,7 @@ export default function HomePage() {
       {/* ================= BRAND FILM (auto-playing 16:9) ================= */}
       <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-16 lg:pb-24" aria-label="QRix brand film">
         <div className="relative overflow-hidden rounded-[28px] p-6 sm:p-8 lg:p-10" data-reveal
-          style={{ background: "linear-gradient(150deg, rgba(20,20,23,0.72) 0%, rgba(10,10,12,0.80) 55%, rgba(6,6,8,0.86) 100%)", backdropFilter: "blur(28px) saturate(135%)", WebkitBackdropFilter: "blur(28px) saturate(135%)", border: "1px solid rgba(255,255,255,0.10)", boxShadow: "0 40px 90px -20px rgba(0,0,0,0.75), 0 10px 40px -12px rgba(210,68,10,0.22), inset 0 1px 0 rgba(255,255,255,0.10)" }}>
+          style={{ background: "rgba(255,255,255,0.05)", backdropFilter: "blur(24px) saturate(140%)", WebkitBackdropFilter: "blur(24px) saturate(140%)", border: "1px solid rgba(255,255,255,0.13)", boxShadow: "0 24px 60px rgba(0,0,0,0.35), 0 10px 40px -12px rgba(210,68,10,0.16), inset 0 1px 0 rgba(255,255,255,0.08)" }}>
           <div className="absolute inset-0 pointer-events-none" aria-hidden
             style={{ background: "radial-gradient(680px circle at 85% 40%, rgba(255,138,46,0.18), rgba(255,120,40,0.06) 42%, transparent 68%)" }} />
           <div className="relative grid lg:grid-cols-[1fr_minmax(0,60%)] gap-7 lg:gap-10 items-center">
