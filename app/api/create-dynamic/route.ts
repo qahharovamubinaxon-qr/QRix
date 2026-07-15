@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase-server";
+import { supabase as db } from "@/lib/supabase"; // service-role, for the RLS-locked dynamic_links
 import { rateLimit, hashPassword } from "@/lib/server/security";
 
 /** Only allow safe http(s) destinations — blocks javascript:, data:, etc. */
@@ -61,7 +62,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Custom alias may use letters, numbers, - and _ (3–40 chars)." }, { status: 400 });
       }
       slug = String(customSlug);
-      const { data: existing } = await supabase
+      const { data: existing } = await db
         .from("dynamic_links")
         .select("slug")
         .eq("slug", slug)
@@ -73,7 +74,7 @@ export async function POST(req: Request) {
       slug = Math.random().toString(36).substring(2, 9);
     }
 
-    const result = await supabase.from("dynamic_links").insert({
+    const result = await db.from("dynamic_links").insert({
       slug,
       target_url: url,
       pin,

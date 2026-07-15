@@ -1,5 +1,5 @@
 import Sidebar from "@/components/Sidebar";
-import { createClient } from "@/lib/supabase-server";
+import { supabase as db } from "@/lib/supabase"; // service-role, for the RLS-locked qr_scans
 import AnalyticsChart from "@/components/AnalyticsChart";
 
 export default async function AnalyticsPage({
@@ -11,9 +11,7 @@ export default async function AnalyticsPage({
 }) {
   const { slug } = await params;
 
-  const supabase = await createClient();
-
-  const { data: scans } = await supabase
+  const { data: scans } = await db
     .from("qr_scans")
     .select("*")
     .eq("slug", slug)

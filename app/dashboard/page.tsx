@@ -1,5 +1,6 @@
 ﻿import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { supabase as db } from "@/lib/supabase"; // service-role, for the RLS-locked link/scan tables
 import DashboardClient from "@/components/DashboardClient";
 import { pageMeta } from "@/lib/seo";
 
@@ -22,19 +23,23 @@ export default async function DashboardPage() {
 
   const userId = session.user.id;
 
-  // Реал линклар — фойдаланувчиники
-  const { data: links } = await supabase
+  // Реал линклар — фойдаланувчиники (service-role + user_id фильтри = эгалик кафолати)
+  const { data: links } = await db
     .from("dynamic_links")
     .select("*")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
-  // Реал сканлар — охирги 1000 та (статистика учун)
-  const { data: scans, error: scansError } = await supabase
-    .from("qr_scans")
-    .select("*")
-    .order("scanned_at", { ascending: false })
-    .limit(1000);
+  // Реал сканлар — фақат шу фойдаланувчининг линкларига тегишлиси
+  const slugs = (links || []).map((l) => l.slug);
+  const { data: scans, error: scansError } = slugs.length
+    ? await db
+        .from("qr_scans")
+        .select("*")
+        .in("slug", slugs)
+        .order("scanned_at", { ascending: false })
+        .limit(1000)
+    : { data: [], error: null };
 
   if (scansError) console.log("SCANS ERROR:", scansError);
 

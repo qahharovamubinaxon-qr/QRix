@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase-server";
+import { supabase as db } from "@/lib/supabase"; // service-role, for the RLS-locked dynamic_links
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -18,7 +19,8 @@ export async function POST(req: Request) {
   try {
     const { slug } = await req.json();
 
-    const { error } = await supabase
+    // .eq("user_id", ...) is the ownership guard now that service-role bypasses RLS.
+    const { error } = await db
       .from("dynamic_links")
       .delete()
       .eq("slug", slug)

@@ -86,21 +86,34 @@ create policy reviews_insert on public.reviews for insert with check (true);
 drop policy if exists autopilot_read on public.autopilot_posts;
 create policy autopilot_read on public.autopilot_posts for select using (true);
 
--- ── dynamic_links + qr_scans ────────────────────────────────────────────────
--- These carry user links and scan logs. The app currently reaches them with the
--- ANON key server-side, so the policies below permit that and the site works as
--- shipped. The trade-off: the anon key is public, so with these policies anyone
--- could read every row directly through the Supabase REST API.
+-- ── dynamic_links + qr_scans: LOCKED to the server ──────────────────────────
+-- These carry user links and scan logs. Every server path that touches them uses
+-- the SERVICE-ROLE key (bypasses RLS) — the redirect, PIN verify, the dashboard and
+-- the create/update/delete routes all import lib/supabase.ts, which is service-role.
+-- So the public anon key gets NOTHING here. This is what closes the holes the old
+-- "for everyone" policies opened: anyone with the public key could otherwise read
+-- every link (and PIN hash), read all scans, and — worst — REPOINT any QR code.
 --
--- HARDENING (recommended before real traffic): move the server routes that touch
--- these tables (app/r, app/pin, app/api/create-dynamic, app/dashboard) onto the
--- service-role client, then DELETE the four policies below. The service role
--- bypasses RLS, so the tables become server-only and unreadable by the public key.
--- Ask and this can be wired + tested against the live database.
-drop policy if exists dynamic_links_anon on public.dynamic_links;
-drop policy if exists qr_scans_anon      on public.qr_scans;
-create policy dynamic_links_anon on public.dynamic_links for all using (true) with check (true);
-create policy qr_scans_anon      on public.qr_scans      for all using (true) with check (true);
+-- The only policies kept are the authenticated, owner-scoped ones, for the case
+-- where a signed-in user's browser reaches the table directly (auth.uid()=user_id).
+-- Requires SUPABASE_SERVICE_ROLE_KEY to be set, or the server cannot read these.
+
+-- dynamic_links
+drop policy if exists "Allow select for everyone" on public.dynamic_links;
+drop policy if exists "Allow update for everyone" on public.dynamic_links;
+drop policy if exists "Allow insert for everyone" on public.dynamic_links;
+drop policy if exists "Users can view own links"   on public.dynamic_links;
+drop policy if exists "Users can insert own links" on public.dynamic_links;
+drop policy if exists "Users can update own links" on public.dynamic_links;
+drop policy if exists "Users can delete own links" on public.dynamic_links;
+create policy "Users can view own links"   on public.dynamic_links for select to authenticated using      (auth.uid() = user_id);
+create policy "Users can insert own links" on public.dynamic_links for insert to authenticated with check (auth.uid() = user_id);
+create policy "Users can update own links" on public.dynamic_links for update to authenticated using      (auth.uid() = user_id);
+create policy "Users can delete own links" on public.dynamic_links for delete to authenticated using      (auth.uid() = user_id);
+
+-- qr_scans: service-role only, no anon/authenticated policies at all.
+drop policy if exists "Allow read scan"   on public.qr_scans;
+drop policy if exists "Allow insert scan" on public.qr_scans;
 
 -- ============================================================================
 -- Done. Four tables, RLS on, reviews constrained, blog public-read.
