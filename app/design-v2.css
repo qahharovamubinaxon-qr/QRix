@@ -1093,7 +1093,10 @@ html.light .qx-glitter { display: none; }
 .qx-gm-media { height: min(48vh, 440px); width: auto; display: block; user-select: none; }
 
 @media (max-width: 1023px) {
-  .qx-hm { height: 42vh; }
+  /* The bunny sits INSIDE the reserved top gap (.qx-era-stage padding-top),
+     not bottom-anchored — bottom-anchoring dropped it onto the copy + search.
+     Release the base `bottom` clamp and pin it just below the title instead. */
+  .qx-hm { top: 14vh; bottom: auto; height: 36vh; }
   .qx-gm { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1166,7 +1169,8 @@ html.light .qx-fcard-panel {
 @media (max-width: 1023px) {
   .qx-era-stage {
     grid-template-columns: 1fr; row-gap: 20px;
-    padding-top: 44vh; padding-bottom: 8px;
+    /* clears the top-pinned bunny (top 14vh + height 36vh = 50vh) with margin */
+    padding-top: 46vh; padding-bottom: 8px;
   }
   .qx-era-side--left, .qx-era-side--right { grid-column: 1; justify-self: stretch; max-width: none; width: 100%; }
   .qx-bunny-slot--hero { height: 42vh; left: calc(50% - 42vh * 0.352); }

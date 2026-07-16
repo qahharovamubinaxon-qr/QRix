@@ -4,12 +4,33 @@ import { createClient } from "@/lib/supabase-server";
 import { supabase as db } from "@/lib/supabase"; // service-role, for the RLS-locked dynamic_links
 import { rateLimit, hashPassword } from "@/lib/server/security";
 
-/** Only allow safe http(s) destinations — blocks javascript:, data:, etc. */
+/** Reject loopback / private / link-local / metadata hosts, so the QRix domain
+    can't be used to mask a redirect to an internal network resource. */
+function isPublicHost(hostname: string): boolean {
+  const h = hostname.toLowerCase().replace(/^\[|\]$/g, ""); // strip IPv6 brackets
+  if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local")) return false;
+  if (h === "::1" || h === "0.0.0.0") return false;
+  const m = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (m) {
+    const a = Number(m[1]), b = Number(m[2]);
+    if (a === 0 || a === 10 || a === 127) return false;      // this-net / private / loopback
+    if (a === 172 && b >= 16 && b <= 31) return false;        // 172.16.0.0/12
+    if (a === 192 && b === 168) return false;                 // 192.168.0.0/16
+    if (a === 169 && b === 254) return false;                 // link-local + cloud metadata
+    if (a === 100 && b >= 64 && b <= 127) return false;       // CGNAT 100.64.0.0/10
+  }
+  if (h.startsWith("fc") || h.startsWith("fd") || h.startsWith("fe80")) return false; // IPv6 ULA/link-local
+  return true;
+}
+
+/** Only allow safe, public http(s) destinations — blocks javascript:, data:,
+    and internal hosts. */
 function isSafeUrl(raw: unknown): raw is string {
   if (typeof raw !== "string" || raw.length === 0 || raw.length > 2048) return false;
   try {
     const u = new URL(raw);
-    return u.protocol === "http:" || u.protocol === "https:";
+    if (u.protocol !== "http:" && u.protocol !== "https:") return false;
+    return isPublicHost(u.hostname);
   } catch {
     return false;
   }
