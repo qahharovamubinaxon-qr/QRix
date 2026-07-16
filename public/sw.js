@@ -1,7 +1,10 @@
 /* QRix service worker — offline support + smart caching.
    Static assets: cache-first. Pages: network-first with offline fallback.
    APIs and non-GET requests are never cached. */
-const VERSION = "qrix-v1";
+// v2: drop every v1 cache — pages cached while www was the primary host kept
+// serving under the www origin after the apex switch, which broke all
+// same-origin API calls (they hit the domain redirect instead of the API).
+const VERSION = "qrix-v2";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const OFFLINE_URL = "/offline";

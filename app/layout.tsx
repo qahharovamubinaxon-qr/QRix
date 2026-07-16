@@ -101,6 +101,18 @@ export default function RootLayout({
             crossOrigin="anonymous"
           />
         )}
+        {/* canonical host — runs before anything else. The service worker's page
+            cache can swallow the www→apex redirect and leave the page running on
+            www; every same-origin API fetch then hits the domain redirect (a
+            "Redirecting…" body, not JSON) and fails — which is how a PIN QR came
+            out unprotected. If we're on the canonical host's www alias, replace
+            to the canonical origin. Preview deploys (*.vercel.app) never match. */}
+        <script
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `try{var q=new URL(${JSON.stringify(SITE_URL)});if(location.hostname==="www."+q.hostname){location.replace(q.origin+location.pathname+location.search+location.hash)}}catch(e){}`,
+          }}
+        />
         {/* theme init — runs before paint to avoid flash */}
         <script
           // eslint-disable-next-line react/no-danger
