@@ -52,6 +52,7 @@ const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
     yourQr: "Your QR Code", dlPng: "Download PNG", dlSvg: "Download SVG",
     customize: "Customize Design",
     protected: "PIN-protected link created:",
+    pinFail: "Could not create the PIN-protected link — please try again (the QR was NOT protected).",
     designTitle: "QR Design Studio", qrColor: "QR Color", bgColor: "Background",
     size: "Size", errLevel: "Error Correction", logo: "Logo", uploadLogo: "Upload logo",
     removeLogo: "Remove", done: "Done",
@@ -88,6 +89,7 @@ const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
     yourQr: "Ваш QR код", dlPng: "Скачать PNG", dlSvg: "Скачать SVG",
     customize: "Настроить дизайн",
     protected: "Создана PIN-защищённая ссылка:",
+    pinFail: "Не удалось создать PIN-защищённую ссылку — попробуйте снова (QR НЕ защищён).",
     designTitle: "Студия дизайна QR", qrColor: "Цвет QR", bgColor: "Фон",
     size: "Размер", errLevel: "Коррекция ошибок", logo: "Логотип", uploadLogo: "Загрузить лого",
     removeLogo: "Удалить", done: "Готово",
@@ -124,6 +126,7 @@ const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
     yourQr: "Сизнинг QR кодингиз", dlPng: "PNG юклаб олиш", dlSvg: "SVG юклаб олиш",
     customize: "Дизайнни созлаш",
     protected: "PIN-ҳимояланган ссилка яратилди:",
+    pinFail: "PIN-ҳимояланган ссилка яратилмади — қайта уриниб кўринг (QR ҲИМОЯЛАНМАГАН).",
     designTitle: "QR Дизайн Студияси", qrColor: "QR ранги", bgColor: "Фон",
     size: "Ўлчам", errLevel: "Хато тузатиш", logo: "Логотип", uploadLogo: "Лого юклаш",
     removeLogo: "Ўчириш", done: "Тайёр",
@@ -210,6 +213,7 @@ export default function HomePage() {
   const [pin, setPin] = useState("");
   const [pinConfirmed, setPinConfirmed] = useState(false);
   const [protectedUrl, setProtectedUrl] = useState("");
+  const [pinError, setPinError] = useState("");
 
   /* ===== QR & design ===== */
   const [qrValue, setQrValue] = useState("https://qrixtools.com");
@@ -269,6 +273,7 @@ export default function HomePage() {
   /* Generate — PIN бўлса реал динамик ссилка яратади */
   const generate = async () => {
     setProtectedUrl("");
+    setPinError("");
     trackTool("qr-generate", { type: tab });
     const raw = buildValue();
 
@@ -286,10 +291,13 @@ export default function HomePage() {
           setQrValue(full);
           setProtectedUrl(full);
         } else {
-          setQrValue(raw);
+          // NEVER silently fall back to the raw URL when a PIN was asked for — that
+          // hands back a QR that looks protected but skips the PIN entirely. Surface
+          // the failure and leave the previous QR untouched.
+          setPinError(data.error || t.pinFail);
         }
       } catch {
-        setQrValue(raw);
+        setPinError(t.pinFail);
       } finally {
         setBusy(false);
       }
@@ -559,6 +567,12 @@ export default function HomePage() {
               <div className="mt-2.5 p-2.5 rounded-xl text-[11px] break-all"
                 style={{ background:"rgba(52,211,153,.08)", border:"1px solid rgba(52,211,153,.3)", color:"var(--success)" }}>
                 <FiCheck className="inline mr-1" size={11}/> {t.protected} <b>{protectedUrl}</b>
+              </div>
+            )}
+            {pinError && (
+              <div className="mt-2.5 p-2.5 rounded-xl text-[11px] text-center"
+                style={{ background:"rgba(248,113,113,.1)", border:"1px solid rgba(248,113,113,.35)", color:"var(--danger)" }}>
+                ⚠️ {pinError}
               </div>
             )}
             </div>{/* closes center panel */}
