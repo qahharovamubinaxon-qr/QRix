@@ -257,7 +257,13 @@ export default function HomePage() {
 
   const buildValue = (): string => {
     switch (tab) {
-      case "url": return buildUrlWithUtm(url.trim() || "https://qrixtools.com");
+      // People type "www.google.com" without a scheme; a QR of that bare text is
+      // not a link to a scanner, and the PIN endpoint (correctly) rejects it.
+      // Default the scheme instead of failing the user.
+      case "url": {
+        const u = url.trim();
+        return buildUrlWithUtm(u ? (/^https?:\/\//i.test(u) ? u : `https://${u}`) : "https://qrixtools.com");
+      }
       case "text": return textVal.trim() || "QRix";
       case "wifi": return `WIFI:T:WPA;S:${ssid};P:${wifiPass};;`;
       case "vcard":
