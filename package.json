@@ -24,6 +24,7 @@
     "@cantoo/pdf-lib": "^2.7.1",
     "@imgly/background-removal": "^1.4.5",
     "@imgly/background-removal-data": "^1.4.5",
+    "@mediabunny/mp3-encoder": "^1.50.8",
     "@napi-rs/canvas": "^1.0.0",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.6.1",

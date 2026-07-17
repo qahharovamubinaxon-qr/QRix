@@ -238,14 +238,14 @@ export const VIDEO_TOOLS: VideoTool[] = [
   /* ── AUDIO ── */
   {
     slug: "extract-audio", title: "Extract Audio from Video", short: "Extract Audio",
-    desc: "Pull the soundtrack out of any video as an MP3 (or lossless WAV) — free, instant, private in your browser.",
+    desc: "Pull the soundtrack out of any video as MP3, M4A, lossless WAV or OGG — free, instant, private in your browser.",
     emoji: "🎵", grad: "linear-gradient(135deg,#f472b6,#db2777)", category: "Audio",
     engine: "audio-extract", status: "live", popular: true,
-    keywords: ["extract audio from video", "video to audio", "get sound from video", "rip audio", "video to mp3"],
-    intro: "Video in → clean audio out. Full quality, zero upload.",
-    about: "Extract Audio pulls your video's soundtrack out entirely on-device. It exports a real MP3 wherever your browser can encode one, and falls back to lossless WAV otherwise — both are universally supported and import into any editor. Nothing is uploaded.",
-    steps: STEPS3("Any video with an audio track.", "Nothing to configure — extraction starts instantly.", "Download the audio file."),
-    faqs: [FREE, PRIVATE, { q: "MP3 or WAV?", a: "You get a real MP3 on browsers that can encode one (most Chromium-based browsers); otherwise the tool falls back to lossless WAV automatically. Either way it stays on your device." }, SIZE],
+    keywords: ["extract audio from video", "video to audio", "get sound from video", "rip audio", "video to mp3", "video to m4a", "video to wav", "video to ogg"],
+    intro: "Video in → clean audio out. Pick MP3, M4A, WAV or OGG.",
+    about: "Extract Audio pulls your video's soundtrack out entirely on-device, in the format you choose: MP3 (universal for phones and computers), M4A/AAC (iPhone and Apple apps), lossless WAV (editing) or OGG/Opus (smallest files, great for Telegram and Android). MP3 always works — a built-in encoder covers browsers without native support. Nothing is uploaded.",
+    steps: STEPS3("Any video with an audio track.", "Pick the audio format — MP3, M4A, WAV or OGG.", "Download the audio file, or tap another format to re-convert instantly."),
+    faqs: [FREE, PRIVATE, { q: "Which format should I pick?", a: "MP3 plays everywhere — phones, computers, cars. M4A (AAC) is native on iPhone and Apple apps. WAV is lossless and best for editing. OGG (Opus) gives the smallest files and is ideal for Telegram bots and Android. You can switch formats after extracting — it re-converts on the spot." }, SIZE],
   },
   {
     slug: "mp4-to-mp3", title: "MP4 to MP3", short: "MP4→MP3",

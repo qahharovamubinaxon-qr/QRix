@@ -3,7 +3,7 @@
 /* Audio & GIF engines: Extract Audio (WAV), MP3→MP4 waveform video,
    Add Audio to video, Video→GIF (gifenc), GIF→Video (ImageDecoder). */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiDownload, FiZap, FiMusic } from "react-icons/fi";
 import { AiDropzone, AiResultBar, AiProcessing, CloudNotice } from "@/components/ai/AiKit";
 import { VideoPlayer, Timeline, loadVideoFile, type VideoMeta } from "@/components/video/VideoCore";
@@ -47,33 +47,52 @@ function audioBufferToWav(buf: AudioBuffer): Blob {
   return new Blob([ab], { type: "audio/wav" });
 }
 
-/* ── Extract Audio / MP4→MP3 ──────────────────────────────── */
+/* ── Extract Audio / MP4→MP3/M4A/WAV/OGG ──────────────────── */
+const AUDIO_FORMATS: { id: "mp3" | "m4a" | "wav" | "ogg"; label: string; hint: string }[] = [
+  { id: "mp3", label: "MP3", hint: "Phones & computers — universal" },
+  { id: "m4a", label: "M4A (AAC)", hint: "iPhone · Apple Music" },
+  { id: "wav", label: "WAV", hint: "Lossless — editing" },
+  { id: "ogg", label: "OGG (Opus)", hint: "Smallest — Telegram · Android" },
+];
+
 export function AudioExtractClient() {
+  const [file, setFile] = useState<File | null>(null);
+  const [format, setFormat] = useState<"mp3" | "m4a" | "wav" | "ogg">("mp3");
+  const [support, setSupport] = useState<Record<string, boolean> | null>(null);
   const [busy, setBusy] = useState(false);
-  const [result, setResult] = useState<{ blob: Blob; url: string; name: string } | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [result, setResult] = useState<{ blob: Blob; url: string; name: string; note?: string } | null>(null);
   const [err, setErr] = useState("");
 
-  async function onFile(f: File) {
-    trackTool("video-audio-extract", { size: f.size });
-    setBusy(true); setErr(""); setResult(null);
+  useEffect(() => {
+    let dead = false;
+    import("@/lib/video/convert-mb")
+      .then((m) => m.supportedAudioFormats())
+      .then((s) => { if (!dead) setSupport(s); })
+      .catch(() => { if (!dead) setSupport({ mp3: true, m4a: false, wav: true, ogg: false }); });
+    return () => { dead = true; };
+  }, []);
+
+  async function extract(f: File, fmt: "mp3" | "m4a" | "wav" | "ogg") {
+    setBusy(true); setErr(""); setProgress(0);
+    if (result) URL.revokeObjectURL(result.url);
+    setResult(null);
     const base = f.name.replace(/\.\w+$/, "");
     try {
-      // Prefer a real MP3 (Mediabunny / WebCodecs) — small and universal.
-      const { canOutputMp3, extractAudioMp3 } = await import("@/lib/video/convert-mb");
-      if (await canOutputMp3()) {
-        const blob = await extractAudioMp3(f);
-        setResult({ blob, url: URL.createObjectURL(blob), name: `${base}.mp3` });
-        return;
-      }
-      throw new Error("mp3-unavailable");
+      const { extractAudio } = await import("@/lib/video/convert-mb");
+      const { blob, ext } = await extractAudio(f, fmt, setProgress);
+      setResult({ blob, url: URL.createObjectURL(blob), name: `${base}.${ext}` });
     } catch {
-      // Fallback: decode + encode a lossless WAV entirely on-device.
+      // Last resort: decode + encode a lossless WAV entirely on-device.
       try {
         const ac = new AudioContext();
         const buf = await ac.decodeAudioData(await f.arrayBuffer());
         const blob = audioBufferToWav(buf);
         await ac.close();
-        setResult({ blob, url: URL.createObjectURL(blob), name: `${base}.wav` });
+        setResult({
+          blob, url: URL.createObjectURL(blob), name: `${base}.wav`,
+          note: fmt === "wav" ? undefined : `This browser couldn't encode ${fmt.toUpperCase()} for this file, so you got lossless WAV instead.`,
+        });
       } catch {
         setErr("Couldn't decode an audio track from this file.");
       }
@@ -82,20 +101,57 @@ export function AudioExtractClient() {
     }
   }
 
-  const isMp3 = result?.name.endsWith(".mp3");
+  function onFile(f: File) {
+    trackTool("video-audio-extract", { size: f.size, format });
+    setFile(f);
+    extract(f, format);
+  }
+
+  const fmtLabel = AUDIO_FORMATS.find((x) => x.id === format)?.label || format.toUpperCase();
+
+  const chips = (
+    <div>
+      <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
+        Audio format
+      </div>
+      <div className="grid sm:grid-cols-4 grid-cols-2 gap-2">
+        {AUDIO_FORMATS.map((fx) => {
+          const off = support ? support[fx.id] === false : false;
+          const active = format === fx.id;
+          return (
+            <button key={fx.id} type="button" disabled={off || busy}
+              onClick={() => {
+                setFormat(fx.id);
+                if (file) { trackTool("video-audio-extract", { action: "re-encode", format: fx.id }); extract(file, fx.id); }
+              }}
+              title={off ? "Not supported by this browser" : fx.hint}
+              className="rounded-xl px-3 py-2.5 text-left transition-all disabled:opacity-35"
+              style={{
+                background: active ? "var(--primary-dim, rgba(255,77,28,.14))" : "var(--surface-2)",
+                border: `2px solid ${active ? "var(--primary)" : "var(--border)"}`,
+              }}>
+              <span className="block text-[12.5px] font-extrabold" style={{ color: active ? "var(--primary-bright)" : "var(--text)" }}>{fx.label}</span>
+              <span className="block text-[10px] mt-0.5 leading-tight" style={{ color: "var(--text-faint)" }}>{fx.hint}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   return (
     <div className="qx-card p-6 space-y-5">
       {err && <p className="text-[13px] px-4 py-2.5 rounded-xl" style={{ background: "rgba(224,82,82,.1)", border: "1px solid rgba(224,82,82,.3)", color: "var(--danger)" }}>{err}</p>}
-      {!result && !busy && <AiDropzone onFile={onFile} accept="video/*,audio/*" hint="MP4, WebM, MOV — soundtrack out as MP3" />}
-      {busy && <AiProcessing label="Extracting the soundtrack…" />}
+      {chips}
+      {!result && !busy && <AiDropzone onFile={onFile} accept="video/*,audio/*" hint={`MP4, WebM, MOV — soundtrack out as ${fmtLabel}`} />}
+      {busy && <AiProcessing label={`Extracting ${fmtLabel}… ${progress > 0 ? `${Math.round(progress * 100)}%` : ""}`} />}
       {result && (
         <>
           <audio src={result.url} controls className="w-full" />
-          <AiResultBar blob={result.blob} filename={result.name} onReset={() => setResult(null)} />
-          <CloudNotice>{isMp3
-            ? "Extracted to MP3 on your device (WebCodecs) — small and plays everywhere. Nothing is uploaded."
-            : "Your browser couldn't encode MP3, so the soundtrack came out as lossless WAV. It opens everywhere; nothing is uploaded."}</CloudNotice>
+          <AiResultBar blob={result.blob} filename={result.name} onReset={() => { URL.revokeObjectURL(result.url); setResult(null); setFile(null); }} />
+          <CloudNotice>{result.note
+            ? `${result.note} It opens everywhere; nothing is uploaded.`
+            : `Extracted to ${result.name.split(".").pop()?.toUpperCase()} on your device — nothing is uploaded. Need a different format? Just tap another one above.`}</CloudNotice>
         </>
       )}
     </div>

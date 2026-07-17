@@ -79,9 +79,29 @@ export async function convertVideo(source: Blob, opts: MbConvertOpts = {}): Prom
   return { blob: new Blob([buffer], { type: `video/${ext}` }), ext };
 }
 
+/* ── Audio extraction — MP3 / M4A / WAV / OGG ──────────────────
+   MP3 is guaranteed everywhere: when the browser has no native MP3
+   encoder, the official @mediabunny/mp3-encoder (LAME/WASM, lazy-loaded)
+   is registered once. M4A (AAC) and OGG (Opus) depend on WebCodecs;
+   WAV is plain PCM and always works. */
+
+export type AudioFormat = "mp3" | "m4a" | "wav" | "ogg";
+
+let mp3Registered = false;
+async function ensureMp3Encoder(): Promise<void> {
+  if (mp3Registered) return;
+  const { canEncodeAudio } = await import("mediabunny");
+  if (!(await canEncodeAudio("mp3"))) {
+    const { registerMp3Encoder } = await import("@mediabunny/mp3-encoder");
+    registerMp3Encoder();
+  }
+  mp3Registered = true;
+}
+
 /** True when the browser (or Mediabunny's bundled encoder) can produce MP3. */
 export async function canOutputMp3(): Promise<boolean> {
   try {
+    await ensureMp3Encoder();
     const { canEncodeAudio } = await import("mediabunny");
     return await canEncodeAudio("mp3");
   } catch {
@@ -89,11 +109,44 @@ export async function canOutputMp3(): Promise<boolean> {
   }
 }
 
-/** Extract the soundtrack as a real MP3 (audio-only, video discarded). */
-export async function extractAudioMp3(source: Blob, onProgress?: (p: number) => void): Promise<Blob> {
-  const { Input, Output, Conversion, Mp3OutputFormat, BufferTarget, ALL_FORMATS, BlobSource } = await import("mediabunny");
+/** Which of the audio formats this browser can actually encode. */
+export async function supportedAudioFormats(): Promise<Record<AudioFormat, boolean>> {
+  const out: Record<AudioFormat, boolean> = { mp3: false, m4a: false, wav: true, ogg: false };
+  try {
+    await ensureMp3Encoder();
+    const { canEncodeAudio } = await import("mediabunny");
+    const [mp3, aac, opus] = await Promise.all([
+      canEncodeAudio("mp3").catch(() => false),
+      canEncodeAudio("aac").catch(() => false),
+      canEncodeAudio("opus").catch(() => false),
+    ]);
+    out.mp3 = mp3; out.m4a = aac; out.ogg = opus;
+  } catch { /* wav-only */ }
+  return out;
+}
+
+/** Extract the soundtrack in the chosen format (video discarded). */
+export async function extractAudio(
+  source: Blob,
+  format: AudioFormat,
+  onProgress?: (p: number) => void,
+): Promise<{ blob: Blob; ext: AudioFormat; mime: string }> {
+  if (format === "mp3") await ensureMp3Encoder();
+  const {
+    Input, Output, Conversion, BufferTarget, ALL_FORMATS, BlobSource,
+    Mp3OutputFormat, Mp4OutputFormat, WavOutputFormat, OggOutputFormat,
+  } = await import("mediabunny");
+
+  const containers: Record<AudioFormat, { fmt: unknown; mime: string }> = {
+    mp3: { fmt: new Mp3OutputFormat(), mime: "audio/mpeg" },
+    m4a: { fmt: new Mp4OutputFormat(), mime: "audio/mp4" }, // audio-only MP4 = M4A
+    wav: { fmt: new WavOutputFormat(), mime: "audio/wav" },
+    ogg: { fmt: new OggOutputFormat(), mime: "audio/ogg" },
+  };
+  const { fmt, mime } = containers[format];
+
   const input = new Input({ formats: ALL_FORMATS, source: new BlobSource(source) });
-  const output = new Output({ format: new Mp3OutputFormat(), target: new BufferTarget() });
+  const output = new Output({ format: fmt as never, target: new BufferTarget() });
   const conversion = await Conversion.init({
     input,
     output,
@@ -103,5 +156,10 @@ export async function extractAudioMp3(source: Blob, onProgress?: (p: number) => 
   await conversion.execute();
   const buffer = output.target.buffer;
   if (!buffer) throw new Error("No audio track found.");
-  return new Blob([buffer], { type: "audio/mpeg" });
+  return { blob: new Blob([buffer], { type: mime }), ext: format, mime };
+}
+
+/** Extract the soundtrack as a real MP3 (audio-only, video discarded). */
+export async function extractAudioMp3(source: Blob, onProgress?: (p: number) => void): Promise<Blob> {
+  return (await extractAudio(source, "mp3", onProgress)).blob;
 }
