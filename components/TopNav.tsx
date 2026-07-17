@@ -214,6 +214,11 @@ export default function TopNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Scan-landing pages (/pin/…, /r/…) must read as a clean lock screen — the
+  // person arriving scanned a QR, they are not browsing the site. No chrome.
+  // (After every hook so the hook order stays stable across routes.)
+  if (pathname && (pathname.startsWith("/pin") || pathname.startsWith("/r/"))) return null;
+
   // xl:px-6 — between 1280 and ~1450 the bar is viewport-limited rather than capped
   // by max-w, so the header's 40px side padding is the difference between the ten
   // links sitting on one line and "Tools" dropping under "QR". Above that width the

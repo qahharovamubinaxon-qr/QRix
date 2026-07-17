@@ -106,6 +106,14 @@ export default function QRDesignStudio({
 
   const fullMode = logoMode === "full" && !!logo;
 
+  // The modal owns the scroll: freeze the page behind it so wheel/touch
+  // scrolling moves the studio's controls, not the homepage underneath.
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
   function applyTemplate(t: QrTemplate) {
     setDotType(t.dotType); setCornerSquare(t.cornerSquare); setCornerDot(t.cornerDot);
     setFg(t.fg); setUseGrad(t.useGrad); setGrad2(t.grad2); setGradType(t.gradType);
@@ -329,6 +337,7 @@ export default function QRDesignStudio({
       style={{ background: "rgba(0,0,0,.65)", backdropFilter: "blur(8px)" }}
       onClick={onClose}>
       <div className="qx-card w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 relative"
+        style={{ overscrollBehavior: "contain", WebkitOverflowScrolling: "touch" }}
         onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-display text-lg font-extrabold flex items-center gap-2" style={{ color: "var(--text)" }}>
@@ -395,7 +404,7 @@ export default function QRDesignStudio({
               </div>
               {dlOpen && (
                 <div className="absolute left-0 right-0 top-full mt-1.5 rounded-xl overflow-hidden z-40"
-                  style={{ background: "var(--surface-2)", border: "1px solid var(--border)", boxShadow: "var(--shadow-pop)" }}>
+                  style={{ background: "var(--surface-solid, #14161f)", border: "1px solid var(--border-strong, var(--border))", boxShadow: "var(--shadow-pop)" }}>
                   <button onClick={downloadPng} className="w-full px-4 py-2.5 text-xs font-semibold text-left hover:opacity-80" style={{ color: "var(--text)" }}>PNG {frameOn ? "(with frame)" : ""} · {exportSize}px</button>
                   <button onClick={downloadSvg} className="w-full px-4 py-2.5 text-xs font-semibold text-left hover:opacity-80" style={{ color: "var(--text)", borderTop: "1px solid var(--border)" }}>SVG (vector{frameOn ? ", no frame" : ""})</button>
                   <button onClick={downloadPdf} className="w-full px-4 py-2.5 text-xs font-semibold text-left hover:opacity-80" style={{ color: "var(--text)", borderTop: "1px solid var(--border)" }}>PDF (print-ready)</button>
