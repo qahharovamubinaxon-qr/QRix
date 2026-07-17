@@ -216,8 +216,10 @@ export default function TopNav() {
 
   // Scan-landing pages (/pin/…, /r/…) must read as a clean lock screen — the
   // person arriving scanned a QR, they are not browsing the site. No chrome.
+  // The dashboard is an app shell with its own sidebar + sticky header; a second
+  // sticky bar on top overlapped its search on phones, so it goes chromeless too.
   // (After every hook so the hook order stays stable across routes.)
-  if (pathname && (pathname.startsWith("/pin") || pathname.startsWith("/r/"))) return null;
+  if (pathname && (pathname.startsWith("/pin") || pathname.startsWith("/r/") || pathname.startsWith("/dashboard"))) return null;
 
   // xl:px-6 — between 1280 and ~1450 the bar is viewport-limited rather than capped
   // by max-w, so the header's 40px side padding is the difference between the ten

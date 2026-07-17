@@ -47,11 +47,17 @@ export default function RemoveBgClient() {
     setStatus("Loading AI model...");
     try {
       const { removeBackground } = await import("@imgly/background-removal");
+      // No publicPath override: the assets load from the package's own CDN.
+      // The old `${origin}/imgly/` pointed at files that were never shipped,
+      // so every run 404'd on the model and hung at "Loading AI model...".
       const blob = await removeBackground(file, {
-        publicPath: `${location.origin}/imgly/`,
         progress: (key: string, current: number, total: number) => {
-          if (key.includes("fetch")) setStatus("Loading AI model...");
-          else setStatus(`Processing... ${Math.round((current / total) * 100)}%`);
+          if (key.includes("fetch")) {
+            const pct = total > 0 ? ` ${Math.round((current / total) * 100)}%` : "";
+            setStatus(`Loading AI model…${pct} (first run only)`);
+          } else {
+            setStatus(`Processing… ${Math.round((current / total) * 100)}%`);
+          }
         },
       });
       const url = URL.createObjectURL(blob);

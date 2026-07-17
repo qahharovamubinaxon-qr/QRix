@@ -14,6 +14,7 @@ import {
   FiSearch, FiBell, FiPlus, FiGrid, FiBarChart2,
   FiLink, FiWifi, FiMail, FiSend, FiMessageSquare, FiUser,
   FiFileText, FiImage, FiMessageCircle, FiChevronDown, FiZap,
+  FiMenu, FiX,
 } from "react-icons/fi";
 
 type LinkItem = {
@@ -69,6 +70,13 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
   const [search, setSearch] = useState("");
   const [range, setRange] = useState(7);
   const [notifOpen, setNotifOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  // the drawer owns the screen while open — don't scroll the page behind it
+  useEffect(() => {
+    document.body.style.overflow = mobileNavOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileNavOpen]);
 
   const nowMs = useMemo(() => new Date(now).getTime(), [now]);
   const userName = email.split("@")[0] || "User";
@@ -241,69 +249,98 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
     { href: "/pdf-tools", label: "PDF Tools", desc: "Convert & compress", icon: <FiFileText size={20} />, grad: "linear-gradient(135deg,#ea580c,#fb923c)" },
   ];
 
+  const sidebarInner = (
+    <>
+      <Link href="/" className="font-display flex items-center gap-1 px-2 mb-7 mt-1">
+        <span className="text-[26px] font-bold tracking-tight" style={{ color: "var(--text)" }}>QR</span>
+        <span
+          className="text-[26px] font-bold tracking-tight"
+          style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}
+        >
+          ix
+        </span>
+      </Link>
+
+      <nav className="flex-1 space-y-1">
+        {navMain.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={() => setMobileNavOpen(false)}
+            className={`qx-navlink ${item.active ? "active" : ""}`}
+          >
+            <span style={{ color: item.active ? "var(--primary-bright)" : undefined }}>{item.icon}</span>
+            {item.label}
+          </Link>
+        ))}
+      </nav>
+
+      {/* Upgrade card — расмдагидек */}
+      <div
+        className="rounded-2xl p-4 mt-6"
+        style={{ background: "linear-gradient(135deg,#7c3aed,#a855f7 60%,#6366f1)", boxShadow: "var(--shadow-pop)" }}
+      >
+        <div className="font-display font-bold text-white text-sm">Upgrade to Pro</div>
+        <p className="text-[11px] mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,.75)" }}>
+          Unlock advanced features, custom domains, and more.
+        </p>
+        <Link
+          href="/register"
+          className="mt-3 w-full flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold transition hover:opacity-90"
+          style={{ background: "rgba(255,255,255,.95)", color: "#6d28d9" }}
+        >
+          <FiZap size={13} /> Upgrade Now
+        </Link>
+      </div>
+    </>
+  );
+
   return (
     <div className="flex min-h-screen">
-      {/* ================= SIDEBAR (расмдагидек) ================= */}
+      {/* ================= SIDEBAR — desktop only; phones get the drawer ================= */}
       <aside
-        className="w-60 shrink-0 min-h-screen sticky top-0 max-h-screen overflow-y-auto flex flex-col p-4"
+        className="hidden lg:flex w-60 shrink-0 min-h-screen sticky top-0 max-h-screen overflow-y-auto flex-col p-4"
         style={{ background: "var(--surface)", borderRight: "1px solid var(--border)", backdropFilter: "blur(20px)" }}
       >
-        <Link href="/" className="font-display flex items-center gap-1 px-2 mb-7 mt-1">
-          <span className="text-[26px] font-bold tracking-tight" style={{ color: "var(--text)" }}>QR</span>
-          <span
-            className="text-[26px] font-bold tracking-tight"
-            style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}
-          >
-            ix
-          </span>
-        </Link>
-
-        <nav className="flex-1 space-y-1">
-          {navMain.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`qx-navlink ${item.active ? "active" : ""}`}
-            >
-              <span style={{ color: item.active ? "var(--primary-bright)" : undefined }}>{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Upgrade card — расмдагидек */}
-        <div
-          className="rounded-2xl p-4 mt-6"
-          style={{ background: "linear-gradient(135deg,#7c3aed,#a855f7 60%,#6366f1)", boxShadow: "var(--shadow-pop)" }}
-        >
-          <div className="font-display font-bold text-white text-sm">Upgrade to Pro</div>
-          <p className="text-[11px] mt-1 leading-relaxed" style={{ color: "rgba(255,255,255,.75)" }}>
-            Unlock advanced features, custom domains, and more.
-          </p>
-          <Link
-            href="/register"
-            className="mt-3 w-full flex items-center justify-center gap-1.5 rounded-xl py-2 text-xs font-bold transition hover:opacity-90"
-            style={{ background: "rgba(255,255,255,.95)", color: "#6d28d9" }}
-          >
-            <FiZap size={13} /> Upgrade Now
-          </Link>
-        </div>
+        {sidebarInner}
       </aside>
+
+      {/* ================= MOBILE DRAWER ================= */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-[70] lg:hidden" role="dialog" aria-modal="true" aria-label="Dashboard menu">
+          <div className="absolute inset-0" style={{ background: "rgba(0,0,0,.6)", backdropFilter: "blur(4px)" }}
+            onClick={() => setMobileNavOpen(false)} />
+          <aside
+            className="absolute left-0 top-0 bottom-0 w-[270px] max-w-[82vw] overflow-y-auto flex flex-col p-4"
+            style={{ background: "var(--surface-solid)", borderRight: "1px solid var(--border)", overscrollBehavior: "contain" }}
+          >
+            <button onClick={() => setMobileNavOpen(false)} aria-label="Close menu"
+              className="qx-btn-ghost !p-2 self-end -mb-9"><FiX size={16} /></button>
+            {sidebarInner}
+          </aside>
+        </div>
+      )}
 
       {/* ================= MAIN ================= */}
       <main className="flex-1 min-w-0">
         {/* Header — расмдагидек */}
         <header
-          className="sticky top-0 z-40 px-7 py-3.5 flex items-center gap-4"
+          className="sticky top-0 z-40 px-4 lg:px-7 py-3.5 flex items-center gap-3 lg:gap-4"
           style={{
             background: "color-mix(in srgb, var(--surface-solid) 75%, transparent)",
             borderBottom: "1px solid var(--border)",
             backdropFilter: "blur(20px)",
           }}
         >
+          {/* Hamburger — opens the drawer on phones */}
+          <button onClick={() => setMobileNavOpen(true)} aria-label="Open dashboard menu"
+            className="qx-btn-ghost !p-2.5 lg:hidden shrink-0">
+            <FiMenu size={16} />
+          </button>
+
           {/* Search — реал фильтр */}
           <div
-            className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl flex-1 max-w-md"
+            className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl flex-1 min-w-0 max-w-md"
             style={{ background: "var(--surface-hover)", border: "1px solid var(--border)" }}
           >
             <FiSearch size={15} style={{ color: "var(--text-faint)" }} />
@@ -316,9 +353,9 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
             />
           </div>
 
-          <div className="flex items-center gap-2.5 ml-auto">
+          <div className="flex items-center gap-2.5 ml-auto shrink-0">
             <Link href="/url-qr" className="qx-btn !py-2.5">
-              <FiPlus size={15} /> Create QR
+              <FiPlus size={15} /> <span className="hidden sm:inline">Create QR</span>
             </Link>
 
             {/* Notifications — реал (охирги 24 соат) */}
@@ -373,11 +410,11 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
         </header>
 
         {/* ============ CONTENT ============ */}
-        <div className="p-7 max-w-[1500px]">
+        <div className="p-4 sm:p-7 max-w-[1500px]">
           {/* Title row */}
           <div className="flex flex-wrap items-end justify-between gap-4 qx-rise">
             <div>
-              <h1 className="font-display text-4xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Dashboard</h1>
+              <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight" style={{ color: "var(--text)" }}>Dashboard</h1>
               <p className="mt-1.5 text-sm" style={{ color: "var(--text-muted)" }}>Welcome back, {userName}! 👋</p>
             </div>
             <div className="qx-btn-ghost !text-xs !cursor-default">📅 {dateRange}</div>

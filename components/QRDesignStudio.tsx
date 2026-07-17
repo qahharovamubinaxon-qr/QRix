@@ -333,11 +333,15 @@ export default function QRDesignStudio({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{ background: "rgba(0,0,0,.65)", backdropFilter: "blur(8px)" }}
+    /* The OVERLAY is the scroll container (classic modal pattern): the wheel
+       works anywhere over the modal — card, backdrop, gaps — because it all
+       scrolls one element. The card centers when short (m-auto) and starts
+       at the top when taller than the screen. */
+    <div className="fixed inset-0 z-[100] overflow-y-auto p-4"
+      style={{ background: "rgba(0,0,0,.65)", backdropFilter: "blur(8px)", overscrollBehavior: "contain", WebkitOverflowScrolling: "touch" }}
       onClick={onClose}>
-      <div className="qx-card w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 relative"
-        style={{ overscrollBehavior: "contain", WebkitOverflowScrolling: "touch" }}
+      <div className="flex min-h-full">
+      <div className="qx-card w-full max-w-6xl m-auto p-6 relative"
         onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <h3 className="font-display text-lg font-extrabold flex items-center gap-2" style={{ color: "var(--text)" }}>
@@ -365,9 +369,9 @@ export default function QRDesignStudio({
           </div>
         </div>
 
-        <div className="grid md:grid-cols-[260px_1fr] gap-6">
+        <div className="grid md:grid-cols-[300px_1fr] gap-6">
           {/* ── Live preview + download ── */}
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-3 md:sticky md:top-2 self-start">
             <div className="rounded-2xl p-3" style={{ background: frameOn ? frameColor : "transparent", transition: "background .2s" }}>
               <div className="rounded-xl overflow-hidden" style={{ background: fullMode ? "#fff" : bg }}>
                 <div ref={mountRef} style={{ width: RENDER, height: RENDER, display: fullMode ? "none" : undefined }} />
@@ -432,10 +436,10 @@ export default function QRDesignStudio({
             )}
           </div>
 
-          {/* ── Controls ── */}
-          <div className="space-y-5">
+          {/* ── Controls — two columns on wide screens so everything is visible ── */}
+          <div className="grid xl:grid-cols-2 gap-5 items-start content-start">
             {/* Logo — the brand layer */}
-            <Group title="Logo">
+            <Group title="Logo" className="xl:col-span-2">
               <div className="flex items-center gap-3">
                 <label className="qx-btn-ghost !text-xs cursor-pointer">
                   <FiUpload size={13} /> Upload
@@ -584,6 +588,7 @@ export default function QRDesignStudio({
           </div>
         </div>
       </div>
+      </div>
     </div>
   );
 }
@@ -628,9 +633,9 @@ function MiniQr({ tpl }: { tpl: QrTemplate }) {
   );
 }
 
-function Group({ title, children }: { title: string; children: React.ReactNode }) {
+function Group({ title, children, className }: { title: string; children: React.ReactNode; className?: string }) {
   return (
-    <div>
+    <div className={className}>
       <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>{title}</div>
       {children}
     </div>
