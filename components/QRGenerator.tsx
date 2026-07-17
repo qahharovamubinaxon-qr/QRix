@@ -2,9 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
-import {
-  FiDownload, FiChevronDown, FiSliders, FiX, FiUpload, FiTrash2, FiCheck,
-} from "react-icons/fi";
+import { FiDownload, FiChevronDown, FiSliders } from "react-icons/fi";
+import QRDesignStudio from "@/components/QRDesignStudio";
 
 /* ============ Field definitions ============ */
 export type FieldType = "text" | "url" | "tel" | "email" | "number" | "textarea" | "password" | "date" | "select";
@@ -24,15 +23,12 @@ export type QrType = {
   build: (v: Record<string, string>) => string;
 };
 
-const COLOR_PRESETS = ["#000000", "#7c3aed", "#2563eb", "#0891b2", "#16a34a", "#dc2626", "#db2777", "#d97706"];
-const BG_PRESETS = ["#ffffff", "#f4f4f8", "#fef9c3", "#e0f2fe", "#f3e8ff", "#dcfce7", "#ffe4e6", "#0a0a14"];
-
 export default function QRGenerator({ type }: { type: QrType }) {
   const [values, setValues] = useState<Record<string, string>>({});
   const [qrValue, setQrValue] = useState("https://qrix.uz");
   const [fg, setFg] = useState("#000000");
   const [bg, setBg] = useState("#ffffff");
-  const [size, setSize] = useState(240);
+  const size = 240;
   const [level, setLevel] = useState<"L" | "M" | "Q" | "H">("H");
   const [logo, setLogo] = useState<string | null>(null);
   const [designOpen, setDesignOpen] = useState(false);
@@ -69,14 +65,6 @@ export default function QRGenerator({ type }: { type: QrType }) {
     a.click();
     URL.revokeObjectURL(a.href);
     setDlOpen(false);
-  };
-
-  const onLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    const r = new FileReader();
-    r.onload = () => setLogo(r.result as string);
-    r.readAsDataURL(f);
   };
 
   const onTilt = (e: React.MouseEvent) => {
@@ -152,75 +140,19 @@ export default function QRGenerator({ type }: { type: QrType }) {
         </div>
       </div>
 
-      {/* Design modal */}
+      {/* The full Design Studio — templates, shapes, gradients, logo modes
+          (center / logo-as-QR), scan check, hi-res export. `onApply` syncs
+          the basics back into this page's live preview. */}
       {designOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,.6)", backdropFilter: "blur(8px)" }} onClick={() => setDesignOpen(false)}>
-          <div role="dialog" aria-modal="true" aria-label="QR Design Studio" className="qx-card w-full max-w-lg max-h-[88vh] overflow-y-auto p-6" style={{ background: "var(--surface-solid)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-display text-lg font-bold flex items-center gap-2" style={{ color: "var(--text)" }}>
-                <FiSliders style={{ color: "var(--primary-bright)" }} /> QR Design Studio
-              </h3>
-              <button onClick={() => setDesignOpen(false)} aria-label="Close" className="qx-btn-ghost !p-2"><FiX size={16} /></button>
-            </div>
-            <div className="flex justify-center mb-6">
-              <div className="p-3 rounded-xl" style={{ background: bg, boxShadow: "0 8px 28px rgba(0,0,0,.3)" }}>
-                <QRCodeCanvas value={qrValue} size={120} bgColor={bg} fgColor={fg} level={level} marginSize={1}
-                  imageSettings={logo ? { src: logo, height: 24, width: 24, excavate: true } : undefined} />
-              </div>
-            </div>
-            <div className="mb-5">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>🎨 QR Color</label>
-              <div className="flex flex-wrap items-center gap-2">
-                {COLOR_PRESETS.map((c) => (
-                  <button key={c} onClick={() => setFg(c)} aria-label={`QR color ${c}`} aria-pressed={fg === c} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
-                    style={{ background: c, border: fg === c ? "2px solid var(--primary-bright)" : "1px solid var(--border)" }} />
-                ))}
-                <input type="color" value={fg} onChange={(e) => setFg(e.target.value)} aria-label="Custom QR color" className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
-              </div>
-            </div>
-            <div className="mb-5">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>🖼 Background</label>
-              <div className="flex flex-wrap items-center gap-2">
-                {BG_PRESETS.map((c) => (
-                  <button key={c} onClick={() => setBg(c)} aria-label={`Background ${c}`} aria-pressed={bg === c} className="w-8 h-8 rounded-lg transition-transform hover:scale-110"
-                    style={{ background: c, border: bg === c ? "2px solid var(--primary-bright)" : "1px solid var(--border)" }} />
-                ))}
-                <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} aria-label="Custom background color" className="w-8 h-8 rounded-lg cursor-pointer !p-0 !border-0" />
-              </div>
-            </div>
-            <div className="mb-5">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>📐 Size: {size}px</label>
-              <input type="range" min={160} max={400} value={size} onChange={(e) => setSize(Number(e.target.value))} className="w-full accent-violet-500" />
-            </div>
-            <div className="mb-5">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>🛡 Error Correction</label>
-              <div className="grid grid-cols-4 gap-2">
-                {(["L", "M", "Q", "H"] as const).map((lv) => (
-                  <button key={lv} onClick={() => setLevel(lv)} className="py-2 rounded-xl text-xs font-bold transition-all"
-                    style={{ background: level === lv ? "var(--grad-primary)" : "var(--surface-hover)", color: level === lv ? "#fff" : "var(--text-muted)", border: `1px solid ${level === lv ? "transparent" : "var(--border)"}` }}>
-                    {lv}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="mb-6">
-              <label className="block text-xs font-bold mb-2.5" style={{ color: "var(--text)" }}>⭐ Logo</label>
-              <div className="flex items-center gap-3">
-                <label className="qx-btn-ghost !text-xs cursor-pointer">
-                  <FiUpload size={13} /> Upload logo
-                  <input type="file" accept="image/*" onChange={onLogo} className="hidden" />
-                </label>
-                {logo && (
-                  <>
-                    <img src={logo} alt="logo" className="w-9 h-9 rounded-lg object-contain" style={{ border: "1px solid var(--border)" }} />
-                    <button onClick={() => setLogo(null)} className="qx-btn-ghost !text-xs !text-red-400"><FiTrash2 size={13} /> Remove</button>
-                  </>
-                )}
-              </div>
-            </div>
-            <button onClick={() => setDesignOpen(false)} className="qx-btn w-full"><FiCheck size={14} /> Done</button>
-          </div>
-        </div>
+        <QRDesignStudio
+          value={qrValue}
+          initialFg={fg}
+          initialBg={bg}
+          initialLevel={level}
+          initialLogo={logo}
+          onClose={() => setDesignOpen(false)}
+          onApply={(b) => { setFg(b.fg); setBg(b.bg); setLevel(b.level); setLogo(b.logo); }}
+        />
       )}
     </>
   );
