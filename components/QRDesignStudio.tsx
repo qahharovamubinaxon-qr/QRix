@@ -34,6 +34,28 @@ const CORNER_DOT_TYPES: { id: CornerDotType; label: string }[] = [
 const FG_PRESETS = ["#0e0e0e", "#F58F20", "#467434", "#7c3aed", "#2563eb", "#db2777", "#0891b2"];
 const FRAME_PRESETS = ["#F58F20", "#467434", "#0e0e0e", "#7c3aed", "#2563eb", "#db2777"];
 
+/* ── Professional ready-made templates (me-qr style) — one click applies a
+   complete design: shapes, colors/gradient, background and CTA frame. Each
+   card shows a REAL mini QR rendered with the template's exact options. */
+type QrTemplate = {
+  id: string; label: string;
+  dotType: DotType; cornerSquare: CornerSquareType; cornerDot: CornerDotType;
+  fg: string; useGrad: boolean; grad2: string; gradType: "linear" | "radial";
+  bg: string; frameOn: boolean; frameText: string; frameColor: string;
+};
+const QR_TEMPLATES: QrTemplate[] = [
+  { id: "classic", label: "Classic", dotType: "square", cornerSquare: "square", cornerDot: "square", fg: "#0e0e0e", useGrad: false, grad2: "#0e0e0e", gradType: "linear", bg: "#ffffff", frameOn: false, frameText: "SCAN ME", frameColor: "#0e0e0e" },
+  { id: "sunset", label: "Sunset", dotType: "rounded", cornerSquare: "extra-rounded", cornerDot: "dot", fg: "#ff4d1c", useGrad: true, grad2: "#f59e0b", gradType: "linear", bg: "#ffffff", frameOn: true, frameText: "SCAN ME", frameColor: "#ff4d1c" },
+  { id: "ocean", label: "Ocean", dotType: "extra-rounded", cornerSquare: "extra-rounded", cornerDot: "dot", fg: "#2563eb", useGrad: true, grad2: "#06b6d4", gradType: "linear", bg: "#ffffff", frameOn: true, frameText: "SCAN ME", frameColor: "#2563eb" },
+  { id: "forest", label: "Forest", dotType: "classy-rounded", cornerSquare: "extra-rounded", cornerDot: "dot", fg: "#166534", useGrad: true, grad2: "#22c55e", gradType: "linear", bg: "#f0fdf4", frameOn: false, frameText: "SCAN ME", frameColor: "#467434" },
+  { id: "berry", label: "Berry", dotType: "dots", cornerSquare: "dot", cornerDot: "dot", fg: "#db2777", useGrad: true, grad2: "#7c3aed", gradType: "radial", bg: "#ffffff", frameOn: true, frameText: "FOLLOW US", frameColor: "#db2777" },
+  { id: "midnight", label: "Midnight", dotType: "rounded", cornerSquare: "extra-rounded", cornerDot: "dot", fg: "#f8fafc", useGrad: false, grad2: "#f8fafc", gradType: "linear", bg: "#0e0e0e", frameOn: false, frameText: "SCAN ME", frameColor: "#0e0e0e" },
+  { id: "gold", label: "Gold", dotType: "classy", cornerSquare: "extra-rounded", cornerDot: "square", fg: "#b45309", useGrad: true, grad2: "#f59e0b", gradType: "linear", bg: "#fffbeb", frameOn: true, frameText: "VIP ACCESS", frameColor: "#b45309" },
+  { id: "neon", label: "Neon", dotType: "extra-rounded", cornerSquare: "extra-rounded", cornerDot: "dot", fg: "#22d3ee", useGrad: true, grad2: "#a855f7", gradType: "linear", bg: "#0b1220", frameOn: false, frameText: "SCAN ME", frameColor: "#0b1220" },
+  { id: "menu", label: "Café menu", dotType: "rounded", cornerSquare: "extra-rounded", cornerDot: "dot", fg: "#0e0e0e", useGrad: false, grad2: "#0e0e0e", gradType: "linear", bg: "#fff7ed", frameOn: true, frameText: "MENU", frameColor: "#467434" },
+  { id: "wedding", label: "Wedding", dotType: "classy-rounded", cornerSquare: "extra-rounded", cornerDot: "dot", fg: "#6b2140", useGrad: true, grad2: "#db2777", gradType: "linear", bg: "#fdf2f8", frameOn: true, frameText: "RSVP", frameColor: "#db2777" },
+];
+
 export default function QRDesignStudio({
   value,
   initialFg = "#0e0e0e",
@@ -67,6 +89,14 @@ export default function QRDesignStudio({
   const [frameText, setFrameText] = useState("SCAN ME");
   const [frameColor, setFrameColor] = useState("#F58F20");
   const [dlOpen, setDlOpen] = useState(false);
+  const [tplId, setTplId] = useState<string | null>(null);
+
+  function applyTemplate(t: QrTemplate) {
+    setDotType(t.dotType); setCornerSquare(t.cornerSquare); setCornerDot(t.cornerDot);
+    setFg(t.fg); setUseGrad(t.useGrad); setGrad2(t.grad2); setGradType(t.gradType);
+    setBg(t.bg); setFrameOn(t.frameOn); setFrameText(t.frameText); setFrameColor(t.frameColor);
+    setTplId(t.id);
+  }
 
   const RENDER = 280;
 
@@ -181,6 +211,25 @@ export default function QRDesignStudio({
             🎨 QR Design Studio
           </h3>
           <button onClick={onClose} className="qx-btn-ghost !p-2" aria-label="Close"><FiX size={16} /></button>
+        </div>
+
+        {/* ── Ready-made templates — real mini previews, one click applies ── */}
+        <div className="mb-6">
+          <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
+            Templates — start from a pro design
+          </div>
+          <div className="flex gap-2.5 overflow-x-auto pb-2 -mx-1 px-1">
+            {QR_TEMPLATES.map((t) => (
+              <button key={t.id} onClick={() => applyTemplate(t)}
+                className="shrink-0 rounded-2xl overflow-hidden text-center transition-all hover:-translate-y-1"
+                style={{ border: `2px solid ${tplId === t.id ? "#F58F20" : "var(--border)"}`, boxShadow: tplId === t.id ? "0 0 0 3px rgba(245,143,32,.18)" : "none" }}>
+                <MiniQr tpl={t} />
+                <div className="text-[10.5px] font-bold py-1.5 px-2" style={{ background: "var(--surface-2)", color: tplId === t.id ? "#F58F20" : "var(--text-muted)" }}>
+                  {t.label}
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="grid md:grid-cols-[260px_1fr] gap-6">
@@ -324,6 +373,46 @@ export default function QRDesignStudio({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* A real qr-code-styling render at thumbnail size — the template preview is
+   the template, not an approximation. Instances are tiny (72px) and only
+   exist while the studio modal is open. */
+function MiniQr({ tpl }: { tpl: QrTemplate }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const mod = await import("qr-code-styling");
+      if (cancelled || !ref.current) return;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const opts: any = {
+        width: 72, height: 72, type: "canvas", data: "https://qrixtools.com", margin: 3,
+        qrOptions: { errorCorrectionLevel: "M" },
+        dotsOptions: tpl.useGrad
+          ? { type: tpl.dotType, gradient: { type: tpl.gradType, rotation: 0, colorStops: [{ offset: 0, color: tpl.fg }, { offset: 1, color: tpl.grad2 }] } }
+          : { type: tpl.dotType, color: tpl.fg },
+        backgroundOptions: { color: tpl.bg },
+        cornersSquareOptions: { type: tpl.cornerSquare, color: tpl.fg },
+        cornersDotOptions: { type: tpl.cornerDot, color: tpl.useGrad ? tpl.grad2 : tpl.fg },
+      };
+      const inst = new mod.default(opts);
+      ref.current.innerHTML = "";
+      inst.append(ref.current);
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return (
+    <div className="p-1.5 pb-0.5" style={{ background: tpl.frameOn ? tpl.frameColor : tpl.bg, transition: "background .2s" }}>
+      <div ref={ref} className="rounded-md overflow-hidden mx-auto" style={{ width: 72, height: 72, background: tpl.bg }} />
+      {tpl.frameOn && (
+        <div className="text-[7px] font-extrabold tracking-wide pt-0.5 pb-1" style={{ color: pickTextColor(tpl.frameColor) }}>
+          {tpl.frameText}
+        </div>
+      )}
     </div>
   );
 }

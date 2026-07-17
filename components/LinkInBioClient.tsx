@@ -1,7 +1,14 @@
 "use client";
 
+/* Link-in-Bio editor (pro pass Mission 87) — the same URL-encoded page
+   builder, reorganized into a professional tabbed editor: Templates ·
+   Profile · Design · Links · Share, with a live iPhone preview. Templates
+   render as real mini-page previews (theme gradient + accent buttons),
+   me-qr style, instead of plain chips. */
+
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FiPlus, FiTrash2, FiCopy, FiCheck, FiDownload, FiExternalLink } from "react-icons/fi";
+import { FiPlus, FiTrash2, FiCopy, FiCheck, FiDownload, FiExternalLink, FiUser, FiLink, FiShare2, FiGrid } from "react-icons/fi";
+import { HiOutlineSparkles } from "react-icons/hi2";
 import { encodeBio, BIO_THEMES, BIO_PATTERNS, type BioPage, type LinkItem, type BioTheme, type BioButtonStyle, type BioSocials, type BioPattern } from "@/lib/linkpage";
 import BioView from "@/components/BioView";
 import { trackTool } from "@/lib/track";
@@ -26,9 +33,26 @@ const TEMPLATES: Template[] = [
     l: [{ label: "🎧 Spotify", url: "" }, { label: "▶️ YouTube", url: "" }, { label: "🎬 TikTok", url: "" }, { label: "🎟️ Upcoming shows", url: "" }] } },
   { id: "event", label: "Event / Wedding", emoji: "🎉", page: { t: "Aziza & Timur", s: "We're getting married! All the details below 💍", av: "🎉", c: "#F58F20", th: "light", bs: "solid", pat: "party",
     l: [{ label: "📅 Save the date", url: "" }, { label: "📍 Venue & directions", url: "" }, { label: "✅ RSVP", url: "" }, { label: "🎁 Gift registry", url: "" }] } },
+  { id: "fitness", label: "Fitness Coach", emoji: "💪", page: { t: "Coach Dilnoza", s: "Personal training & meal plans — start your journey 💪", av: "💪", c: "#16a34a", th: "forest", bs: "solid", pat: "fitness",
+    l: [{ label: "🏋️ Training programs", url: "" }, { label: "🥗 Meal plans", url: "" }, { label: "📸 Transformations", url: "" }, { label: "💬 Free consultation", url: "" }] } },
+  { id: "education", label: "Courses / Teacher", emoji: "🎓", page: { t: "EnglishPro Academy", s: "IELTS 7+ in 4 months — join the next group 🎓", av: "🎓", c: "#2563eb", th: "light", bs: "pill", pat: "work",
+    l: [{ label: "📚 Our courses", url: "" }, { label: "🎯 Free level test", url: "" }, { label: "⭐ Student results", url: "" }, { label: "📝 Enroll now", url: "" }] } },
+  { id: "photographer", label: "Photographer", emoji: "📸", page: { t: "Lens by Malika", s: "Weddings · portraits · brand shoots — book a session 📷", av: "📸", c: "#0e0e0e", th: "dark", bs: "outline", pat: "travel",
+    l: [{ label: "🖼️ Portfolio", url: "" }, { label: "💰 Packages & pricing", url: "" }, { label: "📅 Check availability", url: "" }, { label: "📸 Instagram", url: "" }] } },
+];
+
+type Tab = "templates" | "profile" | "design" | "links" | "share";
+const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
+  { id: "templates", label: "Templates", icon: <FiGrid size={13} /> },
+  { id: "profile", label: "Profile", icon: <FiUser size={13} /> },
+  { id: "design", label: "Design", icon: <HiOutlineSparkles size={14} /> },
+  { id: "links", label: "Links", icon: <FiLink size={13} /> },
+  { id: "share", label: "Share", icon: <FiShare2 size={13} /> },
 ];
 
 export default function LinkInBioClient() {
+  const [tab, setTab] = useState<Tab>("templates");
+  const [appliedId, setAppliedId] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
   const [avatar, setAvatar] = useState("🚀");
@@ -71,7 +95,7 @@ export default function LinkInBioClient() {
 
   // live QR of the share URL (skipped when the URL is too dense for a scannable QR)
   useEffect(() => {
-    if (!shareUrl || shareUrl.length > 2800) return;
+    if (!shareUrl || shareUrl.length > 2800 || tab !== "share") return;
     let cancelled = false;
     (async () => {
       const mod = await import("qr-code-styling");
@@ -92,7 +116,18 @@ export default function LinkInBioClient() {
       }
     })();
     return () => { cancelled = true; };
-  }, [shareUrl, accent]);
+  }, [shareUrl, accent, tab]);
+
+  // the Share tab remounts its QR container — force a fresh instance each time
+  useEffect(() => { if (tab !== "share") qrRef.current = null; }, [tab]);
+
+  function applyTemplate(tp: Template) {
+    setTitle(tp.page.t); setSubtitle(tp.page.s || ""); setAvatar(tp.page.av || "🚀");
+    setAccent(tp.page.c || "#F58F20"); setLinks(tp.page.l.map((l) => ({ ...l })));
+    setTheme(tp.page.th || "dark"); setBtnStyle(tp.page.bs || "outline"); setPattern(tp.page.pat || "");
+    setAppliedId(tp.id);
+    trackTool("link-in-bio", { action: "template", id: tp.id });
+  }
 
   /** Animated GIFs must be embedded as-is (canvas would freeze them) — cap the size so the link stays shareable. */
   const GIF_LIMIT = 400 * 1024;
@@ -183,236 +218,296 @@ export default function LinkInBioClient() {
     if (blob) await saveBlob(blob, "bio-page-qr.png");
   }
 
+  const label = (t: string) => (
+    <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>{t}</div>
+  );
+
   return (
     <div className="qx-card p-6">
       <div className="grid lg:grid-cols-[1fr_380px] gap-8">
         {/* ── editor ── */}
-        <div className="space-y-5">
-          {/* Business templates */}
-          <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
-              Start from a template
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {TEMPLATES.map((tp) => (
-                <button key={tp.id}
-                  onClick={() => {
-                    setTitle(tp.page.t); setSubtitle(tp.page.s || ""); setAvatar(tp.page.av || "🚀");
-                    setAccent(tp.page.c || "#F58F20"); setLinks(tp.page.l.map((l) => ({ ...l })));
-                    setTheme(tp.page.th || "dark"); setBtnStyle(tp.page.bs || "outline"); setPattern(tp.page.pat || "");
-                    trackTool("link-in-bio", { action: "template", id: tp.id });
-                  }}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12.5px] font-bold transition-all hover:-translate-y-0.5"
-                  style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}>
-                  <span>{tp.emoji}</span> {tp.label}
-                </button>
-              ))}
-            </div>
-            <p className="text-[11px] mt-2" style={{ color: "var(--text-faint)" }}>
-              One click fills the page — then just paste your own links.
-            </p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 gap-4">
-            <label className="block">
-              <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Name / title</span>
-              <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 40))} placeholder="Alex's Coffee ☕" className="qx-auth-input mt-1" />
-            </label>
-            <label className="block">
-              <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Bio (optional)</span>
-              <input value={subtitle} onChange={(e) => setSubtitle(e.target.value.slice(0, 90))} placeholder="Best coffee in town — order below 👇" className="qx-auth-input mt-1" />
-            </label>
-          </div>
-
-          <div className="flex flex-wrap gap-6">
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Avatar</div>
-              <div className="flex flex-wrap gap-1.5">
-                {AVATARS.map((a) => (
-                  <button key={a} onClick={() => setAvatar(a)} className="w-9 h-9 rounded-xl text-lg transition-transform hover:scale-110"
-                    style={{ background: avatar === a ? "rgba(245,143,32,0.18)" : "var(--surface-2)", border: `1px solid ${avatar === a ? "var(--primary)" : "var(--border)"}` }}>
-                    {a}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Accent</div>
-              <div className="flex flex-wrap items-center gap-2">
-                {ACCENTS.map((c) => (
-                  <button key={c} onClick={() => setAccent(c)} className="w-7 h-7 rounded-lg transition-transform hover:scale-110"
-                    style={{ background: c, border: accent === c ? "2px solid var(--primary)" : "1px solid var(--border)" }} />
-                ))}
-                <input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="w-7 h-7 rounded-lg cursor-pointer !p-0 !border-0" />
-              </div>
-            </div>
-          </div>
-
-          {/* Theme + button style */}
-          <div className="flex flex-wrap gap-6">
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Page theme</div>
-              <div className="flex flex-wrap gap-2">
-                {(Object.keys(BIO_THEMES) as BioTheme[]).map((th) => (
-                  <button key={th} onClick={() => setTheme(th)} title={BIO_THEMES[th].label}
-                    className="w-11 h-9 rounded-lg text-[9px] font-bold flex items-end justify-center pb-0.5 transition-transform hover:scale-105"
-                    style={{ background: BIO_THEMES[th].bg, color: BIO_THEMES[th].muted, border: theme === th ? "2px solid var(--primary)" : "1px solid var(--border)" }}>
-                    {BIO_THEMES[th].label}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Buttons</div>
-              <div className="flex gap-2">
-                {([["outline", "Outline"], ["solid", "Solid"], ["pill", "Pill"]] as [BioButtonStyle, string][]).map(([v, lbl]) => (
-                  <button key={v} onClick={() => setBtnStyle(v)}
-                    className="px-3 py-2 text-[12px] font-bold transition-all"
-                    style={{
-                      borderRadius: v === "pill" ? 99 : 10,
-                      background: v === "solid" ? (btnStyle === v ? "var(--grad-primary)" : "var(--surface-hover)") : "var(--surface-2)",
-                      color: v === "solid" && btnStyle === v ? "#fff" : "var(--text)",
-                      border: `2px solid ${btnStyle === v ? "var(--primary)" : "var(--border)"}`,
-                    }}>
-                    {lbl}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Background: niche pattern or custom photo */}
-          <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
-              Background — pick your niche
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button onClick={() => setPattern("")}
-                className="px-3 py-2 rounded-xl text-[12px] font-bold"
-                style={{ background: "var(--surface-2)", border: `2px solid ${pattern === "" ? "var(--primary)" : "var(--border)"}`, color: "var(--text)" }}>
-                None
+        <div className="min-w-0">
+          {/* tab bar */}
+          <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1 -mx-1 px-1" role="tablist" aria-label="Editor sections">
+            {TABS.map((t) => (
+              <button key={t.id} role="tab" aria-selected={tab === t.id} onClick={() => setTab(t.id)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-[12.5px] font-bold whitespace-nowrap transition-all"
+                style={{
+                  background: tab === t.id ? "var(--grad-primary)" : "var(--surface-2)",
+                  color: tab === t.id ? "#fff" : "var(--text-muted)",
+                  border: `1px solid ${tab === t.id ? "transparent" : "var(--border)"}`,
+                }}>
+                {t.icon} {t.label}
               </button>
-              {(Object.keys(BIO_PATTERNS) as BioPattern[]).map((p) => (
-                <button key={p} onClick={() => setPattern(p)}
-                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-bold transition-transform hover:scale-105"
-                  style={{ background: "var(--surface-2)", border: `2px solid ${pattern === p ? "var(--primary)" : "var(--border)"}`, color: "var(--text)" }}>
-                  {BIO_PATTERNS[p].emoji} {BIO_PATTERNS[p].label}
-                </button>
-              ))}
-            </div>
-            <div className="flex items-center gap-2.5 mt-2.5">
-              <label className="qx-btn-ghost !text-xs !py-2 cursor-pointer shrink-0">
-                🖼️ Upload background
-                <input type="file" accept="image/*" className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadBackground(f); e.target.value = ""; }} />
-              </label>
-              {bgImage && (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={bgImage} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" style={{ border: "1px solid var(--border)" }} />
-                  <button onClick={() => setBgImage("")} className="qx-btn-ghost !text-xs !py-2 shrink-0">✕ Remove</button>
-                </>
-              )}
-            </div>
-            <input value={bgImage.startsWith("data:") ? "" : bgImage}
-              onChange={(e) => setBgImage(e.target.value.slice(0, 300))}
-              placeholder={bgImage.startsWith("data:") ? "Uploaded background in use" : "…or paste a background photo URL (cover + dark overlay)"}
-              className="qx-auth-input mt-2 !py-2 !text-[12px]" />
+            ))}
           </div>
 
-          {/* Socials + avatar photo */}
-          <div className="grid sm:grid-cols-2 gap-4">
+          {/* ══ TEMPLATES ══ */}
+          {tab === "templates" && (
             <div>
-              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Social icons (optional)</div>
-              <div className="grid grid-cols-2 gap-2">
-                {([["ig", "Instagram @"], ["tg", "Telegram @"], ["wa", "WhatsApp no."], ["yt", "YouTube @"], ["tk", "TikTok @"], ["fb", "Facebook"]] as [keyof BioSocials, string][]).map(([k, ph]) => (
-                  <input key={k} value={socials[k] || ""} onChange={(e) => setSocials((s) => ({ ...s, [k]: e.target.value.slice(0, 60) }))}
-                    placeholder={ph} className="qx-auth-input !py-2 !text-[12.5px]" />
-                ))}
+              {label("Start from a professional template")}
+              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                {TEMPLATES.map((tp) => {
+                  const th = BIO_THEMES[tp.page.th || "dark"];
+                  const applied = appliedId === tp.id;
+                  return (
+                    <button key={tp.id} onClick={() => applyTemplate(tp)}
+                      className="group text-left rounded-2xl overflow-hidden transition-all hover:-translate-y-1"
+                      style={{ border: `2px solid ${applied ? "var(--primary)" : "var(--border)"}`, boxShadow: applied ? "0 0 0 3px rgba(255,77,28,.18)" : "var(--shadow-card)" }}>
+                      {/* mini page preview */}
+                      <div className="relative px-4 pt-4 pb-3" style={{ background: th.bg }}>
+                        <div className="flex flex-col items-center">
+                          <span className="w-9 h-9 rounded-full flex items-center justify-center text-[17px] mb-1.5"
+                            style={{ background: th.surface, border: `2px solid ${tp.page.c}` }}>{tp.page.av}</span>
+                          <span className="text-[11px] font-extrabold leading-none" style={{ color: th.text }}>{tp.page.t}</span>
+                          <span className="text-[8px] mt-1 truncate max-w-full" style={{ color: th.muted }}>{tp.page.s}</span>
+                        </div>
+                        <div className="mt-2.5 space-y-1.5">
+                          {tp.page.l.slice(0, 3).map((l, i) => (
+                            <div key={i} className="h-[18px] rounded-full flex items-center justify-center overflow-hidden"
+                              style={{
+                                background: tp.page.bs === "outline" ? "transparent" : tp.page.bs === "solid" ? tp.page.c : `${tp.page.c}22`,
+                                border: tp.page.bs === "outline" ? `1.5px solid ${tp.page.c}` : `1.5px solid ${tp.page.bs === "pill" ? tp.page.c + "55" : "transparent"}`,
+                              }}>
+                              <span className="text-[7.5px] font-bold truncate px-2"
+                                style={{ color: tp.page.bs === "solid" ? "#fff" : th.text }}>{l.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                        {applied && (
+                          <span className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center text-white"
+                            style={{ background: "var(--primary)" }}><FiCheck size={11} /></span>
+                        )}
+                      </div>
+                      {/* caption */}
+                      <div className="flex items-center justify-between px-3.5 py-2.5" style={{ background: "var(--surface-2)" }}>
+                        <span className="text-[12px] font-bold" style={{ color: "var(--text)" }}>{tp.emoji} {tp.label}</span>
+                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full transition-colors"
+                          style={{ background: applied ? "var(--primary-dim)" : "var(--surface-hover)", color: applied ? "var(--primary-bright)" : "var(--text-faint)", border: "1px solid var(--border)" }}>
+                          {applied ? "Applied ✓" : "Use"}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11.5px] mt-3" style={{ color: "var(--text-faint)" }}>
+                One click fills the whole page — then open <b>Profile</b> and <b>Links</b> to make it yours.
+              </p>
+            </div>
+          )}
+
+          {/* ══ PROFILE ══ */}
+          {tab === "profile" && (
+            <div className="space-y-5">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Name / title</span>
+                  <input value={title} onChange={(e) => setTitle(e.target.value.slice(0, 40))} placeholder="Alex's Coffee ☕" className="qx-auth-input mt-1" />
+                </label>
+                <label className="block">
+                  <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Bio (optional)</span>
+                  <input value={subtitle} onChange={(e) => setSubtitle(e.target.value.slice(0, 90))} placeholder="Best coffee in town — order below 👇" className="qx-auth-input mt-1" />
+                </label>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-5">
+                <div>
+                  {label("Emoji avatar")}
+                  <div className="flex flex-wrap gap-1.5">
+                    {AVATARS.map((a) => (
+                      <button key={a} onClick={() => setAvatar(a)} className="w-9 h-9 rounded-xl text-lg transition-transform hover:scale-110"
+                        style={{ background: avatar === a ? "rgba(245,143,32,0.18)" : "var(--surface-2)", border: `1px solid ${avatar === a ? "var(--primary)" : "var(--border)"}` }}>
+                        {a}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  {label("Photo avatar (overrides emoji)")}
+                  <div className="flex items-center gap-2.5">
+                    {avatarUrl && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" style={{ border: `2px solid ${accent}` }} />
+                    )}
+                    <label className="qx-btn-ghost !text-xs !py-2 cursor-pointer">
+                      📷 Upload photo
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); e.target.value = ""; }} />
+                    </label>
+                    {avatarUrl && (
+                      <button onClick={() => setAvatarUrl("")} className="qx-btn-ghost !text-xs !py-2">✕ Remove</button>
+                    )}
+                  </div>
+                  <input value={avatarUrl.startsWith("data:") ? "" : avatarUrl}
+                    onChange={(e) => setAvatarUrl(e.target.value.slice(0, 300))}
+                    placeholder={avatarUrl.startsWith("data:") ? "Uploaded photo in use" : "…or paste an image URL"}
+                    className="qx-auth-input mt-2 !py-2 !text-[12px]" />
+                </div>
+              </div>
+
+              <div>
+                {label("Social icons (optional)")}
+                <div className="grid sm:grid-cols-3 grid-cols-2 gap-2">
+                  {([["ig", "Instagram @"], ["tg", "Telegram @"], ["wa", "WhatsApp no."], ["yt", "YouTube @"], ["tk", "TikTok @"], ["fb", "Facebook"]] as [keyof BioSocials, string][]).map(([k, ph]) => (
+                    <input key={k} value={socials[k] || ""} onChange={(e) => setSocials((s) => ({ ...s, [k]: e.target.value.slice(0, 60) }))}
+                      placeholder={ph} className="qx-auth-input !py-2 !text-[12.5px]" />
+                  ))}
+                </div>
               </div>
             </div>
-            <div className="space-y-3">
+          )}
+
+          {/* ══ DESIGN ══ */}
+          {tab === "design" && (
+            <div className="space-y-5">
+              <div className="flex flex-wrap gap-6">
+                <div>
+                  {label("Page theme")}
+                  <div className="flex flex-wrap gap-2">
+                    {(Object.keys(BIO_THEMES) as BioTheme[]).map((th) => (
+                      <button key={th} onClick={() => setTheme(th)} title={BIO_THEMES[th].label}
+                        className="w-11 h-9 rounded-lg text-[9px] font-bold flex items-end justify-center pb-0.5 transition-transform hover:scale-105"
+                        style={{ background: BIO_THEMES[th].bg, color: BIO_THEMES[th].muted, border: theme === th ? "2px solid var(--primary)" : "1px solid var(--border)" }}>
+                        {BIO_THEMES[th].label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  {label("Accent")}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {ACCENTS.map((c) => (
+                      <button key={c} onClick={() => setAccent(c)} className="w-7 h-7 rounded-lg transition-transform hover:scale-110"
+                        style={{ background: c, border: accent === c ? "2px solid var(--primary)" : "1px solid var(--border)" }} />
+                    ))}
+                    <input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="w-7 h-7 rounded-lg cursor-pointer !p-0 !border-0" />
+                  </div>
+                </div>
+                <div>
+                  {label("Buttons")}
+                  <div className="flex gap-2">
+                    {([["outline", "Outline"], ["solid", "Solid"], ["pill", "Pill"]] as [BioButtonStyle, string][]).map(([v, lbl]) => (
+                      <button key={v} onClick={() => setBtnStyle(v)}
+                        className="px-3 py-2 text-[12px] font-bold transition-all"
+                        style={{
+                          borderRadius: v === "pill" ? 99 : 10,
+                          background: v === "solid" ? (btnStyle === v ? "var(--grad-primary)" : "var(--surface-hover)") : "var(--surface-2)",
+                          color: v === "solid" && btnStyle === v ? "#fff" : "var(--text)",
+                          border: `2px solid ${btnStyle === v ? "var(--primary)" : "var(--border)"}`,
+                        }}>
+                        {lbl}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Background: niche pattern or custom photo */}
               <div>
-                <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Photo avatar</span>
-                <div className="flex items-center gap-2.5 mt-1.5">
-                  {avatarUrl && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" style={{ border: `2px solid ${accent}` }} />
-                  )}
-                  <label className="qx-btn-ghost !text-xs !py-2 cursor-pointer">
-                    📷 Upload photo
+                {label("Background — pick your niche")}
+                <div className="flex flex-wrap gap-2">
+                  <button onClick={() => setPattern("")}
+                    className="px-3 py-2 rounded-xl text-[12px] font-bold"
+                    style={{ background: "var(--surface-2)", border: `2px solid ${pattern === "" ? "var(--primary)" : "var(--border)"}`, color: "var(--text)" }}>
+                    None
+                  </button>
+                  {(Object.keys(BIO_PATTERNS) as BioPattern[]).map((p) => (
+                    <button key={p} onClick={() => setPattern(p)}
+                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-bold transition-transform hover:scale-105"
+                      style={{ background: "var(--surface-2)", border: `2px solid ${pattern === p ? "var(--primary)" : "var(--border)"}`, color: "var(--text)" }}>
+                      {BIO_PATTERNS[p].emoji} {BIO_PATTERNS[p].label}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2.5 mt-2.5">
+                  <label className="qx-btn-ghost !text-xs !py-2 cursor-pointer shrink-0">
+                    🖼️ Upload background
                     <input type="file" accept="image/*" className="hidden"
-                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadAvatar(f); e.target.value = ""; }} />
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadBackground(f); e.target.value = ""; }} />
                   </label>
-                  {avatarUrl && (
-                    <button onClick={() => setAvatarUrl("")} className="qx-btn-ghost !text-xs !py-2">✕ Remove</button>
+                  {bgImage && (
+                    <>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={bgImage} alt="" className="w-10 h-10 rounded-lg object-cover shrink-0" style={{ border: "1px solid var(--border)" }} />
+                      <button onClick={() => setBgImage("")} className="qx-btn-ghost !text-xs !py-2 shrink-0">✕ Remove</button>
+                    </>
                   )}
                 </div>
-                <input value={avatarUrl.startsWith("data:") ? "" : avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value.slice(0, 300))}
-                  placeholder={avatarUrl.startsWith("data:") ? "Uploaded photo in use" : "…or paste an image URL"}
+                <input value={bgImage.startsWith("data:") ? "" : bgImage}
+                  onChange={(e) => setBgImage(e.target.value.slice(0, 300))}
+                  placeholder={bgImage.startsWith("data:") ? "Uploaded background in use" : "…or paste a background photo URL (cover + dark overlay)"}
                   className="qx-auth-input mt-2 !py-2 !text-[12px]" />
               </div>
+
               <label className="flex items-center gap-2.5 cursor-pointer">
                 <input type="checkbox" checked={hideBadge} onChange={(e) => setHideBadge(e.target.checked)} className="accent-[#F58F20] w-4 h-4" />
                 <span className="text-[12.5px] font-semibold" style={{ color: "var(--text)" }}>Hide “Made with QRix” badge</span>
                 <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>PRO</span>
               </label>
             </div>
-          </div>
+          )}
 
-          <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Links ({links.length}/8)</div>
-            <div className="space-y-2.5">
-              {links.map((l, i) => (
-                <div key={i} className="flex gap-2">
-                  <input value={l.label} onChange={(e) => setLink(i, { label: e.target.value.slice(0, 40) })} placeholder="Button label" className="qx-auth-input !py-2.5 flex-[2]" />
-                  <input value={l.url} onChange={(e) => setLink(i, { url: e.target.value })} placeholder="https://…" className="qx-auth-input !py-2.5 flex-[3]" />
-                  <button onClick={() => setLinks((ls) => ls.filter((_, j) => j !== i))} disabled={links.length <= 1}
-                    className="qx-btn-ghost !px-3 disabled:opacity-30" aria-label="Remove link">
-                    <FiTrash2 size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-            {links.length < 8 && (
-              <button onClick={() => setLinks((ls) => [...ls, { label: "", url: "" }])} className="qx-btn-ghost !text-xs mt-3">
-                <FiPlus size={13} /> Add link
-              </button>
-            )}
-          </div>
-
-          {/* share */}
-          <div className="rounded-2xl p-4" style={{ background: "rgba(245,143,32,0.06)", border: "1px solid rgba(245,143,32,0.22)" }}>
-            <div className="text-[12px] font-bold mb-2" style={{ color: "var(--text)" }}>Your page link + QR</div>
-            <div className="flex flex-col sm:flex-row gap-4 items-start">
-              <div className="shrink-0">
-                <div ref={qrMount} className="rounded-xl overflow-hidden" style={{ background: "#fff", border: "1px solid var(--border)", display: qrTooLong ? "none" : undefined }} />
-                {qrTooLong && (
-                  <div className="w-[170px] rounded-xl p-3 text-[11px] leading-snug" style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
-                    ⚠️ The uploaded photo makes this link too dense for a scannable QR. Share the link directly, or use a photo <b>URL</b> instead of an upload to keep the QR.
+          {/* ══ LINKS ══ */}
+          {tab === "links" && (
+            <div>
+              {label(`Links (${links.length}/8)`)}
+              <div className="space-y-2.5">
+                {links.map((l, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input value={l.label} onChange={(e) => setLink(i, { label: e.target.value.slice(0, 40) })} placeholder="Button label" className="qx-auth-input !py-2.5 flex-[2]" />
+                    <input value={l.url} onChange={(e) => setLink(i, { url: e.target.value })} placeholder="https://…" className="qx-auth-input !py-2.5 flex-[3]" />
+                    <button onClick={() => setLinks((ls) => ls.filter((_, j) => j !== i))} disabled={links.length <= 1}
+                      className="qx-btn-ghost !px-3 disabled:opacity-30" aria-label="Remove link">
+                      <FiTrash2 size={14} />
+                    </button>
                   </div>
-                )}
+                ))}
               </div>
-              <div className="flex-1 min-w-0 space-y-2 w-full">
-                <div className="text-[11px] break-all p-2.5 rounded-lg font-mono" style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)", maxHeight: 76, overflow: "hidden" }}>
-                  {shareUrl || "…"}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button onClick={copyLink} className="qx-btn !text-xs !py-2">{copied ? <FiCheck size={13} /> : <FiCopy size={13} />} Copy link</button>
-                  <button onClick={downloadQr} className="qx-btn !text-xs !py-2"><FiDownload size={13} /> QR PNG</button>
-                  {shareUrl && (
-                    <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="qx-btn-ghost !text-xs !py-2">
-                      <FiExternalLink size={13} /> Open page
-                    </a>
+              {links.length < 8 && (
+                <button onClick={() => setLinks((ls) => [...ls, { label: "", url: "" }])} className="qx-btn-ghost !text-xs mt-3">
+                  <FiPlus size={13} /> Add link
+                </button>
+              )}
+              <p className="text-[11.5px] mt-3" style={{ color: "var(--text-faint)" }}>
+                Tip: put your most important link first — it gets the most taps.
+              </p>
+            </div>
+          )}
+
+          {/* ══ SHARE ══ */}
+          {tab === "share" && (
+            <div className="rounded-2xl p-4" style={{ background: "rgba(245,143,32,0.06)", border: "1px solid rgba(245,143,32,0.22)" }}>
+              <div className="text-[12px] font-bold mb-2" style={{ color: "var(--text)" }}>Your page link + QR</div>
+              <div className="flex flex-col sm:flex-row gap-4 items-start">
+                <div className="shrink-0">
+                  <div ref={qrMount} className="rounded-xl overflow-hidden" style={{ background: "#fff", border: "1px solid var(--border)", display: qrTooLong ? "none" : undefined }} />
+                  {qrTooLong && (
+                    <div className="w-[170px] rounded-xl p-3 text-[11px] leading-snug" style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
+                      ⚠️ The uploaded photo makes this link too dense for a scannable QR. Share the link directly, or use a photo <b>URL</b> instead of an upload to keep the QR.
+                    </div>
                   )}
                 </div>
-                <p className="text-[10.5px]" style={{ color: "var(--text-faint)" }}>
-                  The whole page lives inside this link — no account, nothing stored on our servers. Anyone who scans the QR sees your page.
-                </p>
+                <div className="flex-1 min-w-0 space-y-2 w-full">
+                  <div className="text-[11px] break-all p-2.5 rounded-lg font-mono" style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)", maxHeight: 76, overflow: "hidden" }}>
+                    {shareUrl || "…"}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button onClick={copyLink} className="qx-btn !text-xs !py-2">{copied ? <FiCheck size={13} /> : <FiCopy size={13} />} Copy link</button>
+                    <button onClick={downloadQr} className="qx-btn !text-xs !py-2"><FiDownload size={13} /> QR PNG</button>
+                    {shareUrl && (
+                      <a href={shareUrl} target="_blank" rel="noopener noreferrer" className="qx-btn-ghost !text-xs !py-2">
+                        <FiExternalLink size={13} /> Open page
+                      </a>
+                    )}
+                  </div>
+                  <p className="text-[10.5px]" style={{ color: "var(--text-faint)" }}>
+                    The whole page lives inside this link — no account, nothing stored on our servers. Anyone who scans the QR sees your page.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* ── live iPhone preview ── */}
