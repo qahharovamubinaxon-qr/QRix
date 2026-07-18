@@ -214,9 +214,11 @@ const selfHosted: Provider = {
     const fd = new FormData();
     fd.append("fileInput", u8blob(pdf), "input.pdf");
     fd.append("outputFormat", "docx");
+    // Stirling PDF expects X-API-KEY; send Bearer too for other engines.
+    const token = process.env.PDF_ENGINE_TOKEN;
     const res = await fetch(url, {
       method: "POST",
-      headers: process.env.PDF_ENGINE_TOKEN ? { Authorization: `Bearer ${process.env.PDF_ENGINE_TOKEN}` } : undefined,
+      headers: token ? { Authorization: `Bearer ${token}`, "X-API-KEY": token } : undefined,
       body: fd, signal,
     });
     if (!res.ok) throw new Error(`self-hosted ${res.status}`);
