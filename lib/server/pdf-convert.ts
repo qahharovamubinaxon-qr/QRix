@@ -109,6 +109,99 @@ const adobe: Provider = {
   },
 };
 
+/* ── Aspose.Words Cloud (150 free API calls / month) ──
+   OAuth client-credentials token, then PUT /v4.0/words/convert?format=docx
+   with the PDF as multipart "Document". Returns the DOCX bytes directly. */
+const aspose: Provider = {
+  name: "aspose",
+  enabled: () => !!(process.env.ASPOSE_CLIENT_ID && process.env.ASPOSE_CLIENT_SECRET),
+  async convert(pdf, signal) {
+    const tokRes = await fetch("https://api.aspose.cloud/connect/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+        client_id: process.env.ASPOSE_CLIENT_ID!,
+        client_secret: process.env.ASPOSE_CLIENT_SECRET!,
+      }),
+      signal,
+    });
+    if (!tokRes.ok) throw new Error(`aspose token ${tokRes.status}`);
+    const token = (await tokRes.json()).access_token as string;
+    if (!token) throw new Error("aspose no token");
+
+    const fd = new FormData();
+    fd.append("Document", u8blob(pdf), "input.pdf");
+    const res = await fetch("https://api.aspose.cloud/v4.0/words/convert?format=docx", {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: fd, signal,
+    });
+    if (res.status === 429) throw new Error("aspose quota");
+    if (!res.ok) throw new Error(`aspose convert ${res.status}`);
+    const buf = new Uint8Array(await res.arrayBuffer());
+    if (buf.byteLength < 1000) throw new Error("aspose empty");
+    return buf;
+  },
+};
+
+/* ── CloudConvert (free ~25 conversion minutes/day; $9 = 500 more) ──
+   v2 jobs API: create job (import/upload → convert → export/url), upload
+   the file to the import task's signed form, poll, download the export. */
+const cloudconvert: Provider = {
+  name: "cloudconvert",
+  enabled: () => !!process.env.CLOUDCONVERT_API_KEY,
+  async convert(pdf, signal) {
+    const key = process.env.CLOUDCONVERT_API_KEY!;
+    const h = { Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
+    const jobRes = await fetch("https://api.cloudconvert.com/v2/jobs", {
+      method: "POST", headers: h, signal,
+      body: JSON.stringify({
+        tasks: {
+          "import-1": { operation: "import/upload" },
+          "convert-1": { operation: "convert", input: "import-1", input_format: "pdf", output_format: "docx" },
+          "export-1": { operation: "export/url", input: "convert-1" },
+        },
+      }),
+    });
+    if (jobRes.status === 402 || jobRes.status === 429) throw new Error("cloudconvert quota");
+    if (!jobRes.ok) throw new Error(`cloudconvert job ${jobRes.status}`);
+    const job = (await jobRes.json()).data;
+    const importTask = (job.tasks as any[]).find((t) => t.name === "import-1");
+    const form = importTask?.result?.form;
+    if (!form?.url) throw new Error("cloudconvert no upload form");
+
+    const fd = new FormData();
+    for (const [k, v] of Object.entries(form.parameters || {})) fd.append(k, String(v));
+    fd.append("file", u8blob(pdf), "input.pdf");
+    const up = await fetch(form.url, { method: "POST", body: fd, signal });
+    if (!up.ok && up.status !== 201) throw new Error(`cloudconvert upload ${up.status}`);
+
+    // poll the job (cap ~50s)
+    const deadline = Date.now() + 50_000;
+    let fileUrl = "";
+    for (;;) {
+      if (Date.now() > deadline) throw new Error("cloudconvert timeout");
+      await new Promise((r) => setTimeout(r, 2000));
+      const st = await fetch(`https://api.cloudconvert.com/v2/jobs/${job.id}`, { headers: { Authorization: `Bearer ${key}` }, signal });
+      if (!st.ok) throw new Error(`cloudconvert poll ${st.status}`);
+      const jd = (await st.json()).data;
+      if (jd.status === "finished") {
+        const exp = (jd.tasks as any[]).find((t) => t.name === "export-1");
+        fileUrl = exp?.result?.files?.[0]?.url || "";
+        break;
+      }
+      if (jd.status === "error") throw new Error("cloudconvert failed");
+    }
+    if (!fileUrl) throw new Error("cloudconvert no file url");
+    const dl = await fetch(fileUrl, { signal });
+    if (!dl.ok) throw new Error(`cloudconvert download ${dl.status}`);
+    const buf = new Uint8Array(await dl.arrayBuffer());
+    if (buf.byteLength < 1000) throw new Error("cloudconvert empty");
+    return buf;
+  },
+};
+
 /* ── Own self-hosted engine (Stirling PDF / Gotenberg / pdf2docx) ──
    The unlimited final fallback. Set PDF_ENGINE_URL to a running instance that
    accepts a multipart "file" and returns the .docx (Stirling:
@@ -134,8 +227,7 @@ const selfHosted: Provider = {
 };
 
 // Priority order: best fidelity first, unlimited self-host last.
-// (Aspose, ApyHub, CloudConvert adapters slot in here as their keys arrive.)
-const PROVIDERS: Provider[] = [adobe, selfHosted];
+const PROVIDERS: Provider[] = [adobe, aspose, cloudconvert, selfHosted];
 
 /** True when at least one provider has its keys — the server route is live. */
 export function serverConvertAvailable(): boolean {
