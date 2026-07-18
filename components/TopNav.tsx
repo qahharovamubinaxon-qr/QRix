@@ -71,6 +71,7 @@ const DROPDOWNS: Record<string, { href: string; label: string; desc: string; ico
     { href: "/ai-tools",                    label: "All AI Tools",       desc: "28 tools, one toolbox",     icon: <FiZap size={15}/>,       color: "#ff4d1c" },
   ],
   "/video-tools": [
+    { href: "/downloader",                 label: "Video Downloader", desc: "TikTok, Instagram, VK…", icon: <FiPlay size={15}/>,   color: "#ff0050" },
     { href: "/promo-video",                label: "Promo Video",  desc: "Animated brand promo",   icon: <FiFilm size={15}/>,      color: "#ff6a13" },
     { href: "/video-tools/compress-video", label: "Compress",     desc: "Shrink 60-85%",          icon: <FiMinimize2 size={15}/>, color: "#84cc16" },
     { href: "/video-tools/trim-video",     label: "Trim",         desc: "Timeline handles",       icon: <FiScissors size={15}/>,  color: "#ff4d1c" },
