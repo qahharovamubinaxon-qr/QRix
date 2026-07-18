@@ -26,25 +26,67 @@ import { saveBlob } from "@/lib/save-file";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-type Mode = "exact" | "flow";
+type Mode = "cloud" | "exact" | "flow";
 
 export default function PdfToWordClient() {
   const [file, setFile] = useState<File | null>(null);
   const [mode, setMode] = useState<Mode>("exact");
+  const [cloudReady, setCloudReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState("");
+
+  // Is the high-fidelity server chain configured? If so, offer it and make it
+  // the default (it matches desktop converters); otherwise the on-device modes
+  // are all there is.
+  useEffect(() => {
+    let dead = false;
+    fetch("/api/pdf-to-word")
+      .then((r) => r.json())
+      .then((j) => { if (!dead && j?.available) { setCloudReady(true); setMode("cloud"); } })
+      .catch(() => {});
+    return () => { dead = true; };
+  }, []);
 
   // Warm the pipeline while the user is still looking at the button —
   // by the time they click Convert, the 2MB of pdf.js + docx is cached.
   useEffect(() => {
-    if (!file) return;
+    if (!file || mode === "cloud") return;
     import("pdfjs-dist").catch(() => {});
     import("docx").catch(() => {});
     fetch("/pdf.worker.min.mjs").catch(() => {});
-  }, [file]);
+  }, [file, mode]);
+
+  /** High-fidelity cloud path: upload the PDF to the provider chain. Falls back
+      to on-device exact mode if the server has no providers or errors. */
+  async function convertCloud(f: File): Promise<boolean> {
+    setProgress("Converting on the server (best quality)…");
+    try {
+      const res = await fetch("/api/pdf-to-word", {
+        method: "POST",
+        headers: { "Content-Type": "application/pdf" },
+        body: await f.arrayBuffer(),
+      });
+      if (!res.ok) return false;
+      const blob = await res.blob();
+      if (blob.size < 1000) return false;
+      setProgress("");
+      await saveBlob(blob, f.name.replace(/\.pdf$/i, "") + ".docx");
+      return true;
+    } catch {
+      return false;
+    }
+  }
 
   async function convert() {
     if (!file) return;
+    // Cloud mode: try the server; if it can't, transparently fall back on-device.
+    if (mode === "cloud") {
+      setLoading(true);
+      const ok = await convertCloud(file);
+      if (ok) { setLoading(false); return; }
+      setProgress("Server unavailable — converting on your device instead…");
+      // fall through to the on-device path below (exact layout)
+    }
     const outName = file.name.replace(/\.pdf$/i, "") + ".docx";
     // Build the .docx FIRST, save LAST. The old flow opened the save picker
     // up front, which creates the target file empty — so any error during
@@ -52,6 +94,8 @@ export default function PdfToWordClient() {
     // written once the bytes exist; a failure downloads nothing.
     setLoading(true);
     setProgress("Reading PDF…");
+    // when cloud fell through, the on-device fallback uses the exact layout
+    const onDevice: "exact" | "flow" = mode === "flow" ? "flow" : "exact";
     try {
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
@@ -94,11 +138,11 @@ export default function PdfToWordClient() {
           };
         }
         // exact mode: split form/table rows into independently positioned cells
-        const lines = buildLines(content.items, fontInfo, mode === "exact");
+        const lines = buildLines(content.items, fontInfo, onDevice === "exact");
         let images: ImgBlock[] = [];
         let full: { data: Uint8Array; w: number; h: number } | null = null;
         let bg: Uint8Array | null = null;
-        if (mode === "exact") {
+        if (onDevice === "exact") {
           // Everything that is not text (vector table borders, logos, stamps,
           // photos) lives in a full-page render with the text lines covered
           // over; the editable text frames sit on top. No per-object plumbing
@@ -140,7 +184,7 @@ export default function PdfToWordClient() {
       }
 
       setProgress("Building Word document…");
-      const doc = mode === "exact" ? buildExactDoc(docx, pageData) : buildFlowDoc(docx, pageData);
+      const doc = onDevice === "exact" ? buildExactDoc(docx, pageData) : buildFlowDoc(docx, pageData);
       const blob = await docx.Packer.toBlob(doc);
       if (!blob || blob.size < 1000) throw new Error("empty document");
       setProgress("");
@@ -159,10 +203,11 @@ export default function PdfToWordClient() {
       <UploadBox file={file} setFile={setFile} accept=".pdf" />
 
       {/* conversion mode */}
-      <div className="grid grid-cols-2 gap-2 mt-4">
+      <div className={`grid gap-2 mt-4 ${cloudReady ? "sm:grid-cols-3 grid-cols-1" : "grid-cols-2"}`}>
         {([
-          ["exact", "Exact layout (1:1)", "Looks identical to the PDF — every line stays in place"],
-          ["flow", "Flowing text", "Clean paragraphs that reflow as you edit"],
+          ...(cloudReady ? [["cloud", "★ Best quality (cloud)", "Real Word tables & text like the pros — processed on a secure server"] as [Mode, string, string]] : []),
+          ["exact", "Exact layout (1:1)", "Looks identical to the PDF — on your device, nothing uploaded"],
+          ["flow", "Flowing text", "Clean paragraphs that reflow as you edit — on your device"],
         ] as [Mode, string, string][]).map(([id, label, hint]) => (
           <button key={id} type="button" onClick={() => setMode(id)}
             className="rounded-xl px-3 py-2.5 text-left transition-all"
@@ -181,8 +226,9 @@ export default function PdfToWordClient() {
       </button>
       {progress && <p className="text-[12px] mt-2 text-center" style={{ color: "var(--primary-bright)" }}>⏳ {progress}</p>}
       <p className="text-[11px] mt-3" style={{ color: "var(--text-faint)" }}>
-        Exact layout keeps the page size, positions, fonts and images 1:1 with the PDF while the text stays editable.
-        Scanned pages are embedded as images automatically. Runs privately in your browser.
+        {mode === "cloud"
+          ? "Best quality rebuilds real editable Word tables and text. Your file is sent to a secure conversion server and not stored. If it's ever unavailable, we convert on your device instead."
+          : "Exact layout keeps the page size, positions, fonts and images 1:1 with the PDF while the text stays editable. Scanned pages are embedded as images automatically. Runs privately in your browser — nothing uploaded."}
       </p>
     </div>
   );
