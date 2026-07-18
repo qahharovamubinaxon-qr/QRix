@@ -5,6 +5,6 @@
     { "path": "/api/cron/telegram-reports?period=daily", "schedule": "0 7 * * *" }
   ],
   "functions": {
-    "api/py-pdf2docx.py": { "maxDuration": 60, "memory": 1024 }
+    "api/py-pdf2docx.py": { "maxDuration": 60 }
   }
 }
