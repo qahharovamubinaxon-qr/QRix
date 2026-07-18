@@ -65,12 +65,22 @@ export default function PdfToWordClient() {
         const content = await page.getTextContent();
         const lines = buildLines(content.items, content.styles || {});
         let images: ImgBlock[] = [];
-        try { images = await extractImagesPositioned(page, pdfjsLib, vp.height); } catch { images = []; }
         let full: { data: Uint8Array; w: number; h: number } | null = null;
-        if (lines.length === 0 && images.length === 0) {
-          try { full = await renderPagePng(page); } catch { full = null; }
+        let bg: Uint8Array | null = null;
+        if (mode === "exact") {
+          // Everything that is not text (vector table borders, logos, stamps,
+          // photos) lives in a full-page render with the text lines whited
+          // out; the editable text frames sit on top. No per-object plumbing
+          // — object stores can leave a getter waiting forever (seen in the
+          // wild: images parked in commonObjs, not page.objs).
+          try { bg = await renderPageBackground(page, lines, vp.width, vp.height); } catch { bg = null; }
+        } else {
+          try { images = await extractImagesPositioned(page, pdfjsLib, vp.height); } catch { images = []; }
+          if (lines.length === 0 && images.length === 0) {
+            try { full = await renderPagePng(page); } catch { full = null; }
+          }
         }
-        pageData[n] = { wPt: vp.width, hPt: vp.height, lines, images, full };
+        pageData[n] = { wPt: vp.width, hPt: vp.height, lines, images, full, bg };
         analyzed++;
         setProgress(`Analyzing page ${analyzed} of ${pdf.numPages}…`);
       };
@@ -136,7 +146,7 @@ export default function PdfToWordClient() {
 type Run = { text: string; size: number; bold: boolean; italic: boolean; font: string };
 type Line = { y: number; x0: number; x1: number; size: number; runs: Run[] };
 type ImgBlock = { data: Uint8Array; srcW: number; srcH: number; wPt: number; hPt: number; xPt: number; topPt: number };
-type PageData = { wPt: number; hPt: number; lines: Line[]; images: ImgBlock[]; full: { data: Uint8Array; w: number; h: number } | null };
+type PageData = { wPt: number; hPt: number; lines: Line[]; images: ImgBlock[]; full: { data: Uint8Array; w: number; h: number } | null; bg: Uint8Array | null };
 
 const T = 20;      // pt → twips
 const EMU = 12700; // pt → EMU
@@ -149,33 +159,22 @@ function buildExactDoc(d: any, pages: PageData[]) {
   const sections = pages.map((pg) => {
     const children: any[] = [];
 
-    // floating images (and the scanned-page fallback), behind the text
-    const floats: any[] = [];
-    if (pg.full) {
-      floats.push(new ImageRun({
-        data: pg.full.data, type: "png",
-        transformation: { width: Math.round(pg.wPt * (96 / 72)), height: Math.round(pg.hPt * (96 / 72)) },
-        floating: {
-          horizontalPosition: { relative: HorizontalPositionRelativeFrom.PAGE, offset: 0 },
-          verticalPosition: { relative: VerticalPositionRelativeFrom.PAGE, offset: 0 },
-          wrap: { type: TextWrappingType.NONE }, behindDocument: true,
-        },
+    // the page's graphics layer (vector lines, logos, stamps, photos, scans)
+    // — a full-page render with the text whited out, behind everything
+    if (pg.bg) {
+      children.push(new Paragraph({
+        spacing: { before: 0, after: 0 },
+        children: [new ImageRun({
+          data: pg.bg, type: "jpg",
+          transformation: { width: Math.round(pg.wPt * (96 / 72)), height: Math.round(pg.hPt * (96 / 72)) },
+          floating: {
+            horizontalPosition: { relative: HorizontalPositionRelativeFrom.PAGE, offset: 0 },
+            verticalPosition: { relative: VerticalPositionRelativeFrom.PAGE, offset: 0 },
+            wrap: { type: TextWrappingType.NONE }, behindDocument: true,
+          },
+        })],
       }));
     }
-    for (const im of pg.images) {
-      const wPt = im.wPt || im.srcW * (72 / 96);
-      const hPt = im.hPt || (im.srcH / im.srcW) * wPt;
-      floats.push(new ImageRun({
-        data: im.data, type: "png",
-        transformation: { width: Math.round(wPt * (96 / 72)), height: Math.round(hPt * (96 / 72)) },
-        floating: {
-          horizontalPosition: { relative: HorizontalPositionRelativeFrom.PAGE, offset: Math.round(im.xPt * EMU) },
-          verticalPosition: { relative: VerticalPositionRelativeFrom.PAGE, offset: Math.round(im.topPt * EMU) },
-          wrap: { type: TextWrappingType.NONE }, behindDocument: true,
-        },
-      }));
-    }
-    if (floats.length) children.push(new Paragraph({ spacing: { before: 0, after: 0 }, children: floats }));
 
     // every line at its exact position, in an absolutely anchored frame
     for (const ln of pg.lines) {
@@ -356,7 +355,14 @@ async function extractImagesPositioned(page: any, pdfjsLib: any, pageHPt: number
   const out: ImgBlock[] = [];
   for (const f of found) {
     try {
-      const obj: any = await new Promise((res) => { if (page.objs.has(f.name)) res(page.objs.get(f.name)); else page.objs.get(f.name, res); });
+      // document-global objects ("g_…") live in commonObjs, not page.objs —
+      // asking the wrong store leaves the getter waiting forever. Cap the
+      // wait regardless: an unresolved object is skipped, never a hang.
+      const store = f.name.startsWith("g_") ? page.commonObjs : page.objs;
+      const obj: any = await Promise.race([
+        new Promise((res) => { try { if (store.has(f.name)) res(store.get(f.name)); else store.get(f.name, res); } catch { res(null); } }),
+        new Promise((res) => setTimeout(() => res(null), 2500)),
+      ]);
       if (!obj || !obj.width || !obj.height || !obj.data) continue;
       if (obj.width * obj.height < 2500) continue;
       const png = await imgObjToPng(obj);
@@ -397,6 +403,47 @@ async function imgObjToPng(obj: any): Promise<Uint8Array | null> {
   else { for (let i = 0, j = 0; i < width * height; i++) { const v = data[i] ?? 0; px[j++] = v; px[j++] = v; px[j++] = v; px[j++] = 255; } }
   ctx.putImageData(out, 0, 0);
   const blob = await new Promise<Blob | null>((res) => canvas.toBlob((b) => res(b), "image/png"));
+  if (!blob) return null;
+  return new Uint8Array(await blob.arrayBuffer());
+}
+
+/* Full-page render for the exact mode's graphics layer: the text lines are
+   painted over with white so only borders/logos/images remain, and a
+   near-blank result is dropped entirely (plain-text pages stay light). */
+async function renderPageBackground(page: any, lines: Line[], wPt: number, hPt: number): Promise<Uint8Array | null> {
+  const scale = Math.min(2, 2400 / Math.max(wPt, hPt));
+  const viewport = page.getViewport({ scale });
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  canvas.width = Math.round(viewport.width); canvas.height = Math.round(viewport.height);
+  ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+  await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+
+  // white out every text line's box — the editable frames replace them
+  ctx.fillStyle = "#ffffff";
+  for (const ln of lines) {
+    const x = (ln.x0 - ln.size * 0.15) * scale;
+    const yTop = (hPt - (ln.y + ln.size * 0.95)) * scale;
+    const w = (ln.x1 - ln.x0 + ln.size * 0.5) * scale;
+    const h = ln.size * 1.35 * scale;
+    ctx.fillRect(x, yTop, w, h);
+  }
+
+  // blank detection on a 64px thumbnail: if almost nothing survived the
+  // whiteout, skip the background image altogether
+  const th = document.createElement("canvas");
+  th.width = 64; th.height = 64;
+  const tctx = th.getContext("2d")!;
+  tctx.drawImage(canvas, 0, 0, 64, 64);
+  const d = tctx.getImageData(0, 0, 64, 64).data;
+  let ink = 0;
+  for (let i = 0; i < d.length; i += 4) {
+    if (d[i] < 242 || d[i + 1] < 242 || d[i + 2] < 242) ink++;
+  }
+  if (ink < 64 * 64 * 0.004) return null;
+
+  const blob = await new Promise<Blob | null>((res) => canvas.toBlob((b) => res(b), "image/jpeg", 0.85));
   if (!blob) return null;
   return new Uint8Array(await blob.arrayBuffer());
 }
