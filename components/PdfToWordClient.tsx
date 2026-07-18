@@ -22,7 +22,7 @@
 import { useEffect, useState } from "react";
 import { FiFileText } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
-import { pickSave, finishSave } from "@/lib/save-file";
+import { saveBlob } from "@/lib/save-file";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -46,8 +46,10 @@ export default function PdfToWordClient() {
   async function convert() {
     if (!file) return;
     const outName = file.name.replace(/\.pdf$/i, "") + ".docx";
-    const target = await pickSave(outName);
-    if (target.kind === "cancelled") return;
+    // Build the .docx FIRST, save LAST. The old flow opened the save picker
+    // up front, which creates the target file empty — so any error during
+    // conversion left the user with a 0-byte Word file. Now the file is only
+    // written once the bytes exist; a failure downloads nothing.
     setLoading(true);
     setProgress("Reading PDF…");
     try {
@@ -140,8 +142,10 @@ export default function PdfToWordClient() {
       setProgress("Building Word document…");
       const doc = mode === "exact" ? buildExactDoc(docx, pageData) : buildFlowDoc(docx, pageData);
       const blob = await docx.Packer.toBlob(doc);
+      if (!blob || blob.size < 1000) throw new Error("empty document");
       setProgress("");
-      await finishSave(target, blob, outName);
+      // Save only now that we have real bytes — never a 0-byte file.
+      await saveBlob(blob, outName);
     } catch (e) {
       setProgress("");
       alert("Conversion failed: " + (e as Error).message);
