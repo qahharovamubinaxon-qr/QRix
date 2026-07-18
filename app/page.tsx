@@ -17,6 +17,7 @@ import EraBunny, { GenBunny } from "@/components/EraBunny";
 import QrixPromoFilm from "@/components/QrixPromoFilm";
 import WorldMapBackground from "@/components/WorldMapBackground";
 import PricingTeaser from "@/components/PricingTeaser";
+import DownloaderClient from "@/components/DownloaderClient";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -24,7 +25,7 @@ import {
   FiShield, FiPenTool, FiBarChart2, FiCamera, FiFileText, FiImage,
   FiUpload, FiTrash2, FiCheck,
   FiLayers, FiMinimize2, FiMaximize2, FiDroplet, FiScissors,
-  FiTrendingUp,
+  FiTrendingUp, FiDownloadCloud,
 } from "react-icons/fi";
 import { type Lang, isLang } from "@/lib/lang";
 import { HOME_I18N } from "@/lib/home-i18n";
@@ -639,6 +640,31 @@ export default function HomePage() {
           </div>
 
         </div>{/* closes 3-col grid */}
+      </section>
+
+      {/* ================= UNIVERSAL DOWNLOADER (Mission 99) ================= */}
+      <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-16 lg:pb-24" aria-label="Video, audio & image downloader">
+        <div className="qx-fcard p-6 lg:p-8" data-reveal="up">
+          <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
+            <div>
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-bold mb-3"
+                style={{ background: "var(--primary-dim, rgba(255,77,28,.14))", color: "var(--primary-bright)", border: "1px solid var(--border-hover)" }}>
+                <FiDownloadCloud size={12} /> {lang === "uz" ? "Янги" : lang === "ru" ? "Новое" : "New"}
+              </div>
+              <h2 className="font-display text-2xl lg:text-3xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
+                {lang === "uz" ? "Видео, аудио ва расм юклаб олгич" : lang === "ru" ? "Загрузчик видео, аудио и фото" : "Video, audio & image downloader"}
+              </h2>
+              <p className="mt-1.5 text-[13.5px] max-w-2xl" style={{ color: "var(--text-muted)" }}>
+                {lang === "uz"
+                  ? "TikTok, Instagram, VK, X, Facebook ва бошқалардан ссилка ташланг — видео (MP4), аудио (MP3) ёки расмни сифатини танлаб, рекламасиз юклаб олинг."
+                  : lang === "ru"
+                  ? "Вставьте ссылку из TikTok, Instagram, VK, X, Facebook и других — скачайте видео (MP4), аудио (MP3) или фото без рекламы."
+                  : "Paste a link from TikTok, Instagram, VK, X, Facebook and more — grab the video (MP4), audio (MP3) or image in your chosen quality, ad-free."}
+              </p>
+            </div>
+          </div>
+          <DownloaderClient compact />
+        </div>
       </section>
 
       {/* ================= CINEMATIC STATEMENT (Mission 21) ================= */}

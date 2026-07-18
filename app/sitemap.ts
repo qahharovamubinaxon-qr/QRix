@@ -68,6 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/link-in-bio", 0.8),
     entry("/qr-tools/decode", 0.8),
     entry("/barcode", 0.8),
+    entry("/downloader", 0.9),
     entry("/ai-tools", 0.9),
     ...AI_TOOLS.map((t) => entry(`/ai-tools/${t.slug}`, 0.8)),
     entry("/video-tools", 0.9),

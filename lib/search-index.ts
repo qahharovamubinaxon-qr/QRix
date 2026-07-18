@@ -34,6 +34,7 @@ const IMAGE_TOOLS: [string, string][] = [
 ];
 
 const PAGES: SearchItem[] = [
+  { title: "Video & Audio Downloader", href: "/downloader", group: "Pages", keywords: "tiktok instagram vk downloader video audio mp3 mp4 save reels download skachat yuklab olish" },
   { title: "Barcode Generator", href: "/barcode", group: "Pages", keywords: "ean upc code128 barcode shtrix" },
   { title: "Link-in-Bio Page", href: "/link-in-bio", group: "Pages", keywords: "linktree bio links" },
   { title: "QR Poster Maker", href: "/poster", group: "Pages", keywords: "scan me flyer poster" },
