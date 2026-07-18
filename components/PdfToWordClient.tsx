@@ -63,18 +63,56 @@ export default function PdfToWordClient() {
         const page = await pdf.getPage(n + 1);
         const vp = page.getViewport({ scale: 1 });
         const content = await page.getTextContent();
+        // Resolve the REAL font faces: item.fontName is an opaque id
+        // ("g_d0_f1"); the loaded font object in commonObjs knows the true
+        // PostScript name ("ABCDEE+Verdana-Bold") — that's where bold/italic
+        // and the actual family live.
+        const fontInfo: Record<string, { family: string; bold: boolean; italic: boolean }> = {};
+        for (const it of content.items as any[]) {
+          const fn = it?.fontName;
+          if (!fn || fontInfo[fn]) continue;
+          let psName = "";
+          try { if (page.commonObjs.has(fn)) psName = String(page.commonObjs.get(fn)?.name || ""); } catch { /* opaque */ }
+          const lower = psName.toLowerCase();
+          const fam = String((content.styles || {})[fn]?.fontFamily || "").toLowerCase();
+          const pick =
+            lower.includes("verdana") ? "Verdana" :
+            lower.includes("tahoma") ? "Tahoma" :
+            lower.includes("georgia") ? "Georgia" :
+            lower.includes("courier") || fam.includes("monospace") ? "Courier New" :
+            lower.includes("times") || (fam.includes("serif") && !fam.includes("sans")) ? "Times New Roman" :
+            "Arial";
+          fontInfo[fn] = {
+            family: pick,
+            bold: lower.includes("bold") || lower.includes("black") || lower.includes("semibold") || lower.includes("heavy"),
+            italic: lower.includes("italic") || lower.includes("oblique"),
+          };
+        }
         // exact mode: split form/table rows into independently positioned cells
-        const lines = buildLines(content.items, content.styles || {}, mode === "exact");
+        const lines = buildLines(content.items, fontInfo, mode === "exact");
         let images: ImgBlock[] = [];
         let full: { data: Uint8Array; w: number; h: number } | null = null;
         let bg: Uint8Array | null = null;
         if (mode === "exact") {
           // Everything that is not text (vector table borders, logos, stamps,
-          // photos) lives in a full-page render with the text lines whited
-          // out; the editable text frames sit on top. No per-object plumbing
+          // photos) lives in a full-page render with the text lines covered
+          // over; the editable text frames sit on top. No per-object plumbing
           // — object stores can leave a getter waiting forever (seen in the
           // wild: images parked in commonObjs, not page.objs).
           try { bg = await renderPageBackground(page, lines, vp.width, vp.height); } catch { bg = null; }
+          // Frame width must fit WORD's rendering of the text, not the PDF's —
+          // different font metrics made long lines wrap inside their frame.
+          const mctx = document.createElement("canvas").getContext("2d");
+          if (mctx) {
+            for (const ln of lines) {
+              let wsum = 0;
+              for (const r of ln.runs) {
+                mctx.font = `${r.bold ? "bold " : ""}${r.italic ? "italic " : ""}${ln.size}px ${r.font}`;
+                wsum += mctx.measureText(r.text).width;
+              }
+              ln.wMeasured = wsum;
+            }
+          }
         } else {
           try { images = await extractImagesPositioned(page, pdfjsLib, vp.height); } catch { images = []; }
           if (lines.length === 0 && images.length === 0) {
@@ -145,7 +183,7 @@ export default function PdfToWordClient() {
 
 /* ── types ── */
 type Run = { text: string; size: number; bold: boolean; italic: boolean; font: string };
-type Line = { y: number; x0: number; x1: number; size: number; runs: Run[] };
+type Line = { y: number; x0: number; x1: number; size: number; runs: Run[]; color?: string; wMeasured?: number };
 type ImgBlock = { data: Uint8Array; srcW: number; srcH: number; wPt: number; hPt: number; xPt: number; topPt: number };
 type PageData = { wPt: number; hPt: number; lines: Line[]; images: ImgBlock[]; full: { data: Uint8Array; w: number; h: number } | null; bg: Uint8Array | null };
 
@@ -181,7 +219,9 @@ function buildExactDoc(d: any, pages: PageData[]) {
     for (const ln of pg.lines) {
       const ascent = ln.size * 0.82;
       const topPt = clamp(pg.hPt - (ln.y + ascent), 0, pg.hPt);
-      const widthPt = Math.max(ln.x1 - ln.x0, ln.size) + ln.size * 1.2; // headroom so Word never wraps the line
+      // width headroom: Word's font metrics beat the PDF's measured width or
+      // the line wraps INSIDE its frame and the layout stacks up
+      const widthPt = Math.max(ln.x1 - ln.x0, ln.wMeasured || 0, ln.size) + ln.size * 0.9;
       children.push(new Paragraph({
         frame: {
           type: "absolute",
@@ -195,6 +235,7 @@ function buildExactDoc(d: any, pages: PageData[]) {
         children: ln.runs.map((r) => new TextRun({
           text: r.text, bold: r.bold, italics: r.italic,
           size: Math.round(clamp(r.size, 4, 96) * 2), font: r.font,
+          color: ln.color || undefined,
         })),
       }));
     }
@@ -290,27 +331,23 @@ function buildFlowDoc(d: any, pages: PageData[]) {
   return new Document({ sections: [{ properties: { page: { margin: { top: 1000, right: 1000, bottom: 1000, left: 1000 } } }, children }] });
 }
 
-/* ── text extraction: lines with geometry + mapped fonts ── */
-function mapFont(styles: any, fontName: string): string {
-  const fam = String(styles?.[fontName]?.fontFamily || "").toLowerCase();
-  const fn = String(fontName || "").toLowerCase();
-  if (fam.includes("monospace") || fn.includes("courier") || fn.includes("mono")) return "Courier New";
-  if (fam.includes("serif") && !fam.includes("sans") || fn.includes("times") || fn.includes("georgia") || fn.includes("garamond")) return "Times New Roman";
-  return "Arial";
-}
+/* ── text extraction: lines with geometry + resolved fonts ── */
+type FontInfo = Record<string, { family: string; bold: boolean; italic: boolean }>;
 
 /* splitCols: a visual row in a form/table holds SEVERAL independent cells
    (label … value, columns). Gluing them into one frame drags the right-hand
    text to the left frame's x and wrecks the layout — measured 70 of 160
    segments misplaced on a real policy PDF. In exact mode every run of text
    separated by a wide gap becomes its own positioned segment. */
-function buildLines(items: any[], styles: any, splitCols = false): Line[] {
+function buildLines(items: any[], fonts: FontInfo, splitCols = false): Line[] {
   const rows: { y: number; items: any[] }[] = [];
   for (const it of items) {
     if (typeof it.str !== "string" || !it.transform) continue;
     const y = it.transform[5];
     const size = Math.hypot(it.transform[2], it.transform[3]) || Math.abs(it.transform[3]) || 12;
-    let row = rows.find((r) => Math.abs(r.y - y) <= size * 0.5);
+    // 0.62: filled-in form values often sit on a slightly shifted baseline —
+    // 0.5 pushed them onto their own row below the label
+    let row = rows.find((r) => Math.abs(r.y - y) <= size * 0.62);
     if (!row) { row = { y, items: [] }; rows.push(row); }
     row.items.push({ ...it, x: it.transform[4], size });
   }
@@ -320,24 +357,30 @@ function buildLines(items: any[], styles: any, splitCols = false): Line[] {
     row.items.sort((a, b) => a.x - b.x);
     let runs: Run[] = [];
     let prevEnd: number | null = null;
+    let prevLen = 99;
     let x0 = Infinity, x1 = -Infinity, maxSize = 0;
     const flush = () => {
       if (runs.map((r) => r.text).join("").trim()) lines.push({ y: row.y, x0, x1, size: maxSize, runs });
-      runs = []; x0 = Infinity; x1 = -Infinity; maxSize = 0; prevEnd = null;
+      runs = []; x0 = Infinity; x1 = -Infinity; maxSize = 0; prevEnd = null; prevLen = 99;
     };
     for (const it of row.items) {
       // whitespace-only items bridge column gaps and mask the split point —
       // in column mode drop them; real word spacing comes from the gap rule
       if (splitCols && !it.str.trim()) continue;
       if (splitCols && prevEnd !== null && it.x - prevEnd > it.size * 1.1) flush();
-      const fn = String(it.fontName || "").toLowerCase();
-      const bold = fn.includes("bold") || fn.includes("black") || fn.includes("semibold");
-      const italic = fn.includes("italic") || fn.includes("oblique");
-      const font = mapFont(styles, it.fontName);
+      const info = fonts[it.fontName] || { family: "Arial", bold: false, italic: false };
+      const bold = info.bold;
+      const italic = info.italic;
+      const font = info.family;
       let text = it.str;
-      if (prevEnd !== null && it.x - prevEnd > it.size * 0.25 && !text.startsWith(" ")) text = " " + text;
+      // word gap ≈ 0.24em; but per-GLYPH PDFs ("H","y","u"…) space letters up
+      // to ~0.45em apart, so single-char neighbours need a wider bar before a
+      // real space is inserted
+      const gapNeeded = prevLen <= 2 && text.trim().length <= 2 ? it.size * 0.5 : it.size * 0.24;
+      if (prevEnd !== null && it.x - prevEnd > Math.max(gapNeeded, 0.8) && !text.startsWith(" ")) text = " " + text;
       const end = it.x + (it.width || 0);
       prevEnd = end;
+      prevLen = text.trim().length;
       x0 = Math.min(x0, it.x); x1 = Math.max(x1, end); maxSize = Math.max(maxSize, it.size);
       const last = runs[runs.length - 1];
       if (last && last.bold === bold && last.italic === italic && last.font === font && Math.abs(last.size - it.size) < 0.6) last.text += text;
@@ -421,31 +464,115 @@ async function imgObjToPng(obj: any): Promise<Uint8Array | null> {
   return new Uint8Array(await blob.arrayBuffer());
 }
 
-/* Full-page render for the exact mode's graphics layer: the text lines are
-   painted over with white so only borders/logos/images remain, and a
-   near-blank result is dropped entirely (plain-text pages stay light). */
+/* Full-page render for the exact mode's graphics layer. For every text
+   segment we sample the pixels FIRST: the local background color (so the
+   cover box repaints a blue table header blue, not white) and the text's
+   own color (so blue headings stay blue and white-on-blue text stays
+   white — written into ln.color for the TextRun). Then the segment box is
+   painted over with the sampled background and only borders/logos/images
+   remain. A near-blank result is dropped entirely. */
 async function renderPageBackground(page: any, lines: Line[], wPt: number, hPt: number): Promise<Uint8Array | null> {
   const scale = Math.min(2, 2400 / Math.max(wPt, hPt));
   const viewport = page.getViewport({ scale });
   const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) return null;
   canvas.width = Math.round(viewport.width); canvas.height = Math.round(viewport.height);
   ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
   await page.render({ canvas, canvasContext: ctx, viewport }).promise;
 
-  // white out every text line's box — the editable frames replace them
-  ctx.fillStyle = "#ffffff";
-  for (const ln of lines) {
-    const x = (ln.x0 - ln.size * 0.15) * scale;
-    const yTop = (hPt - (ln.y + ln.size * 0.95)) * scale;
-    const w = (ln.x1 - ln.x0 + ln.size * 0.5) * scale;
-    const h = ln.size * 1.35 * scale;
-    ctx.fillRect(x, yTop, w, h);
+  const W = canvas.width, H = canvas.height;
+  const cl = (v: number, hi: number) => Math.max(0, Math.min(hi, Math.round(v)));
+  const boxes = lines.map((ln) => ({
+    x: cl((ln.x0 - ln.size * 0.2) * scale, W - 1),
+    y: cl((hPt - (ln.y + ln.size * 1.0)) * scale, H - 1),
+    w: cl((ln.x1 - ln.x0 + ln.size * 0.6) * scale, W),
+    h: cl(ln.size * 1.45 * scale, H),
+  }));
+
+  // pass 1 — sample colors while the original pixels are still there
+  lines.forEach((ln, i) => {
+    const b = boxes[i];
+    if (b.w < 2 || b.h < 2) return;
+    // Local background = the DOMINANT quantized color of the whole box
+    // interior. Glyphs cover a minority of the box, so the dominant bucket is
+    // the true background everywhere: white cells stay white, blue header
+    // bands stay blue, and border lines (a thin minority) can't hijack it.
+    const buckets = new Map<string, { n: number; r: number; g: number; b: number }>();
+    const inner = ctx.getImageData(b.x, b.y, Math.min(b.w, W - b.x), Math.min(b.h, H - b.y)).data;
+    for (let k = 0; k < inner.length; k += 8) {
+      const key = `${inner[k] >> 4}-${inner[k + 1] >> 4}-${inner[k + 2] >> 4}`;
+      const e = buckets.get(key) || { n: 0, r: 0, g: 0, b: 0 };
+      e.n++; e.r += inner[k]; e.g += inner[k + 1]; e.b += inner[k + 2];
+      buckets.set(key, e);
+    }
+    const top = [...buckets.values()].sort((m, n) => n.n - m.n)[0];
+    let bg = top ? [Math.round(top.r / top.n), Math.round(top.g / top.n), Math.round(top.b / top.n)] : [255, 255, 255];
+    // snap near-white to pure white — JPEG-noise grays read as dirty patches
+    if (bg[0] > 235 && bg[1] > 235 && bg[2] > 235) bg = [255, 255, 255];
+    // text color: the in-box pixels most distant from the background
+    const img = ctx.getImageData(b.x, b.y, Math.min(b.w, W - b.x), Math.min(b.h, H - b.y)).data;
+    const far: { d: number; c: number[] }[] = [];
+    for (let k = 0; k < img.length; k += 8) {
+      const dr = img[k] - bg[0], dg = img[k + 1] - bg[1], db = img[k + 2] - bg[2];
+      const d = dr * dr + dg * dg + db * db;
+      if (d > 3600) far.push({ d, c: [img[k], img[k + 1], img[k + 2]] });
+    }
+    if (far.length > 4) {
+      far.sort((m, n) => n.d - m.d);
+      const top = far.slice(0, Math.max(4, Math.floor(far.length / 4)));
+      const avg = [0, 1, 2].map((idx) => Math.round(top.reduce((s, p) => s + p.c[idx], 0) / top.length));
+      const bgLum = bg[0] * 0.299 + bg[1] * 0.587 + bg[2] * 0.114;
+      const txLum = avg[0] * 0.299 + avg[1] * 0.587 + avg[2] * 0.114;
+      // On a LIGHT background any LIGHT sample is an antialiasing/JPEG
+      // artifact — readable text there is dark or saturated (INGOS blue is
+      // lum≈70 and passes). Snap artifacts to black; on dark backgrounds
+      // keep light samples: that's genuine white-on-color text.
+      const hex = bgLum >= 128 && txLum > 150 ? "000000"
+        : avg.map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase();
+      ln.color = hex;
+    }
+    (b as any).bg = bg;
+  });
+
+  // pass 2 — cover every segment with its own local background color
+  for (const b of boxes as any[]) {
+    const bg = b.bg || [255, 255, 255];
+    ctx.fillStyle = `rgb(${bg[0]},${bg[1]},${bg[2]})`;
+    ctx.fillRect(b.x, b.y, b.w, b.h);
+  }
+
+  // pass 3 — residual-ink sweep: stylized fonts (condensed digits, spaced
+  // wordmarks) report a smaller size than they paint, leaving glyph edges
+  // sticking out of the covered box as gray ghosts. Where the expanded ring
+  // still holds ink, repaint the wider box too.
+  for (let i = 0; i < boxes.length; i++) {
+    const b: any = boxes[i];
+    if (b.w < 2 || b.h < 2) continue;
+    const bg = b.bg || [255, 255, 255];
+    // white-background boxes only: repainting an expanded ring near a colored
+    // band would bleed; and require CHUNKY ink (5%+) so a thin table border
+    // crossing the ring never triggers a wipe
+    if (!(bg[0] > 235 && bg[1] > 235 && bg[2] > 235)) continue;
+    const pad = Math.max(2, Math.round(lines[i].size * 0.28 * scale));
+    const ex = cl(b.x - pad, W - 1), ey = cl(b.y - pad, H - 1);
+    const ew = Math.min(b.w + pad * 2, W - ex), eh = Math.min(b.h + pad * 2, H - ey);
+    if (ew < 2 || eh < 2) continue;
+    const ring = ctx.getImageData(ex, ey, ew, eh).data;
+    let ink = 0, seen = 0;
+    for (let k = 0; k < ring.length; k += 16) {
+      seen++;
+      const dr = ring[k] - bg[0], dg = ring[k + 1] - bg[1], db = ring[k + 2] - bg[2];
+      if (dr * dr + dg * dg + db * db > 4000) ink++;
+    }
+    if (ink > seen * 0.05) {
+      ctx.fillStyle = `rgb(${bg[0]},${bg[1]},${bg[2]})`;
+      ctx.fillRect(ex, ey, ew, eh);
+    }
   }
 
   // blank detection on a 64px thumbnail: if almost nothing survived the
-  // whiteout, skip the background image altogether
+  // cover pass, skip the background image altogether
   const th = document.createElement("canvas");
   th.width = 64; th.height = 64;
   const tctx = th.getContext("2d")!;
