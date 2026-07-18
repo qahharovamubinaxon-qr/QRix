@@ -81,7 +81,10 @@ export default function PdfToWordClient() {
             lower.includes("georgia") ? "Georgia" :
             lower.includes("courier") || fam.includes("monospace") ? "Courier New" :
             lower.includes("times") || (fam.includes("serif") && !fam.includes("sans")) ? "Times New Roman" :
-            "Arial";
+            // Tahoma, not Arial: some Windows builds ship a replaced/broken
+            // Arial that Word substitutes with an OCR-style face (seen in the
+            // wild); Tahoma is present everywhere and metrically close.
+            "Tahoma";
           fontInfo[fn] = {
             family: pick,
             bold: lower.includes("bold") || lower.includes("black") || lower.includes("semibold") || lower.includes("heavy"),
@@ -368,7 +371,7 @@ function buildLines(items: any[], fonts: FontInfo, splitCols = false): Line[] {
       // in column mode drop them; real word spacing comes from the gap rule
       if (splitCols && !it.str.trim()) continue;
       if (splitCols && prevEnd !== null && it.x - prevEnd > it.size * 1.1) flush();
-      const info = fonts[it.fontName] || { family: "Arial", bold: false, italic: false };
+      const info = fonts[it.fontName] || { family: "Tahoma", bold: false, italic: false };
       const bold = info.bold;
       const italic = info.italic;
       const font = info.family;
