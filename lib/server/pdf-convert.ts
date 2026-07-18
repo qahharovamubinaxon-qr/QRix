@@ -202,6 +202,28 @@ const cloudconvert: Provider = {
   },
 };
 
+/* ── Built-in Python engine (pdf2docx on THIS Vercel deployment) ──
+   /api/py-pdf2docx runs as a Python function beside the Next app — the
+   unlimited free fallback with no external hosting and no sleep. Protected
+   by CRON_SECRET (sent as x-qrix-key). Disable with PDF_PY_ENGINE=off. */
+const builtinPy: Provider = {
+  name: "builtin-python",
+  enabled: () => process.env.PDF_PY_ENGINE !== "off",
+  async convert(pdf, signal) {
+    const { SITE_URL } = await import("@/lib/seo");
+    const secret = process.env.CRON_SECRET || "";
+    const res = await fetch(`${SITE_URL}/api/py-pdf2docx`, {
+      method: "POST",
+      headers: { "Content-Type": "application/pdf", ...(secret ? { "x-qrix-key": secret } : {}) },
+      body: u8blob(pdf), signal,
+    });
+    if (!res.ok) throw new Error(`builtin-python ${res.status}`);
+    const buf = new Uint8Array(await res.arrayBuffer());
+    if (buf.byteLength < 1000) throw new Error("builtin-python empty");
+    return buf;
+  },
+};
+
 /* ── Own self-hosted engine (Stirling PDF / Gotenberg / pdf2docx) ──
    The unlimited final fallback. Set PDF_ENGINE_URL to a running instance that
    accepts a multipart "file" and returns the .docx (Stirling:
@@ -228,8 +250,9 @@ const selfHosted: Provider = {
   },
 };
 
-// Priority order: best fidelity first, unlimited self-host last.
-const PROVIDERS: Provider[] = [adobe, aspose, cloudconvert, selfHosted];
+// Priority order: best fidelity first, unlimited built-in engine last
+// (external self-host slot stays available before it via PDF_ENGINE_URL).
+const PROVIDERS: Provider[] = [adobe, aspose, cloudconvert, selfHosted, builtinPy];
 
 /** True when at least one provider has its keys — the server route is live. */
 export function serverConvertAvailable(): boolean {
