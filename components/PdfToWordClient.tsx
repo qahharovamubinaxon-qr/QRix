@@ -63,7 +63,8 @@ export default function PdfToWordClient() {
         const page = await pdf.getPage(n + 1);
         const vp = page.getViewport({ scale: 1 });
         const content = await page.getTextContent();
-        const lines = buildLines(content.items, content.styles || {});
+        // exact mode: split form/table rows into independently positioned cells
+        const lines = buildLines(content.items, content.styles || {}, mode === "exact");
         let images: ImgBlock[] = [];
         let full: { data: Uint8Array; w: number; h: number } | null = null;
         let bg: Uint8Array | null = null;
@@ -298,7 +299,12 @@ function mapFont(styles: any, fontName: string): string {
   return "Arial";
 }
 
-function buildLines(items: any[], styles: any): Line[] {
+/* splitCols: a visual row in a form/table holds SEVERAL independent cells
+   (label … value, columns). Gluing them into one frame drags the right-hand
+   text to the left frame's x and wrecks the layout — measured 70 of 160
+   segments misplaced on a real policy PDF. In exact mode every run of text
+   separated by a wide gap becomes its own positioned segment. */
+function buildLines(items: any[], styles: any, splitCols = false): Line[] {
   const rows: { y: number; items: any[] }[] = [];
   for (const it of items) {
     if (typeof it.str !== "string" || !it.transform) continue;
@@ -312,10 +318,18 @@ function buildLines(items: any[], styles: any): Line[] {
   const lines: Line[] = [];
   for (const row of rows) {
     row.items.sort((a, b) => a.x - b.x);
-    const runs: Run[] = [];
+    let runs: Run[] = [];
     let prevEnd: number | null = null;
     let x0 = Infinity, x1 = -Infinity, maxSize = 0;
+    const flush = () => {
+      if (runs.map((r) => r.text).join("").trim()) lines.push({ y: row.y, x0, x1, size: maxSize, runs });
+      runs = []; x0 = Infinity; x1 = -Infinity; maxSize = 0; prevEnd = null;
+    };
     for (const it of row.items) {
+      // whitespace-only items bridge column gaps and mask the split point —
+      // in column mode drop them; real word spacing comes from the gap rule
+      if (splitCols && !it.str.trim()) continue;
+      if (splitCols && prevEnd !== null && it.x - prevEnd > it.size * 1.1) flush();
       const fn = String(it.fontName || "").toLowerCase();
       const bold = fn.includes("bold") || fn.includes("black") || fn.includes("semibold");
       const italic = fn.includes("italic") || fn.includes("oblique");
@@ -329,7 +343,7 @@ function buildLines(items: any[], styles: any): Line[] {
       if (last && last.bold === bold && last.italic === italic && last.font === font && Math.abs(last.size - it.size) < 0.6) last.text += text;
       else runs.push({ text, size: it.size, bold, italic, font });
     }
-    if (runs.map((r) => r.text).join("").trim()) lines.push({ y: row.y, x0, x1, size: maxSize, runs });
+    flush();
   }
   return lines;
 }
