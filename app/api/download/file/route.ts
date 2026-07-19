@@ -1,23 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyMedia, MEDIA_UA } from "@/lib/server/media-download";
+import { verifyMedia, resolveCobaltStream, resolveSoundcloudStream, MEDIA_UA } from "@/lib/server/media-download";
 
 export const runtime = "nodejs";
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 /** GET /api/download/file?t=<signed token> → streams the media through our
     server as an attachment. The token is an HMAC we signed in /api/download,
-    so this can only ever fetch a media URL we produced — never an arbitrary
-    host. Streaming (not buffering) keeps memory flat for large videos and lets
-    the client show real progress from Content-Length. */
+    so this can only ever fetch media we produced — never an arbitrary host.
+
+    Resolver tokens (cobalt / soundcloud) carry the ORIGINAL page URL and are
+    re-resolved here at download time: cobalt tunnel links expire in minutes,
+    so a fresh one is fetched the moment the user clicks Save. Streaming (not
+    buffering) keeps memory flat for large videos and lets the client show
+    real progress from Content-Length. */
 export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("t") || "";
   const meta = verifyMedia(token);
   if (!meta) return NextResponse.json({ error: "bad_token" }, { status: 403 });
 
+  let mediaUrl: string | null = null;
+  try {
+    if (meta.kind === "direct") mediaUrl = meta.url;
+    else if (meta.kind === "cobalt") mediaUrl = await resolveCobaltStream(meta.pageUrl, meta.mode, meta.index);
+    else mediaUrl = await resolveSoundcloudStream(meta.pageUrl);
+  } catch { /* fall through */ }
+  if (!mediaUrl) return NextResponse.json({ error: "resolve_failed" }, { status: 502 });
+
   // A wrong Referer makes some CDNs reject the request. Send the platform's
-  // real site as Referer for hosts that check it (TikTok, Instagram, FB);
-  // send none otherwise.
-  const host = (() => { try { return new URL(meta.url).hostname.toLowerCase(); } catch { return ""; } })();
+  // real site as Referer for hosts that check it; send none otherwise.
+  const host = (() => { try { return new URL(mediaUrl).hostname.toLowerCase(); } catch { return ""; } })();
   const referer =
     /tiktokcdn|tikwm|muscdn|byteoversea/.test(host) ? "https://www.tiktok.com/" :
     /cdninstagram|instagram/.test(host) ? "https://www.instagram.com/" :
@@ -26,7 +37,7 @@ export async function GET(req: NextRequest) {
 
   let upstream: Response;
   try {
-    upstream = await fetch(meta.url, {
+    upstream = await fetch(mediaUrl, {
       headers: { "User-Agent": MEDIA_UA, Accept: "*/*", ...(referer ? { Referer: referer } : {}) },
       redirect: "follow",
     });

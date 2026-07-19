@@ -35,6 +35,15 @@ const IMAGE_TOOLS: [string, string][] = [
 
 const PAGES: SearchItem[] = [
   { title: "Video & Audio Downloader", href: "/downloader", group: "Pages", keywords: "tiktok instagram vk downloader video audio mp3 mp4 save reels download skachat yuklab olish" },
+  { title: "TikTok Downloader (No Watermark)", href: "/downloader/tiktok", group: "Pages", keywords: "tiktok no watermark download video mp3 sound skachat" },
+  { title: "Instagram Reels Downloader", href: "/downloader/instagram", group: "Pages", keywords: "instagram reels photo download ig mp3 save" },
+  { title: "VK Video Downloader", href: "/downloader/vk", group: "Pages", keywords: "vk vkontakte video clip skachat download" },
+  { title: "Facebook Video Downloader", href: "/downloader/facebook", group: "Pages", keywords: "facebook fb watch reels video download" },
+  { title: "X / Twitter Video Downloader", href: "/downloader/twitter", group: "Pages", keywords: "twitter x video gif download save" },
+  { title: "Reddit Video Downloader", href: "/downloader/reddit", group: "Pages", keywords: "reddit video sound vredd download" },
+  { title: "Pinterest Downloader", href: "/downloader/pinterest", group: "Pages", keywords: "pinterest pin video image download" },
+  { title: "SoundCloud to MP3", href: "/downloader/soundcloud", group: "Pages", keywords: "soundcloud mp3 track music download" },
+  { title: "OK.ru Video Downloader", href: "/downloader/ok", group: "Pages", keywords: "odnoklassniki ok ru video skachat download" },
   { title: "Barcode Generator", href: "/barcode", group: "Pages", keywords: "ean upc code128 barcode shtrix" },
   { title: "Link-in-Bio Page", href: "/link-in-bio", group: "Pages", keywords: "linktree bio links" },
   { title: "QR Poster Maker", href: "/poster", group: "Pages", keywords: "scan me flyer poster" },

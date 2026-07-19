@@ -14,6 +14,7 @@ import { IMAGE_TOOLS as IMG_EXP } from "@/lib/image-tools-meta";
 import { USE_CASES_EN, USE_LANGS, hasTranslation } from "@/lib/usecase-content";
 import { HELP_CATEGORIES } from "@/lib/help-content";
 import { DOC_PAGES } from "@/lib/docs-content";
+import { PLATFORMS as DL_PLATFORMS } from "@/lib/downloader-platforms";
 
 const PDF_TOOLS = [
   "merge", "split", "compress", "pdf-to-word", "word-to-pdf", "pdf-to-jpg", "jpg-to-pdf",
@@ -69,6 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/qr-tools/decode", 0.8),
     entry("/barcode", 0.8),
     entry("/downloader", 0.9),
+    ...DL_PLATFORMS.map((p) => entry(`/downloader/${p.id}`, 0.8)),
     entry("/ai-tools", 0.9),
     ...AI_TOOLS.map((t) => entry(`/ai-tools/${t.slug}`, 0.8)),
     entry("/video-tools", 0.9),

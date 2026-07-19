@@ -23,7 +23,7 @@ const TYPE_META = {
   image: { icon: <FiImage size={14} />, label: "Image" },
 } as const;
 
-export default function DownloaderClient({ compact = false }: { compact?: boolean }) {
+export default function DownloaderClient({ compact = false, placeholder }: { compact?: boolean; placeholder?: string }) {
   const [url, setUrl] = useState("");
   const [busy, setBusy] = useState(false);
   const [info, setInfo] = useState<Info | null>(null);
@@ -98,7 +98,7 @@ export default function DownloaderClient({ compact = false }: { compact?: boolea
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") fetchInfo(url); }}
-            placeholder="Paste a TikTok, Instagram, VK, X, Facebook… link"
+            placeholder={placeholder || "Paste a TikTok, Instagram, VK, X, Facebook… link"}
             aria-label="Media link"
             className="flex-1 min-w-0 bg-transparent outline-none text-[14px]"
             style={{ color: "var(--text)" }}

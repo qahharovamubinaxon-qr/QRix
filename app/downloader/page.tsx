@@ -64,17 +64,21 @@ export default function DownloaderPage() {
           </ol>
         </section>
 
-        {/* supported */}
+        {/* supported — each links to its dedicated guide page */}
         <section className="mt-10">
           <h2 className="font-display text-xl font-bold mb-4" style={{ color: "var(--text)" }}>Supported platforms</h2>
           <div className="flex flex-wrap gap-2.5">
             {PLATFORMS.map((p) => (
-              <span key={p.id} className="inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full text-[12.5px] font-semibold"
+              <Link key={p.id} href={`/downloader/${p.id}`}
+                className="inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors hover:opacity-80"
                 style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}>
                 <span className="w-5 h-5 block" aria-hidden dangerouslySetInnerHTML={{ __html: p.svg }} /> {p.name}
-              </span>
+              </Link>
             ))}
           </div>
+          <p className="mt-3 text-[12.5px]" style={{ color: "var(--text-faint)" }}>
+            Tap a platform for its dedicated downloader guide — TikTok without watermark, Reddit with sound, SoundCloud to MP3 and more.
+          </p>
         </section>
 
         {/* faq */}
