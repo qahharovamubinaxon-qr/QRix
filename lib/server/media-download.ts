@@ -184,10 +184,15 @@ export async function resolveMedia(pageUrl: string): Promise<MediaInfo | MediaEr
   const t = setTimeout(() => c.abort(), 25_000);
   try {
     const attempts: Array<() => Promise<MediaInfo | null>> = [];
-    // cobalt first when available (covers everything)
-    attempts.push(() => viaCobalt(url, c.signal));
-    // platform-specific keyless built-ins
-    if (platform?.id === "tiktok") attempts.push(() => viaTikwm(url, c.signal));
+    // TikTok: the keyless tikwm path is faster AND survives datacenter IPs
+    // (cobalt on a cloud IP often can't reach tiktokcdn) — try it first.
+    if (platform?.id === "tiktok") {
+      attempts.push(() => viaTikwm(url, c.signal));
+      attempts.push(() => viaCobalt(url, c.signal));
+    } else {
+      // everything else: cobalt (self-hosted) covers it when configured
+      attempts.push(() => viaCobalt(url, c.signal));
+    }
     // direct link passthrough
     if (isDirect) attempts.push(() => viaDirect(url));
 
