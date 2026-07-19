@@ -28,6 +28,7 @@ const GOOGLE_FONTS_HREF =
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  verification: { yandex: "473ef26af7264e86" },
   title: {
     default: `${SITE_NAME} — ${SITE_TAGLINE}`,
     template: `%s | ${SITE_NAME}`,
