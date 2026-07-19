@@ -17,7 +17,7 @@ import EraBunny, { GenBunny } from "@/components/EraBunny";
 import QrixPromoFilm from "@/components/QrixPromoFilm";
 import WorldMapBackground from "@/components/WorldMapBackground";
 import PricingTeaser from "@/components/PricingTeaser";
-import DownloaderClient from "@/components/DownloaderClient";
+import { PLATFORMS as DL_PLATFORMS } from "@/lib/downloader-platforms";
 import {
   FiLink, FiType, FiWifi, FiUser, FiGrid, FiChevronDown, FiLock,
   FiDownload, FiSliders, FiX, FiMail, FiMessageSquare, FiSend,
@@ -642,9 +642,9 @@ export default function HomePage() {
         </div>{/* closes 3-col grid */}
       </section>
 
-      {/* ================= UNIVERSAL DOWNLOADER (Mission 99) ================= */}
+      {/* ================= UNIVERSAL DOWNLOADER teaser → /downloader ================= */}
       <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-16 lg:pb-24" aria-label="Video, audio & image downloader">
-        <div className="qx-fcard relative p-6 lg:p-8" data-reveal="up">
+        <Link href="/downloader" className="qx-fcard group relative block p-6 lg:p-8" data-reveal="up">
           <div className="qx-dl-glow" aria-hidden />
           <div className="relative flex flex-wrap items-end justify-between gap-3 mb-5">
             <div>
@@ -671,10 +671,37 @@ export default function HomePage() {
               MP4 · MP3 · JPG — 17 {lang === "uz" ? "платформа" : lang === "ru" ? "платформ" : "platforms"} · 0 {lang === "ru" ? "рекламы" : lang === "uz" ? "реклама" : "ads"}
             </p>
           </div>
-          <div className="relative">
-            <DownloaderClient compact />
+
+          {/* mock input bar — the whole card navigates to /downloader */}
+          <div className="relative flex flex-col sm:flex-row gap-2.5">
+            <div className="qx-dl-bar flex items-center gap-2.5 flex-1 min-w-0 px-4 py-3 transition-colors group-hover:!border-[rgba(255,77,28,.55)]">
+              <FiLink size={16} style={{ color: "var(--text-faint)" }} className="shrink-0" />
+              <span className="flex-1 min-w-0 truncate text-[14px]" style={{ color: "var(--text-faint)" }}>
+                {lang === "uz" ? "TikTok, Instagram, VK, X ссилкасини ташланг…" : lang === "ru" ? "Вставьте ссылку TikTok, Instagram, VK, X…" : "Paste a TikTok, Instagram, VK, X, Facebook… link"}
+              </span>
+            </div>
+            <span className="qx-btn-hero shrink-0 !px-7 pointer-events-none" aria-hidden>
+              <FiDownload size={15} /> {lang === "uz" ? "Юклаб олиш" : lang === "ru" ? "Скачать" : "Download"}
+              <span className="ml-1 transition-transform group-hover:translate-x-1">→</span>
+            </span>
           </div>
-        </div>
+
+          {/* platform logo marquee (spans — the card itself is the link) */}
+          <div className="relative mt-5 qx-dl-mq" aria-hidden>
+            <div className="qx-dl-mq-track">
+              {[0, 1].map((copy) => (
+                <div key={copy} className="flex gap-2.5">
+                  {DL_PLATFORMS.map((p) => (
+                    <span key={`${copy}-${p.id}`} className="qx-dl-chip">
+                      <span className="w-[18px] h-[18px] block shrink-0" dangerouslySetInnerHTML={{ __html: p.svg }} />
+                      {p.name}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </Link>
       </section>
 
       {/* ================= CINEMATIC STATEMENT (Mission 21) ================= */}

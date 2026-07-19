@@ -15,7 +15,11 @@ import { PLATFORMS } from "@/lib/downloader-platforms";
 import { saveBlob } from "@/lib/save-file";
 import { trackTool } from "@/lib/track";
 
-type Fmt = { id: string; type: "video" | "audio" | "image"; container: string; quality: string; label: string; token: string };
+type Fmt = {
+  id: string; type: "video" | "audio" | "image"; container: string; quality: string; label: string; token: string;
+  /** client-side fallback: download the video stream, extract its soundtrack in-browser */
+  extract?: boolean;
+};
 type Info = { ok: true; platform: string; platformName: string; title: string; thumbnail?: string; author?: string; duration?: number; formats: Fmt[] };
 
 const TYPE_META = {
@@ -36,10 +40,26 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
   const [done, setDone] = useState<string | null>(null);
   const reqId = useRef(0);
 
-  const kinds = useMemo(() => {
-    const s = new Set(info?.formats.map((f) => f.type));
-    return (["video", "audio", "image"] as const).filter((k) => s.has(k));
+  // Some platforms (e.g. OK.ru) can't give a server-side MP3 — offer a
+  // client-side "extract from video" audio option instead (Mediabunny/LAME).
+  const formats = useMemo<Fmt[]>(() => {
+    if (!info) return [];
+    const out = [...info.formats];
+    const video = out.find((f) => f.type === "video");
+    if (video && !out.some((f) => f.type === "audio")) {
+      out.push({
+        id: "audio-extract", type: "audio", container: "mp3",
+        quality: "Extracted from video", label: "Audio · MP3",
+        token: video.token, extract: true,
+      });
+    }
+    return out;
   }, [info]);
+
+  const kinds = useMemo(() => {
+    const s = new Set(formats.map((f) => f.type));
+    return (["video", "audio", "image"] as const).filter((k) => s.has(k));
+  }, [formats]);
 
   useEffect(() => { if (kinds.length && !kinds.includes(tab)) setTab(kinds[0]); }, [kinds, tab]);
 
@@ -67,28 +87,37 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
       const res = await fetch(`/api/download/file?t=${encodeURIComponent(f.token)}`);
       if (!res.ok || !res.body) throw new Error("stream");
       const total = Number(res.headers.get("content-length")) || 0;
+      // when we still have to extract audio locally, the stream is only ~70% of the job
+      const cap = f.extract ? 70 : 99;
       const reader = res.body.getReader();
       const chunks: Uint8Array[] = [];
       let got = 0;
       for (;;) {
         const { done: d, value } = await reader.read();
         if (d) break;
-        if (value) { chunks.push(value); got += value.length; setDl({ id: f.id, pct: total ? Math.min(99, Math.round((got / total) * 100)) : 0 }); }
+        if (value) { chunks.push(value); got += value.length; setDl({ id: f.id, pct: total ? Math.min(cap, Math.round((got / total) * cap)) : 0 }); }
+      }
+      let blob: Blob = new Blob(chunks as BlobPart[]);
+      if (f.extract) {
+        setDl({ id: f.id, pct: 70 });
+        const { extractAudioMp3 } = await import("@/lib/video/convert-mb");
+        blob = await extractAudioMp3(blob, (p) => setDl({ id: f.id, pct: 70 + Math.round(p * 29) }));
       }
       setDl({ id: f.id, pct: 100 });
-      const blob = new Blob(chunks as BlobPart[]);
       const name = `${(info?.title || "qrix-download").replace(/[^\w\-. ]+/g, "").trim().slice(0, 60) || "qrix-download"}.${f.container}`;
       await saveBlob(blob, name);
       setDone(f.id);
-      trackTool("downloader", { action: "download", platform: info?.platform || "web", type: f.type });
+      trackTool("downloader", { action: "download", platform: info?.platform || "web", type: f.type, ...(f.extract ? { extract: 1 } : {}) });
     } catch {
-      setErr("Download failed — the link may have expired. Paste it again.");
+      setErr(f.extract
+        ? "Couldn't extract audio from this video in your browser. Try downloading the video instead."
+        : "Download failed — the link may have expired. Paste it again.");
     } finally {
       setTimeout(() => setDl(null), 600);
     }
   }
 
-  const shownFormats = info?.formats.filter((f) => f.type === tab) || [];
+  const shownFormats = formats.filter((f) => f.type === tab);
   const brand = info ? PLATFORMS.find((p) => p.id === info.platform) : null;
 
   return (

@@ -64,6 +64,46 @@ export default function DownloaderPage() {
           </ol>
         </section>
 
+        {/* what you can download */}
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-bold mb-4" style={{ color: "var(--text)" }}>What you can download</h2>
+          <div className="grid sm:grid-cols-3 gap-3">
+            {[
+              ["🎬", "Video · MP4", "The full video in the best quality the platform offers — HD where available, TikTok without the watermark. Plays everywhere: phone, computer, TV."],
+              ["🎵", "Audio · MP3", "Just the soundtrack as an MP3 — trending TikTok sounds, Reels music, SoundCloud tracks. If a platform can't give audio directly (like OK.ru), QRix extracts it from the video right in your browser."],
+              ["🖼️", "Image · JPG", "Photos and image posts in original resolution — Instagram photos, Pinterest pins, post images from X and Reddit."],
+            ].map(([ic, h, body]) => (
+              <div key={h} className="qx-card p-4">
+                <div className="text-xl mb-2" aria-hidden>{ic}</div>
+                <h3 className="font-bold text-[14px] mb-1" style={{ color: "var(--text)" }}>{h}</h3>
+                <p className="text-[12.5px] leading-relaxed" style={{ color: "var(--text-muted)" }}>{body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* about the tool */}
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-bold mb-4" style={{ color: "var(--text)" }}>About this tool</h2>
+          <div className="qx-card p-5 space-y-3 text-[13.5px] leading-relaxed" style={{ color: "var(--text-muted)" }}>
+            <p>
+              QRix Downloader saves public videos, sounds and images from {PLATFORMS.length} social platforms with one paste.
+              There are no ads, no pop-ups, no fake Download buttons and nothing to install — the download starts
+              in your browser with a live progress bar, on any phone or computer.
+            </p>
+            <p>
+              <b style={{ color: "var(--text)" }}>Privacy:</b> QRix hosts no media and keeps no copies — the file
+              streams straight through to your device and the link is processed securely on our servers.
+              Private, friends-only and password-protected posts can never be accessed.
+            </p>
+            <p>
+              <b style={{ color: "var(--text)" }}>Tips:</b> use the platform&apos;s own Share → Copy link button for the most
+              reliable link; short links (vt.tiktok.com, pin.it, t.co, reddit share links) are resolved automatically;
+              if a link fails, check that the post is public and try again — some videos are region-locked by the platform.
+            </p>
+          </div>
+        </section>
+
         {/* supported — each links to its dedicated guide page */}
         <section className="mt-10">
           <h2 className="font-display text-xl font-bold mb-4" style={{ color: "var(--text)" }}>Supported platforms</h2>
