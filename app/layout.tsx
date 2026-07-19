@@ -148,7 +148,8 @@ export default function RootLayout({
         <div id="main" tabIndex={-1} className="contents">{children}</div>
         <CookieConsent />
         <ErrorMonitor />
-        {process.env.NEXT_PUBLIC_GA_ID && <GoogleAnalytics id={process.env.NEXT_PUBLIC_GA_ID} />}
+        {/* GA4 measurement ID is public by design; env can override it */}
+        <GoogleAnalytics id={process.env.NEXT_PUBLIC_GA_ID || "G-XKW8P2LRY0"} />
         <Analytics />
         <SpeedInsights />
       </body>
