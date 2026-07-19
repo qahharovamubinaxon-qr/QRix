@@ -279,8 +279,10 @@ QR Tools · PDF Tools · Image Tools · AI Tools · Video Tools · 3D Tools (+ B
 
 - **Mission 100 — downloader premium card redesign** `f126775`: `.qx-dl-*` design layer in design-v2.css — input bar with orange focus bloom; platform logos as a masked infinite marquee (pause-on-hover, reduced-motion→static wrap) whose chips link to the 16 `/downloader/[platform]` SEO pages; shimmer skeleton while fetching; framed thumbnail with brand badge + mono duration chip; segmented gradient type tabs; format rows as hairline tiles (icon tile, container meta line, gradient progress fill with moving shine, pop-in Saved); homepage card gains corner orange glow + pulsing New dot + mono metric line. Verified on dev (marquee animating, 32 brand SVGs, chips link, zero console errors; screenshots unavailable — hidden-tab 0×0 limitation).
 
+- **Mission 100b — audio everywhere + teaser→page** `b5fcde2`: OK.ru had no Audio option (cobalt: `error.api.service.audio_not_supported`) — the client now synthesizes an "Audio · MP3 (Extracted from video)" format whenever a link has video but no server-side audio: it streams the video (progress→70%) then extracts the soundtrack **in-browser** with the existing Mediabunny/LAME engine (`lib/video/convert-mb.ts` `extractAudioMp3`, →100%). Homepage downloader card became a **teaser Link to /downloader** (mock input bar + localized hero CTA + span-chip marquee — no nested links); the working card lives on the dedicated page, which gained "What you can download" (MP4/MP3/JPG cards) and "About this tool" (privacy, tips, short-link notes) sections per the user's request.
+
 ## Last Commit Hash
-Mission 100 (downloader premium card) `f126775`. Earlier: M99b `82ae0db`, M99 `16536a1`, M98b PDF cloud `9f7e95f`/`7d6191e`.
+Mission 100b (audio extract fallback + teaser→page) `b5fcde2`. Earlier: M100 `f126775`, M99b `82ae0db`, M99 `16536a1`.
 
 ## Current Git Branch
 `design-v2` — **this is Vercel's production branch**: `origin/main` and `origin/design-v2` are the same commit; a push to either deploys qrixtools.com. (The local `main` ref in a worktree can be stale/behind — `git fetch` first; `origin/main` is the source of truth.)
