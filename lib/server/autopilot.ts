@@ -95,6 +95,54 @@ export const AUTOPILOT_TOPICS: Topic[] = [
     angle: "Explain GS1 Digital Link, the 2027 'Sunrise' migration from EAN barcodes, GTIN + batch/serial/expiry, and how brands can start now for free with QRix.",
     related: ["how-to-create-a-qr-code"],
   },
+  /* ── low-competition niches Search Console already shows working
+        (AI / 3D / downloader long-tails get impressions faster than
+        head QR terms) — prioritized right after the launch batch ── */
+  {
+    slug: "free-ai-avatar-generator-no-signup",
+    title: "Free AI Avatar Generator: Turn a Selfie into a Profile Picture (No Signup)",
+    description: "Make an AI avatar from any photo — cartoon, anime, cyberpunk and more styles. Free, no signup, no watermark, works in the browser.",
+    keywords: ["ai avatar generator", "free ai avatar", "ai profile picture maker", "photo to avatar", "ai avatar from photo no signup"],
+    category: "AI", toolHref: "/ai-tools/avatar-generator", toolLabel: "Create your AI avatar",
+    angle: "Search Console shows this exact query rising. Cover: what makes a good source selfie, style choices (cartoon/anime/realistic), where avatars work best (Telegram, Instagram, LinkedIn), privacy (photo processed then discarded). Position QRix vs signup-walled competitors.",
+    related: ["ai-image-tools-free"],
+  },
+  {
+    slug: "image-to-3d-model-online-free",
+    title: "Image to 3D Model Online: Turn Any Photo into a 3D Object (Free)",
+    description: "Convert a single photo into a textured 3D model you can rotate and export as GLB, OBJ or STL — free and in your browser, no software needed.",
+    keywords: ["image to 3d", "image to 3d model", "photo to 3d model free", "2d to 3d converter online", "picture to 3d model"],
+    category: "AI", toolHref: "/3d-tools/image-to-3d", toolLabel: "Convert your image to 3D",
+    angle: "This query already earned our first click. Explain how single-image 3D works (AI depth + mesh), what photos convert best, export formats (GLB for web/AR, STL for 3D printing, USDZ for iPhone AR), and a mini-tutorial with the QRix 3D studio.",
+    related: ["free-ai-avatar-generator-no-signup"],
+  },
+  {
+    slug: "ai-image-denoiser-online",
+    title: "AI Image Denoiser: Clean Grainy, Noisy Photos Online Free",
+    description: "Remove grain and noise from low-light photos with AI — free online denoiser, no signup, full resolution kept.",
+    keywords: ["ai image denoiser", "remove noise from photo", "denoise image online", "fix grainy photos", "photo noise reduction free"],
+    category: "AI", toolHref: "/ai-tools/image-denoiser", toolLabel: "Denoise a photo",
+    angle: "Search Console shows impressions for this. Cover why night photos get noisy (ISO), AI vs classic blur denoising, before/after expectations, and when to also use the upscaler. Practical, phone-photographer-friendly.",
+    related: ["free-ai-avatar-generator-no-signup", "image-to-3d-model-online-free"],
+  },
+  {
+    slug: "tiktok-video-download-without-watermark",
+    title: "How to Download TikTok Videos Without the Watermark (Free, 2026)",
+    description: "Save any public TikTok in HD with no watermark, or keep just the sound as MP3 — free, no app, works on iPhone, Android and PC.",
+    keywords: ["download tiktok without watermark", "tiktok video download no watermark", "save tiktok no logo", "tiktok downloader hd free", "tiktok sound to mp3"],
+    category: "Guides", toolHref: "/downloader/tiktok", toolLabel: "Download a TikTok (no watermark)",
+    angle: "Step-by-step with the share-link flow, why the watermark disappears (separate CDN rendition), saving sounds as MP3, and the legal/etiquette note (personal use, credit creators). Mention it also works with vt.tiktok.com short links.",
+    related: ["instagram-reels-download-mp3"],
+  },
+  {
+    slug: "instagram-reels-download-mp3",
+    title: "Download Instagram Reels as Video or MP3: The Complete Guide",
+    description: "Save public Reels in HD or extract just the audio as MP3 — free online, no login, on any device.",
+    keywords: ["download instagram reels", "instagram reels to mp3", "save reels audio", "instagram video downloader free", "reels download hd"],
+    category: "Guides", toolHref: "/downloader/instagram", toolLabel: "Download a Reel",
+    angle: "Cover both video and the MP3 audio-extraction use case (saving trending sounds), photo posts and carousels, why login is never needed for public posts, and troubleshooting (private accounts, region locks).",
+    related: ["tiktok-video-download-without-watermark"],
+  },
   {
     slug: "bulk-qr-code-generator-csv",
     title: "How to Generate Hundreds of QR Codes at Once from a CSV",
@@ -286,6 +334,12 @@ export async function runAutopilot(): Promise<AutopilotResult> {
     revalidatePath(`/blog/${post.slug}`);
     revalidatePath("/sitemap.xml");
   } catch { /* outside a request scope — hourly ISR still refreshes both */ }
+
+  // Ping Bing + Yandex the moment the article is live (IndexNow, fire-and-forget).
+  try {
+    const { submitIndexNow } = await import("./indexnow");
+    void submitIndexNow([`/blog/${post.slug}`, "/blog"]);
+  } catch { /* non-fatal */ }
 
   notifyOwner(
     "autopilot:pub",

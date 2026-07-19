@@ -1,10 +1,22 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "crons": [
-    { "path": "/api/cron/autopilot", "schedule": "0 6 * * *" },
-    { "path": "/api/cron/telegram-reports?period=daily", "schedule": "0 7 * * *" }
+    {
+      "path": "/api/cron/autopilot",
+      "schedule": "0 6 * * *"
+    },
+    {
+      "path": "/api/cron/telegram-reports?period=daily",
+      "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/social-post",
+      "schedule": "0 9 * * *"
+    }
   ],
   "functions": {
-    "api/py-pdf2docx.py": { "maxDuration": 60 }
+    "api/py-pdf2docx.py": {
+      "maxDuration": 60
+    }
   }
 }
