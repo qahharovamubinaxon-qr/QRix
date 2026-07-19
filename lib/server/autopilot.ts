@@ -335,10 +335,12 @@ export async function runAutopilot(): Promise<AutopilotResult> {
     revalidatePath("/sitemap.xml");
   } catch { /* outside a request scope — hourly ISR still refreshes both */ }
 
-  // Ping Bing + Yandex the moment the article is live (IndexNow, fire-and-forget).
+  // Ping Bing + Yandex the moment the article is live (IndexNow). The full
+  // sitemap goes with it so the whole site's coverage is refreshed daily and
+  // key-verification retries itself until the engines accept it.
   try {
-    const { submitIndexNow } = await import("./indexnow");
-    void submitIndexNow([`/blog/${post.slug}`, "/blog"]);
+    const { submitSitemapIndexNow } = await import("./indexnow");
+    void submitSitemapIndexNow();
   } catch { /* non-fatal */ }
 
   notifyOwner(

@@ -9,6 +9,18 @@ import { SITE_URL } from "@/lib/seo";
 
 export const INDEXNOW_KEY = "c3bb259476bd7e9b9ddf3123afc412d8";
 
+/** Fetch the live sitemap and submit every URL — used by the daily cron so
+    full-site coverage is self-healing (verification retries until it passes). */
+export async function submitSitemapIndexNow(): Promise<{ ok: boolean; submitted: number }> {
+  try {
+    const xml = await fetch(`${SITE_URL}/sitemap.xml`, { signal: AbortSignal.timeout(20_000) }).then((r) => r.text());
+    const urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+    return submitIndexNow(urls);
+  } catch {
+    return { ok: false, submitted: 0 };
+  }
+}
+
 /** Submit URLs (absolute or site-relative paths) to IndexNow. Max 10k/call. */
 export async function submitIndexNow(urls: string[]): Promise<{ ok: boolean; submitted: number }> {
   const host = new URL(SITE_URL).host;
