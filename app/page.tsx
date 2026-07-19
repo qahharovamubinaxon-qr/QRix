@@ -644,11 +644,16 @@ export default function HomePage() {
 
       {/* ================= UNIVERSAL DOWNLOADER (Mission 99) ================= */}
       <section data-scene="deep" className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-16 lg:pb-24" aria-label="Video, audio & image downloader">
-        <div className="qx-fcard p-6 lg:p-8" data-reveal="up">
-          <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
+        <div className="qx-fcard relative p-6 lg:p-8" data-reveal="up">
+          <div className="qx-dl-glow" aria-hidden />
+          <div className="relative flex flex-wrap items-end justify-between gap-3 mb-5">
             <div>
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-[11px] font-bold mb-3"
                 style={{ background: "var(--primary-dim, rgba(255,77,28,.14))", color: "var(--primary-bright)", border: "1px solid var(--border-hover)" }}>
+                <span className="relative flex w-1.5 h-1.5" aria-hidden>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-60" style={{ background: "var(--primary-bright)" }} />
+                  <span className="relative inline-flex rounded-full w-1.5 h-1.5" style={{ background: "var(--primary-bright)" }} />
+                </span>
                 <FiDownloadCloud size={12} /> {lang === "uz" ? "Янги" : lang === "ru" ? "Новое" : "New"}
               </div>
               <h2 className="font-display text-2xl lg:text-3xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
@@ -662,8 +667,13 @@ export default function HomePage() {
                   : "Paste a link from TikTok, Instagram, VK, X, Facebook and more — grab the video (MP4), audio (MP3) or image in your chosen quality, ad-free."}
               </p>
             </div>
+            <p className="qx-mono text-[10.5px] uppercase tracking-[0.16em] pb-1" style={{ color: "var(--text-faint)" }}>
+              MP4 · MP3 · JPG — 17 {lang === "uz" ? "платформа" : lang === "ru" ? "платформ" : "platforms"} · 0 {lang === "ru" ? "рекламы" : lang === "uz" ? "реклама" : "ads"}
+            </p>
           </div>
-          <DownloaderClient compact />
+          <div className="relative">
+            <DownloaderClient compact />
+          </div>
         </div>
       </section>
 

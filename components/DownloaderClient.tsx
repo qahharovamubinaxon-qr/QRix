@@ -2,14 +2,15 @@
 
 /* Universal social-media downloader — paste a link from TikTok, Instagram, VK,
    Facebook, X, Pinterest, Reddit and more; preview it; pick video / audio /
-   image + quality; download with a live animated progress ring.
+   image + quality; download with a live animated progress fill.
 
    The extraction runs server-side (/api/download); the file streams back
    through /api/download/file so there are no CORS walls and progress is real.
    YouTube is intentionally not offered (AdSense policy). */
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FiLink, FiDownload, FiClipboard, FiVideo, FiMusic, FiImage, FiZap, FiCheck, FiAlertCircle } from "react-icons/fi";
+import Link from "next/link";
+import { FiLink, FiDownload, FiClipboard, FiVideo, FiMusic, FiImage, FiZap, FiCheck, FiAlertCircle, FiClock } from "react-icons/fi";
 import { PLATFORMS } from "@/lib/downloader-platforms";
 import { saveBlob } from "@/lib/save-file";
 import { trackTool } from "@/lib/track";
@@ -22,6 +23,8 @@ const TYPE_META = {
   audio: { icon: <FiMusic size={14} />, label: "Audio" },
   image: { icon: <FiImage size={14} />, label: "Image" },
 } as const;
+
+const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, "0")}`;
 
 export default function DownloaderClient({ compact = false, placeholder }: { compact?: boolean; placeholder?: string }) {
   const [url, setUrl] = useState("");
@@ -86,13 +89,13 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
   }
 
   const shownFormats = info?.formats.filter((f) => f.type === tab) || [];
+  const brand = info ? PLATFORMS.find((p) => p.id === info.platform) : null;
 
   return (
     <div className={compact ? "" : "qx-card p-6"}>
       {/* ── input row ── */}
       <div className="flex flex-col sm:flex-row gap-2.5">
-        <div className="flex items-center gap-2.5 flex-1 min-w-0 px-4 py-3 rounded-2xl"
-          style={{ background: "var(--surface-2)", border: "1.5px solid var(--border)" }}>
+        <div className="qx-dl-bar flex items-center gap-2.5 flex-1 min-w-0 pl-4 pr-2 py-2.5">
           <FiLink size={16} style={{ color: "var(--text-faint)" }} className="shrink-0" />
           <input
             value={url}
@@ -100,36 +103,54 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
             onKeyDown={(e) => { if (e.key === "Enter") fetchInfo(url); }}
             placeholder={placeholder || "Paste a TikTok, Instagram, VK, X, Facebook… link"}
             aria-label="Media link"
-            className="flex-1 min-w-0 bg-transparent outline-none text-[14px]"
+            className="flex-1 min-w-0 bg-transparent outline-none text-[14px] py-1"
             style={{ color: "var(--text)" }}
           />
           <button type="button" aria-label="Paste from clipboard"
             onClick={async () => { try { const t = await navigator.clipboard.readText(); if (t) { setUrl(t); fetchInfo(t); } } catch { /* denied */ } }}
-            className="shrink-0 p-1.5 rounded-lg transition-colors" style={{ color: "var(--text-muted)" }}>
-            <FiClipboard size={15} />
+            className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-[12px] font-bold transition-colors hover:opacity-80"
+            style={{ color: "var(--text-muted)", background: "rgba(255,255,255,.05)", border: "1px solid var(--border)" }}>
+            <FiClipboard size={13} /> <span className="hidden sm:inline">Paste</span>
           </button>
         </div>
         <button type="button" onClick={() => fetchInfo(url)} disabled={busy || !url.trim()}
-          className="qx-btn-hero shrink-0 disabled:opacity-50 !px-6">
+          className="qx-btn-hero shrink-0 disabled:opacity-50 !px-7">
           {busy ? <><FiZap size={15} className="animate-pulse" /> Fetching…</> : <><FiDownload size={15} /> Download</>}
         </button>
       </div>
 
-      {/* ── supported-platform logos ── */}
-      {!info && (
-        <div className="mt-4">
-          <div className="text-[10.5px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
-            Works with
+      {/* ── supported-platform logo marquee ── */}
+      {!info && !busy && (
+        <div className="mt-5">
+          <div className="qx-mono text-[10px] uppercase tracking-[0.18em] mb-2.5" style={{ color: "var(--text-faint)" }}>
+            {"// works with " + PLATFORMS.length + " platforms — no ads, no watermark"}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {PLATFORMS.map((p) => (
-              <span key={p.id} title={p.name}
-                className="inline-flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 rounded-full text-[11.5px] font-semibold"
-                style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
-                <span className="w-4 h-4 block shrink-0" aria-hidden dangerouslySetInnerHTML={{ __html: p.svg }} />
-                {p.name}
-              </span>
-            ))}
+          <div className="qx-dl-mq">
+            <div className="qx-dl-mq-track">
+              {[0, 1].map((copy) => (
+                <div key={copy} className="flex gap-2.5" aria-hidden={copy === 1}>
+                  {PLATFORMS.map((p) => (
+                    <Link key={`${copy}-${p.id}`} href={`/downloader/${p.id}`} className="qx-dl-chip" tabIndex={copy === 1 ? -1 : 0}>
+                      <span className="w-[18px] h-[18px] block shrink-0" aria-hidden dangerouslySetInnerHTML={{ __html: p.svg }} />
+                      {p.name}
+                    </Link>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── fetching skeleton ── */}
+      {busy && (
+        <div className="mt-5 grid sm:grid-cols-[minmax(0,190px)_1fr] gap-5 items-start" aria-hidden>
+          <div className="qx-dl-skel" style={{ aspectRatio: "9/12", maxHeight: 240 }} />
+          <div className="space-y-3 pt-1">
+            <div className="qx-dl-skel h-5 w-3/4" />
+            <div className="qx-dl-skel h-3.5 w-2/5" />
+            <div className="qx-dl-skel h-12 w-full mt-4" />
+            <div className="qx-dl-skel h-12 w-full" />
           </div>
         </div>
       )}
@@ -146,54 +167,64 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
       {info && (
         <div className="mt-5 grid sm:grid-cols-[minmax(0,190px)_1fr] gap-5 items-start">
           {/* preview */}
-          <div className="rounded-2xl overflow-hidden relative" style={{ background: "var(--surface-2)", border: "1px solid var(--border)", aspectRatio: "9/12", maxHeight: 260 }}>
+          <div className="qx-dl-thumb" style={{ aspectRatio: "9/12", maxHeight: 260 }}>
             {info.thumbnail ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={info.thumbnail} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <span className="w-12 h-12 block opacity-80" aria-hidden
-                  dangerouslySetInnerHTML={{ __html: PLATFORMS.find((p) => p.id === info.platform)?.svg || "" }} />
+                <span className="w-14 h-14 block opacity-90" aria-hidden
+                  dangerouslySetInnerHTML={{ __html: brand?.svg || "" }} />
               </div>
             )}
-            <span className="absolute top-2 left-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold text-white" style={{ background: "rgba(0,0,0,.6)" }}>
+            <span className="absolute top-2 left-2 inline-flex items-center gap-1.5 pl-1 pr-2 py-1 rounded-full text-[10px] font-bold text-white"
+              style={{ background: "rgba(0,0,0,.62)", backdropFilter: "blur(6px)" }}>
+              {brand && <span className="w-3.5 h-3.5 block" aria-hidden dangerouslySetInnerHTML={{ __html: brand.svg }} />}
               {info.platformName}
             </span>
+            {!!info.duration && (
+              <span className="qx-mono absolute bottom-2 right-2 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold text-white"
+                style={{ background: "rgba(0,0,0,.62)", backdropFilter: "blur(6px)" }}>
+                <FiClock size={10} /> {mmss(info.duration)}
+              </span>
+            )}
           </div>
 
           {/* details + formats */}
           <div className="min-w-0">
-            <h3 className="font-display text-[15px] font-bold leading-snug line-clamp-2" style={{ color: "var(--text)" }}>{info.title}</h3>
+            <h3 className="font-display text-[15.5px] font-bold leading-snug line-clamp-2" style={{ color: "var(--text)" }}>{info.title}</h3>
             {info.author && <p className="text-[12px] mt-0.5" style={{ color: "var(--text-muted)" }}>by {info.author}</p>}
 
-            {/* type tabs */}
+            {/* type tabs — segmented control */}
             {kinds.length > 1 && (
-              <div className="flex gap-1.5 mt-3">
+              <div className="qx-dl-tabs mt-3" role="tablist" aria-label="Format type">
                 {kinds.map((k) => (
-                  <button key={k} onClick={() => setTab(k)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-bold"
-                    style={{ background: tab === k ? "var(--primary-dim, rgba(255,77,28,.14))" : "var(--surface-2)", color: tab === k ? "var(--primary-bright)" : "var(--text-muted)", border: `1px solid ${tab === k ? "var(--border-hover)" : "var(--border)"}` }}>
+                  <button key={k} onClick={() => setTab(k)} role="tab" aria-selected={tab === k}
+                    className={`qx-dl-tab ${tab === k ? "on" : ""}`}>
                     {TYPE_META[k].icon} {TYPE_META[k].label}
                   </button>
                 ))}
               </div>
             )}
 
-            {/* format buttons */}
+            {/* format rows */}
             <div className="mt-3 space-y-2">
               {shownFormats.map((f) => {
                 const active = dl?.id === f.id;
                 const finished = done === f.id;
                 return (
-                  <button key={f.id} onClick={() => download(f)} disabled={!!dl}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all disabled:opacity-60 relative overflow-hidden"
-                    style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
-                    {active && <span className="absolute inset-y-0 left-0" style={{ width: `${dl!.pct}%`, background: "var(--primary-dim, rgba(255,77,28,.18))", transition: "width .2s" }} />}
-                    <span className="relative z-10 shrink-0">{TYPE_META[f.type].icon}</span>
-                    <span className="relative z-10 flex-1 text-left text-[13px] font-bold" style={{ color: "var(--text)" }}>{f.label}</span>
-                    <span className="relative z-10 text-[12px] font-bold" style={{ color: finished ? "#22c55e" : "var(--primary-bright)" }}>
-                      {finished ? <span className="inline-flex items-center gap-1"><FiCheck size={13} /> Saved</span>
-                        : active ? `${dl!.pct || ""}${dl!.pct ? "%" : "…"}`
+                  <button key={f.id} onClick={() => download(f)} disabled={!!dl} className="qx-dl-row disabled:opacity-60">
+                    {active && <span className="qx-dl-fill" style={{ width: `${dl!.pct}%` }} />}
+                    <span className="qx-dl-ic relative z-10">{TYPE_META[f.type].icon}</span>
+                    <span className="relative z-10 flex-1 min-w-0">
+                      <span className="block text-[13px] font-bold truncate" style={{ color: "var(--text)" }}>{f.label}</span>
+                      <span className="qx-mono block text-[10px] uppercase tracking-wider mt-0.5" style={{ color: "var(--text-faint)" }}>
+                        {f.container.toUpperCase()}{f.quality && f.quality !== f.label ? ` · ${f.quality}` : ""}
+                      </span>
+                    </span>
+                    <span className="relative z-10 text-[12.5px] font-bold shrink-0" style={{ color: finished ? "#22c55e" : "var(--primary-bright)" }}>
+                      {finished ? <span className="qx-dl-pop inline-flex items-center gap-1"><FiCheck size={13} /> Saved</span>
+                        : active ? <span className="qx-mono">{dl!.pct ? `${dl!.pct}%` : "…"}</span>
                         : <span className="inline-flex items-center gap-1"><FiDownload size={13} /> Save</span>}
                     </span>
                   </button>
