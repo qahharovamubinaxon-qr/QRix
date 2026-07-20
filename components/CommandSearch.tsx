@@ -8,6 +8,7 @@ import {
   FiStar, FiZap, FiMic,
 } from "react-icons/fi";
 import { searchIndex, suggestFor, type SearchGroup } from "@/lib/search-index";
+import { trackTool } from "@/lib/track";
 import { useFavorites, useRecents, useRecentSearches, recordSearch } from "@/lib/user-prefs";
 
 type Row = { key: string; group: string; label: string; sub?: string; icon?: React.ReactNode; href?: string; run: () => void };
@@ -34,6 +35,17 @@ export default function CommandSearch() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [dq, setDq] = useState(""); // debounced query
+  // Log searches that find NOTHING — users literally telling us which tool to
+  // build next. Once per unique query per session.
+  const missLogged = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    const s = dq.trim().toLowerCase();
+    if (s.length < 3 || missLogged.current.has(s)) return;
+    if (searchIndex(dq, 1).length === 0) {
+      missLogged.current.add(s);
+      trackTool("search_miss", { q: s.slice(0, 60) });
+    }
+  }, [dq]);
   const [sel, setSel] = useState(0);
   const [filter, setFilter] = useState("all");
   const [pins, setPins] = useState<{ href: string; label: string }[]>([]);
