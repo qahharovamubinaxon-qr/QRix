@@ -1,7 +1,8 @@
 import { track } from "@vercel/analytics";
 
 declare global {
-  interface Window { gtag?: (...args: unknown[]) => void }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  interface Window { gtag?: (...args: any[]) => void }
 }
 
 /** Record a tool usage event — mirrored to Vercel Analytics AND GA4, so the
