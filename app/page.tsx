@@ -6,6 +6,7 @@ import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import ReviewsSection from "@/components/ReviewsSection";
 import { trackTool } from "@/lib/track";
 import { exportQrPng, saveDataUrl } from "@/lib/qr-export";
+import { TG_CHANNEL, TG_CHANNEL_URL, TG_BOT, TG_BOT_URL } from "@/lib/social";
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import CategoryShowcase from "@/components/CategoryShowcase";
 import TrustedBy from "@/components/TrustedBy";
@@ -927,6 +928,35 @@ export default function HomePage() {
               <a href="https://t.me/QRix2020" target="_blank" rel="noopener noreferrer" className="qx-foot-link flex items-center gap-2.5">
                 <FiSend size={14} style={{ color: "#ff4d1c" }} /> @QRix2020
               </a>
+            </div>
+
+            {/* Telegram channel + downloader bot */}
+            <h3 className="qx-foot-h">Telegram</h3>
+            <div className="space-y-2.5 mb-7">
+              <a href={`${TG_CHANNEL_URL}?utm_source=site&utm_medium=footer`} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors hover:opacity-85"
+                style={{ background: "rgba(255,77,28,.08)", border: "1px solid rgba(255,77,28,.22)" }}>
+                <FiSend size={15} style={{ color: "#ff4d1c" }} className="shrink-0" />
+                <span className="min-w-0">
+                  <span className="block text-[13px] font-bold" style={{ color: "var(--text)" }}>@{TG_CHANNEL}</span>
+                  <span className="block text-[11px]" style={{ color: "var(--text-muted)" }}>
+                    {lang === "uz" ? "Канал — кунлик бепул восита" : lang === "ru" ? "Канал — инструмент дня" : "Channel — a free tool every day"}
+                  </span>
+                </span>
+              </a>
+              {TG_BOT_URL && (
+                <a href={`${TG_BOT_URL}?start=footer`} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-colors hover:opacity-85"
+                  style={{ background: "rgba(255,77,28,.08)", border: "1px solid rgba(255,77,28,.22)" }}>
+                  <FiDownloadCloud size={15} style={{ color: "#ff4d1c" }} className="shrink-0" />
+                  <span className="min-w-0">
+                    <span className="block text-[13px] font-bold" style={{ color: "var(--text)" }}>@{TG_BOT}</span>
+                    <span className="block text-[11px]" style={{ color: "var(--text-muted)" }}>
+                      {lang === "uz" ? "Бот — ссилка ташланг, видео келади" : lang === "ru" ? "Бот — пришлите ссылку, вернём видео" : "Bot — send a link, get the video"}
+                    </span>
+                  </span>
+                </a>
+              )}
             </div>
             <Link href="/register" className="qx-btn-hero inline-flex text-sm px-6 py-3" data-magnetic>
               {lang === "uz" ? "Бепул бошлаш" : lang === "ru" ? "Начать бесплатно" : "Get Started Free"} <FiArrowRight size={14} />

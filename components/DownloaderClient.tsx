@@ -10,7 +10,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { FiLink, FiDownload, FiClipboard, FiVideo, FiMusic, FiImage, FiZap, FiCheck, FiAlertCircle, FiClock } from "react-icons/fi";
+import { FiLink, FiDownload, FiClipboard, FiVideo, FiMusic, FiImage, FiZap, FiCheck, FiAlertCircle, FiClock, FiSend } from "react-icons/fi";
+import { TG_CHANNEL, TG_CHANNEL_URL, TG_BOT, TG_BOT_URL } from "@/lib/social";
 import { PLATFORMS } from "@/lib/downloader-platforms";
 import { saveBlob } from "@/lib/save-file";
 import { trackTool } from "@/lib/track";
@@ -266,10 +267,27 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
       )}
 
       {!compact && (
-        <p className="text-[11px] mt-4 leading-relaxed" style={{ color: "var(--text-faint)" }}>
-          Paste a public link, pick a format, and it downloads through QRix — no ads, no pop-ups, nothing installed.
-          Only download content you have the right to. QRix does not host any media.
-        </p>
+        <>
+          {/* Telegram: same downloader, inside a chat */}
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            {TG_BOT_URL && (
+              <a href={`${TG_BOT_URL}?start=downloader`} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-[12.5px] font-bold transition-opacity hover:opacity-85"
+                style={{ background: "rgba(255,77,28,.1)", border: "1px solid rgba(255,77,28,.25)", color: "var(--primary-bright)" }}>
+                <FiSend size={13} /> Telegram bot — @{TG_BOT}
+              </a>
+            )}
+            <a href={`${TG_CHANNEL_URL}?utm_source=site&utm_medium=downloader`} target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-[12.5px] font-semibold transition-opacity hover:opacity-85"
+              style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
+              <FiSend size={13} /> @{TG_CHANNEL}
+            </a>
+          </div>
+          <p className="text-[11px] mt-4 leading-relaxed" style={{ color: "var(--text-faint)" }}>
+            Paste a public link, pick a format, and it downloads through QRix — no ads, no pop-ups, nothing installed.
+            Only download content you have the right to. QRix does not host any media.
+          </p>
+        </>
       )}
     </div>
   );
