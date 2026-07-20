@@ -44,7 +44,28 @@ const HELP =
   "Havolani tashlang — videoni chatga qaytaraman.\n" +
   "Send a link — I'll reply with the file.\n\n" +
   "✅ TikTok · Instagram · VK · OK · X · Pinterest · SoundCloud …\n" +
+  "🎬 MP4 · 🎵 MP3 · 🖼 JPG — без рекламы и водяных знаков\n" +
   "🌐 185+ tools: qrixtools.com";
+
+/** Buttons shown with the welcome card — the share link is the viral loop. */
+function welcomeKeyboard(botUser?: string) {
+  const share = botUser
+    ? `https://t.me/share/url?url=${encodeURIComponent(`https://t.me/${botUser}`)}&text=${encodeURIComponent("Скачивай видео без водяных знаков / Videolarni suv belgisisiz yuklab ol")}`
+    : `https://t.me/share/url?url=${encodeURIComponent(SITE_URL + "/downloader")}`;
+  return [
+    [{ text: "🌐 qrixtools.com — 185+ tools", url: `${SITE_URL}/downloader?utm_source=telegram&utm_medium=bot&utm_campaign=welcome` }],
+    [{ text: "📤 Поделиться · Ulashish · Share", url: share }],
+  ];
+}
+
+/** Cached bot username (for the share deep-link); one getMe per cold start. */
+let botUsername: string | undefined;
+async function whoAmI(): Promise<string | undefined> {
+  if (botUsername) return botUsername;
+  const me = await tg("getMe", {});
+  botUsername = me?.result?.username;
+  return botUsername;
+}
 
 export async function GET(req: NextRequest) {
   // owner-only webhook self-registration: /api/telegram/bot?setup=1
@@ -82,7 +103,10 @@ export async function POST(req: NextRequest) {
 
   const urlMatch = text.match(/https?:\/\/\S+/);
   if (!urlMatch) {
-    await tg("sendMessage", { chat_id: chatId, text: HELP, parse_mode: "HTML", disable_web_page_preview: true });
+    await tg("sendMessage", {
+      chat_id: chatId, text: HELP, parse_mode: "HTML", disable_web_page_preview: true,
+      reply_markup: { inline_keyboard: welcomeKeyboard(await whoAmI()) },
+    });
     return NextResponse.json({ ok: true });
   }
 
