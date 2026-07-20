@@ -44,6 +44,7 @@ const PAGES: SearchItem[] = [
   { title: "Pinterest Downloader", href: "/downloader/pinterest", group: "Pages", keywords: "pinterest pin video image download" },
   { title: "SoundCloud to MP3", href: "/downloader/soundcloud", group: "Pages", keywords: "soundcloud mp3 track music download" },
   { title: "OK.ru Video Downloader", href: "/downloader/ok", group: "Pages", keywords: "odnoklassniki ok ru video skachat download" },
+  { title: "Скачать видео (RU)", href: "/ru/downloader", group: "Pages", keywords: "скачать видео тикток вк рилс одноклассники загрузчик ru russian" },
   { title: "Barcode Generator", href: "/barcode", group: "Pages", keywords: "ean upc code128 barcode shtrix" },
   { title: "Link-in-Bio Page", href: "/link-in-bio", group: "Pages", keywords: "linktree bio links" },
   { title: "QR Poster Maker", href: "/poster", group: "Pages", keywords: "scan me flyer poster" },

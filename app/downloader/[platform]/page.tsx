@@ -374,6 +374,7 @@ export async function generateMetadata({ params }: { params: Promise<{ platform:
     description: copy.desc,
     path: `/downloader/${platform}`,
     keywords: copy.keywords,
+    languages: { en: `/downloader/${platform}`, ru: `/ru/downloader/${platform}`, "x-default": `/downloader/${platform}` },
   });
 }
 
