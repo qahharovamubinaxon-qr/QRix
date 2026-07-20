@@ -70,6 +70,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/qr-tools/decode", 0.8),
     entry("/barcode", 0.8),
     entry("/downloader", 0.9),
+    entry("/widgets", 0.7),
     ...DL_PLATFORMS.map((p) => entry(`/downloader/${p.id}`, 0.8)),
     entry("/compare/qrix-vs-ilovepdf", 0.8),
     entry("/compare/qrix-vs-tinywow", 0.8),

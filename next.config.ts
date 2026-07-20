@@ -21,7 +21,16 @@ const nextConfig: NextConfig = {
   compress: true,
   output: process.env.DOCKER_BUILD ? "standalone" : undefined, // Docker image runs standalone server.js
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    // /embed/* is meant to be iframed by ANY site (that's the distribution
+    // play), so it opts out of the frame-blocking headers. Everything else
+    // keeps clickjacking protection.
+    const embeddable = securityHeaders.filter(
+      (h) => h.key !== "X-Frame-Options" && h.key !== "Content-Security-Policy",
+    );
+    return [
+      { source: "/embed/:path*", headers: [...embeddable, { key: "Content-Security-Policy", value: "frame-ancestors *" }] },
+      { source: "/:path*", headers: securityHeaders },
+    ];
   },
 };
 

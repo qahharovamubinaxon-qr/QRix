@@ -35,6 +35,7 @@ const IMAGE_TOOLS: [string, string][] = [
 
 const PAGES: SearchItem[] = [
   { title: "Video & Audio Downloader", href: "/downloader", group: "Pages", keywords: "tiktok instagram vk downloader video audio mp3 mp4 save reels download skachat yuklab olish" },
+  { title: "Embeddable Downloader Widget", href: "/widgets", group: "Pages", keywords: "embed widget iframe downloader website blog wordpress add tool" },
   { title: "TikTok Downloader (No Watermark)", href: "/downloader/tiktok", group: "Pages", keywords: "tiktok no watermark download video mp3 sound skachat" },
   { title: "Instagram Reels Downloader", href: "/downloader/instagram", group: "Pages", keywords: "instagram reels photo download ig mp3 save" },
   { title: "VK Video Downloader", href: "/downloader/vk", group: "Pages", keywords: "vk vkontakte video clip skachat download" },
