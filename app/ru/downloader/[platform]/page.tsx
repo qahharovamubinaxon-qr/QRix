@@ -145,7 +145,7 @@ export async function generateMetadata({ params }: { params: Promise<{ platform:
   const c = copyFor(p.id, p.name);
   return pageMeta({
     title: c.title, description: c.desc, path: `/ru/downloader/${platform}`, keywords: c.keywords,
-    languages: { en: `/downloader/${platform}`, ru: `/ru/downloader/${platform}`, "x-default": `/downloader/${platform}` },
+    languages: { en: `/downloader/${platform}`, ru: `/ru/downloader/${platform}`, uz: `/uz/downloader/${platform}`, "x-default": `/downloader/${platform}` },
   });
 }
 

@@ -1,0 +1,97 @@
+import Link from "next/link";
+import DownloaderClient from "@/components/DownloaderClient";
+import { PLATFORMS } from "@/lib/downloader-platforms";
+import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
+
+const TITLE = "Video yuklab olish onlayn — TikTok, Instagram, VK va boshqalar";
+const DESC = "Bepul onlayn video, musiqa va rasm yuklagichi. TikTok, Instagram, VK, Odnoklassniki, X havolasini tashlang — MP4, MP3 yoki rasmni reklamasiz va suv belgisisiz saqlang.";
+
+const FAQS = [
+  { q: "Videoni qanday yuklab olaman?", a: "Post havolasini nusxalang, uni yuqoriga qoʻying va formatni tanlang — video (MP4), audio (MP3) yoki rasm. Yuklash darhol boshlanadi, reklamasiz." },
+  { q: "Bepulmi?", a: "Ha — toʻliq bepul, roʻyxatsiz, suv belgisisiz va dastur oʻrnatmasdan." },
+  { q: "Qaysi saytlar qoʻllab-quvvatlanadi?", a: `QRix quyidagilardan yuklaydi: ${PLATFORMS.map((p) => p.name).join(", ")}. Roʻyxat doimo kengaymoqda.` },
+  { q: "Faqat ovozni (MP3) yuklash mumkinmi?", a: "Ha. Videoning ovozi boʻlsa, «Audio · MP3» tugmasi chiqadi — TikTok va Reels ovozlari uchun qulay." },
+  { q: "Fayllarim saqlanadimi?", a: "Yoʻq. Fayl toʻgʻridan-toʻgʻri qurilmangizga oʻtadi — QRix hech narsa saqlamaydi." },
+  { q: "Nega YouTube yoʻq?", a: "QRix ijtimoiy tarmoqlarga moʻljallangan va platforma qoidalariga koʻra YouTube'dan yuklashni qoʻllab-quvvatlamaydi." },
+];
+
+export const metadata = pageMeta({
+  title: TITLE,
+  description: DESC,
+  path: "/uz/downloader",
+  keywords: ["video yuklab olish", "tiktok video yuklash", "instagram reels yuklab olish", "vk video yuklash", "ok ru video yuklab olish", "video yuklagich bepul", "musiqa yuklab olish"],
+  languages: { en: "/downloader", ru: "/ru/downloader", uz: "/uz/downloader", "x-default": "/downloader" },
+});
+
+export default function UzDownloaderPage() {
+  return (
+    <>
+      <script type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={jsonLd([
+          softwareAppLd(TITLE, DESC, "/uz/downloader"),
+          breadcrumbLd([{ name: "Bosh sahifa", path: "/" }, { name: "Yuklagich", path: "/uz/downloader" }]),
+          faqLd(FAQS),
+        ])} />
+
+      <main className="max-w-3xl mx-auto px-5 lg:px-8 pt-10 lg:pt-16 pb-24">
+        <nav className="text-[12px] mb-4" style={{ color: "var(--text-faint)" }}>
+          <Link href="/" className="hover:underline">Bosh sahifa</Link> <span className="mx-1">›</span> Yuklagich
+        </nav>
+
+        <header className="mb-6">
+          <h1 className="font-display text-3xl lg:text-4xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
+            Video, musiqa va rasm yuklab olish
+          </h1>
+          <p className="mt-2 text-[14.5px]" style={{ color: "var(--text-muted)" }}>{DESC}</p>
+        </header>
+
+        <DownloaderClient placeholder="TikTok, Instagram, VK, X havolasini tashlang…" />
+
+        <section className="mt-12">
+          <h2 className="font-display text-xl font-bold mb-4" style={{ color: "var(--text)" }}>Qanday ishlaydi</h2>
+          <ol className="space-y-3">
+            {[
+              ["Havolani nusxalang", "TikTok, Instagram, VK yoki X'da postni oching va «Ulashish» orqali havolani nusxalang."],
+              ["Yuqoriga qoʻying", "QRix havola boʻyicha video, audio va rasmlarni darhol topadi."],
+              ["Formatni tanlang", "Video (MP4), audio (MP3) yoki rasm — fayl toʻgʻridan-toʻgʻri qurilmaga saqlanadi."],
+            ].map(([h, p], i) => (
+              <li key={h} className="flex gap-3">
+                <span className="shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-[12px] font-bold text-white" style={{ background: "var(--grad-primary)" }}>{i + 1}</span>
+                <div><b style={{ color: "var(--text)" }}>{h}.</b> <span style={{ color: "var(--text-muted)" }}>{p}</span></div>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-bold mb-4" style={{ color: "var(--text)" }}>Platformalar</h2>
+          <div className="flex flex-wrap gap-2.5">
+            {PLATFORMS.map((p) => (
+              <Link key={p.id} href={`/uz/downloader/${p.id}`}
+                className="inline-flex items-center gap-2 pl-2 pr-3 py-1.5 rounded-full text-[12.5px] font-semibold transition-colors hover:opacity-80"
+                style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}>
+                <span className="w-5 h-5 block" aria-hidden dangerouslySetInnerHTML={{ __html: p.svg }} /> {p.name}
+              </Link>
+            ))}
+          </div>
+          <p className="mt-3 text-[12.5px]" style={{ color: "var(--text-faint)" }}>
+            Platformani tanlang — uning sahifasida batafsil qoʻllanma: TikTok suv belgisisiz, Reddit ovoz bilan, SoundCloud MP3 va boshqalar.
+          </p>
+        </section>
+
+        <section className="mt-10">
+          <h2 className="font-display text-xl font-bold mb-4" style={{ color: "var(--text)" }}>Savol-javob</h2>
+          <div className="space-y-3">
+            {FAQS.map((f) => (
+              <details key={f.q} className="qx-card p-4">
+                <summary className="font-bold text-[14px] cursor-pointer" style={{ color: "var(--text)" }}>{f.q}</summary>
+                <p className="mt-2 text-[13.5px]" style={{ color: "var(--text-muted)" }}>{f.a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+      </main>
+    </>
+  );
+}

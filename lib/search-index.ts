@@ -45,6 +45,7 @@ const PAGES: SearchItem[] = [
   { title: "SoundCloud to MP3", href: "/downloader/soundcloud", group: "Pages", keywords: "soundcloud mp3 track music download" },
   { title: "OK.ru Video Downloader", href: "/downloader/ok", group: "Pages", keywords: "odnoklassniki ok ru video skachat download" },
   { title: "Скачать видео (RU)", href: "/ru/downloader", group: "Pages", keywords: "скачать видео тикток вк рилс одноклассники загрузчик ru russian" },
+  { title: "Video yuklab olish (UZ)", href: "/uz/downloader", group: "Pages", keywords: "video yuklab olish tiktok instagram vk yuklash uzbek uz suv belgisisiz" },
   { title: "QRix vs iLovePDF", href: "/compare/qrix-vs-ilovepdf", group: "Pages", keywords: "ilovepdf alternative comparison vs pdf" },
   { title: "QRix vs TinyWow", href: "/compare/qrix-vs-tinywow", group: "Pages", keywords: "tinywow alternative comparison vs tools" },
   { title: "QRix vs SnapTik", href: "/compare/qrix-vs-snaptik", group: "Pages", keywords: "snaptik alternative comparison vs tiktok downloader" },

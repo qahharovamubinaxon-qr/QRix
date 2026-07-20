@@ -20,7 +20,7 @@ export const metadata = pageMeta({
   description: DESC,
   path: "/downloader",
   keywords: ["video downloader", "tiktok downloader", "instagram downloader", "vk video download", "mp3 downloader", "save video without watermark", "download reels", "twitter video downloader"],
-  languages: { en: "/downloader", ru: "/ru/downloader", "x-default": "/downloader" },
+  languages: { en: "/downloader", ru: "/ru/downloader", uz: "/uz/downloader", "x-default": "/downloader" },
 });
 
 export default function DownloaderPage() {

@@ -76,6 +76,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/compare/qrix-vs-snaptik", 0.8),
     entry("/ru/downloader", 0.9),
     ...DL_PLATFORMS.map((p) => entry(`/ru/downloader/${p.id}`, 0.8)),
+    entry("/uz/downloader", 0.9),
+    ...DL_PLATFORMS.map((p) => entry(`/uz/downloader/${p.id}`, 0.8)),
     entry("/ai-tools", 0.9),
     ...AI_TOOLS.map((t) => entry(`/ai-tools/${t.slug}`, 0.8)),
     entry("/video-tools", 0.9),

@@ -20,7 +20,7 @@ export const metadata = pageMeta({
   description: DESC,
   path: "/ru/downloader",
   keywords: ["скачать видео онлайн", "скачать видео тикток", "скачать рилс", "скачать видео вк", "скачать с одноклассников", "загрузчик видео бесплатно", "видео в mp3"],
-  languages: { en: "/downloader", ru: "/ru/downloader", "x-default": "/downloader" },
+  languages: { en: "/downloader", ru: "/ru/downloader", uz: "/uz/downloader", "x-default": "/downloader" },
 });
 
 export default function RuDownloaderPage() {
