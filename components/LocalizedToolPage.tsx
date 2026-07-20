@@ -1,3 +1,11 @@
+"use client";
+
+/* Client component so the ssr:false tool engine mounts — mirrors ToolPageShell
+   (also "use client"), which is why the English tool pages hydrate their
+   engines while a server-parent wrapper left them stuck on the loading
+   fallback. SEO content (h1, intro, FAQ, JSON-LD) still renders in the SSR
+   HTML, so nothing is lost for crawlers. */
+
 import Link from "next/link";
 import LocalizedToolEngine from "@/components/LocalizedToolEngine";
 import { jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
