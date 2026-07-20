@@ -1,0 +1,4 @@
+# Vendored / minified third-party bundles — noise in the knowledge graph
+public/pdf.worker.min.mjs
+*.min.js
+*.min.mjs
