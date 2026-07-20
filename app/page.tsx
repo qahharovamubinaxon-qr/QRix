@@ -834,6 +834,8 @@ export default function HomePage() {
       {/* ================= FOOTER ================= */}
       <footer className="mt-10 relative overflow-hidden" data-scene="dusk">
         <hr className="qx-neon-line" />
+        {/* soft blurred veil so the world-map dots don't tangle with the text */}
+        <div className="qx-foot-veil absolute inset-0 pointer-events-none" aria-hidden />
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,77,28,.06) 0%, transparent 60%)" }} />
 
