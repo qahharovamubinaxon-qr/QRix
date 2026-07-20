@@ -274,7 +274,7 @@ function SignUpForm({ next, active, onSwitch, onNeedsConfirm }: {
   return (
     <div className="qx-auth-form">
       <h1 className="qx-auth-h font-display">Create your account</h1>
-      <p className="qx-auth-s">Free forever — dynamic QR codes &amp; 185+ tools.</p>
+      <p className="qx-auth-s">Optional — an account just saves your history &amp; favorites across devices. All 185+ tools work without signing up.</p>
 
       <GoogleButton next={next} onError={setError} disabled={!active} />
       <Divider />
@@ -310,6 +310,15 @@ function SignUpForm({ next, active, onSwitch, onNeedsConfirm }: {
         <button type="button" onClick={onSwitch} className="font-semibold" style={{ color: "var(--primary-bright)" }}>
           Sign in
         </button>
+      </p>
+
+      {/* escape hatch: most visitors don't need an account — send the hesitant
+          straight to the tools instead of bouncing (analytics: /register hits
+          with no signup need) */}
+      <p className="qx-auth-foot" style={{ marginTop: 6 }}>
+        <Link href="/qr-tools" className="font-semibold" style={{ color: "var(--text-muted)" }}>
+          Or just use the tools — no account needed →
+        </Link>
       </p>
     </div>
   );
