@@ -5,6 +5,7 @@ import Link from "next/link";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import ReviewsSection from "@/components/ReviewsSection";
 import { trackTool } from "@/lib/track";
+import { exportQrPng, saveDataUrl } from "@/lib/qr-export";
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import CategoryShowcase from "@/components/CategoryShowcase";
 import TrustedBy from "@/components/TrustedBy";
@@ -316,10 +317,9 @@ export default function HomePage() {
   const downloadPng = () => {
     const canvas = canvasWrapRef.current?.querySelector("canvas");
     if (!canvas) return;
-    const a = document.createElement("a");
-    a.href = canvas.toDataURL("image/png");
-    a.download = "qrix-code.png";
-    a.click();
+    // viral loop: 2× crisp PNG with a subtle qrixtools.com footer
+    saveDataUrl(exportQrPng(canvas, { brand: true, scale: 2 }), "qrix-code.png");
+    trackTool("qr-generator", { action: "download", format: "png" });
     setDlOpen(false);
   };
 
