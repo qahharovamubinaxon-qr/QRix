@@ -6,6 +6,7 @@ import ToolPageShell from "@/components/ToolPageShell";
 import AiEngineRegistry from "@/components/ai/AiEngineRegistry";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 import { AI_TOOLS, getAiTool } from "@/lib/ai-tools-meta";
+import { getLocTool } from "@/lib/localized-tools";
 import { allPostsSorted } from "@/lib/blog";
 
 export function generateStaticParams() {
@@ -16,11 +17,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const tool = getAiTool(slug);
   if (!tool) return pageMeta({ title: "AI tool not found", path: `/ai-tools/${slug}`, noindex: true });
+  // tools with a localized RU/UZ twin advertise the hreflang alternates
+  const loc = getLocTool(tool.slug);
   return pageMeta({
     title: `${tool.title} — Free Online`,
     description: tool.desc,
     path: `/ai-tools/${tool.slug}`,
     keywords: tool.keywords,
+    ...(loc ? { languages: { en: `/ai-tools/${tool.slug}`, ru: `/ru/${tool.slug}`, uz: `/uz/${tool.slug}`, "x-default": `/ai-tools/${tool.slug}` } } : {}),
   });
 }
 

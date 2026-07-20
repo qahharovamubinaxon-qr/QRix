@@ -15,6 +15,7 @@ import { USE_CASES_EN, USE_LANGS, hasTranslation } from "@/lib/usecase-content";
 import { HELP_CATEGORIES } from "@/lib/help-content";
 import { DOC_PAGES } from "@/lib/docs-content";
 import { PLATFORMS as DL_PLATFORMS } from "@/lib/downloader-platforms";
+import { LOC_TOOLS } from "@/lib/localized-tools";
 
 const PDF_TOOLS = [
   "merge", "split", "compress", "pdf-to-word", "word-to-pdf", "pdf-to-jpg", "jpg-to-pdf",
@@ -79,6 +80,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...DL_PLATFORMS.map((p) => entry(`/ru/downloader/${p.id}`, 0.8)),
     entry("/uz/downloader", 0.9),
     ...DL_PLATFORMS.map((p) => entry(`/uz/downloader/${p.id}`, 0.8)),
+    ...LOC_TOOLS.flatMap((t) => [entry(`/ru/${t.slug}`, 0.85), entry(`/uz/${t.slug}`, 0.85)]),
     entry("/ai-tools", 0.9),
     ...AI_TOOLS.map((t) => entry(`/ai-tools/${t.slug}`, 0.8)),
     entry("/video-tools", 0.9),

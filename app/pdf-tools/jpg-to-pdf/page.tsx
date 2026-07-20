@@ -2,7 +2,7 @@ import ToolPageShell from "@/components/ToolPageShell";
 import JpgToPdfClient from "@/components/JpgToPdfClient";
 import { pageMeta } from "@/lib/seo";
 
-export const metadata = pageMeta({ title: "JPG to PDF — Free Online Tool", description: "Combine images (JPG, PNG) into a single PDF file.", path: "/pdf-tools/jpg-to-pdf" });
+export const metadata = pageMeta({ title: "JPG to PDF — Free Online Tool", description: "Combine images (JPG, PNG) into a single PDF file.", path: "/pdf-tools/jpg-to-pdf", languages: { en: "/pdf-tools/jpg-to-pdf", ru: "/ru/jpg-to-pdf", uz: "/uz/jpg-to-pdf", "x-default": "/pdf-tools/jpg-to-pdf" } });
 export default function Page() {
   return (
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="JPG to PDF" emoji="📄"
