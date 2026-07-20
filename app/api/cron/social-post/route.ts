@@ -87,10 +87,14 @@ const PROMOS: Promo[] = [
 ];
 
 export async function GET(req: NextRequest) {
-  if (!cronAuthorized(req)) return NextResponse.json({ ok: false }, { status: 401 });
-
-  const token = process.env.TELEGRAM_BOT_TOKEN;
+  const token = process.env.TELEGRAM_PUBLIC_BOT_TOKEN || process.env.TELEGRAM_BOT_TOKEN;
   const channel = process.env.TELEGRAM_CHANNEL_ID;
+
+  // Unauthenticated readiness probe — booleans only, never the values.
+  if (req.nextUrl.searchParams.get("status") === "1") {
+    return NextResponse.json({ ok: true, bot: !!token, channel: !!channel, tools: PROMOS.length });
+  }
+  if (!cronAuthorized(req)) return NextResponse.json({ ok: false }, { status: 401 });
   if (!token || !channel) {
     return NextResponse.json({ ok: false, reason: "channel_not_configured" });
   }
