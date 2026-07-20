@@ -16,7 +16,7 @@ import QRDesignStudio from "@/components/QRDesignStudio";
 import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { GenBunny } from "@/components/EraBunny";
-import QrixPromoFilm from "@/components/QrixPromoFilm";
+import BrandFilmVideo from "@/components/BrandFilmVideo";
 import WorldMapBackground from "@/components/WorldMapBackground";
 import PricingTeaser from "@/components/PricingTeaser";
 import { PLATFORMS as DL_PLATFORMS } from "@/lib/downloader-platforms";
@@ -763,7 +763,7 @@ export default function HomePage() {
               </div>
             </div>
             {/* the auto-playing 16:9 film */}
-            <QrixPromoFilm embed />
+            <BrandFilmVideo />
           </div>
         </div>
       </section>
