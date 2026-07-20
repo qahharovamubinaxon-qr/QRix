@@ -12,5 +12,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
   const result = await runAutopilot();
-  return NextResponse.json({ ok: result.published, ...result });
+
+  // Sundays: also dump the persistent tables to the private "backups" bucket
+  // (piggybacked here so no extra Vercel cron slot is used).
+  let backup: unknown;
+  if (new Date().getUTCDay() === 0) {
+    try {
+      const { backupDatabase } = await import("@/lib/server/backup");
+      backup = await backupDatabase();
+    } catch { backup = { ok: false, reason: "backup_exception" }; }
+  }
+
+  return NextResponse.json({ ok: result.published, ...result, ...(backup ? { backup } : {}) });
 }
