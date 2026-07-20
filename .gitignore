@@ -46,3 +46,6 @@ public/imgly/
 # x-vercel-ip-country/city headers (see lib/geoip.ts), so it must NOT ship in
 # the serverless bundle or bloat clones.
 geoip/*.mmdb
+
+# graphify local knowledge-graph output (dev tool, not site code)
+/graphify-out/
