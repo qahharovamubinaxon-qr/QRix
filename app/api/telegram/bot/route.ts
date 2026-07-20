@@ -62,9 +62,22 @@ function welcomeKeyboard(botUser?: string) {
 let botUsername: string | undefined;
 async function whoAmI(): Promise<string | undefined> {
   if (botUsername) return botUsername;
+  // tg() already unwraps `result`, so the username sits at the top level
   const me = await tg("getMe", {});
-  botUsername = me?.result?.username;
+  botUsername = me?.username;
   return botUsername;
+}
+
+/** Signed streaming URL for a format token. */
+const proxy = (t: string) => `${SITE_URL}/api/download/file?t=${encodeURIComponent(t)}`;
+
+/** Callback buttons for the formats a link actually offers. */
+function formatKeyboard(has: { video: boolean; audio: boolean; image: boolean }) {
+  const row: { text: string; callback_data: string }[][] = [];
+  if (has.video) row.push([{ text: "🎬 Video · HD", callback_data: "f:v" }]);
+  if (has.audio) row.push([{ text: "🎵 Audio · MP3", callback_data: "f:a" }]);
+  if (has.image) row.push([{ text: "🖼 Image", callback_data: "f:i" }]);
+  return [...row, [{ text: "🌐 qrixtools.com — 185+ tools", url: `${SITE_URL}/downloader?utm_source=telegram&utm_medium=bot` }]];
 }
 
 export async function GET(req: NextRequest) {
@@ -75,7 +88,7 @@ export async function GET(req: NextRequest) {
     const res = await tg("setWebhook", {
       url: `${SITE_URL}/api/telegram/bot`,
       secret_token: secret() || undefined,
-      allowed_updates: ["message"],
+      allowed_updates: ["message", "callback_query"],
     });
     return NextResponse.json({ ok: !!res?.ok, telegram: res });
   }
@@ -89,6 +102,13 @@ export async function POST(req: NextRequest) {
   }
 
   const update = await req.json().catch(() => null);
+
+  // a tapped format button → deliver that file into the chat
+  if (update?.callback_query) {
+    await handleCallback(update.callback_query);
+    return NextResponse.json({ ok: true });
+  }
+
   const msg = update?.message;
   const chatId = msg?.chat?.id;
   const text: string = msg?.text || "";
@@ -129,50 +149,84 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
-  const proxy = (t: string) => `${SITE_URL}/api/download/file?t=${encodeURIComponent(t)}`;
   const video = info.formats.find((f) => f.type === "video");
   const audio = info.formats.find((f) => f.type === "audio");
   const image = info.formats.find((f) => f.type === "image");
-
-  // format buttons — Telegram URL buttons need no callbacks and never expire mid-chat
-  const buttons = [
-    ...(video ? [[{ text: `🎬 ${video.label}`, url: proxy(video.token) }]] : []),
-    ...(audio ? [[{ text: `🎵 ${audio.label}`, url: proxy(audio.token) }]] : []),
-    ...(image ? [[{ text: `🖼 ${image.label}`, url: proxy(image.token) }]] : []),
-    [{ text: "🌐 qrixtools.com — 185+ tools", url: `${SITE_URL}/downloader?utm_source=telegram&utm_medium=bot` }],
-  ];
   const caption = `${(info.title || "").slice(0, 200)}\n\n@ QRix — qrixtools.com`;
 
-  // try to drop the video straight into the chat (Telegram fetches URLs ≤20MB);
-  // bigger files fall back to the button links, which always work
-  let delivered = false;
-  if (video) {
-    const sent = await tg("sendVideo", {
-      chat_id: chatId, video: proxy(video.token), caption,
-      reply_markup: { inline_keyboard: buttons },
-    });
-    delivered = !!sent?.ok;
-  } else if (image) {
-    const sent = await tg("sendPhoto", {
-      chat_id: chatId, photo: proxy(image.token), caption,
-      reply_markup: { inline_keyboard: buttons },
-    });
-    delivered = !!sent?.ok;
-  } else if (audio) {
-    const sent = await tg("sendAudio", {
-      chat_id: chatId, audio: proxy(audio.token), caption,
-      reply_markup: { inline_keyboard: buttons },
-    });
-    delivered = !!sent?.ok;
-  }
+  // Format buttons are CALLBACKS, not links: tapping one delivers the file into
+  // the chat instead of bouncing the user to a browser. callback_data is capped
+  // at 64 bytes (our signed tokens are far longer), so the handler re-reads the
+  // original link from the message we are replying to — stateless, no storage.
+  const kb = formatKeyboard({ video: !!video, audio: !!audio, image: !!image });
 
-  if (!delivered) {
+  const first = video
+    ? await tg("sendVideo", { chat_id: chatId, video: proxy(video.token), caption, reply_to_message_id: msg.message_id, reply_markup: { inline_keyboard: kb } })
+    : image
+      ? await tg("sendPhoto", { chat_id: chatId, photo: proxy(image.token), caption, reply_to_message_id: msg.message_id, reply_markup: { inline_keyboard: kb } })
+      : audio
+        ? await tg("sendAudio", { chat_id: chatId, audio: proxy(audio.token), caption, reply_to_message_id: msg.message_id, reply_markup: { inline_keyboard: kb } })
+        : null;
+
+  // Telegram only fetches remote files up to ~20MB — bigger media (or a hiccup)
+  // still gets delivered as a direct link.
+  if (!first) {
+    const big = video || audio || image;
     await tg("sendMessage", {
       chat_id: chatId, parse_mode: "HTML", disable_web_page_preview: true,
-      text: `✅ <b>${(info.title || "Media").slice(0, 120)}</b>\n\nФайл крупный — скачайте по кнопке ниже.\nFayl katta — quyidagi tugma orqali yuklab oling.`,
-      reply_markup: { inline_keyboard: buttons },
+      reply_to_message_id: msg.message_id,
+      text: `✅ <b>${(info.title || "Media").slice(0, 120)}</b>\n\nФайл крупный для Telegram — скачайте по кнопке.\nFayl Telegram uchun katta — tugma orqali yuklab oling.`,
+      reply_markup: {
+        inline_keyboard: [
+          ...(big ? [[{ text: `⬇️ ${big.label}`, url: proxy(big.token) }]] : []),
+          [{ text: "🌐 qrixtools.com — 185+ tools", url: `${SITE_URL}/downloader?utm_source=telegram&utm_medium=bot` }],
+        ],
+      },
     });
   }
 
   return NextResponse.json({ ok: true });
+}
+
+/** Deliver one format into the chat when its button is tapped. */
+async function handleCallback(cq: any): Promise<void> {
+  const chatId = cq?.message?.chat?.id;
+  const want = String(cq?.data || "").replace(/^f:/, "");   // v | a | i
+  // the link lives in the user message our media message replied to
+  const src: string = cq?.message?.reply_to_message?.text || cq?.message?.reply_to_message?.caption || "";
+  const url = src.match(/https?:\/\/\S+/)?.[0];
+
+  if (!chatId || !url) {
+    await tg("answerCallbackQuery", { callback_query_id: cq?.id, text: "Отправьте ссылку заново / Havolani qayta tashlang", show_alert: false });
+    return;
+  }
+  await tg("answerCallbackQuery", { callback_query_id: cq.id, text: "⏳ Готовлю файл… / Fayl tayyorlanmoqda…" });
+
+  const type = want === "a" ? "audio" : want === "i" ? "image" : "video";
+  await tg("sendChatAction", { chat_id: chatId, action: type === "audio" ? "upload_voice" : "upload_video" });
+
+  const info = await resolveMedia(url);
+  if (!info.ok) return;
+  const f = info.formats.find((x) => x.type === type);
+  if (!f) {
+    await tg("sendMessage", { chat_id: chatId, text: "😕 Этот формат недоступен для ссылки. / Bu format mavjud emas." });
+    return;
+  }
+
+  const title = (info.title || "QRix").slice(0, 120);
+  const method = type === "audio" ? "sendAudio" : type === "image" ? "sendPhoto" : "sendVideo";
+  const key = type === "audio" ? "audio" : type === "image" ? "photo" : "video";
+  const sent = await tg(method, {
+    chat_id: chatId, [key]: proxy(f.token),
+    caption: `${title}\n\n@ QRix — qrixtools.com`,
+    ...(type === "audio" ? { title, performer: info.author || "QRix" } : {}),
+  });
+
+  if (!sent) {
+    await tg("sendMessage", {
+      chat_id: chatId, parse_mode: "HTML", disable_web_page_preview: true,
+      text: "Файл крупный для Telegram — скачайте по кнопке.\nFayl Telegram uchun katta — tugma orqali yuklab oling.",
+      reply_markup: { inline_keyboard: [[{ text: `⬇️ ${f.label}`, url: proxy(f.token) }]] },
+    });
+  }
 }
