@@ -35,9 +35,9 @@ function loadImg(f: File): Promise<HTMLImageElement> {
   return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(f); });
 }
 
-/* canvas.toBlob() only speaks png/jpeg/webp(/avif). Asking it for image/bmp or
-   image/x-icon silently returns PNG bytes, so the old .bmp/.ico downloads were
-   PNGs with a lying extension. These two encoders emit the real formats. */
+/* canvas.toBlob() only speaks png/jpeg/webp(/avif). Asking it for image/bmp,
+   image/tiff or image/x-icon silently returns PNG bytes, so those downloads were
+   PNGs with a lying extension. These encoders emit the real formats. */
 
 /** 24-bit bottom-up BMP (no alpha channel — caller composites onto a background). */
 function encodeBmp(c: HTMLCanvasElement): Blob {
@@ -63,6 +63,66 @@ function encodeBmp(c: HTMLCanvasElement): Blob {
     }
   }
   return new Blob([buf], { type: "image/bmp" });
+}
+
+/** Baseline uncompressed TIFF (little-endian, single strip, 8 bits/sample).
+    RGB when the image is fully opaque, RGBA + ExtraSamples=2 when it isn't. */
+function encodeTiff(c: HTMLCanvasElement): Blob {
+  const w = c.width, h = c.height;
+  const px = c.getContext("2d")!.getImageData(0, 0, w, h).data;
+  let hasAlpha = false;
+  for (let i = 3; i < px.length; i += 4) if (px[i] !== 255) { hasAlpha = true; break; }
+  const spp = hasAlpha ? 4 : 3;                     // samples per pixel
+
+  const TAGS = 12 + (hasAlpha ? 1 : 0);
+  const ifdOff = 8;                                 // IFD sits right after the header
+  const ifdSize = 2 + TAGS * 12 + 4;                // count + entries + next-IFD pointer
+  const bpsOff = ifdOff + ifdSize;                  // BitsPerSample array (spp shorts)
+  const xresOff = bpsOff + spp * 2;                 // XResolution rational
+  const yresOff = xresOff + 8;
+  const pixOff = yresOff + 8;
+  const pixSize = w * h * spp;
+
+  const buf = new ArrayBuffer(pixOff + pixSize);
+  const v = new DataView(buf), u8 = new Uint8Array(buf);
+
+  v.setUint16(0, 0x4949, true);                     // "II" — little-endian
+  v.setUint16(2, 42, true);                         // TIFF magic
+  v.setUint32(4, ifdOff, true);
+  v.setUint16(ifdOff, TAGS, true);
+
+  let e = ifdOff + 2;
+  /* SHORT(3) and LONG(4) values with count 1 live inline in the value field. */
+  const tag = (id: number, type: number, count: number, value: number) => {
+    v.setUint16(e, id, true); v.setUint16(e + 2, type, true); v.setUint32(e + 4, count, true);
+    if (type === 3 && count === 1) { v.setUint16(e + 8, value, true); v.setUint16(e + 10, 0, true); }
+    else v.setUint32(e + 8, value, true);
+    e += 12;
+  };
+  tag(256, 4, 1, w);            // ImageWidth
+  tag(257, 4, 1, h);            // ImageLength
+  tag(258, 3, spp, bpsOff);     // BitsPerSample -> array, too wide to inline
+  tag(259, 3, 1, 1);            // Compression: none
+  tag(262, 3, 1, 2);            // PhotometricInterpretation: RGB
+  tag(273, 4, 1, pixOff);       // StripOffsets
+  tag(277, 3, 1, spp);          // SamplesPerPixel
+  tag(278, 4, 1, h);            // RowsPerStrip — one strip for the whole image
+  tag(279, 4, 1, pixSize);      // StripByteCounts
+  tag(282, 5, 1, xresOff);      // XResolution
+  tag(283, 5, 1, yresOff);      // YResolution
+  tag(296, 3, 1, 2);            // ResolutionUnit: inch
+  if (hasAlpha) tag(338, 3, 1, 2);  // ExtraSamples: unassociated alpha
+  v.setUint32(e, 0, true);          // no further IFDs
+
+  for (let i = 0; i < spp; i++) v.setUint16(bpsOff + i * 2, 8, true);
+  v.setUint32(xresOff, 72, true); v.setUint32(xresOff + 4, 1, true);   // 72/1 dpi
+  v.setUint32(yresOff, 72, true); v.setUint32(yresOff + 4, 1, true);
+
+  if (hasAlpha) u8.set(px, pixOff);                 // canvas is already RGBA
+  else for (let p = 0, o = pixOff; p < px.length; p += 4) {
+    u8[o++] = px[p]; u8[o++] = px[p + 1]; u8[o++] = px[p + 2];
+  }
+  return new Blob([buf], { type: "image/tiff" });
 }
 
 /** PNG-payload ICO: 6-byte ICONDIR + 16-byte ICONDIRENTRY + the PNG itself. */
@@ -139,6 +199,9 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
     }
     if (fmtKey === "bmp") {
       const b = encodeBmp(c); setBlob(b); setUrl(URL.createObjectURL(b)); return;
+    }
+    if (fmtKey === "tiff") {
+      const b = encodeTiff(c); setBlob(b); setUrl(URL.createObjectURL(b)); return;
     }
     if (fmtKey === "ico") {
       const b = await encodeIco(c);
