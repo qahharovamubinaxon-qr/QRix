@@ -562,8 +562,7 @@ export default function PromoVideoClient() {
           <div className="flex gap-2">
             {([true, false] as const).map((on) => (
               <button key={String(on)} type="button" onClick={() => setMusic(on)}
-                className="px-3.5 py-2 rounded-lg text-[12px] font-bold"
-                style={{ background: music === on ? "var(--primary-dim)" : "var(--surface-2)", color: music === on ? "var(--primary-bright)" : "var(--text-muted)", border: `1px solid ${music === on ? "var(--border-hover)" : "var(--border)"}` }}>
+                className={`qx-chip2 px-3.5 py-2 text-[12px] ${music === on ? "on" : ""}`}>
                 {on ? "🎵 Music on" : "Silent"}
               </button>
             ))}
@@ -589,13 +588,11 @@ export default function PromoVideoClient() {
       {/* live preview */}
       <div className="flex justify-center lg:sticky lg:top-24">
         <canvas ref={canvasRef} role="img" aria-label="Promo video live preview"
+          className="qx-tool-preview"
           style={{
             width: "100%",
             maxWidth: preset.w > preset.h ? 620 : preset.w === preset.h ? 460 : 360,
             aspectRatio: `${preset.w} / ${preset.h}`,
-            borderRadius: 18,
-            border: "1px solid var(--border)",
-            boxShadow: "var(--shadow-card)",
           }} />
       </div>
     </div>
