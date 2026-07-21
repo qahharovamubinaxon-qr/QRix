@@ -2,11 +2,16 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] TIFF converter-pair pages — now unblocked: tiff-to-png/jpg/webp and
-  png/jpg/webp-to-tiff on the /convert/[pair] infra (6-8 more pages).
-  NOTE: *-to-tiff works; tiff-to-* needs a TIFF *decoder* first (browsers
-  can't load .tiff into an <img>), so ship the to-tiff half or add a
-  baseline decoder. Scope this before starting.
+- [~] TIFF converter-pair pages — tiff-to-png/jpg/webp and
+  png/jpg/webp-to-tiff on the /convert/[pair] infra (6 pages).
+  SCOPED: the encoder half already works (M108 shipped a real baseline TIFF
+  encoder). The decoder half is the work: `loadImg()` in ImageConvertClient
+  uses `new Image()`, which no browser can point at a .tiff — and most real
+  TIFFs are LZW/Deflate compressed, so a hand-rolled baseline-only decoder
+  would fail on the majority of user files. Plan: add UTIF (MIT, no deps),
+  decode TIFF → ImageData → PNG blob → feed the existing Image() path so
+  everything downstream is unchanged.
+  next: install utif, wire decode into loadImg, then write the 6 pair entries.
 - [ ] RU/UZ twins for the /resize hub itself — the 50 new localized preset
   pages currently have an EN-only parent. Small copy job, closes the loop.
 - [ ] Stats page /qr-code-statistics — 20+ sourced stats; citation magnet
