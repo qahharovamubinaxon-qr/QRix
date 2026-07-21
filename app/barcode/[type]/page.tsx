@@ -15,7 +15,10 @@ export async function generateMetadata({ params }: { params: Promise<{ type: str
   const { type } = await params;
   const t = getBarcodeType(type);
   if (!t) return {};
-  return pageMeta({ title: t.title, description: t.desc, path: `/barcode/${t.slug}`, keywords: t.keywords });
+  return pageMeta({
+    title: t.title, description: t.desc, path: `/barcode/${t.slug}`, keywords: t.keywords,
+    languages: { en: `/barcode/${t.slug}`, ru: `/ru/barcode/${t.slug}`, uz: `/uz/barcode/${t.slug}`, "x-default": `/barcode/${t.slug}` },
+  });
 }
 
 export default async function BarcodeTypePage({ params }: { params: Promise<{ type: string }> }) {

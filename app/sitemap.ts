@@ -20,6 +20,7 @@ import { CONVERT_PAIRS } from "@/lib/convert-pairs";
 import { RESIZE_PRESETS } from "@/lib/resize-presets";
 import { LOC_RESIZE_PRESETS } from "@/lib/resize-presets-i18n";
 import { BARCODE_TYPES } from "@/lib/barcode-types";
+import { LOC_BARCODE_TYPES } from "@/lib/barcode-types-i18n";
 
 const PDF_TOOLS = [
   "merge", "split", "compress", "pdf-to-word", "word-to-pdf", "pdf-to-jpg", "jpg-to-pdf",
@@ -75,6 +76,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/qr-tools/decode", 0.8),
     entry("/barcode", 0.8),
     ...BARCODE_TYPES.map((t) => entry(`/barcode/${t.slug}`, 0.8)),
+    ...LOC_BARCODE_TYPES.flatMap((t) => [entry(`/ru/barcode/${t.slug}`, 0.75), entry(`/uz/barcode/${t.slug}`, 0.75)]),
     entry("/downloader", 0.9),
     entry("/widgets", 0.7),
     ...DL_PLATFORMS.map((p) => entry(`/downloader/${p.id}`, 0.8)),
