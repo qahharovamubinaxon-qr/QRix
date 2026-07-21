@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { AiDropzone, AiResultBar, CloudNotice } from "@/components/ai/AiKit";
 import { trackTool } from "@/lib/track";
 import { isTiff, tiffPageToImage, TiffUnsupportedError, TIFF_ACCEPT } from "@/lib/tiff-decode";
+import { keepFormat, paintsBackground, flattensToWhite, drawRect } from "@/lib/image-output";
 
 const SOCIAL: Record<string, { label: string; w: number; h: number }> = {
   "instagram-post": { label: "Instagram Post", w: 1080, h: 1080 },
@@ -152,16 +153,8 @@ function parseResize(engine: string): { label: string; w: number; h: number } | 
   return { label: `${w}×${h}`, w, h };
 }
 
-/** Resizing must not silently change the file's format: a transparent PNG logo
-    sized to 1080×1080 has to come back as a PNG, not a JPG on white. Only the
-    alpha-safe web formats round-trip; anything else (HEIC, TIFF, BMP, AVIF…)
-    still lands as JPG, and the hub copy says so. */
-function keepFormat(f: File): "jpeg" | "png" | "webp" {
-  const t = `${f.type} ${f.name}`.toLowerCase();
-  if (/png/.test(t)) return "png";
-  if (/webp/.test(t)) return "webp";
-  return "jpeg";
-}
+/* keepFormat / paintsBackground / flattensToWhite / drawRect live in
+   lib/image-output.ts so they can be asserted in Node — see that file. */
 
 export default function ImageConvertClient({ engine }: { engine: string }) {
   const resize = parseResize(engine);
@@ -196,7 +189,7 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
   async function onFile(f: File) {
     trackTool(`img-${engine}`, { size: f.size });
     setBlob(null); setUrl(null); setUnsupported(""); setTiff(null);
-    if (!isConvert) setSrcFmt(keepFormat(f));
+    if (!isConvert) setSrcFmt(keepFormat(f.type, f.name));
     if (isTiff(f)) {
       try {
         const buf = await f.arrayBuffer();
@@ -240,21 +233,15 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
     if (preset) {
       c.width = preset.w; c.height = preset.h;
       const ctx = c.getContext("2d")!;
-      /* In fit mode the colour is the padding the user picked. In fill mode the
-         frame is covered anyway, so painting it would only flatten the alpha of
-         a transparent PNG — skip it whenever the output can carry alpha. */
-      const keepsAlpha = fmt.mime === "image/png" || fmt.mime === "image/webp";
-      if (mode === "fit" || !keepsAlpha) { ctx.fillStyle = bg; ctx.fillRect(0, 0, c.width, c.height); }
-      const s = mode === "fill" ? Math.max(c.width / src.width, c.height / src.height) : Math.min(c.width / src.width, c.height / src.height);
-      const w = src.width * s, h = src.height * s;
-      ctx.drawImage(src, (c.width - w) / 2, (c.height - h) / 2, w, h);
+      if (paintsBackground(mode, fmt.mime)) { ctx.fillStyle = bg; ctx.fillRect(0, 0, c.width, c.height); }
+      const r = drawRect(mode, c.width, c.height, src.width, src.height);
+      ctx.drawImage(src, r.x, r.y, r.w, r.h);
     } else if (fmtKey === "ico") {
       c.width = 256; c.height = 256; c.getContext("2d")!.drawImage(src, 0, 0, 256, 256);
     } else {
       c.width = src.naturalWidth || src.width; c.height = src.naturalHeight || src.height;
       const ctx = c.getContext("2d")!;
-      // jpeg and 24-bit bmp have no alpha — flatten transparency onto white
-      if (fmt.mime === "image/jpeg" || fmtKey === "bmp") { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); }
+      if (flattensToWhite(fmt.mime, fmtKey)) { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); }
       ctx.drawImage(src, 0, 0);
     }
     return c;

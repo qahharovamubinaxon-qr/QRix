@@ -5,6 +5,7 @@ import { FiShield, FiCheck } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { pickSave, finishSave } from "@/lib/save-file";
 import { trackTool } from "@/lib/track";
+import { keepFormat, flattensToWhite } from "@/lib/image-output";
 
 export default function ExifCleanerClient() {
   const [file, setFile] = useState<File | null>(null);
@@ -15,8 +16,12 @@ export default function ExifCleanerClient() {
 
   async function clean() {
     if (!file) return;
-    const isPng = /png$/i.test(file.type) || /\.png$/i.test(file.name);
-    const ext = isPng ? "png" : "jpg";
+    /* Stripping metadata must not also change the format: a WebP used to come
+       back as a JPG, and a transparent one encoded black because nothing
+       painted the frame first. Same rule as the resize/convert engine. */
+    const key = keepFormat(file.type, file.name);
+    const mime = key === "png" ? "image/png" : key === "webp" ? "image/webp" : "image/jpeg";
+    const ext = key === "jpeg" ? "jpg" : key;
     const outName = file.name.replace(/\.[^.]+$/, "") + "-clean." + ext;
     const target = await pickSave(outName);
     if (target.kind === "cancelled") return;
@@ -36,9 +41,11 @@ export default function ExifCleanerClient() {
       const canvas = document.createElement("canvas");
       canvas.width = img.naturalWidth;
       canvas.height = img.naturalHeight;
-      canvas.getContext("2d")!.drawImage(img, 0, 0);
+      const ctx = canvas.getContext("2d")!;
+      if (flattensToWhite(mime, key)) { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+      ctx.drawImage(img, 0, 0);
       const blob = await new Promise<Blob>((res) =>
-        canvas.toBlob((b) => res(b as Blob), isPng ? "image/png" : "image/jpeg", 0.95)
+        canvas.toBlob((b) => res(b as Blob), mime, 0.95)
       );
       setBusy(false);
       trackTool("exif-clean");
