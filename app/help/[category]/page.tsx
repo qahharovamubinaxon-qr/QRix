@@ -9,6 +9,9 @@ export function generateStaticParams() {
   return HELP_CATEGORIES.map((c) => ({ category: c.slug }));
 }
 
+/* Params outside the registry must 404, not render an empty 200 page. */
+export const dynamicParams = false;
+
 export async function generateMetadata({ params }: { params: Promise<{ category: string }> }): Promise<Metadata> {
   const { category } = await params;
   const cat = getHelpCategory(category);

@@ -9,6 +9,9 @@ export function generateStaticParams() {
   return CONVERT_PAIRS.map((p) => ({ pair: p.slug }));
 }
 
+/* Params outside the registry must 404, not render an empty 200 page. */
+export const dynamicParams = false;
+
 export async function generateMetadata({ params }: { params: Promise<{ pair: string }> }) {
   const { pair } = await params;
   const p = getPair(pair);

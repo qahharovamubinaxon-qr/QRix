@@ -8,6 +8,9 @@ export function generateStaticParams() {
   return QR_TOOLS.map((t) => ({ slug: t.slug }));
 }
 
+/* Params outside the registry must 404, not render an empty 200 page. */
+export const dynamicParams = false;
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const meta = getQrTool(slug);

@@ -9,6 +9,9 @@ export function generateStaticParams() {
   return DOC_PAGES.map((d) => ({ slug: d.slug }));
 }
 
+/* Params outside the registry must 404, not render an empty 200 page. */
+export const dynamicParams = false;
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const doc = getDocPage(slug);

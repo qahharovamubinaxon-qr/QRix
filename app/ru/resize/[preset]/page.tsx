@@ -8,6 +8,9 @@ export function generateStaticParams() {
   return LOC_RESIZE_PRESETS.map((p) => ({ preset: p.slug }));
 }
 
+/* Params outside the registry must 404, not render an empty 200 page. */
+export const dynamicParams = false;
+
 export async function generateMetadata({ params }: { params: Promise<{ preset: string }> }) {
   const { preset } = await params;
   const p = getPreset(preset);

@@ -138,6 +138,9 @@ export function generateStaticParams() {
   return PLATFORMS.map((p) => ({ platform: p.id }));
 }
 
+/* Params outside the registry must 404, not render an empty 200 page. */
+export const dynamicParams = false;
+
 export async function generateMetadata({ params }: { params: Promise<{ platform: string }> }) {
   const { platform } = await params;
   const p = PLATFORMS.find((x) => x.id === platform);

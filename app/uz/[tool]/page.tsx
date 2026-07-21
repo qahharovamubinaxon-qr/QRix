@@ -7,6 +7,9 @@ export function generateStaticParams() {
   return LOC_TOOLS.map((t) => ({ tool: t.slug }));
 }
 
+/* Params outside the registry must 404, not render an empty 200 page. */
+export const dynamicParams = false;
+
 export async function generateMetadata({ params }: { params: Promise<{ tool: string }> }) {
   const { tool } = await params;
   const t = getLocTool(tool);
