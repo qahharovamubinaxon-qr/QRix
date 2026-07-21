@@ -35,9 +35,11 @@ const FORMATS: Format[] = [
 
 const PRESET_COLORS = ["#000000", "#1e293b", "#7c3aed", "#0e7490", "#166534", "#F58F20"];
 
-export default function BarcodeClient() {
-  const [format, setFormat] = useState<Format>(FORMATS[0]);
-  const [value, setValue] = useState(FORMATS[0].sample);
+export default function BarcodeClient({ initialFormat }: { initialFormat?: string } = {}) {
+  // /barcode/<type> pages preselect their symbology; the hub starts on the first.
+  const start = FORMATS.find((f) => f.id === initialFormat) ?? FORMATS[0];
+  const [format, setFormat] = useState<Format>(start);
+  const [value, setValue] = useState(start.sample);
   const [lineColor, setLineColor] = useState("#000000");
   const [showText, setShowText] = useState(true);
   const [height, setHeight] = useState(90);

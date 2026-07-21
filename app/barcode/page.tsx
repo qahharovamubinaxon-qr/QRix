@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import ToolPageShell from "@/components/ToolPageShell";
 import BarcodeClient from "@/components/BarcodeClient";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
+import { BARCODE_TYPES, BARCODE_FAMILIES } from "@/lib/barcode-types";
 
 export const metadata: Metadata = pageMeta({
   title: "Free Barcode Generator — PDF417, Aztec, EAN-13, Code 128 & More",
@@ -52,6 +54,32 @@ export default function Page() {
       >
         <BarcodeClient />
       </ToolPageShell>
+
+      {/* Per-symbology landing pages — each explains one format and preselects it */}
+      <div className="max-w-6xl mx-auto px-5 lg:px-8 pb-10">
+        <section className="qx-card p-6" aria-label="Barcode types">
+          <h2 className="qx-title mb-1.5" style={{ color: "var(--text)" }}>All 13 barcode types</h2>
+          <p className="text-[13.5px] mb-5" style={{ color: "var(--text-muted)" }}>
+            Each format has its own guide — what it encodes, where it is used and how to size it for print.
+          </p>
+          <div className="space-y-5">
+            {BARCODE_FAMILIES.map((fam) => (
+              <div key={fam}>
+                <h3 className="text-[11.5px] font-bold uppercase tracking-[0.12em] mb-2.5" style={{ color: "var(--text-muted)" }}>{fam}</h3>
+                <div className="flex flex-wrap gap-2.5">
+                  {BARCODE_TYPES.filter((t) => t.family === fam).map((t) => (
+                    <Link key={t.slug} href={`/barcode/${t.slug}`}
+                      className="inline-flex items-center gap-2 pl-2.5 pr-3.5 py-2 rounded-full text-[12.5px] font-semibold transition-opacity hover:opacity-80"
+                      style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}>
+                      <span aria-hidden>{t.emoji}</span> {t.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
     </>
   );
 }
