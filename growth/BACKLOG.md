@@ -2,11 +2,6 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] RU/UZ hubs for /barcode — the 26 new localized symbology pages have
-  an EN-only parent, exactly the gap M115 just closed for resize/convert.
-  LocalizedHub.tsx already exists; this is a third `kind` + copy in
-  lib/hub-i18n.ts. Also repoints the child breadcrumbs (currently 2-level
-  Home › Type) and the "all 13 types" link, which today leave for /barcode.
 - [ ] Audit every localized template for claims the tool doesn't support.
   The RU/UZ convert template promised batch conversion on 40 live pages
   (fixed in M114); the same composed-copy pattern is used by the resize,
@@ -48,6 +43,32 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 21: unknown params now 404 instead of soft-404ing with 200 (M118) —
+  found while verifying M117: /ru/barcode answered 200 before the hub existed.
+  Without `dynamicParams = false`, Next renders params outside
+  generateStaticParams on demand and the empty result is prerendered and
+  cached as a 200, so /ru/anything, /convert/nonsense, /resize/9999x9999,
+  /downloader/nonsense and /blog/nonsense were all indexable empty pages —
+  an unbounded crawlable URL space competing with the ~800 real ones for
+  crawl budget. Barcode was the only family already correct (M116 set it).
+  Flag added to all 20 registry-backed dynamic routes; deliberately NOT to
+  /pin, /dashboard/analytics, /r and /p, which resolve user records at
+  request time. Safe because every patched route enumerates a static in-repo
+  registry — no runtime CMS, so a new entry already needs a deploy.
+- [x] Jul 21: RU/UZ hub for /barcode + 3-level breadcrumbs (M117) — the 26
+  M116 pages had an EN-only parent. BARCODE_HUB copy in lib/hub-i18n.ts is
+  written as a chooser, not a link list: the children each own a narrow
+  query ("генератор pdf417") but none can own the head term ("генератор
+  штрих кодов") or the "which symbology do I even need" intent that brings
+  most of the traffic, so sections are grouped by where the code is used.
+  LocalizedHub took a third kind via a HUB_COPY/SECTIONS lookup instead of a
+  widening ternary, families unioned with BARCODE_FAMILIES so a new family
+  is appended not dropped. Child breadcrumbs (visible + JSON-LD) now read
+  Home › Штрих-коды › Type and point at the localized hub. Claims checked
+  against BarcodeClient before writing: batch mode is real, and the FAQ
+  states exactly which four symbologies auto-append a check digit.
+  Verified live: both hubs localized title/h1/canonical, 4-way hreflang,
+  ItemList+Breadcrumb+FAQ JSON-LD, 13 child links each, sitemap 801.
 - [x] Jul 21: RU/UZ twins for all 13 barcode symbologies (M116) — 26 pages at
   /ru|/uz/barcode/<type> on the real BarcodeClient. lib/barcode-types-i18n.ts
   carries written facts per format in both languages (Aztec's centre bullseye
