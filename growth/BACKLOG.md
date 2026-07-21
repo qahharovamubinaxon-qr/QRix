@@ -7,9 +7,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   NOTE: *-to-tiff works; tiff-to-* needs a TIFF *decoder* first (browsers
   can't load .tiff into an <img>), so ship the to-tiff half or add a
   baseline decoder. Scope this before starting.
-- [ ] Resize-preset pages `/resize/[preset]` — ~25 presets (instagram
-  1080x1080, story 1080x1920, youtube thumb 1280x720, passport sizes,
-  1920x1080, 4k) on the existing resize client.
+- [ ] Resize presets batch 2 — extend `lib/resize-presets.ts` with ~9 more
+  size-intent presets (1080x1920 vertical/story, 2048x2048, 1600x900,
+  3000x2000, 8x10in print 2400x3000, A5/A3, 300x300, 150x150). Infra is
+  done and the hub groups them automatically — batch 2 is copy only.
+- [ ] RU/UZ twins for /resize/[preset] (copy the /convert i18n pattern in
+  lib/convert-pairs-i18n.ts) — 3-way hreflang, +32 pages.
 - [ ] Stats page /qr-code-statistics — 20+ sourced stats; citation magnet
   for LLMs + journalists (backlinks).
 - [ ] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile.
@@ -39,6 +42,13 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 21: resize-preset pages (M109) — `/resize` hub + 16
+  `/resize/<size>` SSG pages on the real ImageConvertClient via a new
+  generic `resize:<w>x<h>` engine (no second preset table). Displays,
+  web/OG, 300-DPI print and ID/passport groups; unique copy + HowTo/FAQ/
+  SoftwareApp/Breadcrumb JSON-LD, sitemap (17 URLs) + search index +
+  TopNav + llms.txt. Targets size-intent queries the platform-named
+  social pages don't serve. ID pages state they set dimensions only.
 - [x] Jul 21: real baseline TIFF encoder (M108) — `/image-tools/convert-to-tiff`
   was handing users PNG bytes named .tiff (canvas.toBlob has no image/tiff
   codec, same bug class as BMP/ICO). Now emits a real little-endian baseline
