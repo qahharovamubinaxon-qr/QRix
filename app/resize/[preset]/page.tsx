@@ -13,7 +13,10 @@ export async function generateMetadata({ params }: { params: Promise<{ preset: s
   const { preset } = await params;
   const p = getPreset(preset);
   if (!p) return {};
-  return pageMeta({ title: p.title, description: p.desc, path: `/resize/${p.slug}`, keywords: p.keywords });
+  return pageMeta({
+    title: p.title, description: p.desc, path: `/resize/${p.slug}`, keywords: p.keywords,
+    languages: { en: `/resize/${p.slug}`, ru: `/ru/resize/${p.slug}`, uz: `/uz/resize/${p.slug}`, "x-default": `/resize/${p.slug}` },
+  });
 }
 
 export default async function ResizePresetPage({ params }: { params: Promise<{ preset: string }> }) {

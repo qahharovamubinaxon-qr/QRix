@@ -18,6 +18,7 @@ import { PLATFORMS as DL_PLATFORMS } from "@/lib/downloader-platforms";
 import { LOC_TOOLS } from "@/lib/localized-tools";
 import { CONVERT_PAIRS } from "@/lib/convert-pairs";
 import { RESIZE_PRESETS } from "@/lib/resize-presets";
+import { LOC_RESIZE_PRESETS } from "@/lib/resize-presets-i18n";
 
 const PDF_TOOLS = [
   "merge", "split", "compress", "pdf-to-word", "word-to-pdf", "pdf-to-jpg", "jpg-to-pdf",
@@ -108,6 +109,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...CONVERT_PAIRS.flatMap((p) => [entry(`/ru/convert/${p.slug}`, 0.75), entry(`/uz/convert/${p.slug}`, 0.75)]),
     entry("/resize", 0.9),
     ...RESIZE_PRESETS.map((p) => entry(`/resize/${p.slug}`, 0.8)),
+    ...LOC_RESIZE_PRESETS.flatMap((p) => [entry(`/ru/resize/${p.slug}`, 0.75), entry(`/uz/resize/${p.slug}`, 0.75)]),
     ...LEGAL.map((s) => entry(`/${s}`, 0.4, "yearly")),
   ];
 }
