@@ -58,6 +58,7 @@ const DROPDOWNS: Record<string, { href: string; label: string; desc: string; ico
     { href: "/image-tools/compress",     label: "Compress",    desc: "Reduce image size",    icon: <FiMinimize2 size={15}/>,  color: "#16a34a" },
     { href: "/image-tools/crop-image",   label: "Crop Image",  desc: "Crop with presets",    icon: <FiMaximize2 size={15}/>,  color: "#84cc16" },
     { href: "/image-tools/social-media-resize", label: "Social Resize", desc: "Every platform size", icon: <FiImage size={15}/>, color: "#db2777" },
+    { href: "/convert",                  label: "Convert Format",desc: "PNG · JPG · WebP · AVIF", icon: <FiRefreshCw size={15}/>, color: "#7c3aed" },
     { href: "/image-tools",              label: "All Image Tools",desc: "70+ tools",          icon: <FiImage size={15}/>,      color: "#ff4d1c" },
   ],
   "/ai-tools": [

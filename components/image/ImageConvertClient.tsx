@@ -35,6 +35,52 @@ function loadImg(f: File): Promise<HTMLImageElement> {
   return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(f); });
 }
 
+/* canvas.toBlob() only speaks png/jpeg/webp(/avif). Asking it for image/bmp or
+   image/x-icon silently returns PNG bytes, so the old .bmp/.ico downloads were
+   PNGs with a lying extension. These two encoders emit the real formats. */
+
+/** 24-bit bottom-up BMP (no alpha channel — caller composites onto a background). */
+function encodeBmp(c: HTMLCanvasElement): Blob {
+  const w = c.width, h = c.height;
+  const px = c.getContext("2d")!.getImageData(0, 0, w, h).data;
+  const rowSize = Math.ceil((w * 3) / 4) * 4;   // rows are padded to 4 bytes
+  const pixSize = rowSize * h;
+  const buf = new ArrayBuffer(54 + pixSize);
+  const v = new DataView(buf), u8 = new Uint8Array(buf);
+  v.setUint16(0, 0x424d, false);                // "BM"
+  v.setUint32(2, 54 + pixSize, true);
+  v.setUint32(10, 54, true);                    // pixel data offset
+  v.setUint32(14, 40, true);                    // BITMAPINFOHEADER
+  v.setInt32(18, w, true); v.setInt32(22, h, true);
+  v.setUint16(26, 1, true); v.setUint16(28, 24, true);
+  v.setUint32(34, pixSize, true);
+  v.setInt32(38, 2835, true); v.setInt32(42, 2835, true);  // 72 DPI
+  for (let y = 0; y < h; y++) {
+    let o = 54 + (h - 1 - y) * rowSize;          // BMP stores rows bottom-up
+    for (let x = 0; x < w; x++) {
+      const i = (y * w + x) * 4;
+      u8[o++] = px[i + 2]; u8[o++] = px[i + 1]; u8[o++] = px[i];
+    }
+  }
+  return new Blob([buf], { type: "image/bmp" });
+}
+
+/** PNG-payload ICO: 6-byte ICONDIR + 16-byte ICONDIRENTRY + the PNG itself. */
+async function encodeIco(c: HTMLCanvasElement): Promise<Blob | null> {
+  const png = await new Promise<Blob | null>((r) => c.toBlob(r, "image/png"));
+  if (!png) return null;
+  const bytes = new Uint8Array(await png.arrayBuffer());
+  const head = new ArrayBuffer(22);
+  const v = new DataView(head);
+  v.setUint16(0, 0, true); v.setUint16(2, 1, true); v.setUint16(4, 1, true);
+  v.setUint8(6, c.width >= 256 ? 0 : c.width);    // 0 means 256
+  v.setUint8(7, c.height >= 256 ? 0 : c.height);
+  v.setUint16(10, 1, true); v.setUint16(12, 32, true);
+  v.setUint32(14, bytes.length, true);
+  v.setUint32(18, 22, true);
+  return new Blob([head, bytes], { type: "image/x-icon" });
+}
+
 export default function ImageConvertClient({ engine }: { engine: string }) {
   const isSocial = engine.startsWith("social:");
   const socialId = isSocial ? engine.slice(7) : "";
@@ -73,7 +119,8 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
     } else {
       c.width = img.naturalWidth; c.height = img.naturalHeight;
       const ctx = c.getContext("2d")!;
-      if (fmt.mime === "image/jpeg") { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); }
+      // jpeg and 24-bit bmp have no alpha — flatten transparency onto white
+      if (fmt.mime === "image/jpeg" || fmtKey === "bmp") { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); }
       ctx.drawImage(img, 0, 0);
     }
     return c;
@@ -89,6 +136,14 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${c.width}" height="${c.height}"><image href="${dataUrl}" width="${c.width}" height="${c.height}"/></svg>`;
       const b = new Blob([svg], { type: "image/svg+xml" });
       setBlob(b); setUrl(URL.createObjectURL(b)); return;
+    }
+    if (fmtKey === "bmp") {
+      const b = encodeBmp(c); setBlob(b); setUrl(URL.createObjectURL(b)); return;
+    }
+    if (fmtKey === "ico") {
+      const b = await encodeIco(c);
+      if (b) { setBlob(b); setUrl(URL.createObjectURL(b)); } else setUnsupported("Could not build the icon file — try a different image.");
+      return;
     }
     const q = fmt.quality ? quality / 100 : undefined;
     const b = await new Promise<Blob | null>((r) => c.toBlob(r, fmt.mime, q));

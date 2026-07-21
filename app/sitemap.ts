@@ -16,6 +16,7 @@ import { HELP_CATEGORIES } from "@/lib/help-content";
 import { DOC_PAGES } from "@/lib/docs-content";
 import { PLATFORMS as DL_PLATFORMS } from "@/lib/downloader-platforms";
 import { LOC_TOOLS } from "@/lib/localized-tools";
+import { CONVERT_PAIRS } from "@/lib/convert-pairs";
 
 const PDF_TOOLS = [
   "merge", "split", "compress", "pdf-to-word", "word-to-pdf", "pdf-to-jpg", "jpg-to-pdf",
@@ -101,6 +102,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...PDF_TOOLS.map((s) => entry(`/pdf-tools/${s}`, 0.8)),
     ...IMAGE_TOOLS.map((s) => entry(`/image-tools/${s}`, 0.8)),
     ...IMG_EXP.map((t) => entry(`/image-tools/${t.slug}`, 0.8)),
+    entry("/convert", 0.9),
+    ...CONVERT_PAIRS.map((p) => entry(`/convert/${p.slug}`, 0.8)),
     ...LEGAL.map((s) => entry(`/${s}`, 0.4, "yearly")),
   ];
 }

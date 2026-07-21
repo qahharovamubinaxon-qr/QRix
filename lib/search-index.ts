@@ -4,6 +4,7 @@ import { AI_TOOLS } from "@/lib/ai-tools-meta";
 import { VIDEO_TOOLS } from "@/lib/video-tools-meta";
 import { IMAGE_TOOLS as IMG_EXP } from "@/lib/image-tools-meta";
 import { THREE_TOOLS } from "@/lib/three-tools-meta";
+import { CONVERT_PAIRS } from "@/lib/convert-pairs";
 
 /** One flat, client-safe index of everything searchable on the site. */
 export type SearchGroup =
@@ -124,6 +125,10 @@ export function buildSearchIndex(): SearchItem[] {
     })),
     ...IMG_EXP.map((t) => ({
       title: t.title, href: `/image-tools/${t.slug}`, group: "Image Tools" as const, keywords: t.keywords.join(" "),
+    })),
+    { title: "Image Format Converter", href: "/convert", group: "Image Tools" as const, keywords: "convert image format png jpg webp avif bmp gif ico converter" },
+    ...CONVERT_PAIRS.map((p) => ({
+      title: `${p.from} to ${p.to}`, href: `/convert/${p.slug}`, group: "Image Tools" as const, keywords: p.keywords.join(" "),
     })),
     ...THREE_TOOLS.map((t) => ({
       title: t.title, href: `/3d-tools/${t.slug}`, group: "Pages" as const, keywords: t.keywords.join(" "),

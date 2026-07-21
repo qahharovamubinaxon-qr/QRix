@@ -85,6 +85,26 @@ export function softwareAppLd(name: string, description: string, path: string) {
   };
 }
 
+/** HowTo rich result — steps are [heading, body] pairs, matching the tool registries. */
+export function howToLd(name: string, description: string, path: string, steps: [string, string][]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name,
+    description,
+    totalTime: "PT1M",
+    supply: [],
+    tool: [],
+    step: steps.map(([heading, text], i) => ({
+      "@type": "HowToStep",
+      position: i + 1,
+      name: heading,
+      text,
+      url: `${SITE_URL}${path}#step-${i + 1}`,
+    })),
+  };
+}
+
 export function faqLd(faqs: { q: string; a: string }[]) {
   return {
     "@context": "https://schema.org",
