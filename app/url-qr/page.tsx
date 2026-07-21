@@ -1,13 +1,9 @@
-export default function UrlQRPage() {
-  return (
-    <div className="min-h-screen bg-black text-white p-10">
-      <h1 className="text-5xl font-bold">
-        URL QR Generator
-      </h1>
+import { permanentRedirect } from "next/navigation";
 
-      <p className="mt-5 text-gray-400">
-        Professional URL QR Generator for QRix.
-      </p>
-    </div>
-  );
+/* This was an early stub — a heading and one sentence, no generator — and Yandex
+   had it indexed, so visitors landed on a page that does nothing. The real tool
+   lives at /qr-tools/url. A 308 keeps this URL working, sends people to the
+   working generator and consolidates its ranking signals onto the real page. */
+export default function UrlQrPage() {
+  permanentRedirect("/qr-tools/url");
 }

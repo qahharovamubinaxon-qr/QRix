@@ -74,6 +74,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/poster", 0.8),
     entry("/link-in-bio", 0.8),
     entry("/qr-tools/decode", 0.8),
+    entry("/scanner", 0.8),
     entry("/barcode", 0.8),
     ...BARCODE_TYPES.map((t) => entry(`/barcode/${t.slug}`, 0.8)),
     entry("/ru/barcode", 0.85),
