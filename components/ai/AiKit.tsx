@@ -11,23 +11,37 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FiUploadCloud, FiDownload, FiCopy, FiCheck, FiShare2, FiRefreshCw, FiMaximize2, FiX, FiZap } from "react-icons/fi";
 
 /* ── Dropzone ─────────────────────────────────────────────── */
-export function AiDropzone({ onFile, accept = "image/*", hint }: {
-  onFile: (f: File) => void;
+export function AiDropzone({ onFile, onFiles, multiple = false, accept = "image/*", hint }: {
+  onFile?: (f: File) => void;
+  /** Set together with `multiple` to receive the whole selection at once. */
+  onFiles?: (f: File[]) => void;
+  multiple?: boolean;
   accept?: string;
   hint?: string;
 }) {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  /* One place to hand files upward, so drop / browse / paste behave alike:
+     batch callers get the whole list, single-file callers keep getting the first. */
+  const emit = useCallback((list: FileList | File[] | null | undefined) => {
+    const files = Array.from(list || []);
+    if (!files.length) return;
+    if (onFiles) onFiles(multiple ? files : files.slice(0, 1));
+    else onFile?.(files[0]);
+  }, [onFile, onFiles, multiple]);
+
   useEffect(() => {
     const onPaste = (e: ClipboardEvent) => {
-      const item = Array.from(e.clipboardData?.items || []).find((i) => i.type.startsWith("image/"));
-      const f = item?.getAsFile();
-      if (f) onFile(f);
+      const imgs = Array.from(e.clipboardData?.items || [])
+        .filter((i) => i.type.startsWith("image/"))
+        .map((i) => i.getAsFile())
+        .filter((f): f is File => !!f);
+      emit(imgs);
     };
     window.addEventListener("paste", onPaste);
     return () => window.removeEventListener("paste", onPaste);
-  }, [onFile]);
+  }, [emit]);
 
   return (
     <div
@@ -36,7 +50,7 @@ export function AiDropzone({ onFile, accept = "image/*", hint }: {
       onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }}
       onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
       onDragLeave={() => setDrag(false)}
-      onDrop={(e) => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files?.[0]; if (f) onFile(f); }}
+      onDrop={(e) => { e.preventDefault(); setDrag(false); emit(e.dataTransfer.files); }}
       className="relative rounded-3xl p-10 text-center cursor-pointer transition-all"
       style={{
         border: `2px dashed ${drag ? "var(--primary-bright)" : "var(--border-glass)"}`,
@@ -44,14 +58,14 @@ export function AiDropzone({ onFile, accept = "image/*", hint }: {
         boxShadow: drag ? "0 0 40px -8px color-mix(in srgb, var(--primary) 50%, transparent)" : "none",
       }}
     >
-      <input ref={inputRef} type="file" accept={accept} className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.currentTarget.value = ""; }} />
+      <input ref={inputRef} type="file" accept={accept} multiple={multiple} className="hidden"
+        onChange={(e) => { emit(e.target.files); e.currentTarget.value = ""; }} />
       <span className="mx-auto mb-4 w-14 h-14 rounded-2xl flex items-center justify-center"
         style={{ background: "var(--grad-primary)", color: "#0b0b0b", boxShadow: "0 10px 30px rgba(0,0,0,.3)" }}>
         <FiUploadCloud size={24} />
       </span>
       <p className="font-bold text-[15px]" style={{ color: "var(--text)" }}>
-        Drop a file, click to browse — or press <kbd className="px-1.5 py-0.5 rounded text-[11px]" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>Ctrl+V</kbd> to paste
+        {multiple ? "Drop files" : "Drop a file"}, click to browse — or press <kbd className="px-1.5 py-0.5 rounded text-[11px]" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>Ctrl+V</kbd> to paste
       </p>
       <p className="text-[12px] mt-1.5" style={{ color: "var(--text-faint)" }}>{hint || "JPG, PNG or WebP · processed on your device"}</p>
     </div>

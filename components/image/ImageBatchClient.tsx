@@ -19,7 +19,7 @@ export default function ImageBatchClient({ preset }: { preset: "convert" | "resi
   const [maxDim, setMaxDim] = useState(1280);
   const [pattern, setPattern] = useState("image-###");
 
-  function add(f: File) { setJobs((j) => [...j, { file: f, url: URL.createObjectURL(f) }]); }
+  function add(files: File[]) { setJobs((j) => [...j, ...files.map((file) => ({ file, url: URL.createObjectURL(file) }))]); }
 
   async function process() {
     if (!jobs.length) return;
@@ -49,7 +49,7 @@ export default function ImageBatchClient({ preset }: { preset: "convert" | "resi
   }
 
   return <div className="qx-card p-6 space-y-5">
-    <AiDropzone onFile={add} hint="Add multiple images — processed on your device, downloaded as a ZIP" />
+    <AiDropzone onFiles={add} multiple hint="Select or drop as many images as you like — processed on your device, downloaded as a ZIP" />
     {jobs.length > 0 && <>
       <div className="flex flex-wrap gap-2">{jobs.map((j, i) => <div key={i} className="relative"><img src={j.url} alt="" className="w-14 h-14 object-cover rounded-lg" style={{ border: "1px solid var(--border)" }} /><button onClick={() => setJobs((a) => a.filter((_, k) => k !== i))} className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: "var(--danger)", color: "#fff" }}><FiX size={11} /></button></div>)}</div>
       <div className="flex flex-wrap items-center gap-4">

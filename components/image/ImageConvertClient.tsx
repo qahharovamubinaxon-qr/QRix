@@ -170,6 +170,11 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
   /* TIFF needs its own decode path, and the source buffer is kept so a
      multi-page scan can be re-decoded when the user picks another page. */
   const [tiff, setTiff] = useState<{ buf: ArrayBuffer; pages: number; page: number } | null>(null);
+  /* The whole dropped selection. queue[0] is what the preview shows; anything
+     beyond it turns the page into a batch job sharing the same settings. */
+  const [queue, setQueue] = useState<File[]>([]);
+  const [batchBusy, setBatchBusy] = useState(false);
+  const [batchDone, setBatchDone] = useState(0);
   const viewRef = useRef<HTMLCanvasElement>(null);
 
   const preset = resize || (isSocial ? (socialId === "_picker" ? SOCIAL[pickPreset] : SOCIAL[socialId]) : null);
@@ -192,6 +197,14 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
     catch { setImg(null); setUnsupported("That file couldn't be opened as an image — it may be corrupted or in a format your browser doesn't support."); }
   }
 
+  /** Whole selection: the first drives the preview, the rest ride along in the batch. */
+  async function onFiles(list: File[]) {
+    if (!list.length) return;
+    setQueue(list);
+    setBatchDone(0);
+    await onFile(list[0]);
+  }
+
   /** Re-decode another page of a multi-page TIFF (scanned documents). */
   async function pickPage(p: number) {
     if (!tiff) return;
@@ -203,26 +216,48 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
     }
   }
 
-  function draw(): HTMLCanvasElement | null {
-    if (!img) return null;
+  /* `source` lets the batch path reuse the exact sizing/flattening rules the
+     preview uses; it defaults to the previewed image for the single-file path. */
+  function draw(source?: HTMLImageElement | null): HTMLCanvasElement | null {
+    const src = source ?? img;
+    if (!src) return null;
     const c = document.createElement("canvas");
     if (preset) {
       c.width = preset.w; c.height = preset.h;
       const ctx = c.getContext("2d")!;
       ctx.fillStyle = bg; ctx.fillRect(0, 0, c.width, c.height);
-      const s = mode === "fill" ? Math.max(c.width / img.width, c.height / img.height) : Math.min(c.width / img.width, c.height / img.height);
-      const w = img.width * s, h = img.height * s;
-      ctx.drawImage(img, (c.width - w) / 2, (c.height - h) / 2, w, h);
+      const s = mode === "fill" ? Math.max(c.width / src.width, c.height / src.height) : Math.min(c.width / src.width, c.height / src.height);
+      const w = src.width * s, h = src.height * s;
+      ctx.drawImage(src, (c.width - w) / 2, (c.height - h) / 2, w, h);
     } else if (fmtKey === "ico") {
-      c.width = 256; c.height = 256; c.getContext("2d")!.drawImage(img, 0, 0, 256, 256);
+      c.width = 256; c.height = 256; c.getContext("2d")!.drawImage(src, 0, 0, 256, 256);
     } else {
-      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      c.width = src.naturalWidth || src.width; c.height = src.naturalHeight || src.height;
       const ctx = c.getContext("2d")!;
       // jpeg and 24-bit bmp have no alpha — flatten transparency onto white
       if (fmt.mime === "image/jpeg" || fmtKey === "bmp") { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); }
-      ctx.drawImage(img, 0, 0);
+      ctx.drawImage(src, 0, 0);
     }
     return c;
+  }
+
+  /** Canvas → Blob in this page's target format. Shared by the single and batch paths. */
+  async function encode(c: HTMLCanvasElement): Promise<Blob | null> {
+    if (fmtKey === "svg") {
+      const dataUrl = c.toDataURL("image/png");
+      return new Blob([`<svg xmlns="http://www.w3.org/2000/svg" width="${c.width}" height="${c.height}"><image href="${dataUrl}" width="${c.width}" height="${c.height}"/></svg>`], { type: "image/svg+xml" });
+    }
+    if (fmtKey === "bmp") return encodeBmp(c);
+    if (fmtKey === "tiff") return encodeTiff(c);
+    if (fmtKey === "ico") return encodeIco(c);
+    const q = fmt.quality ? quality / 100 : undefined;
+    return new Promise<Blob | null>((r) => c.toBlob(r, fmt.mime, q));
+  }
+
+  /** File → decoded image, taking the TIFF path when the source is a TIFF. */
+  async function fileToImage(f: File): Promise<HTMLImageElement> {
+    if (isTiff(f)) return (await tiffPageToImage(await f.arrayBuffer(), 0)).img;
+    return loadImg(f);
   }
 
   useEffect(() => { if (img && viewRef.current) { const c = draw(); if (c) { const v = viewRef.current; v.width = c.width; v.height = c.height; v.getContext("2d")!.drawImage(c, 0, 0); } } // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -230,29 +265,46 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
 
   async function convert() {
     const c = draw(); if (!c) return;
-    if (fmtKey === "svg") {
-      const dataUrl = c.toDataURL("image/png");
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${c.width}" height="${c.height}"><image href="${dataUrl}" width="${c.width}" height="${c.height}"/></svg>`;
-      const b = new Blob([svg], { type: "image/svg+xml" });
-      setBlob(b); setUrl(URL.createObjectURL(b)); return;
-    }
-    if (fmtKey === "bmp") {
-      const b = encodeBmp(c); setBlob(b); setUrl(URL.createObjectURL(b)); return;
-    }
-    if (fmtKey === "tiff") {
-      const b = encodeTiff(c); setBlob(b); setUrl(URL.createObjectURL(b)); return;
-    }
-    if (fmtKey === "ico") {
-      const b = await encodeIco(c);
-      if (b) { setBlob(b); setUrl(URL.createObjectURL(b)); } else setUnsupported("Could not build the icon file — try a different image.");
-      return;
-    }
-    const q = fmt.quality ? quality / 100 : undefined;
-    const b = await new Promise<Blob | null>((r) => c.toBlob(r, fmt.mime, q));
-    if (!b || (b.type !== fmt.mime && fmt.mime !== "image/png")) {
-      if (fmtKey === "avif") { setUnsupported("Your browser can't encode AVIF yet — try Chrome/Edge, or use WebP for similar savings."); return; }
+    const b = await encode(c);
+    if (fmtKey === "ico" && !b) { setUnsupported("Could not build the icon file — try a different image."); return; }
+    if ((!b || (b.type !== fmt.mime && fmt.mime !== "image/png")) && fmtKey === "avif") {
+      setUnsupported("Your browser can't encode AVIF yet — try Chrome/Edge, or use WebP for similar savings."); return;
     }
     if (b) { setBlob(b); setUrl(URL.createObjectURL(b)); }
+  }
+
+  /* Batch: every queued file goes through the same draw()+encode() the preview
+     used, so the real BMP/ICO/TIFF encoders apply here too — then one ZIP. */
+  async function convertAll() {
+    if (queue.length < 2) return;
+    setBatchBusy(true); setBatchDone(0); setUnsupported("");
+    trackTool(`img-${engine}`, { batch: queue.length });
+    const { default: JSZip } = await import("jszip");
+    const zip = new JSZip();
+    const taken = new Set<string>();
+    let failed = 0;
+    for (let i = 0; i < queue.length; i++) {
+      const f = queue[i];
+      try {
+        const c = draw(await fileToImage(f));
+        const b = c && await encode(c);
+        if (b) {
+          // two "photo.png" and "photo.jpg" inputs must not collide in the ZIP
+          const stem = f.name.replace(/\.\w+$/, "") || `image-${i + 1}`;
+          let name = `${stem}.${fmt.ext}`;
+          for (let n = 2; taken.has(name); n++) name = `${stem}-${n}.${fmt.ext}`;
+          taken.add(name);
+          zip.file(name, b);
+        } else failed++;
+      } catch { failed++; }
+      setBatchDone(i + 1);
+    }
+    setBatchBusy(false);
+    if (!taken.size) { setUnsupported("None of those files could be converted in your browser."); return; }
+    const zb = await zip.generateAsync({ type: "blob" });
+    const { saveBlob } = await import("@/lib/save-file");
+    await saveBlob(zb, `qrix-${(preset?.label || fmt.label).toLowerCase().replace(/[^\w]+/g, "-")}-${taken.size}-files.zip`);
+    if (failed) setUnsupported(`${failed} of ${queue.length} file${queue.length > 1 ? "s" : ""} couldn't be converted and ${failed === 1 ? "was" : "were"} skipped.`);
   }
 
   const showQ = fmt.quality && !isSocial;
@@ -260,7 +312,7 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
   return (
     <div className="qx-card p-6 space-y-5">
       {unsupported && <p className="text-[13px] px-4 py-2.5 rounded-xl" style={{ background: "rgba(224,82,82,.1)", border: "1px solid rgba(224,82,82,.3)", color: "var(--danger)" }}>{unsupported}</p>}
-      {!img && <AiDropzone onFile={onFile} accept={TIFF_ACCEPT} hint="JPG, PNG, WebP, TIFF · processed on your device" />}
+      {!img && <AiDropzone onFiles={onFiles} multiple accept={TIFF_ACCEPT} hint="JPG, PNG, WebP, TIFF · one file or many · processed on your device" />}
       {img && (
         <>
           <div className="flex flex-wrap items-center gap-4">
@@ -284,9 +336,20 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
             </>)}
             {showQ && <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>Quality <input type="range" min={30} max={100} value={quality} onChange={(e) => setQuality(Number(e.target.value))} className="w-40 accent-[#e1ff04]" /> {quality}</label>}
             <button onClick={convert} className="qx-btn-hero !py-2.5 !px-5 text-sm" data-magnetic>{isSocial ? "Resize" : `Convert to ${fmt.label}`}</button>
+            {queue.length > 1 && (
+              <button onClick={convertAll} disabled={batchBusy} className="qx-btn-ghost !py-2.5 !px-5 text-sm font-bold disabled:opacity-50">
+                {batchBusy ? `Processing ${batchDone}/${queue.length}…` : `${isSocial ? "Resize" : "Convert"} all ${queue.length} → ZIP`}
+              </button>
+            )}
           </div>
+          {queue.length > 1 && (
+            <p className="text-[12px]" style={{ color: "var(--text-faint)" }}>
+              {queue.length} files selected — the settings above apply to every one of them. Preview shows the first.
+            </p>
+          )}
+          {batchBusy && <div className="h-2 rounded-full overflow-hidden" style={{ background: "var(--surface-2)" }}><div className="h-full rounded-full transition-all" style={{ width: `${(batchDone / queue.length) * 100}%`, background: "var(--grad-primary)" }} /></div>}
           <canvas ref={viewRef} className="max-w-full h-auto rounded-2xl" style={{ border: "1px solid var(--border)", maxHeight: 420 }} />
-          {blob && <><p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Output: <b style={{ color: "var(--text)" }}>{(blob.size / 1024).toFixed(0)} KB · {fmt.label}</b></p><AiResultBar blob={blob} filename={`qrix-${(preset?.label || fmt.label).toLowerCase().replace(/[^\w]+/g, "-")}.${fmt.ext}`} onReset={() => { setImg(null); setBlob(null); setTiff(null); setUnsupported(""); }} /></>}
+          {blob && <><p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Output: <b style={{ color: "var(--text)" }}>{(blob.size / 1024).toFixed(0)} KB · {fmt.label}</b></p><AiResultBar blob={blob} filename={`qrix-${(preset?.label || fmt.label).toLowerCase().replace(/[^\w]+/g, "-")}.${fmt.ext}`} onReset={() => { setImg(null); setBlob(null); setTiff(null); setUnsupported(""); setQueue([]); setBatchDone(0); }} /></>}
           {(fmtKey === "heic" || fmtKey === "svg") && <CloudNotice>{fmtKey === "heic" ? "HEIC decoding depends on your browser; where unavailable, the connector-backed path handles conversion." : "This embeds the raster as SVG. True vector tracing is wired through the QRix connector."}</CloudNotice>}
         </>
       )}
