@@ -6,3 +6,4 @@
 2026-07-21 16:03 — checked, nothing to resume
 2026-07-21 17:05 — shipped: real baseline TIFF encoder (convert-to-tiff no longer emits PNG bytes) | pages:0 | live:yes | next: TIFF converter-pair pages (scope decoder first) or /resize/[preset] pages
 2026-07-21 17:52 — shipped: 16 resize-preset pages /resize/<size> + hub (generic resize:WxH engine) | pages:17 | live:yes | next: resize presets batch 2 (~9 more, copy only)
+2026-07-21 18:20 — shipped: resize presets batch 2 (9 more sizes, 25 presets / 26 URLs) | pages:9 | live:yes | next: RU/UZ twins for /resize (copy convert-pairs-i18n pattern, +50 pages)
