@@ -2,14 +2,22 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] Local verification is broken for everything shipped on design-v2.
-  The preview dev server launches from the PRIMARY checkout (D:\Projects\QRix,
-  branch main), so every route added in this worktree — /resize/*, /downloader/*,
-  /barcode/*, the localized twins — 404s locally while returning 200 in prod.
-  On the live site the in-app browser renders the server HTML but no client
-  engine mounts (0 inputs on /image-tools/social-media-resize), so canvas tools
-  can't be exercised either. Result: client-side behaviour has been shipping on
-  typecheck + curl alone. Fix the launch config to run dev from the worktree.
+- [~] Local verification of design-v2 routes — PARTIALLY UNBLOCKED.
+  Root cause: the preview dev server launched from the PRIMARY checkout
+  (D:\Projects\QRix, branch main), so every route added in this worktree —
+  /resize/*, /downloader/*, /barcode/*, the localized twins — 404'd locally
+  while returning 200 in prod, and client behaviour shipped on typecheck +
+  curl alone. Fixed by adding a "QRix Growth Worktree (design-v2)" config to
+  the project-root .claude/launch.json that runs `npm --prefix <worktree> run
+  dev -- --port 3001`; confirmed it serves /resize/1080x1080, /downloader/*
+  and /image-tools/social-media-resize with 200. NOTE: that launch.json edit
+  is a per-machine path in the primary checkout (branch main), left as a local
+  working change — do not push machine paths to a deploy branch.
+  STILL OPEN: the in-app browser pane hydrates at a 0x0 viewport (the
+  documented canvas-verification trap), so the client engine never mounts and
+  canvas tools (resize/convert/upscale/bg-remove) still can't be driven end to
+  end there. next: find a viewport that forces hydration, or add a headless
+  jsdom+canvas harness so the toBlob-format path is testable in CI.
 - [ ] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
   an unsharp mask. M120 made the RU/UZ body copy honest, but the tool name and
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
