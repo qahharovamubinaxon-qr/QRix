@@ -37,6 +37,10 @@ const FMT: Record<string, Record<Lang, string>> = {
     ru: "GIF ограничен 256 цветами и хранит анимацию, но для обычных фото и графики он устарел",
     uz: "GIF 256 rang bilan cheklangan va animatsiyani saqlaydi, ammo oddiy foto va grafika uchun eskirgan",
   },
+  TIFF: {
+    ru: "TIFF — формат сканеров, типографий и архивов: он хранит изображение без потерь, но ни один браузер не умеет открывать его сам",
+    uz: "TIFF — skaner, bosmaxona va arxivlar formati: u tasvirni yo'qotishsiz saqlaydi, ammo hech bir brauzer uni o'zi ocha olmaydi",
+  },
 };
 
 /* the specific trade-off note for a conversion (keyed by "FROM>TO") */
@@ -61,6 +65,12 @@ const NOTE: Record<string, Record<Lang, string>> = {
   "GIF>JPG": { ru: "Превращает кадр GIF в компактный JPG для вставки в документы и посты.", uz: "GIF kadrini hujjat va postlarga qo'yish uchun ixcham JPG'ga aylantiradi." },
   "PNG>ICO": { ru: "Делает из PNG иконку .ico для ярлыков Windows и фавиконки сайта.", uz: "PNG'dan Windows yorliqlari va sayt favikonkasi uchun .ico ikonka yasaydi." },
   "JPG>ICO": { ru: "Превращает JPG в квадратную иконку .ico для приложения или сайта.", uz: "JPG'ni ilova yoki sayt uchun kvadrat .ico ikonkaga aylantiradi." },
+  "TIFF>PNG": { ru: "Открывает скан, который браузер сам показать не может, и сохраняет его в PNG без потери качества. У многостраничных TIFF появляется выбор страницы.", uz: "Brauzer o'zi ko'rsata olmaydigan skanni ochadi va uni sifatni yo'qotmasdan PNG'ga saqlaydi. Ko'p sahifali TIFF uchun sahifa tanlovi chiqadi." },
+  "TIFF>JPG": { ru: "Скан на 25 МБ обычно превращается в JPG меньше мегабайта — такой файл уже проходит в почту и на порталы госуслуг.", uz: "25 MB'lik skan odatda bir megabaytdan kichik JPG'ga aylanadi — bunday fayl pochta va davlat portallariga o'tadi." },
+  "TIFF>WebP": { ru: "Переводит архивный скан сразу в веб-формат, минуя промежуточный PNG или JPG, и сохраняет прозрачность.", uz: "Arxiv skanni oraliq PNG yoki JPG'siz to'g'ridan-to'g'ri veb-formatga o'tkazadi va shaffoflikni saqlaydi." },
+  "PNG>TIFF": { ru: "Создаёт настоящий baseline TIFF, а не переименованный PNG, — такой файл принимают типографии и архивные системы. Прозрачность сохраняется.", uz: "Nomi o'zgartirilgan PNG emas, haqiqiy baseline TIFF yaratadi — bunday faylni bosmaxona va arxiv tizimlari qabul qiladi. Shaffoflik saqlanadi." },
+  "JPG>TIFF": { ru: "Замораживает фото в формате без потерь: дальше оно не будет портиться при пересохранении, но уже потерянные детали не вернутся.", uz: "Fotoni yo'qotishsiz formatda muzlatadi: undan keyin qayta saqlashda buzilmaydi, ammo allaqachon yo'qolgan detallar qaytmaydi." },
+  "WebP>TIFF": { ru: "Нужен, когда программа не открывает WebP: TIFF читают любые печатные и архивные приложения.", uz: "Dastur WebP'ni ochmaganda kerak: TIFF'ni har qanday bosma va arxiv ilovalari o'qiydi." },
 };
 
 const T = {
@@ -85,7 +95,7 @@ export function locConvert(p: ConvertPair, lang: Lang): LocConvert {
       h1: `Конвертировать ${F} в ${To}`,
       desc: `Конвертируйте ${F} в ${To} онлайн бесплатно. Всё происходит прямо в браузере — файлы не загружаются на сервер, без водяных знаков и регистрации.`,
       intro: `Быстро превратите ${F} в ${To} прямо в браузере — без установки программ и загрузки на чужой сервер.`,
-      about: `${fromB}. ${toB}. ${note} Конвертация выполняется на вашем устройстве: изображение никуда не отправляется, поэтому это безопасно даже для личных и рабочих файлов. Поддерживается пакетная обработка — перетащите несколько ${F}-файлов и получите ${To} одним нажатием.`,
+      about: `${fromB}. ${toB}. ${note} Конвертация выполняется на вашем устройстве: изображение никуда не отправляется, поэтому это безопасно даже для личных и рабочих файлов. Перед скачиванием видно предпросмотр и итоговый размер, а исходный ${F}-файл остаётся нетронутым — можно спокойно попробовать разные настройки.`,
       keywords: [`${F.toLowerCase()} в ${To.toLowerCase()}`, `конвертировать ${F.toLowerCase()} в ${To.toLowerCase()}`, `${F.toLowerCase()} ${To.toLowerCase()} онлайн`, `перевести ${F.toLowerCase()} в ${To.toLowerCase()}`, `${F.toLowerCase()} to ${To.toLowerCase()}`],
       steps: [
         [`Загрузите ${F}`, `Перетащите или выберите один или несколько ${F}-файлов.`],
@@ -96,7 +106,7 @@ export function locConvert(p: ConvertPair, lang: Lang): LocConvert {
         { q: `Как конвертировать ${F} в ${To}?`, a: `Загрузите ${F}-файл выше, дождитесь обработки и скачайте ${To}. Всё происходит в браузере, ничего устанавливать не нужно.` },
         { q: "Загружаются ли мои файлы на сервер?", a: "Нет — конвертация идёт на вашем устройстве, изображение не покидает браузер." },
         { q: "Это бесплатно?", a: "Да, полностью бесплатно, без водяных знаков и лимитов." },
-        { q: "Можно конвертировать несколько файлов сразу?", a: `Да — перетащите сразу несколько ${F}-файлов, и все они станут ${To}.` },
+        { q: "Работает ли это на телефоне?", a: "Да — инструмент работает в мобильном браузере так же, как на компьютере: выберите файл из галереи и скачайте результат." },
       ],
     };
   }
@@ -105,7 +115,7 @@ export function locConvert(p: ConvertPair, lang: Lang): LocConvert {
     h1: `${F}'ni ${To}'ga aylantirish`,
     desc: `${F}'ni ${To}'ga bepul onlayn aylantiring. Hammasi brauzerda bo'ladi — fayllar serverga yuklanmaydi, suv belgisi va ro'yxatsiz.`,
     intro: `${F}'ni to'g'ridan-to'g'ri brauzerda ${To}'ga aylantiring — dastur o'rnatmasdan, begona serverga yuklamasdan.`,
-    about: `${fromB}. ${toB}. ${note} Aylantirish qurilmangizda bajariladi: rasm hech qayerga yuborilmaydi, shuning uchun shaxsiy va ish fayllari uchun ham xavfsiz. To'plamli ishlov qo'llanadi — bir nechta ${F} faylni tashlang va bitta bosishda ${To} oling.`,
+    about: `${fromB}. ${toB}. ${note} Aylantirish qurilmangizda bajariladi: rasm hech qayerga yuborilmaydi, shuning uchun shaxsiy va ish fayllari uchun ham xavfsiz. Yuklab olishdan oldin ko'rinish va yakuniy hajm ko'rsatiladi, asl ${F} fayl esa o'zgarishsiz qoladi — turli sozlamalarni bemalol sinab ko'rishingiz mumkin.`,
     keywords: [`${F.toLowerCase()} dan ${To.toLowerCase()}`, `${F.toLowerCase()} ni ${To.toLowerCase()} ga aylantirish`, `${F.toLowerCase()} ${To.toLowerCase()} onlayn`, `${F.toLowerCase()} to ${To.toLowerCase()}`, `rasmni ${To.toLowerCase()} ga aylantirish`],
     steps: [
       [`${F} yuklang`, `Bir yoki bir nechta ${F} faylni tashlang yoki tanlang.`],
@@ -116,7 +126,7 @@ export function locConvert(p: ConvertPair, lang: Lang): LocConvert {
       { q: `${F}'ni ${To}'ga qanday aylantiraman?`, a: `Yuqoriga ${F} faylni yuklang, ishlov tugashini kuting va ${To}'ni yuklab oling. Hammasi brauzerda, hech narsa o'rnatish shart emas.` },
       { q: "Fayllarim serverga yuklanadimi?", a: "Yo'q — aylantirish qurilmangizda bo'ladi, rasm brauzerdan chiqmaydi." },
       { q: "Bepulmi?", a: "Ha, to'liq bepul, suv belgisi va cheklovsiz." },
-      { q: "Bir nechta faylni birdan aylantirsam bo'ladimi?", a: `Ha — bir nechta ${F} faylni tashlang, hammasi ${To} bo'ladi.` },
+      { q: "Telefonda ishlaydimi?", a: "Ha — vosita mobil brauzerda ham kompyuterdagidek ishlaydi: galereyadan faylni tanlang va natijani yuklab oling." },
     ],
   };
 }

@@ -6,6 +6,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AiDropzone, AiResultBar, CloudNotice } from "@/components/ai/AiKit";
 import { trackTool } from "@/lib/track";
+import { isTiff, tiffPageToImage, TiffUnsupportedError, TIFF_ACCEPT } from "@/lib/tiff-decode";
 
 const SOCIAL: Record<string, { label: string; w: number; h: number }> = {
   "instagram-post": { label: "Instagram Post", w: 1080, h: 1080 },
@@ -166,13 +167,40 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
   const [pickPreset, setPickPreset] = useState("instagram-post");
   const [bg, setBg] = useState("#ffffff");
   const [unsupported, setUnsupported] = useState("");
+  /* TIFF needs its own decode path, and the source buffer is kept so a
+     multi-page scan can be re-decoded when the user picks another page. */
+  const [tiff, setTiff] = useState<{ buf: ArrayBuffer; pages: number; page: number } | null>(null);
   const viewRef = useRef<HTMLCanvasElement>(null);
 
   const preset = resize || (isSocial ? (socialId === "_picker" ? SOCIAL[pickPreset] : SOCIAL[socialId]) : null);
 
   async function onFile(f: File) {
     trackTool(`img-${engine}`, { size: f.size });
-    setImg(await loadImg(f)); setBlob(null); setUrl(null); setUnsupported("");
+    setBlob(null); setUrl(null); setUnsupported(""); setTiff(null);
+    if (isTiff(f)) {
+      try {
+        const buf = await f.arrayBuffer();
+        const { img: decoded, pages } = await tiffPageToImage(buf, 0);
+        setTiff({ buf, pages, page: 0 }); setImg(decoded);
+      } catch (e) {
+        setImg(null);
+        setUnsupported(e instanceof TiffUnsupportedError ? e.message : "This TIFF couldn't be decoded in your browser.");
+      }
+      return;
+    }
+    try { setImg(await loadImg(f)); }
+    catch { setImg(null); setUnsupported("That file couldn't be opened as an image — it may be corrupted or in a format your browser doesn't support."); }
+  }
+
+  /** Re-decode another page of a multi-page TIFF (scanned documents). */
+  async function pickPage(p: number) {
+    if (!tiff) return;
+    try {
+      const { img: decoded } = await tiffPageToImage(tiff.buf, p);
+      setTiff({ ...tiff, page: p }); setImg(decoded); setBlob(null); setUrl(null); setUnsupported("");
+    } catch {
+      setUnsupported(`Page ${p + 1} of this TIFF couldn't be decoded.`);
+    }
   }
 
   function draw(): HTMLCanvasElement | null {
@@ -232,7 +260,7 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
   return (
     <div className="qx-card p-6 space-y-5">
       {unsupported && <p className="text-[13px] px-4 py-2.5 rounded-xl" style={{ background: "rgba(224,82,82,.1)", border: "1px solid rgba(224,82,82,.3)", color: "var(--danger)" }}>{unsupported}</p>}
-      {!img && <AiDropzone onFile={onFile} />}
+      {!img && <AiDropzone onFile={onFile} accept={TIFF_ACCEPT} hint="JPG, PNG, WebP, TIFF · processed on your device" />}
       {img && (
         <>
           <div className="flex flex-wrap items-center gap-4">
@@ -240,6 +268,14 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
               <select value={pickPreset} onChange={(e) => setPickPreset(e.target.value)} className="qx-auth-input !py-2 w-56" aria-label="Platform">
                 {Object.entries(SOCIAL).map(([id, p]) => <option key={id} value={id}>{p.label} — {p.w}×{p.h}</option>)}
               </select>
+            )}
+            {tiff && tiff.pages > 1 && (
+              <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>
+                Page
+                <select value={tiff.page} onChange={(e) => pickPage(Number(e.target.value))} className="qx-auth-input !py-2 w-28" aria-label="TIFF page">
+                  {Array.from({ length: tiff.pages }, (_, i) => <option key={i} value={i}>{i + 1} of {tiff.pages}</option>)}
+                </select>
+              </label>
             )}
             {preset && (<>
               <div className="flex gap-2">{(["fill", "fit"] as const).map((m) => <button key={m} onClick={() => setMode(m)} className="px-3 py-1.5 rounded-lg text-[12px] font-bold capitalize" style={{ background: mode === m ? "var(--primary-dim)" : "var(--surface-2)", border: `1px solid ${mode === m ? "var(--primary-bright)" : "var(--border)"}`, color: "var(--text)" }}>{m}</button>)}</div>
@@ -250,7 +286,7 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
             <button onClick={convert} className="qx-btn-hero !py-2.5 !px-5 text-sm" data-magnetic>{isSocial ? "Resize" : `Convert to ${fmt.label}`}</button>
           </div>
           <canvas ref={viewRef} className="max-w-full h-auto rounded-2xl" style={{ border: "1px solid var(--border)", maxHeight: 420 }} />
-          {blob && <><p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Output: <b style={{ color: "var(--text)" }}>{(blob.size / 1024).toFixed(0)} KB · {fmt.label}</b></p><AiResultBar blob={blob} filename={`qrix-${(preset?.label || fmt.label).toLowerCase().replace(/[^\w]+/g, "-")}.${fmt.ext}`} onReset={() => { setImg(null); setBlob(null); }} /></>}
+          {blob && <><p className="text-[12px]" style={{ color: "var(--text-muted)" }}>Output: <b style={{ color: "var(--text)" }}>{(blob.size / 1024).toFixed(0)} KB · {fmt.label}</b></p><AiResultBar blob={blob} filename={`qrix-${(preset?.label || fmt.label).toLowerCase().replace(/[^\w]+/g, "-")}.${fmt.ext}`} onReset={() => { setImg(null); setBlob(null); setTiff(null); setUnsupported(""); }} /></>}
           {(fmtKey === "heic" || fmtKey === "svg") && <CloudNotice>{fmtKey === "heic" ? "HEIC decoding depends on your browser; where unavailable, the connector-backed path handles conversion." : "This embeds the raster as SVG. True vector tracing is wired through the QRix connector."}</CloudNotice>}
         </>
       )}

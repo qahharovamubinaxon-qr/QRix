@@ -3,16 +3,20 @@ import { pageMeta, jsonLd, breadcrumbLd } from "@/lib/seo";
 import { CONVERT_PAIRS, pairGrad, type ConvertPair } from "@/lib/convert-pairs";
 
 export const metadata = pageMeta({
-  title: "Free Image Converter — 20 Format Pairs, No Upload",
+  title: "Free Image Converter — 26 Format Pairs, No Upload",
   description:
-    "Convert between PNG, JPG, WebP, AVIF, BMP, GIF and ICO for free. Every conversion runs in your browser — no upload, no signup, no watermark.",
+    "Convert between PNG, JPG, WebP, AVIF, BMP, GIF, ICO and TIFF for free. Every conversion runs in your browser — no upload, no signup, no watermark.",
   path: "/convert",
-  keywords: ["image converter", "convert image format", "png to jpg", "webp converter", "avif converter", "free image converter online"],
+  keywords: ["image converter", "convert image format", "png to jpg", "webp converter", "avif converter", "tiff converter", "free image converter online"],
 });
 
-/** Group by target format so visitors scan by "what do I want out of this?". */
-const ORDER = ["JPG", "PNG", "WebP", "AVIF", "BMP", "ICO"];
-const byTarget = ORDER.map((to) => ({ to, pairs: CONVERT_PAIRS.filter((p) => p.to === to) }))
+/** Group by target format so visitors scan by "what do I want out of this?".
+    Every target format in CONVERT_PAIRS must be listed or its pages get no
+    link from the hub. */
+const ORDER = ["JPG", "PNG", "WebP", "AVIF", "TIFF", "BMP", "ICO"];
+// any target ORDER forgets still gets a section, appended at the end
+const TARGETS = [...new Set([...ORDER, ...CONVERT_PAIRS.map((p) => p.to)])];
+const byTarget = TARGETS.map((to) => ({ to, pairs: CONVERT_PAIRS.filter((p) => p.to === to) }))
   .filter((g) => g.pairs.length > 0);
 
 function PairCard({ p }: { p: ConvertPair }) {
