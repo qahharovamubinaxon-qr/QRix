@@ -2,7 +2,7 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] TIFF target in ImageConvertClient is still silently broken — same
+- [~] TIFF target in ImageConvertClient is still silently broken — same
   bug class as the BMP/ICO fix (canvas.toBlob has no image/tiff, so it
   returns PNG bytes named .tiff). Write a real baseline TIFF encoder or
   drop the option. Blocks a tiff-to-* / *-to-tiff pair family.
