@@ -37,10 +37,69 @@ const DURATIONS = [8, 12, 15];
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const easeOut = (t: number) => 1 - Math.pow(1 - clamp01(t), 3);
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+/* premium ease-out-expo — the Linear/Vercel curve */
+const expo = (t: number) => (clamp01(t) >= 1 ? 1 : 1 - Math.pow(2, -10 * clamp01(t)));
+/* slight overshoot for hero elements (≈6%) */
+const backOut = (t: number) => { const c = 1.70158, x = clamp01(t) - 1; return 1 + (c + 1) * x * x * x + c * x * x; };
 const seg = (t: number, a: number, b: number) => clamp01((t - a) / (b - a));
+
+/* cheap seeded pseudo-random for stable grain */
+const prand = (s: number) => { const x = Math.sin(s * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
 function fadeInOut(t: number, a: number, b: number, fin = 0.14, fout = 0.14) {
   const p = seg(t, a, b);
   return Math.min(clamp01(p / fin), clamp01((1 - p) / fout));
+}
+
+/* Procedural minimal-tech bed (120 BPM): pad + four-on-floor kick with
+   sidechain + offbeat hats + final boom. Mixed straight into the recording
+   stream — the exported video ships with a soundtrack, all on-device. */
+function buildMusic(ac: AudioContext, dest: AudioNode, seconds: number) {
+  const t0 = ac.currentTime + 0.05;
+  const beat = 0.5;
+  const master = ac.createGain(); master.gain.value = 0.9; master.connect(dest);
+  // pad: detuned saws → lowpass → sidechained gain
+  const padGain = ac.createGain(); padGain.gain.value = 0.045;
+  const lp = ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = 850;
+  padGain.connect(lp); lp.connect(master);
+  [220, 261.63, 329.63].forEach((f, i) => {
+    const o = ac.createOscillator(); o.type = "sawtooth";
+    o.frequency.value = f; o.detune.value = i * 4 - 4;
+    o.connect(padGain); o.start(t0); o.stop(t0 + seconds);
+  });
+  lp.frequency.setValueAtTime(850, t0 + seconds - 2);
+  lp.frequency.linearRampToValueAtTime(300, t0 + seconds);        // outro filter-down
+  padGain.gain.setValueAtTime(0.045, t0 + seconds - 1.2);
+  padGain.gain.linearRampToValueAtTime(0.0001, t0 + seconds);
+  // kick (from bar 2) + sidechain duck
+  for (let bt = beat * 4; bt < seconds - 1.6; bt += beat) {
+    const o = ac.createOscillator(); const g = ac.createGain();
+    o.frequency.setValueAtTime(140, t0 + bt);
+    o.frequency.exponentialRampToValueAtTime(46, t0 + bt + 0.1);
+    g.gain.setValueAtTime(0.85, t0 + bt);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + bt + 0.24);
+    o.connect(g); g.connect(master); o.start(t0 + bt); o.stop(t0 + bt + 0.26);
+    padGain.gain.cancelScheduledValues(t0 + bt);
+    padGain.gain.setValueAtTime(0.02, t0 + bt);
+    padGain.gain.linearRampToValueAtTime(0.045, t0 + bt + 0.24);
+  }
+  // offbeat hats
+  const nb = ac.createBuffer(1, Math.floor(ac.sampleRate * 0.05), ac.sampleRate);
+  const nd = nb.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / nd.length, 2.2);
+  for (let bt = beat * 4.5; bt < seconds - 1.6; bt += beat) {
+    const s = ac.createBufferSource(); s.buffer = nb;
+    const hp = ac.createBiquadFilter(); hp.type = "highpass"; hp.frequency.value = 6500;
+    const g = ac.createGain(); g.gain.value = 0.2;
+    s.connect(hp); hp.connect(g); g.connect(master); s.start(t0 + bt);
+  }
+  // final boom under the CTA
+  const bo = ac.createOscillator(); const bg = ac.createGain();
+  const bAt = t0 + Math.max(1, seconds - 1.4);
+  bo.frequency.setValueAtTime(75, bAt);
+  bo.frequency.exponentialRampToValueAtTime(40, bAt + 0.7);
+  bg.gain.setValueAtTime(0.9, bAt);
+  bg.gain.exponentialRampToValueAtTime(0.001, bAt + 1.2);
+  bo.connect(bg); bg.connect(master); bo.start(bAt); bo.stop(bAt + 1.3);
 }
 
 function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxW: number): string[] {
@@ -66,6 +125,7 @@ export default function PromoVideoClient() {
   const [preset, setPreset] = useState(PRESETS[0]);
   const [theme, setTheme] = useState(THEMES[0]);
   const [dur, setDur] = useState(12);
+  const [music, setMusic] = useState(true);
   const [recording, setRecording] = useState(false);
   const [progress, setProgress] = useState(0);
   const [err, setErr] = useState<string | null>(null);
@@ -159,59 +219,69 @@ export default function PromoVideoClient() {
       ctx.globalAlpha = 1;
     }
 
-    // ── Scene 1 · intro (logo + brand) ──────────────────────────
+    // ── Scene 1 · intro (logo + brand, hero overshoot) ──────────
     const a1 = fadeInOut(t, 0.0, 0.2, 0.2, 0.22);
     if (a1 > 0) {
-      const p = easeOut(seg(t, 0.0, 0.2));
+      const p = backOut(seg(t, 0.0, 0.16));
       ctx.save();
       ctx.globalAlpha = a1;
       const logo = logoRef.current;
       let by = H * 0.5;
       if (logo) {
-        const ls = M * 0.26 * (0.8 + 0.2 * p);
+        const ls = M * 0.26 * (0.7 + 0.3 * p);
         const lw = (logo.width / logo.height) * ls;
+        ctx.shadowColor = th.glow; ctx.shadowBlur = 60 * p;
         ctx.drawImage(logo, W / 2 - lw / 2, H * 0.4 - ls / 2, lw, ls);
+        ctx.shadowBlur = 0;
         by = H * 0.4 + ls / 2 + M * 0.09;
       }
-      ctx.font = `800 ${M * 0.075}px Unbounded, Arial, sans-serif`;
+      // masked-line brand reveal
+      const bs = M * 0.075, bh = bs * 1.3;
+      const lp = expo(seg(t, 0.04, 0.16));
+      ctx.beginPath(); ctx.rect(0, by - bh, W, bh * 1.2); ctx.clip();
+      ctx.font = `800 ${bs}px Unbounded, Arial, sans-serif`;
       ctx.fillStyle = th.text;
-      ctx.translate(W / 2, by); ctx.scale(0.9 + 0.1 * p, 0.9 + 0.1 * p);
-      ctx.fillText(brand.trim().slice(0, 22) || "Your Brand", 0, 0);
+      ctx.fillText(brand.trim().slice(0, 22) || "Your Brand", W / 2, by + (1 - lp) * bh);
       ctx.restore();
     }
 
-    // ── Scene 2 · headline + subline ────────────────────────────
+    // ── Scene 2 · headline (masked-line kinetic) + subline ──────
     const a2 = fadeInOut(t, 0.2, 0.52, 0.12, 0.16);
     if (a2 > 0) {
       const p = seg(t, 0.2, 0.52);
       ctx.save();
+      ctx.globalAlpha = a2;
       ctx.font = `800 ${M * 0.088}px Unbounded, Arial, sans-serif`;
       const lines = wrapLines(ctx, headline.trim() || "Big things, made simple.", W * 0.82);
       const lh = M * 0.105;
       const startY = H * 0.42 - ((lines.length - 1) * lh) / 2;
       lines.forEach((ln, i) => {
-        const lp = easeOut(clamp01((p - i * 0.06) / 0.4));
-        ctx.globalAlpha = a2 * lp;
-        ctx.fillStyle = th.text;
-        ctx.fillText(ln, W / 2, startY + i * lh + (1 - lp) * M * 0.05);
+        const lp = expo(clamp01((p - i * 0.05) / 0.3));            // 3f-style stagger
+        const y = startY + i * lh;
+        ctx.save();
+        ctx.beginPath(); ctx.rect(0, y - lh * 0.92, W, lh * 1.12); ctx.clip();
+        ctx.fillStyle = i === lines.length - 1 ? th.accent : th.text; // last line in accent
+        ctx.fillText(ln, W / 2, y + (1 - lp) * lh);
+        ctx.restore();
       });
-      // accent underline
-      ctx.globalAlpha = a2 * easeOut(clamp01((p - 0.15) / 0.3));
+      // accent underline sweeps in
+      const up = expo(clamp01((p - 0.18) / 0.28));
       ctx.fillStyle = th.accent;
-      const uw = M * 0.16 * easeOut(clamp01((p - 0.15) / 0.3));
+      const uw = M * 0.16 * up;
       ctx.fillRect(W / 2 - uw / 2, startY + lines.length * lh - lh * 0.15, uw, M * 0.012);
-      // subline
-      ctx.globalAlpha = a2 * easeOut(clamp01((p - 0.3) / 0.4));
+      // subline — blur-in block
+      const sp = expo(clamp01((p - 0.3) / 0.35));
+      ctx.globalAlpha = a2 * sp;
       ctx.font = `500 ${M * 0.036}px "Space Mono", monospace`;
       ctx.fillStyle = th.sub;
       const subLines = wrapLines(ctx, subline.trim(), W * 0.74);
       subLines.slice(0, 2).forEach((ln, i) => {
-        ctx.fillText(ln, W / 2, startY + lines.length * lh + M * 0.06 + i * M * 0.052);
+        ctx.fillText(ln, W / 2, startY + lines.length * lh + M * 0.06 + i * M * 0.052 + (1 - sp) * M * 0.02);
       });
       ctx.restore();
     }
 
-    // ── Scene 3 · feature bullets ───────────────────────────────
+    // ── Scene 3 · feature bullets (masked stagger + glow ticks) ─
     const a3 = fadeInOut(t, 0.5, 0.8, 0.1, 0.14);
     if (a3 > 0 && featureList.length) {
       const p = seg(t, 0.5, 0.8);
@@ -223,24 +293,26 @@ export default function PromoVideoClient() {
       const x = W * 0.2;
       let y = H * 0.5 - blockH / 2 + rowH / 2;
       featureList.forEach((f, i) => {
-        const rp = easeOut(clamp01((p - i * 0.12) / 0.45));
+        const rp = expo(clamp01((p - i * 0.1) / 0.32));
         if (rp <= 0) { y += rowH; return; }
-        ctx.globalAlpha = a3 * rp;
-        const dx = x - (1 - rp) * M * 0.08;
-        // check dot
+        ctx.save();
+        ctx.globalAlpha = a3;
+        ctx.beginPath(); ctx.rect(0, y - rowH * 0.7, W, rowH); ctx.clip(); // row mask
+        const dx = x;
+        const ty = y + (1 - rp) * rowH * 0.8;                      // rises out of its mask
+        ctx.shadowColor = th.glow; ctx.shadowBlur = 26 * rp;
         ctx.fillStyle = th.accent;
-        ctx.beginPath();
-        ctx.arc(dx, y - M * 0.014, M * 0.028, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.beginPath(); ctx.arc(dx, ty - M * 0.014, M * 0.028, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
         ctx.strokeStyle = th.onAccent; ctx.lineWidth = M * 0.008;
         ctx.beginPath();
-        ctx.moveTo(dx - M * 0.012, y - M * 0.014);
-        ctx.lineTo(dx - M * 0.003, y - M * 0.005);
-        ctx.lineTo(dx + M * 0.014, y - M * 0.026);
+        ctx.moveTo(dx - M * 0.012, ty - M * 0.014);
+        ctx.lineTo(dx - M * 0.003, ty - M * 0.005);
+        ctx.lineTo(dx + M * 0.014, ty - M * 0.026);
         ctx.stroke();
-        // label
         ctx.fillStyle = th.text;
-        ctx.fillText(f.slice(0, 32), dx + M * 0.055, y);
+        ctx.fillText(f.slice(0, 32), dx + M * 0.055, ty);
+        ctx.restore();
         y += rowH;
       });
       ctx.restore();
@@ -255,19 +327,23 @@ export default function PromoVideoClient() {
       ctx.textAlign = "center";
       const qr = qrRef.current;
       const centerY = qr ? H * 0.4 : H * 0.46;
-      // QR card
+      // QR card — overshoot entrance + top-down wipe reveal + glow pulse
       if (qr) {
-        const qs = M * 0.34 * (0.85 + 0.15 * p);
+        const pop = backOut(seg(t, 0.78, 0.9));
+        const qs = M * 0.34 * (0.7 + 0.3 * pop);
         const pad = qs * 0.08;
         const cs = qs + pad * 2;
         const cx = W / 2, cy = centerY;
+        const pulse = 0.5 + 0.5 * Math.sin(t * 40);
         ctx.save();
-        ctx.shadowColor = th.glow; ctx.shadowBlur = 50 * p;
+        ctx.shadowColor = th.glow; ctx.shadowBlur = (40 + 26 * pulse) * p;
         ctx.fillStyle = "#ffffff";
         ctx.beginPath();
         ctx.roundRect(cx - cs / 2, cy - cs / 2, cs, cs, cs * 0.08);
         ctx.fill();
         ctx.shadowBlur = 0;
+        const wipe = expo(seg(t, 0.8, 0.94));                     // QR paints in top→down
+        ctx.beginPath(); ctx.rect(cx - qs / 2, cy - qs / 2, qs, qs * wipe); ctx.clip();
         ctx.drawImage(qr, cx - qs / 2, cy - qs / 2, qs, qs);
         ctx.restore();
       }
@@ -299,6 +375,31 @@ export default function PromoVideoClient() {
         ctx.globalAlpha = 1;
       }
     }
+
+    // ── film grade: light sweep → vignette → grain ──────────────
+    // one diagonal specular sweep per scene (4 scenes)
+    const sceneP = (t * 4) % 1;
+    const sx0 = -W * 0.4 + (W * 1.8) * expo(seg(sceneP, 0.15, 0.75));
+    const sg = ctx.createLinearGradient(sx0, 0, sx0 + W * 0.22, H * 0.35);
+    sg.addColorStop(0, "rgba(255,255,255,0)");
+    sg.addColorStop(0.5, light ? "rgba(255,255,255,0.10)" : "rgba(255,255,255,0.07)");
+    sg.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = sg; ctx.fillRect(0, 0, W, H);
+    // offset vignette (lower third stays readable)
+    const vg = ctx.createRadialGradient(W / 2, H * 0.42, M * 0.35, W / 2, H * 0.42, M * 0.95);
+    vg.addColorStop(0, "rgba(0,0,0,0)");
+    vg.addColorStop(1, light ? "rgba(0,0,0,0.14)" : "rgba(0,0,0,0.42)");
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+    // fine grain, reseeded every frame (static grain = dirty screen)
+    const gseed = Math.floor(t * 1000);
+    ctx.globalAlpha = light ? 0.025 : 0.045;
+    ctx.fillStyle = "#ffffff";
+    for (let i = 0; i < 260; i++) {
+      const rx = prand(gseed + i * 2.7) * W;
+      const ry = prand(gseed * 1.3 + i * 5.1) * H;
+      ctx.fillRect(rx, ry, 1.6, 1.6);
+    }
+    ctx.globalAlpha = 1;
 
     // progress line
     ctx.fillStyle = th.accent;
@@ -333,18 +434,30 @@ export default function PromoVideoClient() {
       .find((m) => typeof MediaRecorder !== "undefined" && MediaRecorder.isTypeSupported(m));
     if (!mime) { setErr("Video recording is not supported in this browser."); return; }
     const stream = cv.captureStream(FPS);
+    // procedural soundtrack mixed into the recording (nothing uploaded)
+    let ac: AudioContext | null = null;
+    if (music) {
+      try {
+        ac = new AudioContext();
+        const dst = ac.createMediaStreamDestination();
+        buildMusic(ac, dst, dur);
+        const track = dst.stream.getAudioTracks()[0];
+        if (track) stream.addTrack(track);
+      } catch { ac = null; /* record silent video */ }
+    }
     const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 9_000_000 });
     const chunks: Blob[] = [];
     rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
     setRecording(true);
     startRef.current = performance.now();
     rec.start(250);
-    trackTool("promo-video");
+    trackTool("promo-video", music ? { music: 1 } : undefined);
     window.setTimeout(() => {
       rec.stop();
       rec.onstop = async () => {
         setRecording(false);
         setProgress(0);
+        try { await ac?.close(); } catch { /* ignore */ }
         const ext = mime.startsWith("video/mp4") ? "mp4" : "webm";
         const blob = new Blob(chunks, { type: mime.split(";")[0] });
         await saveBlob(blob, `qrix-promo.${ext}`);
@@ -444,6 +557,20 @@ export default function PromoVideoClient() {
               ))}
             </div>
           </div>
+        </div>
+
+        <div>
+          <span className={lbl} style={{ color: "var(--text-muted)" }}>Soundtrack</span>
+          <div className="flex gap-2">
+            {([true, false] as const).map((on) => (
+              <button key={String(on)} type="button" onClick={() => setMusic(on)}
+                className="px-3.5 py-2 rounded-lg text-[12px] font-bold"
+                style={{ background: music === on ? "var(--primary-dim)" : "var(--surface-2)", color: music === on ? "var(--primary-bright)" : "var(--text-muted)", border: `1px solid ${music === on ? "var(--border-hover)" : "var(--border)"}` }}>
+                {on ? "🎵 Music on" : "Silent"}
+              </button>
+            ))}
+          </div>
+          <p className="text-[11px] mt-1.5" style={{ color: "var(--text-faint)" }}>A beat-matched electronic bed is composed on your device and baked into the video.</p>
         </div>
 
         <div className="pt-1 space-y-2.5">
