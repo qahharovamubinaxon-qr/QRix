@@ -160,6 +160,19 @@ t("a JPEG photo resized in fill mode is painted so no frame edge is left black",
   assert.equal(flattensToWhite("image/jpeg", key), true);
 });
 
+t("batch compress flattens even though the picker still holds webp", () => {
+  // ImageBatchClient forces image/jpeg for the compress preset while `fmt`
+  // keeps its "webp" default (the picker only renders for convert). Guarding
+  // on `fmt` instead of the encoded mime let transparent PNGs encode black.
+  const fmt = "webp";
+  const mime = "image/jpeg";               // what compress actually encodes
+  assert.equal(flattensToWhite(mime, fmt), true);
+});
+t("batch convert to png/webp still does not flatten", () => {
+  assert.equal(flattensToWhite("image/png", "png"), false);
+  assert.equal(flattensToWhite("image/webp", "webp"), false);
+});
+
 /* ---- report ---------------------------------------------------------- */
 
 if (fails.length) {

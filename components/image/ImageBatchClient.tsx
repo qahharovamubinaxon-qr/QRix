@@ -6,6 +6,7 @@ import { useState } from "react";
 import { FiX, FiDownload } from "react-icons/fi";
 import { AiDropzone } from "@/components/ai/AiKit";
 import { trackTool } from "@/lib/track";
+import { flattensToWhite } from "@/lib/image-output";
 
 type Job = { file: File; url: string };
 function loadImg(src: string): Promise<HTMLImageElement> { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
@@ -34,9 +35,13 @@ export default function ImageBatchClient({ preset }: { preset: "convert" | "resi
         const img = await loadImg(j.url); let w = img.width, h = img.height;
         if (preset === "resize" && Math.max(w, h) > maxDim) { const s = maxDim / Math.max(w, h); w = Math.round(w * s); h = Math.round(h * s); }
         const c = document.createElement("canvas"); c.width = w; c.height = h; const ctx = c.getContext("2d")!;
-        if (fmt === "jpeg") { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); }
-        ctx.drawImage(img, 0, 0, w, h);
+        /* Flatten on the format actually being ENCODED, not the one the picker
+           holds: compress always emits JPEG while `fmt` stays at its "webp"
+           default (the picker only shows for convert), so guarding on `fmt`
+           let transparent PNGs through the compress path encode black. */
         const mime = preset === "compress" ? "image/jpeg" : `image/${fmt}`;
+        if (flattensToWhite(mime, fmt)) { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); }
+        ctx.drawImage(img, 0, 0, w, h);
         const q = (preset === "compress" || fmt !== "png") ? quality / 100 : undefined;
         const b = await new Promise<Blob | null>((r) => c.toBlob(r, mime, q));
         if (b) zip.file(j.file.name.replace(/\.\w+$/, "") + "." + (preset === "compress" ? "jpg" : ext), b);
