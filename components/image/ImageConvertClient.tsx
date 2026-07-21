@@ -152,11 +152,25 @@ function parseResize(engine: string): { label: string; w: number; h: number } | 
   return { label: `${w}×${h}`, w, h };
 }
 
+/** Resizing must not silently change the file's format: a transparent PNG logo
+    sized to 1080×1080 has to come back as a PNG, not a JPG on white. Only the
+    alpha-safe web formats round-trip; anything else (HEIC, TIFF, BMP, AVIF…)
+    still lands as JPG, and the hub copy says so. */
+function keepFormat(f: File): "jpeg" | "png" | "webp" {
+  const t = `${f.type} ${f.name}`.toLowerCase();
+  if (/png/.test(t)) return "png";
+  if (/webp/.test(t)) return "webp";
+  return "jpeg";
+}
+
 export default function ImageConvertClient({ engine }: { engine: string }) {
   const resize = parseResize(engine);
   const isSocial = engine.startsWith("social:");
   const socialId = isSocial ? engine.slice(7) : "";
-  const fmtKey = engine.startsWith("convert:") ? engine.slice(8) : "jpeg";
+  const isConvert = engine.startsWith("convert:");
+  /* Sizing pages follow the source format; converter pages force their own. */
+  const [srcFmt, setSrcFmt] = useState<"jpeg" | "png" | "webp">("jpeg");
+  const fmtKey = isConvert ? engine.slice(8) : srcFmt;
   const fmt = MIME[fmtKey] || MIME.jpeg;
 
   const [img, setImg] = useState<HTMLImageElement | null>(null);
@@ -182,6 +196,7 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
   async function onFile(f: File) {
     trackTool(`img-${engine}`, { size: f.size });
     setBlob(null); setUrl(null); setUnsupported(""); setTiff(null);
+    if (!isConvert) setSrcFmt(keepFormat(f));
     if (isTiff(f)) {
       try {
         const buf = await f.arrayBuffer();
@@ -225,7 +240,11 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
     if (preset) {
       c.width = preset.w; c.height = preset.h;
       const ctx = c.getContext("2d")!;
-      ctx.fillStyle = bg; ctx.fillRect(0, 0, c.width, c.height);
+      /* In fit mode the colour is the padding the user picked. In fill mode the
+         frame is covered anyway, so painting it would only flatten the alpha of
+         a transparent PNG — skip it whenever the output can carry alpha. */
+      const keepsAlpha = fmt.mime === "image/png" || fmt.mime === "image/webp";
+      if (mode === "fit" || !keepsAlpha) { ctx.fillStyle = bg; ctx.fillRect(0, 0, c.width, c.height); }
       const s = mode === "fill" ? Math.max(c.width / src.width, c.height / src.height) : Math.min(c.width / src.width, c.height / src.height);
       const w = src.width * s, h = src.height * s;
       ctx.drawImage(src, (c.width - w) / 2, (c.height - h) / 2, w, h);
@@ -335,10 +354,10 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
               <span className="text-[12px] font-mono" style={{ color: "var(--text-faint)" }}>{preset.w}×{preset.h}</span>
             </>)}
             {showQ && <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>Quality <input type="range" min={30} max={100} value={quality} onChange={(e) => setQuality(Number(e.target.value))} className="w-40 accent-[#e1ff04]" /> {quality}</label>}
-            <button onClick={convert} className="qx-btn-hero !py-2.5 !px-5 text-sm" data-magnetic>{isSocial ? "Resize" : `Convert to ${fmt.label}`}</button>
+            <button onClick={convert} className="qx-btn-hero !py-2.5 !px-5 text-sm" data-magnetic>{preset ? "Resize" : `Convert to ${fmt.label}`}</button>
             {queue.length > 1 && (
               <button onClick={convertAll} disabled={batchBusy} className="qx-btn-ghost !py-2.5 !px-5 text-sm font-bold disabled:opacity-50">
-                {batchBusy ? `Processing ${batchDone}/${queue.length}…` : `${isSocial ? "Resize" : "Convert"} all ${queue.length} → ZIP`}
+                {batchBusy ? `Processing ${batchDone}/${queue.length}…` : `${preset ? "Resize" : "Convert"} all ${queue.length} → ZIP`}
               </button>
             )}
           </div>

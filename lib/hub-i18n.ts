@@ -97,7 +97,7 @@ export const RESIZE_HUB: Record<Lang, HubCopy> = {
       },
       {
         q: "Меняется ли формат файла при изменении размера?",
-        a: "Нет, формат остаётся прежним. Если нужно ещё и сменить формат — например, PNG на JPG, — воспользуйтесь конвертером изображений после изменения размера.",
+        a: "Формат сохраняется: JPG остаётся JPG, PNG — PNG вместе с прозрачностью, WebP — WebP. Остальные исходники (HEIC, TIFF, BMP) отдаются как JPG, потому что браузер не умеет записывать их обратно. Нужен другой формат специально — конвертер изображений после изменения размера.",
       },
     ],
     links: [
@@ -164,7 +164,7 @@ export const RESIZE_HUB: Record<Lang, HubCopy> = {
       },
       {
         q: "O'lcham o'zgarganda fayl formati o'zgaradimi?",
-        a: "Yo'q, format o'zgarmaydi. Formatni ham almashtirish kerak bo'lsa — masalan, PNG'ni JPG'ga — o'lchamni o'zgartirgandan keyin rasm konverteridan foydalaning.",
+        a: "Format saqlanadi: JPG — JPG, PNG — shaffofligi bilan PNG, WebP — WebP bo'lib qaytadi. Boshqa manbalar (HEIC, TIFF, BMP) JPG bo'lib beriladi, chunki brauzer ularni qayta yoza olmaydi. Boshqa format ataylab kerak bo'lsa — o'lchamdan keyin rasm konverteridan foydalaning.",
       },
     ],
     links: [
