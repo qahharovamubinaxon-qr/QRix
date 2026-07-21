@@ -283,3 +283,161 @@ export const CONVERT_HUB: Record<Lang, HubCopy> = {
     ],
   },
 };
+
+/* ─────────────────────────── /barcode ─────────────────────────── */
+
+/* The 13 localized symbology pages each own a narrow query ("генератор
+   pdf417"). What none of them can own is the head term — "генератор штрих
+   кодов" / "shtrix kod generatori" — or the comparison intent that brings
+   most of this traffic: someone who knows they need a barcode but not which
+   symbology. So this hub is written as a chooser, grouped by where the code
+   is actually used, rather than as a list of links. */
+
+export const BARCODE_HUB: Record<Lang, HubCopy> = {
+  ru: {
+    title: "Генератор штрих-кодов — 13 форматов онлайн и бесплатно",
+    desc: "Создайте штрих-код любого из 13 форматов: EAN-13, UPC-A, Code 128, PDF417, Data Matrix, Aztec, ITF-14, Code 39 и другие. Скачайте PNG или векторный SVG для печати. Без регистрации, всё считается в браузере.",
+    keywords: [
+      "генератор штрих кодов",
+      "создать штрих код онлайн",
+      "штрих код генератор бесплатно",
+      "сделать штрих код для товара",
+      "генератор ean 13",
+      "штрих код в svg для печати",
+    ],
+    crumb: "Штрих-коды",
+    h1: "Генератор штрих-кодов",
+    intro:
+      "Выберите формат по задаче — товар на полке, коробка на складе, деталь размером с ноготь или удостоверение. Введите значение, настройте вид и скачайте PNG для экрана либо SVG для типографии. Ничего не загружается на сервер: код рисуется прямо в браузере.",
+    meta: (n) => `${n} форматов · PNG и SVG · всё в браузере`,
+    itemListName: "Форматы штрих-кодов",
+    groups: {
+      "2D codes": {
+        title: "Двумерные коды",
+        blurb: "Хранят текст, а не только цифры: от сотен до тысяч символов в одном символе. Нужны там, где в одно сканирование надо передать целую запись — документ, билет, маркировку детали.",
+      },
+      Retail: {
+        title: "Розница",
+        blurb: "Товарные номера, которые читает касса. Длина фиксирована, контрольная цифра считается автоматически — вводите цифры без неё.",
+      },
+      Logistics: {
+        title: "Склад и логистика",
+        blurb: "Коробки, паллеты, накладные. Здесь важнее не плотность, а надёжное чтение с расстояния и печать на гофрокартоне.",
+      },
+      Industry: {
+        title: "Промышленность и спецформаты",
+        blurb: "Закрытые системы учёта, аптечная упаковка, банки крови, библиотеки. Форматы старые, но живые — их всё ещё требуют работающие парки считывателей.",
+      },
+    },
+    explainTitle: "Как выбрать формат",
+    explain: [
+      ["Товар в магазине", "EAN-13 — мировой стандарт, UPC-A — США и Канада, EAN-8 — для мелкой упаковки. Сам номер выдаёт GS1: генератор рисует символ, но не регистрирует номер за вами."],
+      ["Внутренний учёт", "Code 128 — самый практичный выбор: принимает буквы и цифры, компактен и читается любым сканером. Code 39 берут там, где парк оборудования старый."],
+      ["Коробки и паллеты", "ITF-14 рассчитан на печать по гофрокартону: толстые штрихи и рамка-bearer bar прощают растекание краски при флексопечати."],
+      ["Мелкая деталь", "Data Matrix плотнее всех на площади в несколько миллиметров и читается даже после разрушения трети символа — поэтому его выжигают лазером прямо по металлу."],
+      ["Билет или документ", "Aztec не требует пустого поля вокруг и экономит место на узком билете; PDF417 вмещает около 1850 символов и стоит на правах и посадочных талонах."],
+      ["Печать против экрана", "SVG — вектор: штрихи остаются резкими при любом физическом размере, это то, что просит типография. PNG берите для документа, презентации или экрана."],
+    ],
+    faqTitle: "Частые вопросы",
+    faqs: [
+      {
+        q: "Какой штрих-код нужен для продажи товара в магазине?",
+        a: "EAN-13 в большинстве стран и UPC-A в США и Канаде. Но одного генератора мало: чтобы номер был уникальным в мире, его нужно получить в GS1 — генератор корректно закодирует уже выданный вам номер в символ, готовый к печати.",
+      },
+      {
+        q: "Нужно ли самому считать контрольную цифру?",
+        a: "Нет. Для EAN-13, EAN-8, UPC-A и ITF-14 введите цифры без последней — контрольная посчитается автоматически. У ITF, MSI и Pharmacode собственной контрольной цифры в формате нет, поэтому значение вводится целиком.",
+      },
+      {
+        q: "Чем 2D-коды отличаются от обычных штрих-кодов?",
+        a: "Линейный код хранит идентификатор — короткую строку, по которой система находит запись в базе. Двумерный хранит саму запись: имя, адрес, номер партии, ссылку. Поэтому Data Matrix и PDF417 работают там, где базы под рукой нет.",
+      },
+      {
+        q: "Загружаются ли данные на сервер?",
+        a: "Нет. Штрих-код целиком рисуется в вашем браузере — введённое значение никуда не отправляется и нигде не сохраняется.",
+      },
+      {
+        q: "Можно ли сделать сразу много кодов?",
+        a: "Да: в генераторе есть пакетный режим — вставьте значения по одному в строке и скачайте все символы разом.",
+      },
+    ],
+    links: [
+      { href: "/qr-tools", label: "Генератор QR-кодов" },
+      { href: "/ru/convert", label: "Конвертер изображений" },
+      { href: "/qr-tools/decode", label: "Сканер кодов" },
+    ],
+  },
+  uz: {
+    title: "Shtrix kod generatori — 13 ta format onlayn va bepul",
+    desc: "13 ta formatdan istalganida shtrix kod yarating: EAN-13, UPC-A, Code 128, PDF417, Data Matrix, Aztec, ITF-14, Code 39 va boshqalar. Bosma uchun PNG yoki vektor SVG yuklab oling. Ro'yxatdan o'tmasdan, hammasi brauzerda.",
+    keywords: [
+      "shtrix kod generatori",
+      "shtrix kod yaratish onlayn",
+      "bepul shtrix kod generatori",
+      "tovar uchun shtrix kod",
+      "ean 13 generatori",
+      "bosma uchun svg shtrix kod",
+    ],
+    crumb: "Shtrix kodlar",
+    h1: "Shtrix kod generatori",
+    intro:
+      "Formatni vazifaga qarab tanlang — javondagi tovar, ombordagi quti, tirnoqdek mayda detal yoki guvohnoma. Qiymatni kiriting, ko'rinishini sozlang va ekran uchun PNG yoki bosmaxona uchun SVG yuklab oling. Hech narsa serverga yuklanmaydi: kod bevosita brauzerda chiziladi.",
+    meta: (n) => `${n} ta format · PNG va SVG · hammasi brauzerda`,
+    itemListName: "Shtrix kod formatlari",
+    groups: {
+      "2D codes": {
+        title: "Ikki o'lchovli kodlar",
+        blurb: "Faqat raqamni emas, matnni saqlaydi: bitta belgiga yuzlab-minglab belgi sig'adi. Bitta skanerlashda butun yozuvni — hujjat, chipta, detal markirovkasini — uzatish kerak bo'lganda ishlatiladi.",
+      },
+      Retail: {
+        title: "Chakana savdo",
+        blurb: "Kassa o'qiydigan tovar raqamlari. Uzunligi qat'iy, nazorat raqami avtomatik hisoblanadi — raqamlarni usiz kiriting.",
+      },
+      Logistics: {
+        title: "Ombor va logistika",
+        blurb: "Qutilar, pallettalar, yuk hujjatlari. Bu yerda zichlik emas, masofadan ishonchli o'qilishi va gofrokartonga bosilishi muhimroq.",
+      },
+      Industry: {
+        title: "Sanoat va maxsus formatlar",
+        blurb: "Yopiq hisob tizimlari, dorixona o'ramlari, qon banklari, kutubxonalar. Formatlar eski, lekin tirik — ishlab turgan o'quvchilar parki ularni hanuz talab qiladi.",
+      },
+    },
+    explainTitle: "Formatni qanday tanlash kerak",
+    explain: [
+      ["Do'kondagi tovar", "EAN-13 — jahon standarti, UPC-A — AQSh va Kanada, EAN-8 — mayda o'ram uchun. Raqamning o'zini GS1 beradi: generator belgini chizadi, lekin raqamni sizga ro'yxatdan o'tkazmaydi."],
+      ["Ichki hisob", "Code 128 — eng amaliy tanlov: harf va raqamni qabul qiladi, ixcham va istalgan skaner o'qiydi. Uskunalar parki eski bo'lgan joyda Code 39 olinadi."],
+      ["Qutilar va pallettalar", "ITF-14 gofrokartonga bosish uchun mo'ljallangan: qalin chiziqlar va bearer bar ramkasi fleksobosmadagi bo'yoq yoyilishini kechiradi."],
+      ["Mayda detal", "Data Matrix bir necha millimetr maydonda eng zich va belgining uchdan biri buzilsa ham o'qiladi — shuning uchun uni metallga lazer bilan kuydiradilar."],
+      ["Chipta yoki hujjat", "Aztec ga atrofdagi bo'sh maydon kerak emas va ingichka chiptada joy tejaydi; PDF417 esa 1850 ga yaqin belgini sig'diradi va guvohnoma hamda aviatalonlarda turadi."],
+      ["Bosma va ekran", "SVG — vektor: chiziqlar istalgan jismoniy o'lchamda keskin qoladi, bosmaxona aynan shuni so'raydi. PNG ni hujjat, taqdimot yoki ekran uchun oling."],
+    ],
+    faqTitle: "Ko'p so'raladigan savollar",
+    faqs: [
+      {
+        q: "Do'konda tovar sotish uchun qaysi shtrix kod kerak?",
+        a: "Ko'pchilik davlatlarda EAN-13, AQSh va Kanadada UPC-A. Ammo generatorning o'zi yetarli emas: raqam jahon miqyosida noyob bo'lishi uchun uni GS1 dan olish kerak — generator sizga berilgan raqamni bosmaga tayyor belgiga to'g'ri kodlaydi.",
+      },
+      {
+        q: "Nazorat raqamini o'zim hisoblashim kerakmi?",
+        a: "Yo'q. EAN-13, EAN-8, UPC-A va ITF-14 uchun raqamlarni oxirgisisiz kiriting — nazorat raqami avtomatik hisoblanadi. ITF, MSI va Pharmacode formatlarida o'z nazorat raqami yo'q, shuning uchun qiymat to'liq kiritiladi.",
+      },
+      {
+        q: "2D kodlar oddiy shtrix koddan nimasi bilan farq qiladi?",
+        a: "Chiziqli kod identifikatorni saqlaydi — tizim baza'dan yozuvni topadigan qisqa qator. Ikki o'lchovlisi yozuvning o'zini saqlaydi: ism, manzil, partiya raqami, havola. Shuning uchun Data Matrix va PDF417 baza yo'q joyda ham ishlaydi.",
+      },
+      {
+        q: "Ma'lumotlar serverga yuklanadimi?",
+        a: "Yo'q. Shtrix kod to'liq brauzeringizda chiziladi — kiritilgan qiymat hech qayerga yuborilmaydi va saqlanmaydi.",
+      },
+      {
+        q: "Bir vaqtda ko'p kod yasash mumkinmi?",
+        a: "Ha: generatorda paketli rejim bor — qiymatlarni har qatorga bittadan joylashtiring va barcha belgilarni birdaniga yuklab oling.",
+      },
+    ],
+    links: [
+      { href: "/qr-tools", label: "QR kod generatori" },
+      { href: "/uz/convert", label: "Rasm konverteri" },
+      { href: "/qr-tools/decode", label: "Kod skaneri" },
+    ],
+  },
+};

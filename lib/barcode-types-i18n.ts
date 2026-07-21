@@ -387,3 +387,6 @@ export function barcodeUI(lang: Lang) {
 
 /** Only symbologies we have written localized copy for (all 13 qualify). */
 export const LOC_BARCODE_TYPES = BARCODE_TYPES.filter((t) => C[t.slug]);
+
+/** One-line "what this format is for", reused as the hub card subtitle. */
+export const barcodeLabel = (slug: string, lang: Lang) => C[slug]?.[lang].label ?? "";

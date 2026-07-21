@@ -60,7 +60,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   split in two (the M114 false-claim trap, this time caught pre-deploy).
   LOC_BARCODE_TYPES is derived by filtering BARCODE_TYPES through the copy
   table, so an unwritten symbology can't be routed or sitemapped to a 404.
-  4-way hreflang reciprocal, sitemap 795, tsc clean.
+  4-way hreflang reciprocal, sitemap 799 verified live, tsc clean.
   Follow-up: /barcode has no RU/UZ hub, so these 26 pages have an EN-only
   parent and their breadcrumbs are 2-level.
 - [x] Jul 21: RU/UZ hubs for /resize and /convert (M115) — the 50 localized

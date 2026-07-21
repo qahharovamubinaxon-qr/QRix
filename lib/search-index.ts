@@ -86,6 +86,8 @@ const PAGES: SearchItem[] = [
   { title: "MSI Barcode Generator", href: "/barcode/msi-barcode", group: "Pages", keywords: "msi plessey shelf label inventory barcode retail stock" },
   { title: "Pharmacode Generator", href: "/barcode/pharmacode", group: "Pages", keywords: "pharmacode laetus pharmaceutical packaging control binary code" },
   { title: "Codabar Generator", href: "/barcode/codabar", group: "Pages", keywords: "codabar nw-7 monarch blood bank library barcode airbill" },
+  { title: "Генератор штрих-кодов (RU)", href: "/ru/barcode", group: "Pages", keywords: "генератор штрих кодов создать штрих код онлайн бесплатно 13 форматов ru" },
+  { title: "Shtrix kod generatori (UZ)", href: "/uz/barcode", group: "Pages", keywords: "shtrix kod generatori yaratish onlayn bepul 13 format uz" },
   { title: "Генератор PDF417 (RU)", href: "/ru/barcode/pdf417", group: "Pages", keywords: "генератор pdf417 штрих код водительское удостоверение посадочный талон 2d ru" },
   { title: "Генератор Data Matrix (RU)", href: "/ru/barcode/data-matrix", group: "Pages", keywords: "датаматрикс data matrix генератор маркировка код квадратный 2d ru" },
   { title: "Генератор EAN-13 (RU)", href: "/ru/barcode/ean-13", group: "Pages", keywords: "генератор ean 13 штрих код товара розница создать онлайн ru" },

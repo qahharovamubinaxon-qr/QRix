@@ -4,7 +4,9 @@ import { presetGrad } from "@/lib/resize-presets";
 import { pairGrad } from "@/lib/convert-pairs";
 import { LOC_RESIZE_PRESETS, resizeLabel } from "@/lib/resize-presets-i18n";
 import { LOC_CONVERT_PAIRS, convUI } from "@/lib/convert-pairs-i18n";
-import { RESIZE_HUB, CONVERT_HUB, hubHome, type Lang } from "@/lib/hub-i18n";
+import { BARCODE_FAMILIES, typeGrad } from "@/lib/barcode-types";
+import { LOC_BARCODE_TYPES, barcodeLabel } from "@/lib/barcode-types-i18n";
+import { RESIZE_HUB, CONVERT_HUB, BARCODE_HUB, hubHome, type Lang } from "@/lib/hub-i18n";
 
 type Card = { href: string; grad: string; emoji: string; title: string; sub: string; ldName: string };
 type Section = { key: string; title: string; blurb?: string; cards: Card[] };
@@ -52,6 +54,28 @@ function convertSections(lang: Lang): Section[] {
     .filter((s) => s.cards.length > 0);
 }
 
+/** Families come from BARCODE_FAMILIES, and anything a future family adds is
+    appended rather than dropped — same self-defence as TARGET_ORDER above. */
+function barcodeSections(lang: Lang): Section[] {
+  const g = BARCODE_HUB[lang].groups!;
+  const fams = [...new Set([...BARCODE_FAMILIES, ...LOC_BARCODE_TYPES.map((t) => t.family)])];
+  return fams
+    .map((fam) => ({
+      key: fam,
+      title: g[fam]?.title ?? fam,
+      blurb: g[fam]?.blurb,
+      cards: LOC_BARCODE_TYPES.filter((t) => t.family === fam).map((t) => ({
+        href: `/${lang}/barcode/${t.slug}`,
+        grad: typeGrad(t),
+        emoji: t.emoji,
+        title: t.name,
+        sub: barcodeLabel(t.slug, lang),
+        ldName: t.name,
+      })),
+    }))
+    .filter((s) => s.cards.length > 0);
+}
+
 function HubCard({ c }: { c: Card }) {
   return (
     <Link href={c.href} className="qx-card p-4 flex items-center gap-3 transition-opacity hover:opacity-85">
@@ -66,12 +90,22 @@ function HubCard({ c }: { c: Card }) {
   );
 }
 
-/** Localized parent for the /resize/<preset> and /convert/<pair> families.
-    Same shell for both so the two hubs stay visually identical to their EN
-    twins; the sections, copy and links come from lib/hub-i18n.ts. */
-export default function LocalizedHub({ kind, lang }: { kind: "resize" | "convert"; lang: Lang }) {
-  const c = kind === "resize" ? RESIZE_HUB[lang] : CONVERT_HUB[lang];
-  const sections = kind === "resize" ? resizeSections(lang) : convertSections(lang);
+export type HubKind = "resize" | "convert" | "barcode";
+
+const HUB_COPY = { resize: RESIZE_HUB, convert: CONVERT_HUB, barcode: BARCODE_HUB };
+const SECTIONS: Record<HubKind, (lang: Lang) => Section[]> = {
+  resize: resizeSections,
+  convert: convertSections,
+  barcode: barcodeSections,
+};
+
+/** Localized parent for the /resize/<preset>, /convert/<pair> and
+    /barcode/<type> families. Same shell for all three so the hubs stay
+    visually identical to their EN twins; the sections, copy and links come
+    from lib/hub-i18n.ts. */
+export default function LocalizedHub({ kind, lang }: { kind: HubKind; lang: Lang }) {
+  const c = HUB_COPY[kind][lang];
+  const sections = SECTIONS[kind](lang);
   const path = `/${lang}/${kind}`;
   const total = sections.reduce((n, s) => n + s.cards.length, 0);
   const flat = sections.flatMap((s) => s.cards);

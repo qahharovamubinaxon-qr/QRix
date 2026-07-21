@@ -3,12 +3,15 @@ import BarcodeClient from "@/components/BarcodeClient";
 import { jsonLd, breadcrumbLd, softwareAppLd, faqLd, howToLd } from "@/lib/seo";
 import { type BarcodeType, relatedTypes, typeGrad } from "@/lib/barcode-types";
 import { locBarcode, barcodeUI } from "@/lib/barcode-types-i18n";
+import { BARCODE_HUB } from "@/lib/hub-i18n";
 
 export default function LocalizedBarcodePage({ type, lang }: { type: BarcodeType; lang: "ru" | "uz" }) {
   const c = locBarcode(type, lang);
   const tt = barcodeUI(lang);
   const base = `/${lang}`;
   const path = `${base}/barcode/${type.slug}`;
+  const hub = `${base}/barcode`;
+  const hubCrumb = BARCODE_HUB[lang].crumb;
   const related = relatedTypes(type);
 
   return (
@@ -19,6 +22,7 @@ export default function LocalizedBarcodePage({ type, lang }: { type: BarcodeType
           softwareAppLd(c.h1, c.desc, path),
           breadcrumbLd([
             { name: tt.home, path: "/" },
+            { name: hubCrumb, path: hub },
             { name: c.h1, path },
           ]),
           howToLd(c.h1, c.desc, path, c.steps),
@@ -28,6 +32,8 @@ export default function LocalizedBarcodePage({ type, lang }: { type: BarcodeType
       <main className="max-w-3xl mx-auto px-5 lg:px-8 pt-10 lg:pt-16 pb-24">
         <nav className="text-[12px] mb-4" style={{ color: "var(--text-faint)" }}>
           <Link href="/" className="hover:underline">{tt.home}</Link>
+          <span className="mx-1">›</span>
+          <Link href={hub} className="hover:underline">{hubCrumb}</Link>
           <span className="mx-1">›</span> {type.name}
         </nav>
 
@@ -88,7 +94,7 @@ export default function LocalizedBarcodePage({ type, lang }: { type: BarcodeType
             </Link>
           </div>
           <div className="mt-5 pt-5 flex flex-wrap gap-4" style={{ borderTop: "1px solid var(--border)" }}>
-            <Link href="/barcode" className="text-[12.5px] font-semibold hover:opacity-80" style={{ color: "var(--primary-bright)" }}>{tt.all} →</Link>
+            <Link href={hub} className="text-[12.5px] font-semibold hover:opacity-80" style={{ color: "var(--primary-bright)" }}>{tt.all} →</Link>
             <Link href="/qr-tools" className="text-[12.5px] font-semibold hover:opacity-80" style={{ color: "var(--primary-bright)" }}>{tt.qr} →</Link>
           </div>
         </section>

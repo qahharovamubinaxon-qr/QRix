@@ -76,6 +76,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/qr-tools/decode", 0.8),
     entry("/barcode", 0.8),
     ...BARCODE_TYPES.map((t) => entry(`/barcode/${t.slug}`, 0.8)),
+    entry("/ru/barcode", 0.85),
+    entry("/uz/barcode", 0.85),
     ...LOC_BARCODE_TYPES.flatMap((t) => [entry(`/ru/barcode/${t.slug}`, 0.75), entry(`/uz/barcode/${t.slug}`, 0.75)]),
     entry("/downloader", 0.9),
     entry("/widgets", 0.7),

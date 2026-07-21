@@ -15,6 +15,7 @@ export const metadata: Metadata = pageMeta({
     "free barcode generator", "ean 13 generator", "upc barcode", "code 128 generator",
     "code 39", "itf-14", "2d barcode generator", "barcode maker online", "product barcode",
   ],
+  languages: { en: "/barcode", ru: "/ru/barcode", uz: "/uz/barcode", "x-default": "/barcode" },
 });
 
 const FAQS = [
