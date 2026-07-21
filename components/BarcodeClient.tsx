@@ -13,9 +13,14 @@ type Format = {
   sample: string;
   numeric?: boolean;
   fixedLen?: number[];
+  twoD?: boolean;   // 2D stacked/matrix code — rendered by bwip-js, not JsBarcode
+  bcid?: string;    // bwip-js symbology id for 2D formats
 };
 
 const FORMATS: Format[] = [
+  { id: "PDF417", name: "PDF417", hint: "2D stacked barcode used on ID cards, driver's licenses, boarding passes and shipping labels — holds a lot of text.", sample: "QRIX PDF417 — https://qrixtools.com", twoD: true, bcid: "pdf417" },
+  { id: "AZTEC", name: "Aztec Code", hint: "Compact 2D code common on transport and event tickets — scans without a quiet zone.", sample: "QRIX AZTEC TICKET 2026", twoD: true, bcid: "azteccode" },
+  { id: "DATAMATRIX", name: "Data Matrix", hint: "Tiny square 2D code for marking small parts, electronics and pharma packaging.", sample: "QRIX-DM-0001", twoD: true, bcid: "datamatrix" },
   { id: "CODE128", name: "Code 128", hint: "Any text or numbers — the universal barcode for logistics and inventory.", sample: "QRIX-12345" },
   { id: "EAN13", name: "EAN-13", hint: "13-digit retail product code used worldwide (12 digits + auto checksum).", sample: "590123412345", numeric: true, fixedLen: [12, 13] },
   { id: "EAN8", name: "EAN-8", hint: "Short 8-digit retail code for small packages.", sample: "9638507", numeric: true, fixedLen: [7, 8] },
@@ -42,36 +47,47 @@ export default function BarcodeClient() {
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkDone, setBulkDone] = useState<{ ok: number; fail: number } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const validationMsg = useMemo(() => {
     if (!value) return "Enter a value to encode";
+    if (format.twoD) return null;   // 2D codes accept arbitrary text
     if (format.numeric && !/^\d+$/.test(value) && format.id !== "codabar") return "This format accepts digits only";
     if (format.fixedLen && !format.fixedLen.includes(value.length)) return `Needs ${format.fixedLen.join(" or ")} digits (checksum auto-added)`;
     return null;
   }, [value, format]);
 
   useEffect(() => {
-    if (!svgRef.current || !value) return;
+    if (!value) return;
     let cancelled = false;
     (async () => {
+      // ── 2D codes (PDF417 / Aztec / Data Matrix) via bwip-js ──
+      if (format.twoD) {
+        try {
+          const bwipjs = (await import("bwip-js")).default as any;
+          if (cancelled || !canvasRef.current) return;
+          bwipjs.toCanvas(canvasRef.current, {
+            bcid: format.bcid, text: value, scale: 4,
+            includetext: showText, textxalign: "center",
+            barcolor: lineColor.replace("#", ""), backgroundcolor: "FFFFFF",
+            paddingwidth: 6, paddingheight: 6,
+          });
+          setValid(true);
+        } catch { setValid(false); }
+        return;
+      }
+      // ── 1D linear codes via JsBarcode ──
+      if (!svgRef.current) return;
       const JsBarcode = (await import("jsbarcode")).default;
       if (cancelled || !svgRef.current) return;
       try {
         JsBarcode(svgRef.current, value, {
-          format: format.id,
-          lineColor,
-          background: "#ffffff",
-          height,
-          width: 2,
-          margin: 14,
-          displayValue: showText,
-          font: "monospace",
-          fontSize: 15,
+          format: format.id, lineColor, background: "#ffffff",
+          height, width: 2, margin: 14, displayValue: showText,
+          font: "monospace", fontSize: 15,
           valid: (ok: boolean) => setValid(ok),
         });
-      } catch {
-        setValid(false);
-      }
+      } catch { setValid(false); }
     })();
     return () => { cancelled = true; };
   }, [value, format, lineColor, showText, height]);
@@ -82,16 +98,31 @@ export default function BarcodeClient() {
   }
 
   async function downloadSvg() {
-    if (!svgRef.current || !valid) return;
+    if (!valid) return;
     trackTool("barcode", { format: format.id, type: "svg" });
     const { saveBlob } = await import("@/lib/save-file");
+    // 2D → bwip-js emits a crisp vector SVG string
+    if (format.twoD) {
+      const bwipjs = (await import("bwip-js")).default as any;
+      const svg = bwipjs.toSVG({ bcid: format.bcid, text: value, scale: 4, includetext: showText, textxalign: "center", barcolor: lineColor.replace("#", "") });
+      await saveBlob(new Blob([svg], { type: "image/svg+xml" }), `barcode-${format.id.toLowerCase()}.svg`);
+      return;
+    }
+    if (!svgRef.current) return;
     const xml = new XMLSerializer().serializeToString(svgRef.current);
     await saveBlob(new Blob([xml], { type: "image/svg+xml" }), `barcode-${format.id.toLowerCase()}.svg`);
   }
 
   async function downloadPng() {
-    if (!svgRef.current || !valid) return;
+    if (!valid) return;
     trackTool("barcode", { format: format.id, type: "png" });
+    // 2D → straight from the bwip-js canvas
+    if (format.twoD && canvasRef.current) {
+      const blob = await new Promise<Blob | null>((r) => canvasRef.current!.toBlob(r, "image/png"));
+      if (blob) { const { saveBlob } = await import("@/lib/save-file"); await saveBlob(blob, `barcode-${format.id.toLowerCase()}.png`); }
+      return;
+    }
+    if (!svgRef.current) return;
     const xml = new XMLSerializer().serializeToString(svgRef.current);
     const img = new Image();
     const url = URL.createObjectURL(new Blob([xml], { type: "image/svg+xml" }));
@@ -260,12 +291,12 @@ export default function BarcodeClient() {
         <div className="flex items-center justify-center">
           <div className="rounded-2xl p-6 w-full flex items-center justify-center min-h-[260px]"
             style={{ background: "#ffffff", border: "1px solid var(--border)", boxShadow: "0 16px 44px rgba(0,0,0,.25)" }}>
-            {value && valid ? (
-              <svg ref={svgRef} className="max-w-full h-auto" />
-            ) : (
+            {/* refs stay mounted so the render effect always has its target */}
+            <canvas ref={canvasRef} className={format.twoD && value && valid ? "max-w-full h-auto" : "hidden"} style={{ maxHeight: 300 }} />
+            <svg ref={svgRef} className={!format.twoD && value && valid ? "max-w-full h-auto" : "hidden"} />
+            {(!value || !valid) && (
               <div className="text-center text-sm px-6" style={{ color: "#94a3b8" }}>
                 {value ? "Invalid value for this format — check the hint above." : "Enter a value to see your barcode."}
-                <svg ref={svgRef} className="hidden" />
               </div>
             )}
           </div>

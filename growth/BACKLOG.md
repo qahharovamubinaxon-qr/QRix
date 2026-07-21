@@ -7,12 +7,8 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   NOTE: *-to-tiff works; tiff-to-* needs a TIFF *decoder* first (browsers
   can't load .tiff into an <img>), so ship the to-tiff half or add a
   baseline decoder. Scope this before starting.
-- [~] RU/UZ twins for /resize/[preset] (copy the /convert i18n pattern in
-  lib/convert-pairs-i18n.ts) — 3-way hreflang, +50 pages. Highest-ROI
-  unblocked item: infra proven, pure copy work.
-  next: write lib/resize-presets-i18n.ts (25 slugs × ru/uz), then
-  components/LocalizedResizePage.tsx + app/{ru,uz}/resize/[preset], then
-  hreflang on the EN page + sitemap + IndexNow.
+- [ ] RU/UZ twins for the /resize hub itself — the 50 new localized preset
+  pages currently have an EN-only parent. Small copy job, closes the loop.
 - [ ] Stats page /qr-code-statistics — 20+ sourced stats; citation magnet
   for LLMs + journalists (backlinks).
 - [ ] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile.
@@ -42,6 +38,20 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 21: RU/UZ twins for /resize/<preset> (M111) — 50 localized pages
+  at /ru/resize/<size> and /uz/resize/<size> on the same real
+  ImageConvertClient (resize:WxH engine) via components/LocalizedResizePage.
+  lib/resize-presets-i18n.ts holds written per-size copy for all 25 presets
+  in both languages: what the size is, its caveat, and 2 size-specific FAQs
+  each, composed with an orientation-aware fill/fit line + 3 shared FAQs.
+  3-way hreflang made reciprocal (EN page now declares ru/uz), sitemap 738
+  URLs, 4 localized search-index entries. Verified live: localized titles,
+  4-way hreflang, correct canonical, unique body, SoftwareApp+Breadcrumb+
+  HowTo+FAQ JSON-LD. IndexNow 200 for all 738.
+  Follow-up: the /resize hub is EN-only — RU/UZ hub twins would give these
+  50 pages a proper localized parent (small, high-ROI).
+- [x] Jul 21: premium tool-control surfaces for QR Art + Promo Video makers
+  (shared .qx-tool-card/.qx-tool-in/.qx-chip2 classes, light mode included).
 - [x] Jul 21: resize presets batch 2 (M110) — 9 more sizes, 25 presets /
   26 URLs total. 1080x1920 vertical, 1600x900, 1920x1200, 1024x1024,
   2048x2048, 300x300, and 300-DPI print 8x10in / A5 / A3. Copy-only —
