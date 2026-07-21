@@ -2,12 +2,13 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [~] Converter-pair pages `/convert/[pair]` — png/jpg/webp/avif/bmp, 20
-  pairs on the existing ImageConvertClient. Registry + SSG route + unique
-  copy per pair + JSON-LD + sitemap + IndexNow + search index.
-  next: code shipped (3cc26a6) — awaiting Vercel, then verify live + IndexNow.
 - [ ] RU/UZ for converter pages — localized copy, 3-way hreflang
-  (reuse the localized-tools pattern).
+  (reuse the localized-tools pattern). 20 pairs × 2 langs = 40 pages;
+  add `languages:` to /convert/[pair] pageMeta when the twins exist.
+- [ ] TIFF target in ImageConvertClient is still silently broken — same
+  bug class as the BMP/ICO fix (canvas.toBlob has no image/tiff, so it
+  returns PNG bytes named .tiff). Write a real baseline TIFF encoder or
+  drop the option. Blocks a tiff-to-* / *-to-tiff pair family.
 - [ ] Resize-preset pages `/resize/[preset]` — ~25 presets (instagram
   1080x1080, story 1080x1920, youtube thumb 1280x720, passport sizes,
   1920x1080, 4k) on the existing resize client.
@@ -40,6 +41,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 21: converter-pair pages — /convert hub + 20 `/convert/[pair]`
+  SSG pages (png/jpg/webp/avif/bmp/gif/ico) on the real ImageConvertClient,
+  unique copy + HowTo/FAQ/SoftwareApp/Breadcrumb JSON-LD, sitemap (21 URLs)
+  + search index + TopNav + llms.txt, all verified 200 live, IndexNow 200.
+  Also fixed silently-broken BMP/ICO encoders (canvas.toBlob returned PNG
+  bytes with a lying extension) — now real 24-bit BMP + real ICO container.
 - [x] Jul 19-21: downloader (16 platforms + bot + channel), RU/UZ pages
   (downloader + 8 tools), comparison pages, embed widget, viral QR footer,
   IndexNow automation, GA4, brand film v2, weekly backups, GSC/Bing/Yandex.
