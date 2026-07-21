@@ -155,10 +155,19 @@ export default function BarcodeClient() {
     trackTool("barcode", { format: format.id, type: "bulk", count: lines.length });
     try {
       const [{ default: JsBarcode }, { default: JSZip }] = await Promise.all([import("jsbarcode"), import("jszip")]);
+      const bwipjs = format.twoD ? ((await import("bwip-js")).default as any) : null;
       const zip = new JSZip();
       let ok = 0, fail = 0;
       for (const line of lines) {
         try {
+          // 2D codes: render each line via bwip-js to an offscreen canvas
+          if (format.twoD) {
+            const cv = document.createElement("canvas");
+            bwipjs.toCanvas(cv, { bcid: format.bcid, text: line, scale: 4, includetext: showText, textxalign: "center", barcolor: lineColor.replace("#", "") });
+            const blob = await new Promise<Blob | null>((r) => cv.toBlob(r, "image/png"));
+            if (blob) { zip.file(`${line.replace(/[^\w.-]+/g, "_").slice(0, 40)}.png`, blob); ok++; } else fail++;
+            continue;
+          }
           const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
           let lineOk = true;
           JsBarcode(svg, line, {

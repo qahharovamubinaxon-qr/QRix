@@ -4,18 +4,20 @@ import BarcodeClient from "@/components/BarcodeClient";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 
 export const metadata: Metadata = pageMeta({
-  title: "Free Barcode Generator — EAN-13, UPC, Code 128 & More",
+  title: "Free Barcode Generator — PDF417, Aztec, EAN-13, Code 128 & More",
   description:
-    "Generate every barcode type for free: EAN-13, EAN-8, UPC-A, Code 128, Code 39, ITF-14, MSI, Pharmacode and Codabar. Download crisp PNG or SVG — no signup.",
+    "Generate 13 barcode types free: PDF417, Aztec, Data Matrix, EAN-13, EAN-8, UPC-A, Code 128, Code 39, ITF-14, MSI, Pharmacode and Codabar. Download crisp PNG or SVG — no signup.",
   path: "/barcode",
   keywords: [
-    "barcode generator", "free barcode generator", "ean 13 generator", "upc barcode",
-    "code 128 generator", "code 39", "itf-14", "barcode maker online", "product barcode",
+    "barcode generator", "pdf417 generator", "aztec code generator", "data matrix generator",
+    "free barcode generator", "ean 13 generator", "upc barcode", "code 128 generator",
+    "code 39", "itf-14", "2d barcode generator", "barcode maker online", "product barcode",
   ],
 });
 
 const FAQS = [
-  { q: "Which barcode types can I generate?", a: "Code 128, EAN-13, EAN-8, UPC-A, Code 39, ITF-14, ITF, MSI, Pharmacode and Codabar — all the major retail, logistics and industrial formats." },
+  { q: "Which barcode types can I generate?", a: "13 types: the 2D codes PDF417, Aztec and Data Matrix, plus the 1D codes Code 128, EAN-13, EAN-8, UPC-A, Code 39, ITF-14, ITF, MSI, Pharmacode and Codabar — all the major retail, logistics, ID and industrial formats." },
+  { q: "What is a PDF417 barcode used for?", a: "PDF417 is a 2D stacked barcode that stores a lot of data — it's used on driver's licenses, ID cards, boarding passes, shipping labels and government forms. Paste your text and download a crisp PNG or SVG." },
   { q: "Is the barcode generator free?", a: "Yes — unlimited barcodes, free, with no watermark and no signup." },
   { q: "What's the difference between EAN-13 and UPC-A?", a: "Both are retail product codes. EAN-13 (13 digits) is the international standard; UPC-A (12 digits) is the US/Canada standard. Scanners read both." },
   { q: "Can I print the barcode on packaging?", a: "Yes — download the SVG for infinitely sharp print quality, or a high-resolution PNG." },
