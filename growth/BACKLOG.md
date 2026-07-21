@@ -2,9 +2,6 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] RU/UZ for converter pages — localized copy, 3-way hreflang
-  (reuse the localized-tools pattern). 20 pairs × 2 langs = 40 pages;
-  add `languages:` to /convert/[pair] pageMeta when the twins exist.
 - [ ] TIFF target in ImageConvertClient is still silently broken — same
   bug class as the BMP/ICO fix (canvas.toBlob has no image/tiff, so it
   returns PNG bytes named .tiff). Write a real baseline TIFF encoder or
@@ -41,6 +38,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] RU/UZ converter pages — 40 pages, 3-way hreflang, IndexNow (M107).
 - [x] Jul 21: converter-pair pages — /convert hub + 20 `/convert/[pair]`
   SSG pages (png/jpg/webp/avif/bmp/gif/ico) on the real ImageConvertClient,
   unique copy + HowTo/FAQ/SoftwareApp/Breadcrumb JSON-LD, sitemap (21 URLs)
