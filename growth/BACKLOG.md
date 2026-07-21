@@ -2,17 +2,19 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [~] RU/UZ twins for the /resize hub itself — the 50 localized preset
-  pages currently have an EN-only parent. Small copy job, closes the loop.
-  Scope grew: /convert has the same gap (40 localized pairs, EN-only parent),
-  so this ships 4 hubs — /ru|/uz × resize|convert — off one shared component.
-  next: lib/hub-i18n.ts copy → components/LocalizedHub.tsx → 4 routes →
-  hreflang on the EN hubs → sitemap + search-index → deploy + IndexNow.
+- [ ] RU/UZ hubs for /barcode — the 26 new localized symbology pages have
+  an EN-only parent, exactly the gap M115 just closed for resize/convert.
+  LocalizedHub.tsx already exists; this is a third `kind` + copy in
+  lib/hub-i18n.ts. Also repoints the child breadcrumbs (currently 2-level
+  Home › Type) and the "all 13 types" link, which today leave for /barcode.
 - [ ] Audit every localized template for claims the tool doesn't support.
   The RU/UZ convert template promised batch conversion on 40 live pages
   (fixed in M114); the same composed-copy pattern is used by the resize,
   downloader and tool-page i18n files, so check those for promises the UI
   never implemented. False claims are worse than thin copy.
+  Done so far: convert (M114), barcode (M116 — the numeric step promised an
+  automatic check digit ITF/MSI/Pharmacode never get). Still to check:
+  resize-presets-i18n, downloader i18n, tool-page i18n, hub-i18n.
 - [ ] Batch/multi-file conversion for real — AiDropzone takes a single file
   everywhere. ImageBatchClient exists but is a separate engine. Wiring
   multi-file into the /convert pages would make the (now removed) claim
@@ -46,6 +48,31 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 21: RU/UZ twins for all 13 barcode symbologies (M116) — 26 pages at
+  /ru|/uz/barcode/<type> on the real BarcodeClient. lib/barcode-types-i18n.ts
+  carries written facts per format in both languages (Aztec's centre bullseye
+  is why it needs no quiet zone; PDF417's 17-module codeword is why it looks
+  like a ladder; an EAN prefix marks where the number was registered, not
+  where the goods were made) plus 2 own FAQs each + 3 shared trust FAQs.
+  Caught before shipping: the composed numeric "what to type" step promised
+  an automatic check digit, but only EAN-13/EAN-8/UPC-A/ITF-14 carry fixedLen
+  in BarcodeClient — ITF, MSI and Pharmacode get none, so that step is now
+  split in two (the M114 false-claim trap, this time caught pre-deploy).
+  LOC_BARCODE_TYPES is derived by filtering BARCODE_TYPES through the copy
+  table, so an unwritten symbology can't be routed or sitemapped to a 404.
+  4-way hreflang reciprocal, sitemap 795, tsc clean.
+  Follow-up: /barcode has no RU/UZ hub, so these 26 pages have an EN-only
+  parent and their breadcrumbs are 2-level.
+- [x] Jul 21: RU/UZ hubs for /resize and /convert (M115) — the 50 localized
+  resize presets and 40 localized converter pairs had an EN-only parent that
+  dropped RU/UZ visitors into English on every breadcrumb and "all sizes"
+  path. Four hubs off one shared LocalizedHub, each carrying the head term
+  its children can't target ("конвертер изображений", "rasm o'lchamini
+  o'zgartirish"), copy written for RU/UZ intent (document-photo and print
+  queries) rather than translated. Convert sections self-defend against a
+  forgotten target format; cards link only LOC_* entries so a pair without
+  localized copy can't be linked to a 404; child breadcrumbs now name and
+  point at the hub for a real 3-level trail. Live on all four URLs.
 - [x] Jul 21: TIFF converter pairs + client-side TIFF decoder (M114) — 6 EN
   pairs (tiff-to-png/jpg/webp, png/jpg/webp-to-tiff) with RU/UZ twins = 18
   new URLs, sitemap 769. The work was the decoder: no browser can load a
