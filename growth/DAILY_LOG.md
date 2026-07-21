@@ -8,3 +8,4 @@
 2026-07-21 17:52 — shipped: 16 resize-preset pages /resize/<size> + hub (generic resize:WxH engine) | pages:17 | live:yes | next: resize presets batch 2 (~9 more, copy only)
 2026-07-21 18:20 — shipped: resize presets batch 2 (9 more sizes, 25 presets / 26 URLs) | pages:9 | live:yes | next: RU/UZ twins for /resize (copy convert-pairs-i18n pattern, +50 pages)
 2026-07-21 19:12 — shipped: RU/UZ twins for /resize/<preset> (50 localized pages, 3-way hreflang reciprocal, sitemap 738, IndexNow 200) | pages:50 | live:yes | next: RU/UZ twins for the /resize hub (localized parent for the 50 new pages)
+2026-07-21 20:58 — shipped: TIFF converter pairs + client-side TIFF decoder with capability guard (M114) | pages:18 | live:yes | next: RU/UZ twins for the /resize hub (localized parent for the 50 M111 pages)

@@ -2,18 +2,17 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [~] TIFF converter-pair pages — tiff-to-png/jpg/webp and
-  png/jpg/webp-to-tiff on the /convert/[pair] infra (6 pages).
-  SCOPED: the encoder half already works (M108 shipped a real baseline TIFF
-  encoder). The decoder half is the work: `loadImg()` in ImageConvertClient
-  uses `new Image()`, which no browser can point at a .tiff — and most real
-  TIFFs are LZW/Deflate compressed, so a hand-rolled baseline-only decoder
-  would fail on the majority of user files. Plan: add UTIF (MIT, no deps),
-  decode TIFF → ImageData → PNG blob → feed the existing Image() path so
-  everything downstream is unchanged.
-  next: install utif, wire decode into loadImg, then write the 6 pair entries.
-- [ ] RU/UZ twins for the /resize hub itself — the 50 new localized preset
+- [ ] RU/UZ twins for the /resize hub itself — the 50 localized preset
   pages currently have an EN-only parent. Small copy job, closes the loop.
+- [ ] Audit every localized template for claims the tool doesn't support.
+  The RU/UZ convert template promised batch conversion on 40 live pages
+  (fixed in M114); the same composed-copy pattern is used by the resize,
+  downloader and tool-page i18n files, so check those for promises the UI
+  never implemented. False claims are worse than thin copy.
+- [ ] Batch/multi-file conversion for real — AiDropzone takes a single file
+  everywhere. ImageBatchClient exists but is a separate engine. Wiring
+  multi-file into the /convert pages would make the (now removed) claim
+  true and is a genuine competitive gap vs FreeConvert/TinyWow.
 - [ ] Stats page /qr-code-statistics — 20+ sourced stats; citation magnet
   for LLMs + journalists (backlinks).
 - [ ] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile.
@@ -43,6 +42,24 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 21: TIFF converter pairs + client-side TIFF decoder (M114) — 6 EN
+  pairs (tiff-to-png/jpg/webp, png/jpg/webp-to-tiff) with RU/UZ twins = 18
+  new URLs, sitemap 769. The work was the decoder: no browser can load a
+  .tiff into an <img>, so lib/tiff-decode.ts adds UTIF (MIT, dynamically
+  imported — confirmed absent from every eager chunk, so non-TIFF users pay
+  nothing). Critically it refuses what UTIF gets wrong: JPEG-in-TIFF,
+  WebP-in-TIFF, tiled layouts, CCITT Huffman and Adobe Deflate all decode to
+  garbage or black rather than failing, so compression/layout tags are
+  checked against an allowlist verified pixel-exact against libtiff and
+  anything else gets an error naming the codec. Multi-page scans get a page
+  selector. Verified: 29-assertion Node suite (LZW/Deflate/PackBits/none/
+  CCITT-G4/multi-strip/odd-width/RGBA/16-bit/grayscale all maxErr=0; every
+  unsupported form refused; multi-page IFD chains correct), tsc clean, all
+  18 URLs 200 live with 4-way hreflang + SoftwareApp/Breadcrumb/HowTo/FAQ
+  JSON-LD, TIFF code confirmed present in the deployed chunk, IndexNow 200
+  for all 769. Also fixed: the /convert hub's hardcoded ORDER had no TIFF,
+  which would have orphaned the three *-to-tiff pages (now self-defending),
+  and the RU/UZ template's false batch-conversion promise on 40 live pages.
 - [x] Jul 21: RU/UZ twins for /resize/<preset> (M111) — 50 localized pages
   at /ru/resize/<size> and /uz/resize/<size> on the same real
   ImageConvertClient (resize:WxH engine) via components/LocalizedResizePage.
