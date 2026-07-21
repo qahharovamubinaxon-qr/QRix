@@ -49,3 +49,6 @@ geoip/*.mmdb
 
 # graphify local knowledge-graph output (dev tool, not site code)
 /graphify-out/
+
+# growth continuous-loop lock (per-machine, never committed)
+growth/.lock
