@@ -7,9 +7,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   NOTE: *-to-tiff works; tiff-to-* needs a TIFF *decoder* first (browsers
   can't load .tiff into an <img>), so ship the to-tiff half or add a
   baseline decoder. Scope this before starting.
-- [ ] RU/UZ twins for /resize/[preset] (copy the /convert i18n pattern in
+- [~] RU/UZ twins for /resize/[preset] (copy the /convert i18n pattern in
   lib/convert-pairs-i18n.ts) — 3-way hreflang, +50 pages. Highest-ROI
   unblocked item: infra proven, pure copy work.
+  next: write lib/resize-presets-i18n.ts (25 slugs × ru/uz), then
+  components/LocalizedResizePage.tsx + app/{ru,uz}/resize/[preset], then
+  hreflang on the EN page + sitemap + IndexNow.
 - [ ] Stats page /qr-code-statistics — 20+ sourced stats; citation magnet
   for LLMs + journalists (backlinks).
 - [ ] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile.
