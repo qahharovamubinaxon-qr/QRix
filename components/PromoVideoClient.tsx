@@ -133,6 +133,15 @@ export default function PromoVideoClient() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const logoRef = useRef<HTMLCanvasElement | null>(null);
   const [hasLogo, setHasLogo] = useState(false);
+  // background photo (whole clip) + one timed overlay image (appears where/when)
+  const bgRef = useRef<HTMLCanvasElement | null>(null);
+  const [hasBg, setHasBg] = useState(false);
+  const ovRef = useRef<HTMLCanvasElement | null>(null);
+  const [hasOv, setHasOv] = useState(false);
+  const [ovPos, setOvPos] = useState({ x: 0.5, y: 0.28 });   // center fraction
+  const [ovScale, setOvScale] = useState(0.4);               // width as fraction of canvas
+  const [ovStart, setOvStart] = useState(0.3);               // appears at % of the video
+  const [ovEnd, setOvEnd] = useState(0.75);                  // disappears at %
   const qrRef = useRef<HTMLCanvasElement | null>(null);
   const startRef = useRef<number>(0);
   const rafRef = useRef(0);
@@ -181,6 +190,16 @@ export default function PromoVideoClient() {
     } catch { setErr("Couldn't read that image."); }
   };
 
+  const readToCanvas = async (file: File) => {
+    const bmp = await createImageBitmap(file);
+    const c = document.createElement("canvas");
+    c.width = bmp.width; c.height = bmp.height;
+    c.getContext("2d")!.drawImage(bmp, 0, 0);
+    return c;
+  };
+  const onBg = async (file?: File) => { if (!file) return; try { bgRef.current = await readToCanvas(file); setHasBg(true); } catch { setErr("Couldn't read that image."); } };
+  const onOverlay = async (file?: File) => { if (!file) return; try { ovRef.current = await readToCanvas(file); setHasOv(true); } catch { setErr("Couldn't read that image."); } };
+
   /* one frame of the promo at time t (0..1) */
   const drawFrame = (ctx: CanvasRenderingContext2D, t: number, W: number, H: number) => {
     const th = theme;
@@ -191,6 +210,16 @@ export default function PromoVideoClient() {
     const g = ctx.createLinearGradient(0, 0, W, H);
     g.addColorStop(0, th.bgB); g.addColorStop(1, th.bgA);
     ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    // background photo: cover-fit with a slow Ken-Burns zoom + dark scrim so text stays legible
+    const bg = bgRef.current;
+    if (bg) {
+      const z = 1.06 + 0.06 * t;
+      const s = Math.max(W / bg.width, H / bg.height) * z;
+      const bw = bg.width * s, bh = bg.height * s;
+      ctx.drawImage(bg, (W - bw) / 2, (H - bh) / 2, bw, bh);
+      ctx.fillStyle = light ? "rgba(255,255,255,0.42)" : "rgba(8,8,10,0.52)";
+      ctx.fillRect(0, 0, W, H);
+    }
     const gx = W * (0.5 + 0.28 * Math.sin(t * Math.PI * 2));
     const gy = H * (0.42 + 0.18 * Math.cos(t * Math.PI * 2));
     const rg = ctx.createRadialGradient(gx, gy, 0, gx, gy, M * 0.85);
@@ -376,6 +405,29 @@ export default function PromoVideoClient() {
       }
     }
 
+    // ── timed overlay image: appears only within [ovStart, ovEnd] ──
+    const ov = ovRef.current;
+    if (ov && ovEnd > ovStart) {
+      const oa = fadeInOut(t, ovStart, ovEnd, 0.12, 0.12);
+      if (oa > 0) {
+        const ow = W * ovScale;
+        const oh = ow * (ov.height / ov.width);
+        const ox = W * ovPos.x - ow / 2;
+        const oy = H * ovPos.y - oh / 2;
+        const pop = easeOut(seg(t, ovStart, ovStart + 0.12));
+        ctx.save();
+        ctx.globalAlpha = oa;
+        ctx.translate(W * ovPos.x, H * ovPos.y);
+        ctx.scale(0.9 + 0.1 * pop, 0.9 + 0.1 * pop);
+        ctx.translate(-W * ovPos.x, -H * ovPos.y);
+        ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = M * 0.04; ctx.shadowOffsetY = M * 0.012;
+        const r = Math.min(ow, oh) * 0.06;
+        ctx.beginPath(); ctx.roundRect(ox, oy, ow, oh, r); ctx.closePath(); ctx.clip();
+        ctx.drawImage(ov, ox, oy, ow, oh);
+        ctx.restore();
+      }
+    }
+
     // ── film grade: light sweep → vignette → grain ──────────────
     // one diagonal specular sweep per scene (4 scenes)
     const sceneP = (t * 4) % 1;
@@ -424,7 +476,7 @@ export default function PromoVideoClient() {
     rafRef.current = requestAnimationFrame(loop);
     return () => cancelAnimationFrame(rafRef.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [preset, theme, dur, brand, headline, subline, features, cta, link, hasLogo, recording]);
+  }, [preset, theme, dur, brand, headline, subline, features, cta, link, hasLogo, hasBg, hasOv, ovPos, ovScale, ovStart, ovEnd, recording]);
 
   const record = async () => {
     const cv = canvasRef.current;
@@ -521,6 +573,68 @@ export default function PromoVideoClient() {
               <FiUploadCloud size={15} /> Upload logo
               <input type="file" accept="image/*" className="hidden" onChange={(e) => onLogo(e.target.files?.[0])} />
             </label>
+          )}
+        </div>
+
+        {/* background photo */}
+        <div>
+          <span className={lbl} style={{ color: "var(--text-muted)" }}>Background photo (optional)</span>
+          {hasBg ? (
+            <div className="flex items-center gap-2">
+              <span className="text-[12.5px] font-semibold" style={{ color: "var(--primary-bright)" }}>Background added</span>
+              <button type="button" onClick={() => { bgRef.current = null; setHasBg(false); }} className="qx-btn-ghost !p-1.5" aria-label="Remove background"><FiX size={13} /></button>
+            </div>
+          ) : (
+            <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer text-[12.5px] font-semibold w-fit"
+              style={{ background: "var(--surface-2)", border: "1px dashed var(--border)", color: "var(--text-muted)" }}>
+              <FiImage size={15} /> Upload background
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => onBg(e.target.files?.[0])} />
+            </label>
+          )}
+        </div>
+
+        {/* timed overlay image — appears WHERE and WHEN you choose */}
+        <div className="rounded-2xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-[12px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--text)" }}>Overlay image</span>
+            {hasOv && <button type="button" onClick={() => { ovRef.current = null; setHasOv(false); }} className="qx-btn-ghost !p-1.5" aria-label="Remove overlay"><FiX size={13} /></button>}
+          </div>
+          {!hasOv ? (
+            <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl cursor-pointer text-[12.5px] font-semibold w-fit"
+              style={{ background: "var(--surface-2)", border: "1px dashed var(--border)", color: "var(--text-muted)" }}>
+              <FiUploadCloud size={15} /> Upload an image that appears during the video
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => onOverlay(e.target.files?.[0])} />
+            </label>
+          ) : (
+            <div className="space-y-3">
+              {/* WHERE — 9-dot position grid */}
+              <div>
+                <span className="block text-[11.5px] font-semibold mb-1.5" style={{ color: "var(--text-muted)" }}>Where it appears</span>
+                <div className="grid grid-cols-3 gap-1 p-1.5 rounded-xl w-fit" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+                  {[0.18, 0.5, 0.82].flatMap((y) => [0.2, 0.5, 0.8].map((x) => {
+                    const on = Math.abs(ovPos.x - x) < 0.08 && Math.abs(ovPos.y - y) < 0.08;
+                    return <button key={`${x}-${y}`} type="button" aria-label="Position" onClick={() => setOvPos({ x, y })}
+                      className="w-6 h-6 rounded-md transition-colors" style={{ background: on ? "var(--primary-bright)" : "var(--surface-hover)", border: "1px solid var(--border)" }} />;
+                  }))}
+                </div>
+              </div>
+              {/* SIZE */}
+              <label className="block">
+                <span className="block text-[11.5px] font-semibold mb-1" style={{ color: "var(--text-muted)" }}>Size — {Math.round(ovScale * 100)}%</span>
+                <input type="range" min={15} max={80} value={Math.round(ovScale * 100)} onChange={(e) => setOvScale(+e.target.value / 100)} className="w-full accent-[#ff4d1c]" />
+              </label>
+              {/* WHEN — appear / disappear time */}
+              <div className="grid grid-cols-2 gap-3">
+                <label className="block">
+                  <span className="block text-[11.5px] font-semibold mb-1" style={{ color: "var(--text-muted)" }}>Appears at — {Math.round(ovStart * dur * 10) / 10}s</span>
+                  <input type="range" min={0} max={90} value={Math.round(ovStart * 100)} onChange={(e) => setOvStart(Math.min(+e.target.value / 100, ovEnd - 0.1))} className="w-full accent-[#ff4d1c]" />
+                </label>
+                <label className="block">
+                  <span className="block text-[11.5px] font-semibold mb-1" style={{ color: "var(--text-muted)" }}>Disappears at — {Math.round(ovEnd * dur * 10) / 10}s</span>
+                  <input type="range" min={10} max={100} value={Math.round(ovEnd * 100)} onChange={(e) => setOvEnd(Math.max(+e.target.value / 100, ovStart + 0.1))} className="w-full accent-[#ff4d1c]" />
+                </label>
+              </div>
+            </div>
           )}
         </div>
 
