@@ -13,7 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ pair: str
   const { pair } = await params;
   const p = getPair(pair);
   if (!p) return {};
-  return pageMeta({ title: p.title, description: p.desc, path: `/convert/${p.slug}`, keywords: p.keywords });
+  return pageMeta({ title: p.title, description: p.desc, path: `/convert/${p.slug}`, keywords: p.keywords,
+    languages: { en: `/convert/${p.slug}`, ru: `/ru/convert/${p.slug}`, uz: `/uz/convert/${p.slug}`, "x-default": `/convert/${p.slug}` } });
 }
 
 export default async function ConvertPairPage({ params }: { params: Promise<{ pair: string }> }) {

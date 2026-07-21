@@ -104,6 +104,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...IMG_EXP.map((t) => entry(`/image-tools/${t.slug}`, 0.8)),
     entry("/convert", 0.9),
     ...CONVERT_PAIRS.map((p) => entry(`/convert/${p.slug}`, 0.8)),
+    ...CONVERT_PAIRS.flatMap((p) => [entry(`/ru/convert/${p.slug}`, 0.75), entry(`/uz/convert/${p.slug}`, 0.75)]),
     ...LEGAL.map((s) => entry(`/${s}`, 0.4, "yearly")),
   ];
 }
