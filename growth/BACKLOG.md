@@ -2,7 +2,7 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] Audit every localized template for claims the tool doesn't support.
+- [~] Audit every localized template for claims the tool doesn't support.
   The RU/UZ convert template promised batch conversion on 40 live pages
   (fixed in M114); the same composed-copy pattern is used by the resize,
   downloader and tool-page i18n files, so check those for promises the UI

@@ -193,7 +193,7 @@ export const AUTOPILOT_TOPICS: Topic[] = [
   {
     slug: "extract-text-from-image-ocr",
     title: "How to Extract Text From an Image or Photo (Free OCR)",
-    description: "Pull editable text out of a screenshot, scan or photo with free OCR — 100+ languages including Russian and Uzbek, no signup, in your browser.",
+    description: "Pull editable text out of a screenshot, scan or photo with free OCR — English, Russian and Uzbek, no signup, in your browser.",
     keywords: ["extract text from image", "image to text", "ocr online free", "text from photo", "copy text from picture"],
     category: "AI", toolHref: "/ai-tools/image-to-text", toolLabel: "Extract text from an image",
     angle: "What OCR is, best-quality inputs (clear printed text), multi-language support (RU/UZ/EN), use cases (receipts, documents, screenshots), and limits (handwriting). Step-by-step.",

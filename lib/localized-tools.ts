@@ -224,12 +224,12 @@ export const LOC_TOOLS: LocTool[] = [
     ru: {
       title: "Текст с картинки онлайн — распознать текст (OCR) бесплатно",
       h1: "Извлечь текст из картинки",
-      desc: "Распознайте и извлеките текст из фото или скана с помощью OCR. Более 100 языков, бесплатно, без регистрации.",
-      intro: "Загрузите изображение — инструмент распознает текст и выдаст его в редактируемом виде. Поддерживает русский, узбекский, английский и ещё 100+ языков.",
+      desc: "Распознайте и извлеките текст из фото или скана с помощью OCR: русский, узбекский и английский. Бесплатно, без регистрации, прямо в браузере.",
+      intro: "Загрузите изображение — инструмент распознает текст и выдаст его в редактируемом виде. Языки распознавания: русский, узбекский, английский, а также смешанный режим «английский + русский» для документов, где встречается и то и другое.",
       keywords: ["текст с картинки", "распознать текст с фото", "ocr онлайн", "извлечь текст из изображения", "фото в текст"],
       steps: [["Загрузите изображение", "Выберите фото или скан с текстом."], ["Распознавание", "OCR извлекает текст."], ["Скопируйте текст", "Отредактируйте или сохраните результат."]],
       faqs: [
-        { q: "Какие языки поддерживаются?", a: "Более 100, включая русский, узбекский и английский." },
+        { q: "Какие языки поддерживаются?", a: "Русский, узбекский и английский, плюс смешанный режим «английский + русский» — он полезен для документов, где латиница и кириллица идут вперемешку." },
         { q: "Работает ли с рукописным текстом?", a: "Лучше всего распознаётся печатный текст; рукописный — с переменным успехом." },
         { q: "Бесплатно?", a: "Да, без ограничений." },
       ],
@@ -237,12 +237,12 @@ export const LOC_TOOLS: LocTool[] = [
     uz: {
       title: "Rasmdan matn olish — matnni tanish (OCR) bepul",
       h1: "Rasmdan matn olish",
-      desc: "Foto yoki skandan matnni OCR bilan tanib oling. 100+ til, bepul, ro'yxatsiz.",
-      intro: "Rasm yuklang — vosita matnni tanib, tahrirlanadigan ko'rinishda beradi. O'zbek, rus, ingliz va 100+ tilni qo'llaydi.",
+      desc: "Foto yoki skandan matnni OCR bilan tanib oling: o'zbek, rus va ingliz tillari. Bepul, ro'yxatdan o'tmasdan, to'g'ridan-to'g'ri brauzerda.",
+      intro: "Rasm yuklang — vosita matnni tanib, tahrirlanadigan ko'rinishda beradi. Tanish tillari: o'zbek, rus, ingliz, shuningdek ikkalasi aralash uchraydigan hujjatlar uchun «ingliz + rus» aralash rejimi.",
       keywords: ["rasmdan matn olish", "fotodan matn", "ocr onlayn", "rasmdagi matnni olish", "rasmni matnga aylantirish"],
       steps: [["Rasm yuklang", "Matnli foto yoki skanni tanlang."], ["Tanish", "OCR matnni ajratadi."], ["Matnni nusxalang", "Natijani tahrirlang yoki saqlang."]],
       faqs: [
-        { q: "Qaysi tillar qo'llanadi?", a: "100+ til, jumladan o'zbek, rus va ingliz." },
+        { q: "Qaysi tillar qo'llanadi?", a: "O'zbek, rus va ingliz, hamda «ingliz + rus» aralash rejimi — u lotin va kirill aralash keladigan hujjatlar uchun qulay." },
         { q: "Qo'lyozma bilan ishlaydimi?", a: "Bosma matn eng yaxshi tanaladi; qo'lyozma — turlicha." },
         { q: "Bepulmi?", a: "Ha, cheklovsiz." },
       ],
