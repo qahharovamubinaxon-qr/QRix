@@ -2,8 +2,12 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] RU/UZ twins for the /resize hub itself — the 50 localized preset
+- [~] RU/UZ twins for the /resize hub itself — the 50 localized preset
   pages currently have an EN-only parent. Small copy job, closes the loop.
+  Scope grew: /convert has the same gap (40 localized pairs, EN-only parent),
+  so this ships 4 hubs — /ru|/uz × resize|convert — off one shared component.
+  next: lib/hub-i18n.ts copy → components/LocalizedHub.tsx → 4 routes →
+  hreflang on the EN hubs → sitemap + search-index → deploy + IndexNow.
 - [ ] Audit every localized template for claims the tool doesn't support.
   The RU/UZ convert template promised batch conversion on 40 live pages
   (fixed in M114); the same composed-copy pattern is used by the resize,
