@@ -609,3 +609,7 @@ export function locResize(p: ResizePreset, lang: Lang): LocResize {
 
 /** Only presets we have written localized copy for (all 25 qualify). */
 export const LOC_RESIZE_PRESETS = RESIZE_PRESETS.filter((p) => C[p.slug]);
+
+/** Short localized name of a size ("Full HD", "Фото на паспорт") — used by the
+    localized hub cards so they don't fall back to the English label. */
+export const resizeLabel = (slug: string, l: Lang) => C[slug]?.[l]?.label ?? "";

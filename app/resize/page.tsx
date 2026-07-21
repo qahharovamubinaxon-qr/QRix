@@ -8,6 +8,7 @@ export const metadata = pageMeta({
     "Resize a photo to an exact pixel size — 1920x1080, 4K, square, passport, A4 and more. Every preset runs in your browser: no upload, no signup, no watermark.",
   path: "/resize",
   keywords: ["image resizer", "resize image to exact size", "photo size presets", "1920x1080 resizer", "passport photo size", "free image resizer online"],
+  languages: { en: "/resize", ru: "/ru/resize", uz: "/uz/resize", "x-default": "/resize" },
 });
 
 /** Grouped by what the size is *for*, so visitors scan by intent. */

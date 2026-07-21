@@ -19,7 +19,8 @@ export default function LocalizedResizePage({ preset, lang }: { preset: ResizePr
           softwareAppLd(c.h1, c.desc, path),
           breadcrumbLd([
             { name: tt.home, path: "/" },
-            { name: tt.hub, path },
+            { name: tt.hub, path: `${base}/resize` },
+            { name: `${preset.w}×${preset.h}`, path },
           ]),
           howToLd(c.h1, c.desc, path, c.steps),
           faqLd(c.faqs),
@@ -28,6 +29,8 @@ export default function LocalizedResizePage({ preset, lang }: { preset: ResizePr
       <main className="max-w-3xl mx-auto px-5 lg:px-8 pt-10 lg:pt-16 pb-24">
         <nav className="text-[12px] mb-4" style={{ color: "var(--text-faint)" }}>
           <Link href="/" className="hover:underline">{tt.home}</Link>
+          <span className="mx-1">›</span>
+          <Link href={`${base}/resize`} className="hover:underline">{tt.hub}</Link>
           <span className="mx-1">›</span> {preset.w}×{preset.h}
         </nav>
 

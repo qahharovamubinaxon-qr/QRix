@@ -8,6 +8,7 @@ export const metadata = pageMeta({
     "Convert between PNG, JPG, WebP, AVIF, BMP, GIF, ICO and TIFF for free. Every conversion runs in your browser — no upload, no signup, no watermark.",
   path: "/convert",
   keywords: ["image converter", "convert image format", "png to jpg", "webp converter", "avif converter", "tiff converter", "free image converter online"],
+  languages: { en: "/convert", ru: "/ru/convert", uz: "/uz/convert", "x-default": "/convert" },
 });
 
 /** Group by target format so visitors scan by "what do I want out of this?".

@@ -19,7 +19,8 @@ export default function LocalizedConvertPage({ pair, lang }: { pair: ConvertPair
           softwareAppLd(c.h1, c.desc, path),
           breadcrumbLd([
             { name: lang === "ru" ? "Главная" : "Bosh sahifa", path: "/" },
-            { name: tt.conv, path: `${base}/convert/${pair.slug}` },
+            { name: tt.conv, path: `${base}/convert` },
+            { name: `${pair.from} → ${pair.to}`, path },
           ]),
           howToLd(c.h1, c.desc, path, c.steps),
           faqLd(c.faqs),
@@ -28,7 +29,9 @@ export default function LocalizedConvertPage({ pair, lang }: { pair: ConvertPair
       <main className="max-w-3xl mx-auto px-5 lg:px-8 pt-10 lg:pt-16 pb-24">
         <nav className="text-[12px] mb-4" style={{ color: "var(--text-faint)" }}>
           <Link href="/" className="hover:underline">{lang === "ru" ? "Главная" : "Bosh sahifa"}</Link>
-          <span className="mx-1">›</span> {c.h1}
+          <span className="mx-1">›</span>
+          <Link href={`${base}/convert`} className="hover:underline">{tt.conv}</Link>
+          <span className="mx-1">›</span> {pair.from} → {pair.to}
         </nav>
 
         <header className="mb-6">
