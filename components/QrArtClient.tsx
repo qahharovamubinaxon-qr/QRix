@@ -264,8 +264,8 @@ export default function QrArtClient() {
     cv.toBlob(async (b) => { if (b) await saveBlob(b, "qrix-qr-art.png"); }, "image/png");
   }
 
-  const field = "w-full px-4 py-3 rounded-xl text-[14px]";
-  const fs = { background: "var(--surface-2)", border: "1.5px solid var(--border)", color: "var(--text)" } as const;
+  const field = "qx-tool-in";
+  const fs = {} as const;
   const spotActive = (s: { x: number; y: number }) => Math.abs(qrPos.x - s.x) < 0.09 && Math.abs(qrPos.y - s.y) < 0.09;
 
   return (
@@ -288,8 +288,7 @@ export default function QrArtClient() {
           <div className="grid grid-cols-3 gap-2">
             {STYLES.map((s) => (
               <button key={s.id} type="button" onClick={() => setStyle(s)}
-                className="px-2 py-2 rounded-xl text-[11.5px] font-semibold transition-transform hover:-translate-y-0.5"
-                style={{ background: style.id === s.id ? "var(--primary-bright)" : "var(--surface-2)", color: style.id === s.id ? "#0e0e0e" : "var(--text-muted)", border: "1px solid var(--border)" }}>{s.label}</button>
+                className={`qx-chip2 px-2 py-2.5 text-[11.5px] ${style.id === s.id ? "on" : ""}`}>{s.label}</button>
             ))}
           </div>
           <input value={extra} onChange={(e) => setExtra(e.target.value)} placeholder="Extra prompt — e.g. coffee cup, autumn leaves" aria-label="Extra prompt" className={`${field} mt-2.5`} style={fs} />
@@ -311,8 +310,7 @@ export default function QrArtClient() {
           <div className="flex flex-wrap gap-1.5">
             {PRESETS.map((p) => (
               <button key={p.id} type="button" onClick={() => setPreset(p)}
-                className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold"
-                style={{ background: preset.id === p.id ? "var(--primary-dim)" : "var(--surface-2)", color: preset.id === p.id ? "var(--primary-bright)" : "var(--text-muted)", border: `1px solid ${preset.id === p.id ? "var(--border-hover)" : "var(--border)"}` }}>{p.label}</button>
+                className={`qx-chip2 px-2.5 py-1.5 text-[11px] ${preset.id === p.id ? "on" : ""}`}>{p.label}</button>
             ))}
           </div>
 
@@ -326,8 +324,7 @@ export default function QrArtClient() {
               <div className="flex gap-1.5">
                 {PANELS.map((p) => (
                   <button key={p.id} type="button" onClick={() => setPanel(p.id)}
-                    className="px-2.5 py-1.5 rounded-lg text-[11px] font-bold"
-                    style={{ background: panel === p.id ? "var(--primary-dim)" : "var(--surface-2)", color: panel === p.id ? "var(--primary-bright)" : "var(--text-muted)", border: `1px solid ${panel === p.id ? "var(--border-hover)" : "var(--border)"}` }}>{p.label}</button>
+                    className={`qx-chip2 px-2.5 py-1.5 text-[11px] ${panel === p.id ? "on" : ""}`}>{p.label}</button>
                 ))}
               </div>
               <label className="flex items-center gap-2 mt-3 cursor-pointer">
@@ -365,12 +362,12 @@ export default function QrArtClient() {
         <canvas ref={canvasRef} role="img" aria-label="AI QR art preview — drag the QR or headline to reposition"
           onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} onPointerCancel={onPointerUp}
           onPointerLeave={() => setHover(null)}
+          className="qx-tool-preview"
           style={{
             width: "100%",
             maxWidth: preset.w > preset.h ? 520 : preset.w === preset.h ? 460 : 340,
             aspectRatio: `${preset.w} / ${preset.h}`,
-            borderRadius: 18, border: "1px solid var(--border)",
-            boxShadow: "var(--shadow-card)", background: "var(--surface)",
+            background: "var(--surface)",
             touchAction: "none",
             cursor: dragRef.current.target ? "grabbing" : hover ? "grab" : "default",
           }} />
@@ -385,10 +382,10 @@ export default function QrArtClient() {
 
 function Section({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl p-4" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
-      <div className="flex items-center gap-2 mb-3">
-        <span className="qx-mono text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "var(--primary-dim)", color: "var(--primary-bright)" }}>{n}</span>
-        <span className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "var(--text-faint)" }}>{title}</span>
+    <div className="qx-tool-card p-5">
+      <div className="flex items-center gap-2.5 mb-4">
+        <span className="qx-tool-badge">{n}</span>
+        <span className="text-[12px] font-bold uppercase tracking-[0.14em]" style={{ color: "var(--text)" }}>{title}</span>
       </div>
       {children}
     </div>

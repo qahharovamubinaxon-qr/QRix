@@ -472,14 +472,14 @@ export default function PromoVideoClient() {
     cv.toBlob(async (b) => { if (b) await saveBlob(b, "qrix-promo.png"); }, "image/png");
   };
 
-  const field = "w-full px-4 py-3 rounded-xl text-[14px]";
-  const fieldStyle = { background: "var(--surface-2)", border: "1.5px solid var(--border)", color: "var(--text)" } as const;
+  const field = "qx-tool-in";
+  const fieldStyle = {} as const;
   const lbl = "block text-[12px] font-semibold mb-1.5";
 
   return (
     <div className="grid lg:grid-cols-[minmax(0,440px)_1fr] gap-8 items-start">
       {/* controls */}
-      <div className="space-y-4">
+      <div className="qx-tool-card p-5 space-y-4">
         <label className="block">
           <span className={lbl} style={{ color: "var(--text-muted)" }}>Brand name</span>
           <input value={brand} onChange={(e) => setBrand(e.target.value)} maxLength={24} className={field} style={fieldStyle} />
@@ -529,8 +529,7 @@ export default function PromoVideoClient() {
           <div className="flex flex-wrap gap-2">
             {PRESETS.map((p) => (
               <button key={p.id} type="button" onClick={() => setPreset(p)}
-                className="px-3.5 py-2 rounded-full text-[12px] font-semibold"
-                style={{ background: preset.id === p.id ? "var(--primary-bright)" : "var(--surface-2)", color: preset.id === p.id ? "#0e0e0e" : "var(--text-muted)", border: "1px solid var(--border)" }}>{p.label}</button>
+                className={`qx-chip2 px-3.5 py-2 text-[12px] !rounded-full ${preset.id === p.id ? "on" : ""}`}>{p.label}</button>
             ))}
           </div>
         </div>
@@ -552,8 +551,7 @@ export default function PromoVideoClient() {
             <div className="flex gap-2">
               {DURATIONS.map((d) => (
                 <button key={d} type="button" onClick={() => setDur(d)}
-                  className="px-3 py-2 rounded-lg text-[12px] font-bold"
-                  style={{ background: dur === d ? "var(--primary-dim)" : "var(--surface-2)", color: dur === d ? "var(--primary-bright)" : "var(--text-muted)", border: `1px solid ${dur === d ? "var(--border-hover)" : "var(--border)"}` }}>{d}s</button>
+                  className={`qx-chip2 px-3 py-2 text-[12px] ${dur === d ? "on" : ""}`}>{d}s</button>
               ))}
             </div>
           </div>
