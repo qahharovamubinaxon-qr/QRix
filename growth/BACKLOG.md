@@ -5,7 +5,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [~] Converter-pair pages `/convert/[pair]` — png/jpg/webp/avif/bmp, 20
   pairs on the existing ImageConvertClient. Registry + SSG route + unique
   copy per pair + JSON-LD + sitemap + IndexNow + search index.
-  next: build lib/convert-pairs.ts registry + /convert/[pair] route.
+  next: code shipped (3cc26a6) — awaiting Vercel, then verify live + IndexNow.
 - [ ] RU/UZ for converter pages — localized copy, 3-way hreflang
   (reuse the localized-tools pattern).
 - [ ] Resize-preset pages `/resize/[preset]` — ~25 presets (instagram
