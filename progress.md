@@ -315,3 +315,22 @@ Mission 119 (real multi-file conversion) `0f550a7` — the code gap behind the b
 
 ## Next Recommended Mission
 Go-live for monetization: apply for AdSense (content now sufficient) + add Stripe live keys, deploy to Vercel with real env (Postgres + Stripe + Resend). Then roadmap: mediabunny Video Tools upgrade → promo-video generator tools → mascot promo films (Remotion skills active).
+
+## Mission 120 — the claim audit (Jul 22)
+Closed the "audit every localized template" item by checking each promise
+against the code that has to keep it. Six claims were false and are now fixed:
+PDF compress promised lossless compression and in-browser privacy (it is a
+lossy server route), PDF→Word promised in-browser conversion (server provider
+chain), the upscaler promised detail restoration (bicubic + unsharp mask),
+OCR promised 100+ languages (four), the resize hub promised format
+preservation (everything came back JPG), and the EN/RU/UZ downloader
+templates promised video+audio+image on all 16 platforms. The format promise
+was fixed in the code rather than the copy: PNG→PNG, WebP→WebP, and fill mode
+no longer flattens alpha. Downloader templates now derive their format
+sentence from each platform's real kinds via deliverables()/formatPhrase().
+Verified live by curl on 10 URLs across three languages.
+
+Discovered: the preview dev server runs from the primary checkout on `main`,
+so every route this worktree has added 404s locally, and the live site's tool
+clients don't mount in the in-app browser — client-side behaviour has been
+shipping on typecheck plus curl alone. That is now the top NOW item.

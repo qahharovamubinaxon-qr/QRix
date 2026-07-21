@@ -13,3 +13,4 @@
 2026-07-21 21:40 — shipped: RU/UZ twins for all 13 barcode symbologies (M116, 26 pages, sitemap 795, false check-digit claim caught pre-deploy) | pages:26 | live:pending-verify | next: RU/UZ hub for /barcode (localized parent for these 26)
 2026-07-21 22:05 — shipped: RU/UZ hub for /barcode + 3-level localized breadcrumbs (M117, sitemap 801, verified live) | pages:2 | live:yes | next: soft-404 fix
 2026-07-21 22:30 — shipped: dynamicParams=false on 20 routes — unknown params were returning 200 with an empty page across every family incl. EN (M118) | pages:0 | live:verifying | next: audit remaining localized templates (resize/downloader/tool-page i18n) for unsupported claims
+2026-07-21 21:55 — shipped: claim audit of every localized template + resize format preservation (M120) | pages:0 (48 downloader + 4 tool + 2 hub pages rewritten) | live:yes | next: fix the preview launch config so design-v2 routes can be verified locally

@@ -2,14 +2,26 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [~] Audit every localized template for claims the tool doesn't support.
-  The RU/UZ convert template promised batch conversion on 40 live pages
-  (fixed in M114); the same composed-copy pattern is used by the resize,
-  downloader and tool-page i18n files, so check those for promises the UI
-  never implemented. False claims are worse than thin copy.
-  Done so far: convert (M114), barcode (M116 — the numeric step promised an
-  automatic check digit ITF/MSI/Pharmacode never get). Still to check:
-  resize-presets-i18n, downloader i18n, tool-page i18n, hub-i18n.
+- [ ] Local verification is broken for everything shipped on design-v2.
+  The preview dev server launches from the PRIMARY checkout (D:\Projects\QRix,
+  branch main), so every route added in this worktree — /resize/*, /downloader/*,
+  /barcode/*, the localized twins — 404s locally while returning 200 in prod.
+  On the live site the in-app browser renders the server HTML but no client
+  engine mounts (0 inputs on /image-tools/social-media-resize), so canvas tools
+  can't be exercised either. Result: client-side behaviour has been shipping on
+  typecheck + curl alone. Fix the launch config to run dev from the worktree.
+- [ ] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
+  an unsharp mask. M120 made the RU/UZ body copy honest, but the tool name and
+  the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
+  browser, same pattern as @imgly for the background remover) or rename it.
+  Owner decision: renaming costs the "улучшить фото ии" keyword.
+- [ ] Audit usecase-content.i18n.ts (9,228 lines) — the one localized surface
+  M120 only spot-checked. Sampled claims held up (QR "без ограничений" is true,
+  the WhatsApp video-compress page's on-device claim matches the Mediabunny
+  engine), but it is the largest programmatic copy file in the repo.
+- [ ] Localize the fit/fill buttons. The RU/UZ resize copy tells users to pick
+  «заполнить» or «вписать» on 50+ pages; ImageConvertClient renders the buttons
+  as English "fill"/"fit". Copy references controls that aren't there.
 - [ ] Batch/multi-file conversion for real — AiDropzone takes a single file
   everywhere. ImageBatchClient exists but is a separate engine. Wiring
   multi-file into the /convert pages would make the (now removed) claim
@@ -43,6 +55,31 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: claim audit across every localized template (M120) — the last
+  four surfaces the audit item named. Fixed, each verified against the code:
+  PDF compress claimed "без потери качества" (the route re-encodes JPEGs at
+  q42–82 and downscales to 900–1600px) and "файлы не загружаются на сервер"
+  (CompressPdfClient POSTs to /api/pdf/compress — a false privacy promise);
+  PDF→Word claimed in-browser conversion (it runs the server provider chain);
+  the upscaler claimed detail restoration (bicubic + unsharp mask can't);
+  OCR claimed 100+ languages (the picker has four options) in the localized
+  copy, the autopilot blog seed and the social-post cron; and the EN/RU/UZ
+  downloader templates promised "video, audio or image" on all 16 platforms,
+  though Twitch and Dailymotion never yield an image and SoundCloud never a
+  video — new deliverables()/formatPhrase() helpers derive the sentence from
+  each platform's real kinds. Verified true and left alone: barcode batch
+  mode, OK.ru in-browser MP3 extraction, TikTok's "HD (no watermark)" label,
+  pdf-to-jpg zip-all, merge/jpg-to-pdf browser-only, bg remover resolution,
+  and all the resize-preset print/ID copy (which already disclaims what it
+  doesn't check).
+- [x] Jul 22: resize stopped silently rewriting file formats (M120) — the
+  /resize/<preset> and social-resizer pages fell through to fmtKey "jpeg", so
+  every resize returned a JPG and a transparent PNG came back flattened onto
+  white, while two pieces of copy claimed the format was preserved. Fixed the
+  code, not the copy: PNG→PNG, WebP→WebP, everything else→JPG, and fill mode
+  no longer paints the background when the output carries alpha. Deployed;
+  the copy is verified live by curl, the canvas behaviour is typecheck-only
+  (see the verification item in NOW).
 - [x] Jul 21: unknown params now 404 instead of soft-404ing with 200 (M118) —
   found while verifying M117: /ru/barcode answered 200 before the hub existed.
   Without `dynamicParams = false`, Next renders params outside
