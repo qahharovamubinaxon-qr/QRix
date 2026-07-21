@@ -334,3 +334,37 @@ Discovered: the preview dev server runs from the primary checkout on `main`,
 so every route this worktree has added 404s locally, and the live site's tool
 clients don't mount in the in-app browser — client-side behaviour has been
 shipping on typecheck plus curl alone. That is now the top NOW item.
+
+## Mission 122 — canvas output rules made testable; two more format bugs found
+
+Closed the verification item open since M120. The 0x0 preview trap had a
+one-word cause: `resize_window {preset:"desktop"}` answers "reset to NATIVE
+size", and on a worktree dev server native IS 0x0, so the preset was a no-op.
+Passing explicit `{width:1280,height:900}` sets a real viewport and React
+hydrates — /image-tools/exif-remover went from vw:0 with no controls to a
+mounted file input and download button. That is only half a win, and the
+limit is measured: on engine-registry pages the page hydrates at 1280 (the
+"Loading the image workspace…" fallback is in the DOM) but the
+`dynamic(ssr:false)` chunk never resolves in the pane, so convert/resize/
+batch/upscale still cannot be driven end to end. Re-opened as its own NOW
+item rather than recorded as solved. Also: `body.innerText` returns ~126
+chars in the hidden pane whatever the page holds — assert on the DOM.
+
+The decision half no longer needs a browser at all: keepFormat, keepsAlpha,
+paintsBackground, flattensToWhite and drawRect moved out of ImageConvertClient
+into lib/image-output.ts, with scripts/test-image-output.mjs asserting the
+shipped module (`npm run test:image`, 23 assertions, Node 24 type-stripping so
+there is no copy to drift). Proven able to fail: reintroducing the always-jpeg
+bug reds 6, fill-mode alpha flattening 2, fit/fill swapped 3. The real
+drawImage/toBlob half was proven in the browser pane instead of jsdom, which
+has no true codec — a transparent source drawn fill-mode into 1080x1080 keeps
+centre alpha [0,0,0,0] through a real PNG encode+decode round-trip.
+
+Extracting it turned up two more live instances of the same bug class the
+audit had missed. ExifCleanerClient hardcoded png-or-jpeg, so a WebP came back
+a JPG and a transparent source encoded black. ImageBatchClient forced
+image/jpeg for the compress preset but painted white only `if (fmt==="jpeg")`,
+and fmt defaults to "webp" with no picker on that path — so every transparent
+PNG batch-compressed to a JPEG with a black background. Confirmed by running
+the old path in a real browser: [0,0,0,255] in the transparent region, white
+after the fix. Both now share the extracted helpers.

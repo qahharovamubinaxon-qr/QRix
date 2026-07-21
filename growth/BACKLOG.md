@@ -2,22 +2,13 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [~] Local verification of design-v2 routes — PARTIALLY UNBLOCKED.
-  Root cause: the preview dev server launched from the PRIMARY checkout
-  (D:\Projects\QRix, branch main), so every route added in this worktree —
-  /resize/*, /downloader/*, /barcode/*, the localized twins — 404'd locally
-  while returning 200 in prod, and client behaviour shipped on typecheck +
-  curl alone. Fixed by adding a "QRix Growth Worktree (design-v2)" config to
-  the project-root .claude/launch.json that runs `npm --prefix <worktree> run
-  dev -- --port 3001`; confirmed it serves /resize/1080x1080, /downloader/*
-  and /image-tools/social-media-resize with 200. NOTE: that launch.json edit
-  is a per-machine path in the primary checkout (branch main), left as a local
-  working change — do not push machine paths to a deploy branch.
-  STILL OPEN: the in-app browser pane hydrates at a 0x0 viewport (the
-  documented canvas-verification trap), so the client engine never mounts and
-  canvas tools (resize/convert/upscale/bg-remove) still can't be driven end to
-  end there. next: find a viewport that forces hydration, or add a headless
-  jsdom+canvas harness so the toBlob-format path is testable in CI.
+- [ ] Make registry-backed canvas engines drivable in the preview pane. M122
+  fixed hydration (explicit width/height, not the desktop preset) but the
+  `dynamic(ssr:false)` chunk in ImageEngineRegistry never resolves there, so
+  convert/resize/batch/upscale still cannot be driven end to end — the
+  "Loading the image workspace…" fallback sits in the DOM forever. Options:
+  find why the lazy chunk stalls in a hidden pane, or add a dev-only query
+  flag that renders the engine eagerly for verification runs.
 - [ ] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
   an unsharp mask. M120 made the RU/UZ body copy honest, but the tool name and
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
@@ -63,6 +54,40 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: canvas output rules made testable (M122) — the [~] item open
+  since M120. (b) is fully done; (a) is partly fixed and honestly scoped:
+  (a) The 0x0-viewport trap has a fix, and it is not the preset:
+  `resize_window {preset:"desktop"}` answers "reset to NATIVE size", and on a
+  worktree dev server native IS 0x0, so the preset is a silent no-op — that is
+  why it kept looking unfixable. `resize_window {width:1280, height:900}` sets
+  a real viewport and React hydrates. Proven on /image-tools/exif-remover:
+  vw:0 with only ["EN","Sign up"] became vw:1280 with the real file input and
+  the "Remove metadata & download" control.
+  LIMIT, measured not assumed — this is NOT enough for engine-registry pages.
+  On /image-tools/batch-compress the page hydrates at 1280 (the "Loading the
+  image workspace…" fallback is in the DOM, so React is alive) but the
+  `dynamic(ssr:false)` chunk never resolves in the pane, so the canvas engine
+  still never mounts. Directly-imported clients (exif) are drivable;
+  registry-backed ones (convert/resize/batch/upscale) are not yet.
+  Also: `document.body.innerText` returns ~126 chars in the hidden pane no
+  matter what the page contains — assert against the DOM, never innerText.
+  (b) The decision logic no longer depends on a browser at all: keepFormat,
+  keepsAlpha, paintsBackground, flattensToWhite and drawRect moved to
+  lib/image-output.ts, asserted by scripts/test-image-output.mjs
+  (`npm run test:image`, 23 assertions against the SHIPPED module — Node 24
+  strips the types, so there is no copy to drift). Proven able to fail by
+  mutation: the original always-jpeg bug fails 6, fill-mode alpha flattening
+  fails 2, fit/fill swapped fails 3.
+  The real drawImage/toBlob half was verified in the browser pane rather than
+  jsdom (which has no true codec): a transparent source drawn fill-mode into
+  1080x1080 keeps centre alpha [0,0,0,0] through a real PNG encode+decode
+  round-trip while the corner stays opaque red, painting the frame first
+  reproduces the M120 white flattening, and toBlob returns genuine
+  image/png / image/webp / image/jpeg.
+  Found and fixed while extracting: ExifCleanerClient had the same bug class
+  independently — it hardcoded png-or-jpeg, so a WebP dropped into the EXIF
+  remover came back as a JPG, and a transparent source encoded black because
+  nothing painted the frame. It now shares the same helpers.
 - [x] Jul 22: claim audit across every localized template (M120) — the last
   four surfaces the audit item named. Fixed, each verified against the code:
   PDF compress claimed "без потери качества" (the route re-encodes JPEGs at
