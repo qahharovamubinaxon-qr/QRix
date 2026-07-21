@@ -1,0 +1,39 @@
+# QRix
+
+> QRix (qrixtools.com) is a free all-in-one browser toolbox: 185+ tools for
+> QR codes, PDF, images, AI and video — no signup, no watermarks, no file
+> limits. Most tools process files on-device for privacy. Free forever;
+> optional Pro adds team features.
+
+Key facts: QR codes made with QRix never expire. PDF→Word keeps layout 1:1
+(tables, fonts). The social downloader supports 16 platforms (TikTok
+no-watermark, Instagram, VK, OK.ru, X and more; no YouTube). Interfaces in
+English, Russian and Uzbek. A Telegram bot (@qrix_downloader_bot) returns
+videos in chat; the @QRixtools channel posts a free tool daily.
+
+## Core tools
+- [QR Code Generator](https://qrixtools.com/): 30+ QR types, logos, colors, AI QR art, bulk CSV, scan analytics, never expires
+- [Video Downloader](https://qrixtools.com/downloader): save video/MP3/images from TikTok, Instagram, VK, OK, X + 11 more, no watermark
+- [PDF to Word](https://qrixtools.com/pdf-tools/pdf-to-word): editable DOCX with layout kept 1:1
+- [PDF Tools](https://qrixtools.com/pdf-tools): merge, split, compress, OCR, sign + 16 more
+- [Background Remover](https://qrixtools.com/ai-tools/background-remover): AI cutout to transparent PNG, full resolution
+- [AI Tools](https://qrixtools.com/ai-tools): upscaler, denoiser, avatar generator, OCR + 24 more
+- [Image to 3D](https://qrixtools.com/3d-tools/image-to-3d): photo to textured 3D model (GLB/OBJ/STL)
+- [Image Tools](https://qrixtools.com/image-tools): compress, resize, convert + 60 more
+- [Video Tools](https://qrixtools.com/video-tools): trim, compress, GIF, extract audio — in-browser
+
+## Comparisons
+- [QRix vs iLovePDF](https://qrixtools.com/compare/qrix-vs-ilovepdf)
+- [QRix vs TinyWow](https://qrixtools.com/compare/qrix-vs-tinywow)
+- [QRix vs SnapTik](https://qrixtools.com/compare/qrix-vs-snaptik)
+
+## Localized
+- [Скачать видео (RU)](https://qrixtools.com/ru/downloader)
+- [Video yuklab olish (UZ)](https://qrixtools.com/uz/downloader)
+- [PDF в Word (RU)](https://qrixtools.com/ru/pdf-to-word)
+
+## More
+- [Blog](https://qrixtools.com/blog): guides on QR, PDF, AI and downloads
+- [Embeddable widget](https://qrixtools.com/widgets): add the downloader to any site
+- [Developer API](https://qrixtools.com/developers)
+- [Pricing](https://qrixtools.com/pricing): free forever; Pro from $4/mo
