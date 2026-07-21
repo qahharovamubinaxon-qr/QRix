@@ -4,3 +4,4 @@
 2026-07-21 DONE
 2026-07-21 (manual, pulled from tomorrow) — shipped: RU/UZ converter pages (40, 3-way hreflang, IndexNow)
 2026-07-21 16:03 — checked, nothing to resume
+2026-07-21 17:05 — shipped: real baseline TIFF encoder (convert-to-tiff no longer emits PNG bytes) | pages:0 | live:yes | next: TIFF converter-pair pages (scope decoder first) or /resize/[preset] pages

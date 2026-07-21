@@ -2,10 +2,11 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [~] TIFF target in ImageConvertClient is still silently broken — same
-  bug class as the BMP/ICO fix (canvas.toBlob has no image/tiff, so it
-  returns PNG bytes named .tiff). Write a real baseline TIFF encoder or
-  drop the option. Blocks a tiff-to-* / *-to-tiff pair family.
+- [ ] TIFF converter-pair pages — now unblocked: tiff-to-png/jpg/webp and
+  png/jpg/webp-to-tiff on the /convert/[pair] infra (6-8 more pages).
+  NOTE: *-to-tiff works; tiff-to-* needs a TIFF *decoder* first (browsers
+  can't load .tiff into an <img>), so ship the to-tiff half or add a
+  baseline decoder. Scope this before starting.
 - [ ] Resize-preset pages `/resize/[preset]` — ~25 presets (instagram
   1080x1080, story 1080x1920, youtube thumb 1280x720, passport sizes,
   1920x1080, 4k) on the existing resize client.
@@ -38,6 +39,14 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 21: real baseline TIFF encoder (M108) — `/image-tools/convert-to-tiff`
+  was handing users PNG bytes named .tiff (canvas.toBlob has no image/tiff
+  codec, same bug class as BMP/ICO). Now emits a real little-endian baseline
+  TIFF: 8-bit, single strip, uncompressed, RGB when opaque / RGBA +
+  ExtraSamples=2 when transparent. Verified by running the shipped function
+  against sharp+libtiff — exact pixel round-trip at 3x2 (odd width), 4x4
+  alpha and 640x480, plus direct IFD tag-order/compression/strip asserts.
+  Confirmed live in the deployed chunk. No sitemap change (no IndexNow).
 - [x] RU/UZ converter pages — 40 pages, 3-way hreflang, IndexNow (M107).
 - [x] Jul 21: converter-pair pages — /convert hub + 20 `/convert/[pair]`
   SSG pages (png/jpg/webp/avif/bmp/gif/ico) on the real ImageConvertClient,
