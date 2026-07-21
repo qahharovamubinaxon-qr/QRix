@@ -33,6 +33,16 @@ const nextConfig: NextConfig = {
       { source: "/((?!embed/).*)", headers: securityHeaders },
     ];
   },
+  // Old stub URLs (a heading, no generator) → the real tools. A config redirect
+  // is a true edge 308: no HTML page is served and no meta-refresh, so crawlers
+  // consolidate the ranking signal cleanly onto the working page. The app/url-qr
+  // and app/vcard-qr pages are removed since this takes precedence.
+  async redirects() {
+    return [
+      { source: "/url-qr", destination: "/qr-tools/url", permanent: true },
+      { source: "/vcard-qr", destination: "/qr-tools/vcard", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;
