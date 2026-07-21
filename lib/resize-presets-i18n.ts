@@ -57,7 +57,7 @@ const C: Record<string, Record<Lang, Copy>> = {
       what: "3840×2160 — это 4K UHD: четыре кадра 1080p в одном и родное разрешение большинства современных телевизоров и всё большей доли мониторов. Такой размер берут, когда обои должны остаться резкими на экране с высокой плотностью пикселей, когда работу покажут на большой панели или когда нужен запас для последующей обрезки.",
       tip: "Честная оговорка — исходник: увеличение картинки шириной 1200 пикселей до 3840 даёт файл 4K, но не детализацию 4K.",
       faqs: [
-        ["Можно ли сделать из маленького фото настоящее 4K?", "Файл 3840×2160 получится, но увеличение не создаёт деталей, которых не было в кадре. Для реальной резкости начинайте с оригинала высокого разрешения или сначала прогоните снимок через ИИ-апскейлер."],
+        ["Можно ли сделать из маленького фото настоящее 4K?", "Файл 3840×2160 получится, но увеличение не создаёт деталей, которых не было в кадре. Для реальной резкости начинайте с оригинала высокого разрешения — апскейл достроит пиксели и подчеркнёт края, но утраченную детализацию не вернёт."],
         ["3840x2160 — это то же самое, что 4K?", "Это 4K UHD, потребительский стандарт для телевизоров и мониторов. Кинематографический 4K чуть шире — 4096×2160, поэтому уточните, какой именно нужен."],
       ],
     },
@@ -66,7 +66,7 @@ const C: Record<string, Record<Lang, Copy>> = {
       what: "3840×2160 — bu 4K UHD: bitta kadrda to'rtta 1080p va ko'pchilik zamonaviy televizorlar hamda tobora ko'proq monitorlarning tabiiy o'lchami. Bu o'lcham fon rasmi yuqori piksel zichligidagi ekranda aniq qolishi kerak bo'lganda, ish katta panelda ko'rsatilganda yoki keyinchalik kesish uchun zaxira kerak bo'lganda tanlanadi.",
       tip: "Halol ogohlantirish — manba: 1200 piksellik rasmni 3840 gacha kattalashtirish 4K fayl beradi, lekin 4K detalizatsiyani emas.",
       faqs: [
-        ["Kichik rasmdan haqiqiy 4K qilish mumkinmi?", "3840×2160 fayl chiqadi, lekin kattalashtirish kadrda bo'lmagan detallarni yarata olmaydi. Haqiqiy aniqlik uchun yuqori o'lchamli originaldan boshlang yoki avval AI upscaler'dan o'tkazing."],
+        ["Kichik rasmdan haqiqiy 4K qilish mumkinmi?", "3840×2160 fayl chiqadi, lekin kattalashtirish kadrda bo'lmagan detallarni yarata olmaydi. Haqiqiy aniqlik uchun yuqori o'lchamli originaldan boshlang — upscale piksellarni to'ldirib, qirralarni aniqlashtiradi, lekin yo'qolgan detalni qaytarmaydi."],
         ["3840x2160 — bu 4K bilan bir xilmi?", "Bu 4K UHD, televizor va monitorlar uchun iste'mol standarti. Kinematografik 4K biroz kengroq — 4096×2160, shuning uchun qaysi biri kerakligini aniqlang."],
       ],
     },
@@ -498,7 +498,7 @@ const C: Record<string, Record<Lang, Copy>> = {
       tip: "Картинка, выглядевшая резкой на экране, может рассыпаться при увеличении почти до пяти тысяч пикселей по высоте — проверьте оригинал заранее.",
       faqs: [
         ["A3 — это сколько пикселей?", "3508×4961 при 300 DPI. Постер, который смотрят издалека, допустимо печатать и в 150–200 DPI, но типографии обычно просят 300."],
-        ["Оригинал слишком мал для A3 — что делать?", "Либо печатать в A4, либо сначала увеличить снимок. Обычное растягивание задаёт размер, но не добавляет деталей — ИИ-апскейлер справится заметно лучше."],
+        ["Оригинал слишком мал для A3 — что делать?", "Либо печатать в A4, либо сначала увеличить снимок. Растягивание задаёт размер, но деталей не добавляет: апскейлер сгладит лестницу на краях и уберёт мыло, однако напечатанный снимок всё равно будет мягче, чем с крупного оригинала."],
       ],
     },
     uz: {
@@ -507,7 +507,7 @@ const C: Record<string, Record<Lang, Copy>> = {
       tip: "Ekranda aniq ko'ringan rasm balandligi deyarli besh ming pikselgacha kattalashtirilganda parchalanib ketishi mumkin — originalni oldindan tekshiring.",
       faqs: [
         ["A3 necha piksel?", "300 DPI da 3508×4961. Uzoqdan ko'riladigan posterni 150–200 DPI da ham bosish mumkin, ammo bosmaxonalar odatda 300 ni so'raydi."],
-        ["Original A3 uchun juda kichik — nima qilish kerak?", "Yo A4 da bosish, yo avval suratni kattalashtirish. Oddiy cho'zish o'lchamni beradi, lekin detal qo'shmaydi — AI upscaler sezilarli yaxshi uddalaydi."],
+        ["Original A3 uchun juda kichik — nima qilish kerak?", "Yo A4 da bosish, yo avval suratni kattalashtirish. Cho'zish o'lchamni beradi, lekin detal qo'shmaydi: upscaler qirralardagi zinapoyani silliqlaydi, ammo bosma baribir katta originaldagidan yumshoqroq chiqadi."],
       ],
     },
   },

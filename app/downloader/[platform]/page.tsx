@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import DownloaderClient from "@/components/DownloaderClient";
-import { PLATFORMS } from "@/lib/downloader-platforms";
+import { PLATFORMS, formatPhrase } from "@/lib/downloader-platforms";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 
 /* Per-platform SEO landing pages: /downloader/tiktok, /downloader/instagram…
@@ -19,11 +19,18 @@ type Copy = {
   steps: [string, string][];         // HowTo
 };
 
-const genericSteps = (name: string): [string, string][] => [
-  ["Copy the link", `Open the post in the ${name} app or website, tap Share and copy its link.`],
-  ["Paste it into QRix", "Drop the link in the box above — QRix instantly finds every downloadable version."],
-  ["Pick a format & save", "Choose video (MP4), audio (MP3) or image and it downloads straight to your device."],
-];
+/* The third step names the formats this platform can actually produce —
+   Twitch and Dailymotion never yield an image, SoundCloud never a video, so a
+   fixed "video, audio or image" line would promise downloads that never
+   appear. formatPhrase() derives the list from the platform registry. */
+const genericSteps = (id: string, name: string): [string, string][] => {
+  const p = PLATFORMS.find((x) => x.id === id)!;
+  return [
+    ["Copy the link", `Open the post in the ${name} app or website, tap Share and copy its link.`],
+    ["Paste it into QRix", "Drop the link in the box above — QRix instantly finds every downloadable version."],
+    ["Pick a format & save", `Choose ${formatPhrase(p, "en")} and it downloads straight to your device.`],
+  ];
+};
 
 const COPY: Record<string, Copy> = {
   tiktok: {
@@ -68,7 +75,7 @@ const COPY: Record<string, Copy> = {
       { q: "Can I save the audio from a Reel?", a: "Yes. Switch to the Audio tab and save the soundtrack as an MP3 file." },
       { q: "Do Stories or private accounts work?", a: "Only public posts and Reels are supported. Stories and private-account content can't be accessed." },
     ],
-    steps: genericSteps("Instagram"),
+    steps: genericSteps("instagram", "Instagram"),
   },
   facebook: {
     title: "Facebook Video Downloader — Save FB Videos & Reels in HD",
@@ -88,7 +95,7 @@ const COPY: Record<string, Copy> = {
       { q: "Can I download from private groups?", a: "No. Only public videos can be read — private group and friends-only videos stay private." },
       { q: "Why does my video have no sound options?", a: "When Facebook serves a combined file, QRix offers the MP4 with sound included; a separate MP3 appears when an audio track is available." },
     ],
-    steps: genericSteps("Facebook"),
+    steps: genericSteps("facebook", "Facebook"),
   },
   twitter: {
     title: "X (Twitter) Video Downloader — Save Videos & GIFs as MP4",
@@ -108,7 +115,7 @@ const COPY: Record<string, Copy> = {
       { q: "Can I download GIFs?", a: "Yes. Twitter GIFs are actually MP4 videos and download as such." },
       { q: "Do protected accounts work?", a: "No — only public posts can be downloaded." },
     ],
-    steps: genericSteps("X"),
+    steps: genericSteps("twitter", "X"),
   },
   vk: {
     title: "VK Video Downloader — Save VK Videos & Clips (Скачать видео ВК)",
@@ -128,7 +135,7 @@ const COPY: Record<string, Copy> = {
       { q: "Why does a VK link sometimes fail?", a: "Some VK videos are region-locked or limited to logged-in users; those can't be read. Public videos work." },
       { q: "Can I download VK music?", a: "When a video has a separable audio track an MP3 option appears; VK's music streaming service itself is not supported." },
     ],
-    steps: genericSteps("VK"),
+    steps: genericSteps("vk", "VK"),
   },
   ok: {
     title: "OK.ru Video Downloader — Odnoklassniki Videos as MP4",
@@ -148,7 +155,7 @@ const COPY: Record<string, Copy> = {
       { q: "Do private videos work?", a: "No, only public videos. Videos restricted to friends or groups can't be accessed." },
       { q: "Does it work on a phone?", a: "Yes — QRix runs in any mobile browser with no app to install." },
     ],
-    steps: genericSteps("OK.ru"),
+    steps: genericSteps("ok", "OK.ru"),
   },
   pinterest: {
     title: "Pinterest Downloader — Save Videos, Images & Idea Pins",
@@ -168,7 +175,7 @@ const COPY: Record<string, Copy> = {
       { q: "Do pin.it short links work?", a: "Yes, they're resolved automatically to the full pin." },
       { q: "Can I download someone's whole board?", a: "Not yet — QRix downloads one pin at a time." },
     ],
-    steps: genericSteps("Pinterest"),
+    steps: genericSteps("pinterest", "Pinterest"),
   },
   reddit: {
     title: "Reddit Video Downloader — Save v.redd.it Videos with Sound",
@@ -188,7 +195,7 @@ const COPY: Record<string, Copy> = {
       { q: "Why are some Reddit videos silent elsewhere?", a: "Reddit hosts audio and video as separate streams; downloaders that grab only the video stream lose the sound. QRix fetches both." },
       { q: "Do NSFW or private subreddits work?", a: "Only publicly accessible posts can be read; quarantined and private communities can't." },
     ],
-    steps: genericSteps("Reddit"),
+    steps: genericSteps("reddit", "Reddit"),
   },
   snapchat: {
     title: "Snapchat Video Downloader — Save Spotlight & Public Stories",
@@ -208,7 +215,7 @@ const COPY: Record<string, Copy> = {
       { q: "Do t.snapchat.com links work?", a: "Yes — short share links are resolved automatically." },
       { q: "What format do I get?", a: "MP4 video, ready to watch or repost anywhere." },
     ],
-    steps: genericSteps("Snapchat"),
+    steps: genericSteps("snapchat", "Snapchat"),
   },
   vimeo: {
     title: "Vimeo Video Downloader — Save HD Videos as MP4",
@@ -228,7 +235,7 @@ const COPY: Record<string, Copy> = {
       { q: "Can I get just the audio?", a: "Yes, switch to the Audio tab for an MP3 of the soundtrack." },
       { q: "Is there a length limit?", a: "Very long videos may take a while but stream through with live progress." },
     ],
-    steps: genericSteps("Vimeo"),
+    steps: genericSteps("vimeo", "Vimeo"),
   },
   soundcloud: {
     title: "SoundCloud to MP3 Downloader — Save Tracks Free",
@@ -272,7 +279,7 @@ const COPY: Record<string, Copy> = {
       { q: "Do sub-only VODs work?", a: "No — only publicly viewable content can be read." },
       { q: "What format do I get?", a: "MP4, ready for editing or reposting." },
     ],
-    steps: genericSteps("Twitch"),
+    steps: genericSteps("twitch", "Twitch"),
   },
   dailymotion: {
     title: "Dailymotion Video Downloader — Free HD MP4",
@@ -292,7 +299,7 @@ const COPY: Record<string, Copy> = {
       { q: "Can I get the audio only?", a: "Yes — an MP3 option appears when the audio track is separable." },
       { q: "Is there a limit?", a: "A fair-use limit of 40 downloads per hour keeps the service fast for everyone." },
     ],
-    steps: genericSteps("Dailymotion"),
+    steps: genericSteps("dailymotion", "Dailymotion"),
   },
   threads: {
     title: "Threads Video Downloader — Save Videos & Photos",
@@ -312,7 +319,7 @@ const COPY: Record<string, Copy> = {
       { q: "Do private profiles work?", a: "No, only public posts can be downloaded." },
       { q: "Can I save the audio?", a: "When a video has a separable soundtrack, an MP3 option appears." },
     ],
-    steps: genericSteps("Threads"),
+    steps: genericSteps("threads", "Threads"),
   },
   tumblr: {
     title: "Tumblr Video Downloader — Save Videos, GIFs & Photos",
@@ -332,7 +339,7 @@ const COPY: Record<string, Copy> = {
       { q: "Do private or dashboard-only blogs work?", a: "No, only publicly visible posts." },
       { q: "Does it work on mobile?", a: "Yes — everything runs in the browser on any device." },
     ],
-    steps: genericSteps("Tumblr"),
+    steps: genericSteps("tumblr", "Tumblr"),
   },
   bilibili: {
     title: "Bilibili Video Downloader — Save 哔哩哔哩 Videos as MP4",
@@ -352,7 +359,7 @@ const COPY: Record<string, Copy> = {
       { q: "What about multi-part videos?", a: "The linked part downloads; paste each part's link for the rest." },
       { q: "Can I get just the audio?", a: "Yes, an MP3 option appears when the audio is separable." },
     ],
-    steps: genericSteps("Bilibili"),
+    steps: genericSteps("bilibili", "Bilibili"),
   },
 };
 

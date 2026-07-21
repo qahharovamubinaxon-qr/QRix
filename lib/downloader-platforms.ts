@@ -52,6 +52,31 @@ export const PLATFORMS: Platform[] = [
     svg: `<svg viewBox="0 0 24 24" width="100%" height="100%"><rect x="2" y="4" width="20" height="16" rx="4" fill="#00A1D6"/><path fill="#fff" d="M8 2.6l2.2 2H14l2.2-2 .9 1-1 1H17a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9.6a3 3 0 0 1 3-3h.9l-1-1zM7 9.4a.9.9 0 0 0-.9.9v5a.9.9 0 0 0 .9.9h10a.9.9 0 0 0 .9-.9v-5a.9.9 0 0 0-.9-.9zm2 2.1 .001 1.6H8V11.5zm7 0v1.6h-1V11.5z"/></svg>` },
 ];
 
+/** What a platform can actually hand back, as the UI will present it.
+    Audio counts whenever there is a video track: when a platform serves no
+    separate audio format, DownloaderClient offers a local "extract to MP3"
+    row instead (Mediabunny/LAME). Image only counts when the platform really
+    yields stills — Twitch, Vimeo, Dailymotion and SoundCloud never do.
+    Every localized copy template MUST build its format sentence from this
+    instead of promising video + audio + image blindly. */
+export function deliverables(p: Platform): { video: boolean; audio: boolean; image: boolean } {
+  const video = p.kinds.includes("video");
+  return { video, audio: video || p.kinds.includes("audio"), image: p.kinds.includes("image") };
+}
+
+/** Join the available formats into a natural sentence fragment per language. */
+export function formatPhrase(p: Platform, lang: "en" | "ru" | "uz"): string {
+  const d = deliverables(p);
+  const words = {
+    en: { video: "video (MP4)", audio: "audio (MP3)", image: "image", or: "or" },
+    ru: { video: "видео (MP4)", audio: "аудио (MP3)", image: "изображение", or: "или" },
+    uz: { video: "video (MP4)", audio: "audio (MP3)", image: "rasm", or: "yoki" },
+  }[lang];
+  const parts = [d.video && words.video, d.audio && words.audio, d.image && words.image].filter(Boolean) as string[];
+  if (parts.length === 1) return parts[0];
+  return `${parts.slice(0, -1).join(", ")} ${words.or} ${parts[parts.length - 1]}`;
+}
+
 /** Resolve a pasted URL to a supported platform (or null). */
 export function detectPlatform(raw: string): Platform | null {
   let host = "";

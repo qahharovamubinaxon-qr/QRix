@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import DownloaderClient from "@/components/DownloaderClient";
-import { PLATFORMS } from "@/lib/downloader-platforms";
+import { PLATFORMS, deliverables, formatPhrase, type Platform } from "@/lib/downloader-platforms";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 
 /* Oʻzbekcha SEO sahifalari (lotin) — Oʻzbek Google-qidiruvi asosan lotin
@@ -79,22 +79,28 @@ const UZ: Record<string, Partial<UzCopy>> = {
   },
 };
 
-function copyFor(id: string, name: string): UzCopy {
-  const o = UZ[id] || {};
+function copyFor(p: Platform): UzCopy {
+  const o = UZ[p.id] || {};
+  const name = p.name;
+  const d = deliverables(p);
+  const fmts = formatPhrase(p, "uz");
+  /* Shablon bloklari platformaning haqiqiy imkoniyatlaridan yigʻiladi:
+     SoundCloud'da MP4, Twitch'da rasm va'da qilish — yolgʻon va'da. */
+  const generic: [string, string][] = [];
+  if (d.video) generic.push(["Eng yaxshi sifatda MP4", `Video ${name} bergan eng yuqori sifatda saqlanadi.`]);
+  if (d.audio) generic.push(["Ovozi MP3 formatda", d.video ? "Audio yoʻlni alohida fayl qilib saqlash mumkin." : "Trek MP3 boʻlib saqlanadi — oflayn tinglashga tayyor."]);
+  if (d.image) generic.push(["Rasmlar asl sifatda", "Postdagi rasmlar toʻliq oʻlchamda yuklanadi."]);
+  generic.push(["Roʻyxatsiz", "Akkaunt, reklama va suv belgisi yoʻq."]);
+  generic.push(["Telefon va PC", "Istalgan brauzerda ishlaydi — hech narsa oʻrnatmaysiz."]);
   return {
     title: o.title || `${name}'dan video yuklab olish — bepul MP4`,
     h1: o.h1 || `${name}'dan video yuklash`,
     desc: o.desc || `${name}'dan videolarni MP4 qilib bepul yuklab oling — roʻyxatsiz, reklamasiz va suv belgisisiz onlayn yuklagich.`,
-    intro: o.intro || `${name} ochiq postining havolasini tashlang — QRix video, audio va rasmlarni topib, asl sifatda brauzerda saqlaydi.`,
+    intro: o.intro || `${name} ochiq postining havolasini tashlang — QRix mavjud versiyalarni (${fmts}) topib, asl sifatda saqlaydi.`,
     keywords: o.keywords || [`${name.toLowerCase()} video yuklab olish`, `${name.toLowerCase()} yuklash`, `${name.toLowerCase()} yuklagich`, "video yuklab olish bepul"],
-    features: o.features || [
-      ["Eng yaxshi sifatda MP4", `Video ${name} bergan eng yuqori sifatda saqlanadi.`],
-      ["Ovozi MP3 formatda", "Audio yoʻlni alohida saqlash mumkin, mavjud boʻlsa."],
-      ["Roʻyxatsiz", "Akkaunt, reklama va suv belgisi yoʻq."],
-      ["Telefon va PC", "Istalgan brauzerda ishlaydi — hech narsa oʻrnatmaysiz."],
-    ],
+    features: o.features || generic,
     faqs: o.faqs || [
-      { q: `${name}'dan videoni qanday yuklab olaman?`, a: "Post havolasini «Ulashish» orqali nusxalang, uni yuqoriga qoʻying va formatni tanlang — MP4, MP3 yoki rasm." },
+      { q: `${name}'dan videoni qanday yuklab olaman?`, a: `Post havolasini «Ulashish» orqali nusxalang, uni yuqoriga qoʻying va formatni tanlang — ${fmts}.` },
       { q: "Bepulmi?", a: "Ha — toʻliq bepul, roʻyxatsiz va suv belgisisiz." },
       { q: "Yopiq kontent yuklanadimi?", a: "Yoʻq. Faqat ochiq postlar ishlaydi." },
       { q: "QRix fayllarimni saqlaydimi?", a: "Yoʻq. Fayl toʻgʻridan-toʻgʻri qurilmangizga oʻtadi, QRix hech narsa saqlamaydi." },
@@ -113,7 +119,7 @@ export async function generateMetadata({ params }: { params: Promise<{ platform:
   const { platform } = await params;
   const p = PLATFORMS.find((x) => x.id === platform);
   if (!p) return {};
-  const c = copyFor(p.id, p.name);
+  const c = copyFor(p);
   return pageMeta({
     title: c.title, description: c.desc, path: `/uz/downloader/${platform}`, keywords: c.keywords,
     languages: { en: `/downloader/${platform}`, ru: `/ru/downloader/${platform}`, uz: `/uz/downloader/${platform}`, "x-default": `/downloader/${platform}` },
@@ -124,12 +130,12 @@ export default async function UzPlatformPage({ params }: { params: Promise<{ pla
   const { platform } = await params;
   const p = PLATFORMS.find((x) => x.id === platform);
   if (!p) notFound();
-  const c = copyFor(p.id, p.name);
+  const c = copyFor(p);
   const others = PLATFORMS.filter((x) => x.id !== platform);
   const steps: [string, string][] = [
     ["Havolani nusxalang", `${p.name}'da postni oching va «Ulashish» → «Havolani nusxalash» ni bosing.`],
     ["QRix'ga qoʻying", "Yuklagich barcha mavjud versiyalarni darhol topadi."],
-    ["Formatni tanlang", "Video (MP4), audio (MP3) yoki rasm — fayl jonli progress bilan saqlanadi."],
+    ["Formatni tanlang", `${formatPhrase(p, "uz")[0].toUpperCase()}${formatPhrase(p, "uz").slice(1)} — fayl jonli progress bilan saqlanadi.`],
   ];
 
   return (

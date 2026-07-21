@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import DownloaderClient from "@/components/DownloaderClient";
-import { PLATFORMS } from "@/lib/downloader-platforms";
+import { PLATFORMS, deliverables, formatPhrase, type Platform } from "@/lib/downloader-platforms";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 
 /* Русские SEO-страницы загрузчика: /ru/downloader/tiktok … — РУ-рынок ищет
@@ -110,23 +110,28 @@ const nameRu: Record<string, string> = {
   dailymotion: "Dailymotion", threads: "Threads", tumblr: "Tumblr", bilibili: "Bilibili",
 };
 
-function copyFor(id: string, name: string): RuCopy {
-  const o = RU[id] || {};
-  const n = o.h1 ? name : nameRu[id] || name;
+function copyFor(p: Platform): RuCopy {
+  const o = RU[p.id] || {};
+  const n = o.h1 ? p.name : nameRu[p.id] || p.name;
+  const d = deliverables(p);
+  const fmts = formatPhrase(p, "ru");
+  /* Шаблонные блоки собираются из реальных возможностей платформы: обещать
+     MP4 у SoundCloud или картинку у Twitch — это ложное обещание. */
+  const generic: [string, string][] = [];
+  if (d.video) generic.push(["MP4 в лучшем качестве", `Видео сохраняется в максимальном качестве, которое отдаёт ${n}.`]);
+  if (d.audio) generic.push(["Звук в MP3", d.video ? "Аудиодорожку можно сохранить отдельным файлом." : "Трек сохраняется в MP3 — готов к офлайн-прослушиванию."]);
+  if (d.image) generic.push(["Картинки в оригинале", "Изображения из поста скачиваются в полном разрешении."]);
+  generic.push(["Без регистрации", "Никаких аккаунтов, рекламы и водяных знаков."]);
+  generic.push(["Телефон и ПК", "Работает в любом браузере — ничего не нужно устанавливать."]);
   return {
     title: o.title || `Скачать видео с ${n} — бесплатно в MP4`,
     h1: o.h1 || `Скачать видео с ${n}`,
     desc: o.desc || `Скачивайте видео с ${n} в MP4 бесплатно — онлайн-загрузчик без регистрации, рекламы и водяных знаков.`,
-    intro: o.intro || `Вставьте ссылку на публичный пост ${n} — QRix найдёт видео, аудио и изображения и сохранит их в исходном качестве прямо из браузера.`,
+    intro: o.intro || `Вставьте ссылку на публичный пост ${n} — QRix найдёт доступные версии файла (${fmts}) и сохранит их в исходном качестве.`,
     keywords: o.keywords || [`скачать видео ${n.toLowerCase()}`, `${n.toLowerCase()} скачать`, `${n.toLowerCase()} загрузчик`, "скачать видео бесплатно"],
-    features: o.features || [
-      ["MP4 в лучшем качестве", `Видео сохраняется в максимальном качестве, которое отдаёт ${n}.`],
-      ["Звук в MP3", "Аудиодорожку можно сохранить отдельно, когда она доступна."],
-      ["Без регистрации", "Никаких аккаунтов, рекламы и водяных знаков."],
-      ["Телефон и ПК", "Работает в любом браузере — ничего не нужно устанавливать."],
-    ],
+    features: o.features || generic,
     faqs: o.faqs || [
-      { q: `Как скачать видео с ${n}?`, a: "Скопируйте ссылку на пост через «Поделиться», вставьте её в поле выше и выберите формат — MP4, MP3 или изображение." },
+      { q: `Как скачать видео с ${n}?`, a: `Скопируйте ссылку на пост через «Поделиться», вставьте её в поле выше и выберите формат — ${fmts}.` },
       { q: "Это бесплатно?", a: "Да — полностью бесплатно, без регистрации и водяных знаков." },
       { q: "Скачивается ли приватный контент?", a: "Нет. Работают только публичные посты — закрытые остаются закрытыми." },
       { q: "Хранит ли QRix мои файлы?", a: "Нет. Файл передаётся напрямую на ваше устройство, QRix ничего не хранит." },
@@ -145,7 +150,7 @@ export async function generateMetadata({ params }: { params: Promise<{ platform:
   const { platform } = await params;
   const p = PLATFORMS.find((x) => x.id === platform);
   if (!p) return {};
-  const c = copyFor(p.id, p.name);
+  const c = copyFor(p);
   return pageMeta({
     title: c.title, description: c.desc, path: `/ru/downloader/${platform}`, keywords: c.keywords,
     languages: { en: `/downloader/${platform}`, ru: `/ru/downloader/${platform}`, uz: `/uz/downloader/${platform}`, "x-default": `/downloader/${platform}` },
@@ -156,12 +161,12 @@ export default async function RuPlatformPage({ params }: { params: Promise<{ pla
   const { platform } = await params;
   const p = PLATFORMS.find((x) => x.id === platform);
   if (!p) notFound();
-  const c = copyFor(p.id, p.name);
+  const c = copyFor(p);
   const others = PLATFORMS.filter((x) => x.id !== platform);
   const steps: [string, string][] = [
     ["Скопируйте ссылку", `Откройте пост в ${p.name} и нажмите «Поделиться» → «Скопировать ссылку».`],
     ["Вставьте её в QRix", "Загрузчик мгновенно найдёт все доступные версии файла."],
-    ["Выберите формат", "Видео (MP4), аудио (MP3) или изображение — файл сохранится с живым прогрессом."],
+    ["Выберите формат", `${formatPhrase(p, "ru")[0].toUpperCase()}${formatPhrase(p, "ru").slice(1)} — файл сохранится с живым прогрессом.`],
   ];
 
   return (
