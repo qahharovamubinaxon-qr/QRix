@@ -22,7 +22,7 @@ const PassportClient = dynamic(() => import("@/components/image/ImageSpecialClie
 export default function ImageEngineRegistry({ engine }: { engine: string }) {
   if (engine.startsWith("fx:")) return <ImageFxClient preset={engine.slice(3) as never} />;
   if (engine.startsWith("tf:")) return <ImageTransformClient preset={engine.slice(3) as never} />;
-  if (engine.startsWith("convert:") || engine.startsWith("social:")) return <ImageConvertClient engine={engine} />;
+  if (engine.startsWith("convert:") || engine.startsWith("social:") || engine.startsWith("resize:")) return <ImageConvertClient engine={engine} />;
   if (engine.startsWith("overlay:")) return <ImageOverlayClient preset={engine.slice(8) as never} />;
   if (engine.startsWith("layout:")) return <ImageLayoutClient preset={engine.slice(7) as never} />;
   if (engine.startsWith("batch:")) return <ImageBatchClient preset={engine.slice(6) as never} />;

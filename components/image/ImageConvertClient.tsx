@@ -1,7 +1,7 @@
 "use client";
 
-/* Convert (format) + Social resize engine.
-   engine "convert:<mime>" | "social:<presetId>" | "social:_picker" */
+/* Convert (format) + Social/fixed-size resize engine.
+   engine "convert:<mime>" | "social:<presetId>" | "social:_picker" | "resize:<w>x<h>" */
 
 import { useEffect, useRef, useState } from "react";
 import { AiDropzone, AiResultBar, CloudNotice } from "@/components/ai/AiKit";
@@ -141,7 +141,18 @@ async function encodeIco(c: HTMLCanvasElement): Promise<Blob | null> {
   return new Blob([head, bytes], { type: "image/x-icon" });
 }
 
+/** "resize:1920x1080" -> a one-off preset, so the /resize/<preset> pages reuse
+    the social sizing UI (fit/fill + background) without a duplicate size table. */
+function parseResize(engine: string): { label: string; w: number; h: number } | null {
+  const m = /^resize:(\d{1,5})x(\d{1,5})$/.exec(engine);
+  if (!m) return null;
+  const w = Number(m[1]), h = Number(m[2]);
+  if (!w || !h) return null;
+  return { label: `${w}×${h}`, w, h };
+}
+
 export default function ImageConvertClient({ engine }: { engine: string }) {
+  const resize = parseResize(engine);
   const isSocial = engine.startsWith("social:");
   const socialId = isSocial ? engine.slice(7) : "";
   const fmtKey = engine.startsWith("convert:") ? engine.slice(8) : "jpeg";
@@ -157,7 +168,7 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
   const [unsupported, setUnsupported] = useState("");
   const viewRef = useRef<HTMLCanvasElement>(null);
 
-  const preset = isSocial ? (socialId === "_picker" ? SOCIAL[pickPreset] : SOCIAL[socialId]) : null;
+  const preset = resize || (isSocial ? (socialId === "_picker" ? SOCIAL[pickPreset] : SOCIAL[socialId]) : null);
 
   async function onFile(f: File) {
     trackTool(`img-${engine}`, { size: f.size });

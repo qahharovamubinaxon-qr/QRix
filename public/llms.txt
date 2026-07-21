@@ -21,6 +21,7 @@ videos in chat; the @QRixtools channel posts a free tool daily.
 - [Image to 3D](https://qrixtools.com/3d-tools/image-to-3d): photo to textured 3D model (GLB/OBJ/STL)
 - [Image Tools](https://qrixtools.com/image-tools): compress, resize, convert + 60 more
 - [Image Format Converter](https://qrixtools.com/convert): 20 direct conversions between PNG, JPG, WebP, AVIF, BMP, GIF and ICO — runs in-browser, no upload
+- [Image Resizer presets](https://qrixtools.com/resize): 16 exact-size presets — 1920x1080, 4K, QHD, square, Open Graph, 4x6/5x7 prints, A4, US passport 600x600 and 35x45mm ID — fill or fit, in-browser, no upload
 - [Video Tools](https://qrixtools.com/video-tools): trim, compress, GIF, extract audio — in-browser
 
 ## Comparisons
