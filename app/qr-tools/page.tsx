@@ -74,6 +74,9 @@ export default function QRToolsPage() {
               <p className="mt-2 text-sm max-w-md" style={{ color: "var(--text-muted)" }}>
                 {QR_TOOLS.length}+ professional QR code generators — URL, WiFi, vCard, social, payments and more. Customize colors, add your logo, download PNG or SVG.
               </p>
+              <Link href="/qr-code-statistics" className="inline-flex items-center gap-1.5 mt-3 text-xs font-bold hover:underline underline-offset-2" style={{ color: "var(--primary-bright)" }}>
+                See the QR code statistics — sourced <FiArrowRight size={11} />
+              </Link>
             </div>
           </div>
           <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-4 mt-7 pt-6" style={{ borderTop: "1px solid var(--border)" }}>

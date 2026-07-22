@@ -31,11 +31,6 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   wired, flip its `wired` in AI_CLOUD_ROUTES — the trust strip, privacy FAQ
   and CloudNotice follow automatically (M131) — and rewrite that tool's
   intro/about/desc, which still promise the cloud engine in the future tense.
-- [~] Stats page /qr-code-statistics — 20+ sourced stats; citation magnet
-  for LLMs + journalists (backlinks). Promoted over the two items below: ten
-  consecutive missions have been correctness work, the year goal is traffic,
-  and this is the only NOW item that is itself an acquisition asset.
-  Every number must carry a real, checkable source — no stat ships without one.
 - [ ] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile.
 
 ## NEXT (2-4 weeks)
@@ -76,6 +71,16 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: /qr-code-statistics finished + de-orphaned (M134). The page,
+  dataset (lib/qr-stats.ts, 26 sourced stats each with kind + caveat), the
+  enforcing test (npm run test:qr-stats, 13 assertions), sitemap and search
+  entry were all already built and passing — the only thing left for a
+  citation asset was inbound internal links, and it had none (self + sitemap +
+  search index only, i.e. an orphan). Added two contextual inbound links: the
+  site-wide footer "Company" column (localized EN/RU/UZ) and the /qr-tools
+  landing hero. Now crawlable from the homepage and the QR hub, so it can earn
+  the link equity a backlink magnet needs. No dataset change — every number
+  still carries its source and its "what it doesn't prove" caveat.
 - [x] Jul 22: poster maker logo upload + a removable credit (M133). The
   review-poster landing answered "Can I add my logo?" with "not yet" in 15
   languages and promised "no watermark on the printable poster" in the same

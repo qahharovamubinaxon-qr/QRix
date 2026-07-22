@@ -910,6 +910,7 @@ export default function HomePage() {
               {[
                 { href: "/about", label: lang === "uz" ? "Биз ҳақимизда" : lang === "ru" ? "О нас" : "About" },
                 { href: "/blog", label: lang === "uz" ? "Блог" : lang === "ru" ? "Блог" : "Blog" },
+                { href: "/qr-code-statistics", label: lang === "uz" ? "QR статистика" : lang === "ru" ? "QR-статистика" : "QR statistics" },
                 { href: "/help", label: lang === "uz" ? "Ёрдам маркази" : lang === "ru" ? "Помощь" : "Help Center" },
                 { href: "/docs", label: lang === "uz" ? "Ҳужжатлар" : lang === "ru" ? "Документация" : "Docs" },
                 { href: "/contact", label: lang === "uz" ? "Алоқа" : lang === "ru" ? "Контакты" : "Contact" },
