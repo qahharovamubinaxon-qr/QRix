@@ -576,3 +576,37 @@ scripts/test-pdf-compress.mjs (new), components/CompressPdfClient.tsx,
 app/api/pdf/compress/route.ts, app/pdf-tools/compress/page.tsx,
 lib/localized-tools.ts, lib/usecase-content.ts, lib/usecase-content.i18n.ts,
 package.json. Branch design-v2.
+
+## M128 — the trust strip stopped claiming what the engine doesn't do (Jul 22)
+
+ToolPageShell rendered six hardcoded trust points on every tool page. Two of
+them are claims about where the work happens — "Private by design: runs in your
+browser; files never upload" and "Instant: no queue, no waiting on a server" —
+and nothing derived them, so they appeared identically on a canvas tool and on
+one that POSTs the file. This is M126's bug class (copy that outlived its
+engine) at site scale rather than page scale.
+
+The shell now takes `processing` ("device" | "cloud", default "device"), splits
+the always-true claims into WHY_SHARED and swaps only the two that can be false.
+Cloud reads "Not stored — sent over HTTPS to be processed, then discarded" and
+"Nothing to install — the heavy conversion runs on a server".
+
+Switched: /pdf-tools/pdf-to-word (the Adobe/Aspose/CloudConvert chain; its About
+text now says it converts server-side) and /3d-tools/image-to-3d (posts the
+image to /api/v1/3d; only the fallback preview is local). LocalizedToolPage had
+the same lie in RU/UZ — "Бесплатно · в браузере · без регистрации" on every
+localized tool — fixed with the same three-segment drop used by freeLabel(),
+driven by a new LocTool.onDevice. The downloader FAQ's "Everything runs in your
+browser" contradicted its own Privacy paragraph and was corrected.
+
+Verified locally: pdf-to-word renders "Not stored" and no longer "files never
+upload"; /ru/pdf-to-word reads "Бесплатно · без регистрации"; /pdf-tools/compress
+still claims on-device, which M127 made true.
+
+Left for a queued item: the AI pages are genuinely on-device today because
+isAiEngineLive() is false, but the flag has to be bound to the connector before
+NEXT_PUBLIC_AI_ENGINE is ever set.
+
+Files: components/ToolPageShell.tsx, components/LocalizedToolPage.tsx,
+lib/localized-tools.ts, app/pdf-tools/pdf-to-word/page.tsx,
+app/3d-tools/[slug]/page.tsx, app/downloader/page.tsx. Branch design-v2.

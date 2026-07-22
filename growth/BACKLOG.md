@@ -7,13 +7,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
   browser, same pattern as @imgly for the background remover) or rename it.
   Owner decision: renaming costs the "улучшить фото ии" keyword.
-- [~] ToolPageShell's trust strip says "Private by design — runs in your
-  browser; files never upload" on EVERY tool page, and it is hardcoded, not
-  derived from the engine. It was false on /pdf-tools/compress until M127 and
-  is still false anywhere that POSTs a file: PDF→Word (Adobe/Aspose/
-  CloudConvert chain), the AI tools, the downloader, /api/pdf/merge. Same class
-  of bug as M126 but on far more pages. Make the strip a prop off the tool's
-  real engine, then sweep every page that has to switch.
+- [ ] Bind the AI tool pages' `processing` flag to the connector before a cloud
+  engine is ever switched on — today isAiEngineLive() is false so /ai-tools/*
+  really is on-device, but the moment NEXT_PUBLIC_AI_ENGINE is set, every one
+  of those pages starts claiming "files never upload" while posting the file.
+  The flag exists (M128); it just needs to be derived per engine, and the
+  registry has to say which engines upload.
 - [ ] Poster maker logo upload — M126 had to answer "no" to "Can I add my
   logo?" in 15 languages. Templates/heading/colour exist; a logo would make the
   review-poster page's strongest claim true again.
@@ -56,6 +55,15 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: the trust strip claimed "files never upload" on tools that upload
+  (M128). ToolPageShell hardcoded six trust points on every tool page; two are
+  claims about where the work happens and neither was derived from anything.
+  Now a `processing` prop picks between a device and a cloud variant, with the
+  four always-true claims shared. /pdf-tools/pdf-to-word and
+  /3d-tools/image-to-3d switched to cloud (both send the user's file), the
+  RU/UZ localized badge got the same three-segment drop via LocTool.onDevice,
+  and the downloader FAQ's "Everything runs in your browser" was corrected
+  against its own Privacy note two paragraphs below it.
 - [x] Jul 22: PDF compression moved into the browser (M127) — the tool can now
   do the job its funnel page is built to sell. lib/pdf-compress.ts walks the
   indirect objects and re-encodes each DCTDecode image XObject through an
