@@ -11,9 +11,6 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   M120 only spot-checked. Sampled claims held up (QR "без ограничений" is true,
   the WhatsApp video-compress page's on-device claim matches the Mediabunny
   engine), but it is the largest programmatic copy file in the repo.
-- [ ] Localize the fit/fill buttons. The RU/UZ resize copy tells users to pick
-  «заполнить» or «вписать» on 50+ pages; ImageConvertClient renders the buttons
-  as English "fill"/"fit". Copy references controls that aren't there.
 - [ ] Batch/multi-file conversion for real — AiDropzone takes a single file
   everywhere. ImageBatchClient exists but is a separate engine. Wiring
   multi-file into the /convert pages would make the (now removed) claim
@@ -47,6 +44,20 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: localized the sizing controls the RU/UZ copy names (M125) — the
+  copy said "switch to «вписать»" and that «to'ldirish» crops the sides (8 RU
+  and 13 UZ mentions across 50+ pages) while the buttons rendered English
+  fill/fit, so the copy pointed at a control that wasn't on the page.
+  ImageEngineRegistry threads an optional `lang` into the sizing/convert engine
+  only — the one client whose controls the copy names out loud. Labels are
+  display-only; mode values stay "fit"/"fill", so lib/image-output and its 30
+  assertions are untouched. Background aria-label, quality label and the
+  primary action localized too.
+  Verified in a real browser on PRODUCTION, not just locally: qrixtools.com
+  /ru/resize/1080x1080 renders Заполнить · Вписать · Изменить размер and the
+  uz twin renders To'ldirish · Sig'dirish · O'lchamni o'zgartirish. Note the
+  engine chunk is dynamic(ssr:false), so it is absent from the initial HTML —
+  grepping HTML-linked chunks cannot verify it; drive the page instead.
 - [x] Jul 22: two silent format rewrites + engine-derived format FAQ (M124) —
   found by driving batch-compress in the pane that M123 unblocked, which is
   the tooling paying for itself on its first use.

@@ -445,3 +445,24 @@ there silently while the control stayed hidden.
 npm run test:image is 30/30, up from 23. The 7 new assertions check the copy
 against what each client encodes and fail 4 when fmtAnswer is reverted to the
 old always-PNG string. Live on 5 spot-checked URLs; IndexNow 200 for all 82.
+
+## Mission 125 — the buttons the localized copy was pointing at
+
+The RU/UZ sizing copy names its controls literally — "switch to «вписать»",
+"«to'ldirish» crops the sides" — 8 Russian and 13 Uzbek mentions across 50+
+pages, while ImageConvertClient rendered the buttons as English fill/fit. The
+copy was instructing readers to click something that wasn't on the page.
+
+ImageEngineRegistry now threads an optional `lang` into the sizing/convert
+engine and nothing else: it is the only client whose controls the copy names
+out loud, and widening it further would be churn. The labels are display-only —
+mode values stay "fit"/"fill", so lib/image-output.ts and its 30 assertions are
+untouched. The background-colour aria-label, the quality label and the primary
+action are localized on the same pages.
+
+Verified by driving production in a real browser rather than by reading the
+diff: qrixtools.com/ru/resize/1080x1080 renders Заполнить · Вписать · Изменить
+размер, and the uz twin To'ldirish · Sig'dirish · O'lchamni o'zgartirish.
+Worth recording for next time — the engine chunk is dynamic(ssr:false), so it
+never appears in the initial HTML and grepping HTML-linked chunks cannot prove
+it shipped; the page has to be driven.
