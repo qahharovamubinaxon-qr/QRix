@@ -169,7 +169,7 @@ export function AiTranslateClient() {
 
   return (
     <div className="qx-card p-6 space-y-4">
-      <CloudNotice>
+      <CloudNotice engine="translate">
         Neural translation runs through the QRix AI connector and activates with the cloud engine.
         Until then, the workspace below is ready — and the button opens your text in Google Translate so you're never blocked.
       </CloudNotice>

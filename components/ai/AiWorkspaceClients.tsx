@@ -286,7 +286,7 @@ export function AiRemoveObjClient() {
 
   return (
     <div className="qx-card p-6 space-y-5">
-      <CloudNotice>Brush-and-blend removal works on your device today — ideal for small distractions. Large-object neural inpainting is wired through the QRix AI connector and activates with the cloud engine.</CloudNotice>
+      <CloudNotice engine="removeobj">Brush-and-blend removal works on your device today — ideal for small distractions. Large-object neural inpainting is wired through the QRix AI connector and activates with the cloud engine.</CloudNotice>
       {!imgUrl && <AiDropzone onFile={onFile} />}
       {imgUrl && !resultUrl && (
         <>
@@ -369,7 +369,7 @@ export function AiDescribeClient() {
 
   return (
     <div className="qx-card p-6 space-y-5">
-      <CloudNotice>On-device analysis covers colors, tone and composition today. Full scene understanding (objects, actions, context) activates with the cloud vision engine — the workspace is ready.</CloudNotice>
+      <CloudNotice engine="describe">On-device analysis covers colors, tone and composition today. Full scene understanding (objects, actions, context) activates with the cloud vision engine — the workspace is ready.</CloudNotice>
       {!url && <AiDropzone onFile={onFile} />}
       {url && (
         <div className="grid sm:grid-cols-2 gap-5 items-start">

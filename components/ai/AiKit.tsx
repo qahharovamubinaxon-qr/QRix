@@ -9,6 +9,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FiUploadCloud, FiDownload, FiCopy, FiCheck, FiShare2, FiRefreshCw, FiMaximize2, FiX, FiZap } from "react-icons/fi";
+import { cloudRoute, isAiEngineLive } from "@/lib/ai-connector";
 
 /* ── Dropzone ─────────────────────────────────────────────── */
 export function AiDropzone({ onFile, onFiles, multiple = false, accept = "image/*", hint }: {
@@ -199,14 +200,28 @@ export function AiResultBar({ blob, filename, onReset, shareText }: {
   );
 }
 
-/* ── Cloud-engine notice for preview tools ────────────────── */
-export function CloudNotice({ children }: { children?: React.ReactNode }) {
+/* ── Cloud-engine notice for preview tools ────────────────────
+   Pass `engine` on any notice whose text is a claim about where the work
+   happens ("runs on your device today; the cloud engine activates later").
+   Those sentences are only true while no engine is configured — once one is,
+   the same notice would reassure the reader on the very page that started
+   uploading. With `engine` set, the copy is read from the route table and the
+   disclosure replaces the promise. */
+export function CloudNotice({ engine, children }: { engine?: string; children?: React.ReactNode }) {
+  const route = engine ? cloudRoute(engine) : undefined;
+  const live = !!route && isAiEngineLive();
+  const noun = route?.sends === "text" ? "text" : "image";
+
   return (
     <div className="rounded-2xl px-4 py-3 flex items-start gap-3 text-[12.5px] leading-relaxed"
       style={{ background: "color-mix(in srgb, var(--accent) 10%, transparent)", border: "1px solid color-mix(in srgb, var(--accent) 30%, transparent)", color: "var(--text-muted)" }}>
       <FiZap size={15} className="shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
       <span>
-        {children || "This tool runs an on-device preview today. Full neural processing is pre-wired through the QRix AI connector and switches on with the cloud engine — no interface changes needed."}
+        {live
+          ? route!.mode === "replaces"
+            ? `This tool now runs on the QRix cloud engine: your ${noun} is sent over HTTPS, processed and then discarded. QRix keeps no copy.`
+            : `The tool itself runs in your browser. The optional AI step runs on the QRix cloud engine — it sends your ${noun} over HTTPS, processes it and discards it.`
+          : children || "This tool runs an on-device preview today. Full neural processing is pre-wired through the QRix AI connector and switches on with the cloud engine — no interface changes needed."}
       </span>
     </div>
   );

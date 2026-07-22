@@ -11,6 +11,8 @@
                        API connector (lib/ai-connector.ts)
    ============================================================ */
 
+import { cloudRoute, isAiEngineLive, type CloudRoute } from "@/lib/ai-connector";
+
 export type AiCategory = "Image AI" | "Text AI" | "Voice AI" | "Generators";
 
 export type AiTool = {
@@ -43,7 +45,7 @@ const STEPS_IMG = [
   { title: "Compare & download", desc: "Slide before/after, then save the PNG." },
 ];
 
-export const AI_TOOLS: AiTool[] = [
+const RAW_AI_TOOLS: AiTool[] = [
   /* ── IMAGE AI ── */
   {
     slug: "background-remover", title: "AI Background Remover", short: "Background Remover",
@@ -428,6 +430,36 @@ export const AI_TOOLS: AiTool[] = [
     faqs: [FREE, { q: "When does generation go live?", a: "The workspace is wired to the QRix AI connector; generation activates as soon as a cloud engine is configured." }],
   },
 ];
+
+/* ------------------------------------------------------------------
+   PRIVATE above answers "Is my file uploaded to a server?" with a flat
+   "No — processing runs on your device", and it is pasted into tools
+   whose own copy promises the cloud engine will take that work over
+   (colorize, remove-objects, image-description…). Today the answer is
+   true only because no engine is configured. Derive it from the route
+   table instead of leaving a claim that silently inverts when an env
+   var is set — and give the routed tools that have no privacy FAQ at
+   all (speech, subtitles) one, rather than staying quiet about it.
+   With no engine configured this is a no-op: every page renders
+   exactly the copy it renders today.
+   ------------------------------------------------------------------ */
+function privacyFaq(r: CloudRoute): { q: string; a: string } {
+  const noun = r.sends === "file" ? "file" : "text";
+  const q = `Is my ${noun} uploaded to a server?`;
+  return r.mode === "replaces"
+    ? { q, a: `This tool's AI step runs on the QRix cloud engine, so your ${noun} is sent over HTTPS, processed and then discarded. QRix keeps no copy.` }
+    : { q, a: `Not for the on-device features — those stay in your browser. Only the optional AI step uses the QRix cloud engine: it sends your ${noun} over HTTPS, processes it and discards it, and the control says so before you use it.` };
+}
+
+function deriveClaims(t: AiTool): AiTool {
+  const r = cloudRoute(t.engine);
+  if (!r || !isAiEngineLive()) return t;
+  const f = privacyFaq(r);
+  const i = t.faqs.findIndex((x) => x.q === PRIVATE.q);
+  return { ...t, faqs: i >= 0 ? t.faqs.map((x, k) => (k === i ? f : x)) : [...t.faqs, f] };
+}
+
+export const AI_TOOLS: AiTool[] = RAW_AI_TOOLS.map(deriveClaims);
 
 export function getAiTool(slug: string): AiTool | undefined {
   return AI_TOOLS.find((t) => t.slug === slug);

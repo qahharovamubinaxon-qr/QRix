@@ -20,7 +20,8 @@
     "db:seed": "node prisma/seed.mjs",
     "test:image": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-image-output.mjs",
     "test:qr": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-qr-payload.mjs",
-    "test:pdf": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-pdf-compress.mjs"
+    "test:pdf": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-pdf-compress.mjs",
+    "test:ai": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-ai-claims.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

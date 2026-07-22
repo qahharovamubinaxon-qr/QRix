@@ -21,8 +21,14 @@ type Faq = { q: string; a: string };
    passed, and the trust strip below claimed "files never upload" on every tool
    page — including the ones that POST the file to a server. Tools that upload
    must pass processing="cloud" so the two claims that stop being true get
-   swapped for what really happens. */
-export type Processing = "device" | "cloud";
+   swapped for what really happens.
+
+   "hybrid" is the third real case, and the AI tools are full of it: the tool
+   works locally and a cloud engine only adds a mode (file transcription,
+   photoreal avatars). Calling those pages "cloud" would claim an upload that
+   most sessions never make; calling them "device" would hide the one they do.
+   See engineProcessing() in lib/ai-connector.ts. */
+export type Processing = "device" | "cloud" | "hybrid";
 
 // Claims that hold no matter where the work happens.
 const WHY_SHARED = [
@@ -39,13 +45,18 @@ const WHY_DEVICE = [
 
 const WHY_CLOUD = [
   { icon: <FiShield size={16} />, title: "Not stored", desc: "Sent over HTTPS to be processed, then discarded — QRix keeps no copy.", color: "#22d3ee" },
-  { icon: <FiZap size={16} />, title: "Nothing to install", desc: "The heavy conversion runs on a server, not your device.", color: "#ff7a32" },
+  { icon: <FiZap size={16} />, title: "Nothing to install", desc: "The heavy processing runs on a server, not your device.", color: "#ff7a32" },
+];
+
+const WHY_HYBRID = [
+  { icon: <FiShield size={16} />, title: "Local by default", desc: "The tool runs in your browser; the optional AI step says so before it sends anything.", color: "#22d3ee" },
+  { icon: <FiZap size={16} />, title: "Instant", desc: "The on-device work has no queue and no server round-trip.", color: "#ff7a32" },
 ];
 
 /* Privacy and speed first — they are the two people actually scan for, and on a
    cloud tool the honest version is the one that needs to be read. */
-const whyPoints = (processing: Processing) =>
-  [...(processing === "cloud" ? WHY_CLOUD : WHY_DEVICE), ...WHY_SHARED];
+const LEAD: Record<Processing, typeof WHY_DEVICE> = { device: WHY_DEVICE, cloud: WHY_CLOUD, hybrid: WHY_HYBRID };
+const whyPoints = (processing: Processing) => [...LEAD[processing], ...WHY_SHARED];
 
 export default function ToolPageShell({
   category,

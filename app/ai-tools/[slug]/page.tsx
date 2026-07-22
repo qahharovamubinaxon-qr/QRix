@@ -6,6 +6,7 @@ import ToolPageShell from "@/components/ToolPageShell";
 import AiEngineRegistry from "@/components/ai/AiEngineRegistry";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 import { AI_TOOLS, getAiTool } from "@/lib/ai-tools-meta";
+import { engineProcessing } from "@/lib/ai-connector";
 import { getLocTool } from "@/lib/localized-tools";
 import { allPostsSorted } from "@/lib/blog";
 
@@ -71,6 +72,9 @@ export default async function AiToolPage({ params }: { params: Promise<{ slug: s
         intro={tool.intro}
         about={tool.about}
         steps={tool.steps}
+        /* Not a constant: these engines move their work to the cloud the
+           moment NEXT_PUBLIC_AI_ENGINE is set. */
+        processing={engineProcessing(tool.engine)}
       >
         <AiEngineRegistry engine={tool.engine} status={tool.status} />
 

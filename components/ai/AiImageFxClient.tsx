@@ -234,7 +234,7 @@ export default function AiImageFxClient({ preset, isPreviewTool }: { preset: Pre
 
   return (
     <div className="qx-card p-6 space-y-5">
-      {isPreviewTool && <CloudNotice />}
+      {isPreviewTool && <CloudNotice engine={`fx:${preset}`} />}
       {!beforeUrl && <AiDropzone onFile={onFile} />}
 
       {beforeUrl && (
