@@ -16,7 +16,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] Poster maker logo upload — M126 had to answer "no" to "Can I add my
   logo?" in 15 languages. Templates/heading/colour exist; a logo would make the
   review-poster page's strongest claim true again.
-- [ ] Escape the remaining structured payloads — M126 fixed WiFi and VEVENT,
+- [~] Escape the remaining structured payloads — M126 fixed WiFi and VEVENT,
   but vCard still interpolates raw: an ORG of "Acme, Inc." or any name with a
   semicolon corrupts the same way. Same helper, same test file.
 - [ ] Point the use-case CTAs at /qr-tools/url and /qr-tools/vcard directly —
