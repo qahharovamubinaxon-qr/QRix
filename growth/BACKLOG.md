@@ -7,7 +7,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
   browser, same pattern as @imgly for the background remover) or rename it.
   Owner decision: renaming costs the "улучшить фото ии" keyword.
-- [ ] Bind the AI tool pages' `processing` flag to the connector before a cloud
+- [~] Bind the AI tool pages' `processing` flag to the connector before a cloud
   engine is ever switched on — today isAiEngineLive() is false so /ai-tools/*
   really is on-device, but the moment NEXT_PUBLIC_AI_ENGINE is set, every one
   of those pages starts claiming "files never upload" while posting the file.
