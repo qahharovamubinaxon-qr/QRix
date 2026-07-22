@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import {
   FiUsers, FiCreditCard, FiFileText, FiFlag, FiList, FiActivity,
-  FiCpu, FiSearch, FiRefreshCw, FiTrendingUp, FiHardDrive, FiKey, FiZap, FiMail, FiSliders,
+  FiCpu, FiSearch, FiRefreshCw, FiTrendingUp, FiHardDrive, FiKey, FiZap, FiMail, FiSliders, FiSend,
 } from "react-icons/fi";
 
 // Heavy charts board is code-split — loaded only when the tab opens.
@@ -36,6 +36,7 @@ const TABS = [
   { id: "workspaces", label: "Workspaces", icon: <FiUsers size={14} /> },
   { id: "api", label: "API", icon: <FiKey size={14} /> },
   { id: "ai-providers", label: "AI", icon: <FiSliders size={14} /> },
+  { id: "telegram", label: "Telegram", icon: <FiSend size={14} /> },
   { id: "flags", label: "Flags", icon: <FiFlag size={14} /> },
   { id: "logs", label: "Logs", icon: <FiList size={14} /> },
   { id: "status", label: "System", icon: <FiCpu size={14} /> },
@@ -359,6 +360,60 @@ export default function AdminPanel() {
           ))}
         </div>
       )}
+
+      {tab === "telegram" && data && (() => {
+        const bot = (data.bot || {}) as Json;
+        const sources = (data.sources || []) as Json[];
+        const inlineOn = !!bot.inlineEnabled;
+        const user = String(bot.username || "qrix_downloader_bot");
+        return (
+          <div className="space-y-6">
+            {/* status + the one action that used to need a terminal */}
+            <div className="qx-card p-5">
+              <div className="flex flex-wrap items-center gap-3 mb-3">
+                <b style={{ color: "var(--text)" }}>@{user}</b>
+                <Badge tone={bot.configured ? "good" : "default"}>{bot.configured ? "token set" : "no token"}</Badge>
+                <Badge tone={inlineOn ? "good" : "default"}>{inlineOn ? "inline on" : "inline off"}</Badge>
+                <Badge tone={data.attribution ? "good" : "default"}>{data.attribution ? "tracking on" : "no bot_users table"}</Badge>
+                {typeof bot.pendingUpdates === "number" && bot.pendingUpdates > 0 && (
+                  <Badge tone="default">{String(bot.pendingUpdates)} pending</Badge>
+                )}
+              </div>
+              {bot.lastError ? <p className="text-[12px] mb-3" style={{ color: "var(--danger)" }}>Telegram: {String(bot.lastError)}</p> : null}
+              <p className="text-[12.5px] mb-3" style={{ color: "var(--text-muted)" }}>
+                Inline mode lets anyone type <code>@{user} &lt;link&gt;</code> inside any chat or group; every
+                result is stamped “via @{user}”. Press this after enabling <code>/setinline</code> in BotFather —
+                it re-registers the webhook so Telegram starts sending inline queries.
+              </p>
+              <button className="qx-btn-hero !py-2 !px-4 text-sm" onClick={() => mutate("telegram", { action: "setup" })}>
+                {inlineOn ? "Re-register webhook" : "Enable inline mode"}
+              </button>
+            </div>
+
+            {/* which placement actually worked */}
+            <div>
+              <h3 className="qx-title mb-1" style={{ color: "var(--text)" }}>Where users came from</h3>
+              <p className="text-[12px] mb-3" style={{ color: "var(--text-muted)" }}>
+                Give every group its own link — <code>t.me/{user}?start=g_toshkent</code> — then judge it by
+                <b> Returning</b>, not by Users. People who came back are the only ones that count.
+              </p>
+              {sources.length ? (
+                <Table cols={["Source", "Users", "Returning", "Downloads"]}
+                  rows={sources.map((s) => [
+                    String(s.source),
+                    String(s.users),
+                    <b key="r" style={{ color: Number(s.returning) > 0 ? "var(--primary-bright)" : "var(--text-muted)" }}>{String(s.returning)}</b>,
+                    String(s.downloads),
+                  ])} />
+              ) : (
+                <p className="text-[13px]" style={{ color: "var(--text-muted)" }}>
+                  Nothing yet — share a tagged link and the first user shows up here.
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      })()}
 
       {tab === "flags" && Array.isArray(data) && (
         <Table cols={["Flag", "Enabled", "Rollout", ""]}

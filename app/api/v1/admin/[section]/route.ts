@@ -13,6 +13,8 @@ import { cleanupExpired } from "@/lib/server/storage";
 import { systemHealth } from "@/lib/server/monitor";
 import { creditStats, setCost, grantCredits } from "@/lib/server/credits";
 import { refundOrder } from "@/lib/server/billing";
+import { botStatus, registerWebhook } from "@/lib/server/telegram/public-bot";
+import { sourceStats, attributionConfigured } from "@/lib/server/telegram/attribution";
 import type { Plan, Role } from "@/lib/server/models";
 
 export const runtime = "nodejs";
@@ -152,6 +154,11 @@ export const GET = handler(async ({ req, params }) => {
     }
     case "credits":
       return ok(creditStats());
+    case "telegram":
+      // Which placement actually brought users, and who came back. `returning`
+      // (used it twice or more) is the column that separates a real channel
+      // from a link people tapped once and forgot.
+      return ok({ bot: await botStatus(), sources: await sourceStats(), attribution: attributionConfigured() });
     case "workspaces": {
       let rows = db.workspaces.all();
       if (q) rows = rows.filter((w) => w.name.toLowerCase().includes(q.toLowerCase()) || w.slug.includes(q.toLowerCase()));
@@ -245,6 +252,13 @@ export const POST = handler(async ({ req, params, user }) => {
     }
     case "cleanup":
       return ok({ purged: await cleanupExpired(), by: user!.email });
+    case "telegram": {
+      // Re-registers the webhook with inline_query included. Same thing the
+      // bot's ?setup=1 does, but authenticated by the admin session instead of
+      // CRON_SECRET, so it takes a click rather than a terminal.
+      if (String(body.action) !== "setup") throw badRequest("unknown action");
+      return ok(await registerWebhook());
+    }
     default:
       throw notFound("unknown section");
   }
