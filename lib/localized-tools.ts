@@ -12,12 +12,16 @@ export type LocTool = {
   slug: string;      // route segment + engine key
   enPath: string;    // canonical English page (for hreflang + "English version")
   emoji: string; grad: string;
+  /** False when the engine uploads the file. The localized badge reads
+      "Бесплатно · в браузере · без регистрации" on every page, so a server-side
+      tool has to drop the middle segment — see LocalizedToolPage. */
+  onDevice?: boolean;
   ru: LocCopy; uz: LocCopy;
 };
 
 export const LOC_TOOLS: LocTool[] = [
   {
-    slug: "pdf-to-word", enPath: "/pdf-tools/pdf-to-word", emoji: "📝", grad: "linear-gradient(135deg,#2563eb,#60a5fa)",
+    slug: "pdf-to-word", enPath: "/pdf-tools/pdf-to-word", emoji: "📝", grad: "linear-gradient(135deg,#2563eb,#60a5fa)", onDevice: false,
     ru: {
       title: "PDF в Word онлайн — конвертировать бесплатно, 1:1",
       h1: "Конвертировать PDF в Word",

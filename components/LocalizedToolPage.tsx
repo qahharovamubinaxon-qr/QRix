@@ -16,6 +16,15 @@ const T = {
   uz: { home: "Bosh sahifa", tools: "Vositalar", how: "Qanday ishlaydi", faq: "Savol-javob", other: "Boshqa vositalar", en: "English version", free: "Bepul · brauzerda · ro'yxatsiz" },
 } as const;
 
+/* Both badges are authored as three ` · ` segments with the in-browser claim in
+   the middle, so a server-side tool drops that segment and the line stays
+   grammatical in RU and UZ without a second translated string. */
+function freeBadge(label: string, onDevice: boolean): string {
+  if (onDevice) return label;
+  const parts = label.split(" · ");
+  return parts.length === 3 ? `${parts[0]} · ${parts[2]}` : parts[0];
+}
+
 export default function LocalizedToolPage({ tool, lang, others }: { tool: LocTool; lang: LocLang; others: LocTool[] }) {
   const c = tool[lang];
   const tt = T[lang];
@@ -42,7 +51,7 @@ export default function LocalizedToolPage({ tool, lang, others }: { tool: LocToo
             <h1 className="font-display text-3xl lg:text-4xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>{c.h1}</h1>
           </div>
           <p className="text-[14.5px]" style={{ color: "var(--text-muted)" }}>{c.intro}</p>
-          <p className="qx-mono text-[10.5px] uppercase tracking-[0.14em] mt-2" style={{ color: "var(--text-faint)" }}>{tt.free}</p>
+          <p className="qx-mono text-[10.5px] uppercase tracking-[0.14em] mt-2" style={{ color: "var(--text-faint)" }}>{freeBadge(tt.free, tool.onDevice !== false)}</p>
         </header>
 
         {/* the actual working tool */}

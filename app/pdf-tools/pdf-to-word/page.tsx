@@ -8,12 +8,13 @@ export default function Page() {
     <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title="PDF to Word" emoji="📝"
       grad="linear-gradient(135deg,#2563eb,#60a5fa)"
       intro="Convert PDF documents into editable Word files."
-      about="This tool extracts the text and layout from your PDF and produces an editable Word document. Useful when you need to edit content that's locked in a PDF. Works best with text-based PDFs; scanned documents use OCR where available."
+      about="This tool extracts the text and layout from your PDF and produces an editable Word document. Useful when you need to edit content that's locked in a PDF. Works best with text-based PDFs; scanned documents use OCR where available. Unlike most QRix tools this one converts on a server — matching a PDF's layout in Word takes more than a browser can do — so the file is uploaded, converted and discarded."
       steps={[
         { title: "Upload a PDF", desc: "Choose the document to convert." },
         { title: "Convert", desc: "The tool extracts text into Word format." },
         { title: "Download", desc: "Save the editable .docx file." },
-      ]}>
+      ]}
+      processing="cloud">
       <PdfToWordClient />
     </ToolPageShell>
   );

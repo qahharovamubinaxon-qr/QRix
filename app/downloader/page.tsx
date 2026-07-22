@@ -8,7 +8,7 @@ const DESC = "Free online video, audio & image downloader. Paste a link from Tik
 
 const FAQS = [
   { q: "How do I download a video?", a: "Copy the video's link, paste it into the box above, and pick a format — video (MP4), audio (MP3) or image. The download starts instantly through QRix, with no ads or pop-ups." },
-  { q: "Is it free?", a: "Yes — completely free, no signup, no watermark, and no software to install. Everything runs in your browser." },
+  { q: "Is it free?", a: "Yes — completely free, no signup, no watermark, and no software to install. The link is resolved on our servers and the file streams straight through to your device; nothing is stored." },
   { q: "Which sites are supported?", a: `QRix downloads from ${PLATFORMS.map((p) => p.name).join(", ")}. More platforms are added regularly.` },
   { q: "Can I download just the audio (MP3)?", a: "Yes. When a link has an audio track, an “Audio · MP3” option appears — perfect for saving sounds and music from TikTok or Instagram." },
   { q: "Does QRix store my downloads?", a: "No. QRix only passes the file through to your device and hosts none of the media. Please only download content you have the right to use." },

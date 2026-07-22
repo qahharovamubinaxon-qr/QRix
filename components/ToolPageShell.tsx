@@ -17,15 +17,35 @@ function ToolFavorite({ title, group }: { title: string; group: string }) {
 type Step = { title: string; desc: string };
 type Faq = { q: string; a: string };
 
-// Universal trust points — the "why it's good" that applies to every QRix tool.
-const WHY_QRIX = [
+/* Where a tool actually does its work. This used to be assumed rather than
+   passed, and the trust strip below claimed "files never upload" on every tool
+   page — including the ones that POST the file to a server. Tools that upload
+   must pass processing="cloud" so the two claims that stop being true get
+   swapped for what really happens. */
+export type Processing = "device" | "cloud";
+
+// Claims that hold no matter where the work happens.
+const WHY_SHARED = [
   { icon: <FiGift size={16} />, title: "100% free", desc: "Every tool, unlimited — no paywall.", color: "#34d399" },
-  { icon: <FiShield size={16} />, title: "Private by design", desc: "Runs in your browser; files never upload.", color: "#22d3ee" },
   { icon: <FiSlash size={16} />, title: "No watermark", desc: "Clean output you fully own.", color: "#a78bfa" },
-  { icon: <FiZap size={16} />, title: "Instant", desc: "No queue, no waiting on a server.", color: "#ff7a32" },
   { icon: <FiSmartphone size={16} />, title: "No signup", desc: "Just open the page and go.", color: "#f472b6" },
   { icon: <FiGlobe size={16} />, title: "Works everywhere", desc: "Any modern browser, any device.", color: "#60a5fa" },
 ];
+
+const WHY_DEVICE = [
+  { icon: <FiShield size={16} />, title: "Private by design", desc: "Runs in your browser; files never upload.", color: "#22d3ee" },
+  { icon: <FiZap size={16} />, title: "Instant", desc: "No queue, no waiting on a server.", color: "#ff7a32" },
+];
+
+const WHY_CLOUD = [
+  { icon: <FiShield size={16} />, title: "Not stored", desc: "Sent over HTTPS to be processed, then discarded — QRix keeps no copy.", color: "#22d3ee" },
+  { icon: <FiZap size={16} />, title: "Nothing to install", desc: "The heavy conversion runs on a server, not your device.", color: "#ff7a32" },
+];
+
+/* Privacy and speed first — they are the two people actually scan for, and on a
+   cloud tool the honest version is the one that needs to be read. */
+const whyPoints = (processing: Processing) =>
+  [...(processing === "cloud" ? WHY_CLOUD : WHY_DEVICE), ...WHY_SHARED];
 
 export default function ToolPageShell({
   category,
@@ -38,6 +58,7 @@ export default function ToolPageShell({
   steps,
   faqs,
   useCases,
+  processing = "device",
   children,
 }: {
   category: string;
@@ -50,6 +71,8 @@ export default function ToolPageShell({
   steps: Step[];
   faqs?: Faq[];
   useCases?: string[];
+  /** "cloud" for any tool that sends the file to a server. Default "device". */
+  processing?: Processing;
   children: React.ReactNode;
 }) {
   return (
@@ -135,7 +158,7 @@ export default function ToolPageShell({
       <section className="mt-8" aria-label={`Why use ${title}`}>
         <h2 className="qx-title mb-4" style={{ color: "var(--text)" }}>Why use QRix for this</h2>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-          {WHY_QRIX.map((w) => (
+          {whyPoints(processing).map((w) => (
             <div key={w.title} className="qx-card p-4 flex items-start gap-3">
               <span className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
                 style={{ background: `color-mix(in srgb, ${w.color} 14%, transparent)`, color: w.color, border: `1px solid color-mix(in srgb, ${w.color} 30%, transparent)` }}>

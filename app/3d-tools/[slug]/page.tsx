@@ -62,6 +62,9 @@ export default async function ThreeToolPage({ params }: { params: Promise<{ slug
         intro={tool.intro}
         about={tool.about}
         steps={tool.steps}
+        /* The AI generator posts the image to /api/v1/3d; only the fallback
+           preview is on-device, so the page cannot claim files never upload. */
+        processing="cloud"
       >
         <ThreeEngineRegistry engine={tool.engine} />
 
