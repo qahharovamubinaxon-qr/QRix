@@ -2,12 +2,6 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [~] baseFaq() misstates the output format on every image tool that doesn't
-  emit PNG. Found by driving batch-compress end to end (M123): the shared FAQ
-  says "results download as high-quality PNG (or your chosen format)" but the
-  compress preset writes `transparent.jpg` (JFIF confirmed in the ZIP). Same
-  bug class as the M120/M122 claim audit, on ~40 pages at once because the FAQ
-  is shared. Derive the sentence from the engine's real output format.
 - [ ] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
   an unsharp mask. M120 made the RU/UZ body copy honest, but the tool name and
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
@@ -53,6 +47,22 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: two silent format rewrites + engine-derived format FAQ (M124) —
+  found by driving batch-compress in the pane that M123 unblocked, which is
+  the tooling paying for itself on its first use.
+  batch:resize converted every image to WebP: `fmt` defaults to "webp" and its
+  picker only renders for convert, so resize read a value never meant for it —
+  the exact M120 bug, fixed then in ImageConvertClient and missed here.
+  meta:remove/meta:exif hardcoded image/png, so a JPEG came back a much larger
+  PNG — the M122 ExifCleanerClient bug, missed in its registry twin. Both now
+  go through keepFormat() + flattensToWhite().
+  Verified live by magic bytes in the real ZIP, not by reading code:
+  logo.png -> 89 50 4e 47, photo.jpg -> ff d8 ff e0. Both were .webp before.
+  The FMT answer is derived once from each tool's engine instead of one shared
+  constant repeated at 30 call sites, so a new tool can't inherit a false
+  claim; FAQ JSON-LD follows automatically. npm run test:image 30/30 (was 23),
+  and the 7 new assertions fail 4 when fmtAnswer is reverted to always-PNG.
+  Live on 5 spot-checked URLs, IndexNow 200 for all 82 tool pages.
 - [x] Jul 22: registry-backed canvas engines are drivable in the preview pane
   (M123) — the item open since M120, and the lazy chunk was never the cause.
   Two independent traps, both found by instrumenting rather than guessing;

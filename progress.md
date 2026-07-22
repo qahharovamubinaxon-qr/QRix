@@ -410,3 +410,38 @@ pane-only. Driving the tool did surface a live false claim — the shared
 baseFaq() promises "results download as high-quality PNG" while the compress
 preset writes a JPEG (transparent.jpg, JFIF header confirmed inside the ZIP),
 on every image tool that doesn't emit PNG. Filed as the next NOW item.
+
+## Mission 124 — the format claims, and two engines that broke them
+
+M123's unblocked preview pane paid for itself on its first real use. Driving
+batch-compress end to end returned `transparent.jpg` while the shared FAQ
+promised "results download as high-quality PNG" — so the claim was false on
+every tool in the registry that doesn't encode PNG. Auditing what each engine
+actually writes turned up two more live instances of the M120 bug class.
+
+`batch:resize` was converting every image to WebP. `fmt` defaults to "webp"
+and its picker only renders for the convert preset, so resize was reading a
+value that was never meant for it — precisely the bug M120 fixed inside
+ImageConvertClient and never carried across to the batch engine. It now
+resolves per file through keepFormat(), so a transparent PNG stays a PNG.
+`meta:remove` and `meta:exif` hardcoded image/png, so a JPEG came back as a far
+larger PNG and a WebP lost its format — the bug M122 fixed in ExifCleanerClient
+without noticing this registry twin. Both paths now share keepFormat() and
+flattensToWhite(), so a transparent source can no longer encode black.
+
+Verified by magic bytes out of the real ZIP rather than by reading the code:
+two files in, `logo.png` -> 89 50 4e 47 and `photo.jpg` -> ff d8 ff e0. Both
+came back `.webp` before the fix.
+
+The format FAQ is now derived once from each tool's engine instead of a shared
+constant pasted at 30 call sites — compress says JPG, resize says the format is
+kept, rename says nothing is re-encoded (it zips the original File untouched),
+passport says JPG, the colour tools say HEX/RGB text, and the PNG-encoding
+fx/transform/overlay/layout tools keep the lossless-PNG sentence. A tool added
+later inherits an accurate sentence instead of a wrong one, and the FAQ JSON-LD
+follows automatically. Quality also renders for resize now; it had been applying
+there silently while the control stayed hidden.
+
+npm run test:image is 30/30, up from 23. The 7 new assertions check the copy
+against what each client encodes and fail 4 when fmtAnswer is reverted to the
+old always-PNG string. Live on 5 spot-checked URLs; IndexNow 200 for all 82.
