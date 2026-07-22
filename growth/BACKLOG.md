@@ -2,11 +2,28 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
-  an unsharp mask. M120 made the RU/UZ body copy honest, but the tool name and
-  the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
-  browser, same pattern as @imgly for the background remover) or rename it.
-  Owner decision: renaming costs the "улучшить фото ии" keyword.
+- [B] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
+  an unsharp mask (drawImage at high smoothing + a 3x3 unsharp mask; no model,
+  no weights, nothing learned). M120 made the RU/UZ body copy honest; the tool
+  name and the EN title still say AI. Escalated from [ ] to [B] on Jul 22
+  because BOTH branches are owner calls, not engineering ones:
+    (a) Rename to "Image Upscaler / Enlarge & Sharpen". Free, honest, ~1h,
+        but it surrenders "улучшить фото ии" and the EN "ai image upscaler"
+        head term — the traffic reason the page exists.
+    (b) Ship a real model. onnxruntime-web (~11 MB wasm) + Real-ESRGAN x4
+        weights (~64 MB, or ~4 MB for a small anime/photo variant) served from
+        our own origin or a CDN. No cash cost, but it breaks CLAUDE.md's
+        "do not install packages unless absolutely necessary / keep the bundle
+        lightweight", needs a WebGPU-with-WASM-fallback path, and OOMs on
+        low-end mobile above ~2 MP unless tiled. Realistically a 1-2 day
+        mission with a real chance of shipping something slower and worse
+        than the bicubic path on the median phone.
+    (c) Middle: keep the name, add a visible "how this works" line on the page
+        stating it is a sharpening upscaler, not a generative model. Keeps the
+        keyword, kills the deception, costs ~1h — but the H1 still says AI, so
+        it is a partial fix and the owner should say whether that is enough.
+  Recommendation: (c) now, (b) only if the page proves it earns traffic worth
+  a 75 MB download. Needs the owner to pick. Nothing here is blocked on code.
 - [B] Wire aiProcess() into the five "replaces" tools (colorize, inpaint,
   describe, translate, imagegen). The connector has been dead code since it
   was written and NEXT_PUBLIC_AI_ENGINE is set on Vercel doing nothing. Needs
@@ -14,19 +31,27 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   wired, flip its `wired` in AI_CLOUD_ROUTES — the trust strip, privacy FAQ
   and CloudNotice follow automatically (M131) — and rewrite that tool's
   intro/about/desc, which still promise the cloud engine in the future tense.
-- [ ] Poster maker: template-aware defaults for the logo slot — a logo makes
-  the "Custom" template's empty subtitle look unbalanced, and the menu/review
-  templates could offer a logo-left layout instead of centred. Small, follows
-  M133.
-- [ ] Batch/multi-file conversion for real — AiDropzone takes a single file
-  everywhere. ImageBatchClient exists but is a separate engine. Wiring
-  multi-file into the /convert pages would make the (now removed) claim
-  true and is a genuine competitive gap vs FreeConvert/TinyWow.
-- [ ] Stats page /qr-code-statistics — 20+ sourced stats; citation magnet
-  for LLMs + journalists (backlinks).
+- [~] Stats page /qr-code-statistics — 20+ sourced stats; citation magnet
+  for LLMs + journalists (backlinks). Promoted over the two items below: ten
+  consecutive missions have been correctness work, the year goal is traffic,
+  and this is the only NOW item that is itself an acquisition asset.
+  Every number must carry a real, checkable source — no stat ships without one.
 - [ ] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile.
 
 ## NEXT (2-4 weeks)
+- [ ] Multi-file for the engines that still take one file. The old "batch
+  conversion for real" item was written against a gap that has since closed:
+  ImageConvertClient (convert:/social:/resize: — the /convert pages the item
+  named) already queues a whole selection, applies the same settings to each
+  and zips them, and ImageBatchClient covers the batch: presets. What is still
+  single-file: fx: (filters), tf: (rotate/flip/crop), meta: (EXIF remover),
+  overlay:. The real user story left is "strip EXIF from 40 photos" —
+  meta: first, then tf:, then fx:. Re-scoped Jul 22.
+- [ ] Poster maker: template-aware defaults for the logo slot — a logo makes
+  the "Custom" template's empty subtitle look unbalanced, and the menu/review
+  templates could offer a logo-left layout instead of centred. Follows M133;
+  moved out of NOW because it is subjective polish on a tool that shipped the
+  same day and no user has hit it.
 - [ ] Spanish (es) downloader + top-tools pages (copy RU pattern).
 - [ ] Turkish (tr), Indonesian (id) — same.
 - [ ] PDF converter-pair pages (word-to-pdf, excel-to-pdf, ppt-to-pdf…).
