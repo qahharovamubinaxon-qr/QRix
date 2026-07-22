@@ -36,6 +36,7 @@ const IMAGE_TOOLS: [string, string][] = [
 ];
 
 const PAGES: SearchItem[] = [
+  { title: "QR Code Statistics (sourced)", href: "/qr-code-statistics", group: "Pages", keywords: "qr code statistics data research numbers scans payments adoption 2026 report sourced citation" },
   { title: "Video & Audio Downloader", href: "/downloader", group: "Pages", keywords: "tiktok instagram vk downloader video audio mp3 mp4 save reels download skachat yuklab olish" },
   { title: "Embeddable Downloader Widget", href: "/widgets", group: "Pages", keywords: "embed widget iframe downloader website blog wordpress add tool" },
   { title: "TikTok Downloader (No Watermark)", href: "/downloader/tiktok", group: "Pages", keywords: "tiktok no watermark download video mp3 sound skachat" },
