@@ -7,7 +7,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
   browser, same pattern as @imgly for the background remover) or rename it.
   Owner decision: renaming costs the "улучшить фото ии" keyword.
-- [ ] PDF compress can't do the job its page is built to sell — the funnel page
+- [~] PDF compress can't do the job its page is built to sell — the funnel page
   targets "my PDF is too big to email" (>25 MB) but the server rejects anything
   over ~4.5 MB at the edge (measured: 4.19 MB in, 4.4 MB → 413). M126 made the
   copy and the UI honest; the fix is a client-side path (pdf-lib + canvas
