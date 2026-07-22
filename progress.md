@@ -689,3 +689,28 @@ components/ai/AiKit.tsx, components/ai/AiImageFxClient.tsx,
 components/ai/AiTextClients.tsx, components/ai/AiWorkspaceClients.tsx,
 app/ai-tools/[slug]/page.tsx, scripts/test-ai-claims.mjs, scripts/alias-hooks.mjs.
 Branch design-v2.
+
+## M132 — the AI health check asserted a flag, not a capability (Jul 22)
+
+`envValidation()` in lib/server/monitor.ts reported "NEXT_PUBLIC_AI_ENGINE not
+set — AI tools stay on their on-device fallbacks even though server keys exist"
+whenever the var was missing in production. Two things wrong with it: the var is
+set in production, so it never fired; and had anyone acted on it, setting the
+var would have changed nothing, because aiProcess() has no callers. The check
+told the owner to flip a switch that was already flipped and wired to nothing —
+and it is almost certainly why the var was set in the first place, which is what
+made M131's first cut ship a false upload claim.
+
+It now reads AI_CLOUD_ROUTES and reports whichever half is actually missing:
+routes wired with no engine configured (tools silently fall back), or an engine
+configured with nothing routed through it. /api/ready says the real state out
+loud, which is also the cleanest proof the var is set in the production runtime:
+
+  "NEXT_PUBLIC_AI_ENGINE is set but no AI engine routes through the connector —
+   aiProcess() has no callers, so the flag changes nothing. Wire a route or
+   unset the var."
+
+test:ai grew a 20th assertion holding monitor.ts to the route table so the check
+cannot quietly revert to reading the env var alone. Mutation verified.
+
+Files: lib/server/monitor.ts, scripts/test-ai-claims.mjs. Branch design-v2.

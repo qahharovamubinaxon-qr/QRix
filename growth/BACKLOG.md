@@ -7,16 +7,13 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
   browser, same pattern as @imgly for the background remover) or rename it.
   Owner decision: renaming costs the "улучшить фото ии" keyword.
-- [ ] NEXT_PUBLIC_AI_ENGINE is set on Vercel but aiProcess() has no callers, so
-  the connector is dead code and lib/server/monitor.ts reports the var being
-  UNSET as a production issue — i.e. it pushes the owner toward setting a flag
-  that does nothing. Either wire aiProcess into the five "replaces" tools
-  (colorize, inpaint, describe, translate, imagegen — needs a paid provider,
-  so [B] for the engine itself) or make the monitor check assert the thing it
-  actually cares about: an engine configured AND at least one wired route.
-  The second half is free and should ship regardless. Flipping any route's
-  `wired` also requires updating the tool's intro/about/desc copy, which still
-  says "activates with the cloud engine" in the present tense.
+- [B] Wire aiProcess() into the five "replaces" tools (colorize, inpaint,
+  describe, translate, imagegen). The connector has been dead code since it
+  was written and NEXT_PUBLIC_AI_ENGINE is set on Vercel doing nothing. Needs
+  a paid provider (Replicate/Stability), so owner-gated. When a route is
+  wired, flip its `wired` in AI_CLOUD_ROUTES — the trust strip, privacy FAQ
+  and CloudNotice follow automatically (M131) — and rewrite that tool's
+  intro/about/desc, which still promise the cloud engine in the future tense.
 - [ ] Poster maker logo upload — M126 had to answer "no" to "Can I add my
   logo?" in 15 languages. Templates/heading/colour exist; a logo would make the
   review-poster page's strongest claim true again.
@@ -53,6 +50,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: the AI health check asserted a flag, not a capability (M132).
+  envValidation() reported NEXT_PUBLIC_AI_ENGINE being unset as a production
+  issue — a check that never fired (the var is set) and that, if acted on,
+  would have changed nothing (aiProcess has no callers). It now reads
+  AI_CLOUD_ROUTES and reports whichever half is actually missing; /api/ready
+  says the real state out loud. test:ai holds monitor.ts to the route table.
 - [x] Jul 22: the AI tool pages' processing flag derives from the connector
   (M131). The item assumed isAiEngineLive() was false in production and the
   work was preventative. It is not: NEXT_PUBLIC_AI_ENGINE is SET on Vercel
