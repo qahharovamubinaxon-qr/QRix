@@ -7,7 +7,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
   browser, same pattern as @imgly for the background remover) or rename it.
   Owner decision: renaming costs the "улучшить фото ии" keyword.
-- [ ] ToolPageShell's trust strip says "Private by design — runs in your
+- [~] ToolPageShell's trust strip says "Private by design — runs in your
   browser; files never upload" on EVERY tool page, and it is hardcoded, not
   derived from the engine. It was false on /pdf-tools/compress until M127 and
   is still false anywhere that POSTs a file: PDF→Word (Adobe/Aspose/
