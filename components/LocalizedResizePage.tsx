@@ -44,7 +44,7 @@ export default function LocalizedResizePage({ preset, lang }: { preset: ResizePr
         </header>
 
         <div className="qx-card p-5 lg:p-6">
-          <ImageEngineRegistry engine={`resize:${preset.w}x${preset.h}`} />
+          <ImageEngineRegistry engine={`resize:${preset.w}x${preset.h}`} lang={lang} />
         </div>
 
         <section className="mt-10">

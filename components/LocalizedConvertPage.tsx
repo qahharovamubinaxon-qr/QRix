@@ -44,7 +44,7 @@ export default function LocalizedConvertPage({ pair, lang }: { pair: ConvertPair
         </header>
 
         <div className="qx-card p-5 lg:p-6">
-          <ImageEngineRegistry engine={pair.engine} />
+          <ImageEngineRegistry engine={pair.engine} lang={lang} />
         </div>
 
         <section className="mt-10">

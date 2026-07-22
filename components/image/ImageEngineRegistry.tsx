@@ -19,10 +19,14 @@ const ImageMetaClient = dynamic(() => import("@/components/image/ImageSpecialCli
 const ImageStudioClient = dynamic(() => import("@/components/image/ImageSpecialClients").then((m) => m.ImageStudioClient), { loading, ssr: false });
 const PassportClient = dynamic(() => import("@/components/image/ImageSpecialClients").then((m) => m.PassportClient), { loading, ssr: false });
 
-export default function ImageEngineRegistry({ engine }: { engine: string }) {
+/* `lang` is only threaded into the sizing/convert engine: it is the one client
+   whose controls the localized copy names out loud ("switch to «вписать»"), so
+   English buttons there send RU/UZ readers looking for a control that isn't on
+   the page. The other engines expose no such named control. */
+export default function ImageEngineRegistry({ engine, lang }: { engine: string; lang?: "ru" | "uz" }) {
   if (engine.startsWith("fx:")) return <ImageFxClient preset={engine.slice(3) as never} />;
   if (engine.startsWith("tf:")) return <ImageTransformClient preset={engine.slice(3) as never} />;
-  if (engine.startsWith("convert:") || engine.startsWith("social:") || engine.startsWith("resize:")) return <ImageConvertClient engine={engine} />;
+  if (engine.startsWith("convert:") || engine.startsWith("social:") || engine.startsWith("resize:")) return <ImageConvertClient engine={engine} lang={lang} />;
   if (engine.startsWith("overlay:")) return <ImageOverlayClient preset={engine.slice(8) as never} />;
   if (engine.startsWith("layout:")) return <ImageLayoutClient preset={engine.slice(7) as never} />;
   if (engine.startsWith("batch:")) return <ImageBatchClient preset={engine.slice(6) as never} />;

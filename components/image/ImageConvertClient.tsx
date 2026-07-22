@@ -156,7 +156,18 @@ function parseResize(engine: string): { label: string; w: number; h: number } | 
 /* keepFormat / paintsBackground / flattensToWhite / drawRect live in
    lib/image-output.ts so they can be asserted in Node — see that file. */
 
-export default function ImageConvertClient({ engine }: { engine: string }) {
+/* The RU/UZ sizing copy names these controls literally — "switch to «вписать»",
+   "«to'ldirish» crops the sides" — so shipping them as English fill/fit told
+   50+ localized pages to click a button that wasn't there. Labels only; the
+   mode values stay "fit"/"fill" for lib/image-output. */
+const UI = {
+  ru: { fill: "Заполнить", fit: "Вписать", bg: "Цвет фона", quality: "Качество", resize: "Изменить размер", convertTo: (f: string) => `Конвертировать в ${f}` },
+  uz: { fill: "To'ldirish", fit: "Sig'dirish", bg: "Fon rangi", quality: "Sifat", resize: "O'lchamni o'zgartirish", convertTo: (f: string) => `${f} ga o'girish` },
+  en: { fill: "Fill", fit: "Fit", bg: "Background", quality: "Quality", resize: "Resize", convertTo: (f: string) => `Convert to ${f}` },
+} as const;
+
+export default function ImageConvertClient({ engine, lang }: { engine: string; lang?: "ru" | "uz" }) {
+  const ui = UI[lang ?? "en"];
   const resize = parseResize(engine);
   const isSocial = engine.startsWith("social:");
   const socialId = isSocial ? engine.slice(7) : "";
@@ -336,12 +347,12 @@ export default function ImageConvertClient({ engine }: { engine: string }) {
               </label>
             )}
             {preset && (<>
-              <div className="flex gap-2">{(["fill", "fit"] as const).map((m) => <button key={m} onClick={() => setMode(m)} className="px-3 py-1.5 rounded-lg text-[12px] font-bold capitalize" style={{ background: mode === m ? "var(--primary-dim)" : "var(--surface-2)", border: `1px solid ${mode === m ? "var(--primary-bright)" : "var(--border)"}`, color: "var(--text)" }}>{m}</button>)}</div>
-              {mode === "fit" && <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="w-9 h-9 rounded cursor-pointer" aria-label="Background" />}
+              <div className="flex gap-2">{(["fill", "fit"] as const).map((m) => <button key={m} onClick={() => setMode(m)} className="px-3 py-1.5 rounded-lg text-[12px] font-bold" style={{ background: mode === m ? "var(--primary-dim)" : "var(--surface-2)", border: `1px solid ${mode === m ? "var(--primary-bright)" : "var(--border)"}`, color: "var(--text)" }}>{ui[m]}</button>)}</div>
+              {mode === "fit" && <input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="w-9 h-9 rounded cursor-pointer" aria-label={ui.bg} />}
               <span className="text-[12px] font-mono" style={{ color: "var(--text-faint)" }}>{preset.w}×{preset.h}</span>
             </>)}
-            {showQ && <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>Quality <input type="range" min={30} max={100} value={quality} onChange={(e) => setQuality(Number(e.target.value))} className="w-40 accent-[#e1ff04]" /> {quality}</label>}
-            <button onClick={convert} className="qx-btn-hero !py-2.5 !px-5 text-sm" data-magnetic>{preset ? "Resize" : `Convert to ${fmt.label}`}</button>
+            {showQ && <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>{ui.quality} <input type="range" min={30} max={100} value={quality} onChange={(e) => setQuality(Number(e.target.value))} className="w-40 accent-[#e1ff04]" /> {quality}</label>}
+            <button onClick={convert} className="qx-btn-hero !py-2.5 !px-5 text-sm" data-magnetic>{preset ? ui.resize : ui.convertTo(fmt.label)}</button>
             {queue.length > 1 && (
               <button onClick={convertAll} disabled={batchBusy} className="qx-btn-ghost !py-2.5 !px-5 text-sm font-bold disabled:opacity-50">
                 {batchBusy ? `Processing ${batchDone}/${queue.length}…` : `${preset ? "Resize" : "Convert"} all ${queue.length} → ZIP`}
