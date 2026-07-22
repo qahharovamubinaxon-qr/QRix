@@ -2,7 +2,7 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] baseFaq() misstates the output format on every image tool that doesn't
+- [~] baseFaq() misstates the output format on every image tool that doesn't
   emit PNG. Found by driving batch-compress end to end (M123): the shared FAQ
   says "results download as high-quality PNG (or your chosen format)" but the
   compress preset writes `transparent.jpg` (JFIF confirmed in the ZIP). Same
