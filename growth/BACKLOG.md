@@ -16,9 +16,6 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] Poster maker logo upload — M126 had to answer "no" to "Can I add my
   logo?" in 15 languages. Templates/heading/colour exist; a logo would make the
   review-poster page's strongest claim true again.
-- [~] Escape the remaining structured payloads — M126 fixed WiFi and VEVENT,
-  but vCard still interpolates raw: an ORG of "Acme, Inc." or any name with a
-  semicolon corrupts the same way. Same helper, same test file.
 - [ ] Point the use-case CTAs at /qr-tools/url and /qr-tools/vcard directly —
   all 15 language variants currently send users (and link equity) through a
   301 from /url-qr and /vcard-qr.
@@ -55,6 +52,15 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: vCard and MECARD payload escaping (M129) — the half M126 left.
+  Worse than the WiFi bug it matched: vCard's N and ADR are structured, so an
+  unescaped `;` inside a value shifts every later component up a slot rather
+  than truncating ("Berg; Jr" moved the given name into additional-names), and
+  a comma in ORG made "Acme, Inc." import as two organisations. Blank
+  properties are now omitted instead of emitted empty, and the decoder reads
+  through the escapes so it stops showing users their own backslashes.
+  test:qr 31 assertions (was 21), mutation-verified; round trip driven in the
+  browser through the real generator and the real decode page.
 - [x] Jul 22: the trust strip claimed "files never upload" on tools that upload
   (M128). ToolPageShell hardcoded six trust points on every tool page; two are
   claims about where the work happens and neither was derived from anything.

@@ -610,3 +610,32 @@ NEXT_PUBLIC_AI_ENGINE is ever set.
 Files: components/ToolPageShell.tsx, components/LocalizedToolPage.tsx,
 lib/localized-tools.ts, app/pdf-tools/pdf-to-word/page.tsx,
 app/3d-tools/[slug]/page.tsx, app/downloader/page.tsx. Branch design-v2.
+
+## M129 — vCard + MECARD payload escaping (Jul 22)
+
+The half M126 left behind, and the worse half. vCard's N and ADR are structured
+properties: their components are separated by `;`, so an unescaped separator
+inside a value does not truncate the field, it shifts every later component up a
+slot — a surname of "Berg; Jr" pushed the given name into additional-names. A
+comma is the list separator, so an ORG of "Acme, Inc." imported as two
+organisations, and a newline in the address escaped the property entirely.
+Everything scanned perfectly the whole time.
+
+buildVCard / buildMeCard / escapeVCard / readVCardField now live in
+lib/qr-payload.ts alongside the WiFi and iCal builders, driving lib/qr-types.ts
+(/qr-tools/vcard, /qr-tools/mecard) and the homepage generator. Beyond escaping:
+blank properties are omitted rather than emitted empty (address books import
+`TITLE:` as a blank field), and N is written with its full five slots.
+
+The decoder read `/FN:(.*)/` and would have shown users their own escapes back
+as `Acme\, Inc.` — it goes through readVCardField now and surfaces ORG too.
+readVCardField is documented flat-TEXT-only: structured properties must be split
+on the unescaped `;` before unescaping, and the suite asserts that.
+
+npm run test:qr: 31 assertions (was 21), mutation-verified — identity
+escapeVCard fails 4. Round trip driven in the pane: the generated QR carries
+`N:Berg\; Jr;John;;;` and `ORG:Acme\, Inc.`, and the decode page renders
+"Name: John Berg; Jr · Company: Acme, Inc.".
+
+Files: lib/qr-payload.ts, lib/qr-types.ts, app/page.tsx,
+components/QrDecodeClient.tsx, scripts/test-qr-payload.mjs. Branch design-v2.
