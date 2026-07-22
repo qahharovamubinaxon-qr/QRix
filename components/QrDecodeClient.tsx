@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FiSearch, FiCopy, FiCheck, FiExternalLink, FiShield, FiAlertTriangle } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { trackTool } from "@/lib/track";
+import { readWifiField } from "@/lib/qr-payload";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -45,9 +46,14 @@ function classify(text: string): Decoded {
   const t = text.trim();
   if (/^https?:\/\//i.test(t)) return { text: t, kind: "🔗 Website link" };
   if (/^WIFI:/i.test(t)) {
-    const ssid = (t.match(/S:([^;]*)/) || [])[1];
-    const pass = (t.match(/P:([^;]*)/) || [])[1];
-    return { text: t, kind: "📶 WiFi network", hint: `SSID: ${ssid || "?"}${pass ? ` · Password: ${pass}` : ""}` };
+    const ssid = readWifiField(t, "S");
+    const pass = readWifiField(t, "P");
+    const hidden = readWifiField(t, "H") === "true";
+    return {
+      text: t,
+      kind: "📶 WiFi network",
+      hint: `SSID: ${ssid || "?"}${pass ? ` · Password: ${pass}` : ""}${hidden ? " · Hidden" : ""}`,
+    };
   }
   if (/^BEGIN:VCARD/i.test(t)) {
     const name = (t.match(/FN:(.*)/) || [])[1];

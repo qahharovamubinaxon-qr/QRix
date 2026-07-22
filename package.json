@@ -18,7 +18,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "node prisma/seed.mjs",
-    "test:image": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-image-output.mjs"
+    "test:image": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-image-output.mjs",
+    "test:qr": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-qr-payload.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

@@ -6,7 +6,7 @@ import { FiDownload, FiChevronDown, FiSliders } from "react-icons/fi";
 import QRDesignStudio from "@/components/QRDesignStudio";
 
 /* ============ Field definitions ============ */
-export type FieldType = "text" | "url" | "tel" | "email" | "number" | "textarea" | "password" | "date" | "select";
+export type FieldType = "text" | "url" | "tel" | "email" | "number" | "textarea" | "password" | "date" | "datetime-local" | "select";
 
 export type Field = {
   key: string;

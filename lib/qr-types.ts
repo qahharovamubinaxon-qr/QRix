@@ -1,4 +1,5 @@
 import type { QrType } from "@/components/QRGenerator";
+import { buildWifi, buildEvent } from "./qr-payload";
 
 const enc = encodeURIComponent;
 
@@ -43,8 +44,11 @@ export const QR_TYPES: Record<string, QrType> = {
       { key: "enc", label: "Encryption", type: "select", options: [
         { value: "WPA", label: "WPA/WPA2" }, { value: "WEP", label: "WEP" }, { value: "nopass", label: "No password" },
       ] },
+      { key: "hidden", label: "Hidden network", type: "select", options: [
+        { value: "no", label: "No — network is visible" }, { value: "yes", label: "Yes — SSID is hidden" },
+      ] },
     ],
-    build: (v) => `WIFI:T:${v.enc || "WPA"};S:${v.ssid || ""};P:${v.password || ""};;`,
+    build: (v) => buildWifi(v),
   },
   whatsapp: {
     id: "whatsapp",
@@ -118,13 +122,11 @@ export const QR_TYPES: Record<string, QrType> = {
     fields: [
       { key: "title", label: "Event title", placeholder: "Meeting", full: true },
       { key: "location", label: "Location", placeholder: "Office", full: true },
-      { key: "start", label: "Start", type: "date" },
-      { key: "end", label: "End", type: "date" },
+      { key: "start", label: "Start", type: "datetime-local" },
+      { key: "end", label: "End", type: "datetime-local" },
+      { key: "description", label: "Description / notes", placeholder: "Agenda, dress code, parking…", type: "textarea", full: true },
     ],
-    build: (v) => {
-      const f = (d: string) => d ? d.replace(/[-:]/g, "").replace(/\.\d+/, "") : "";
-      return `BEGIN:VEVENT\nSUMMARY:${v.title || ""}\nLOCATION:${v.location || ""}\nDTSTART:${f(v.start)}\nDTEND:${f(v.end)}\nEND:VEVENT`;
-    },
+    build: (v) => buildEvent(v),
   },
   geo: {
     id: "geo",
@@ -246,7 +248,10 @@ export const QR_TYPES: Record<string, QrType> = {
     fields: [
       { key: "ssid", label: "Guest network name", placeholder: "Guest-WiFi" },
       { key: "password", label: "Password", placeholder: "Password", type: "password" },
+      { key: "enc", label: "Encryption", type: "select", options: [
+        { value: "WPA", label: "WPA/WPA2" }, { value: "nopass", label: "Open — no password" },
+      ] },
     ],
-    build: (v) => `WIFI:T:WPA;S:${v.ssid || ""};P:${v.password || ""};;`,
+    build: (v) => buildWifi(v),
   },
 };
