@@ -2621,11 +2621,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Можно ли добавить логотип?",
-          "a": "Пока нет — конструктор постеров позволяет выбрать шаблон, изменить заголовок и подзаголовок и подобрать фирменный цвет, но разместить логотип на макете нельзя. Если нужен код с логотипом, создайте его в генераторе QR и вставьте в свой макет."
+          "a": "Да — загрузите PNG, JPG, WebP или SVG: логотип встанет по центру над заголовком и сам подгонится по размеру. Файл читается в браузере и никуда не загружается. Если логотип нужен внутри самого кода, его добавляет генератор QR."
         },
         {
           "q": "Это бесплатно?",
-          "a": "Да, и на печатном постере нет водяного знака."
+          "a": "Да. Внизу постера есть небольшая строка «Made with QRix» — один флажок её убирает, так что на печатном постере не остаётся водяного знака."
         }
       ],
       "keywords": [
@@ -2667,11 +2667,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Логотип қўша оламанми?",
-          "a": "Ҳозирча йўқ — постер конструктори шаблон танлаш, сарлавҳа ва тагсарлавҳани ўзгартириш ҳамда фирма рангини созлаш имконини беради, лекин макетга логотип жойлаштириб бўлмайди. Логотипли код керак бўлса, уни QR генераторда яратинг ва ўз макетингизга қўйинг."
+          "a": "Ҳа — PNG, JPG, WebP ёки SVG юкланг: логотип сарлавҳа устида, марказда ва ўлчамига мослаб жойлашади. Файл браузерингизда ўқилади ва ҳеч қаерга юборилмайди. Логотип коднинг ўзида керак бўлса, буни QR генератор қилади."
         },
         {
           "q": "Бу бепулми?",
-          "a": "Ҳа, ва чоп этиладиган постерда сув белгиси йўқ."
+          "a": "Ҳа. Постер пастида кичик «Made with QRix» ёзуви бор, уни битта белгилаш катакчаси олиб ташлайди — шунда чоп этилган постерда сув белгиси қолмайди."
         }
       ],
       "keywords": [
@@ -2713,11 +2713,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "可以加上我的 logo 吗?",
-          "a": "暂时不行——海报制作器支持选择模板、修改标题和副标题以及设置品牌配色，但无法在版面上放置 Logo。如果需要带 Logo 的二维码，请在二维码生成器中制作，再放进你自己的版面。"
+          "a": "可以——上传 PNG、JPG、WebP 或 SVG，Logo 会自动缩放并居中放在标题上方。文件只在你的浏览器里读取，不会上传。如果想把 Logo 放进二维码本身，请使用二维码生成器。"
         },
         {
           "q": "是免费的吗?",
-          "a": "免费,而且可打印海报上没有任何水印。"
+          "a": "免费。页脚有一行很小的 Made with QRix，一个勾选框即可去掉，所以打印出来的海报没有水印。"
         }
       ],
       "keywords": [
@@ -2759,11 +2759,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "क्या मैं अपना लोगो जोड़ सकता हूँ?",
-          "a": "अभी नहीं — पोस्टर मेकर में टेम्पलेट, अपनी हेडिंग और सबहेडिंग तथा ब्रांड कलर बदले जा सकते हैं, पर डिज़ाइन पर लोगो नहीं लगाया जा सकता। लोगो वाला कोड चाहिए तो उसे QR जनरेटर में बनाएँ और अपने लेआउट में जोड़ लें।"
+          "a": "हाँ — PNG, JPG, WebP या SVG अपलोड करें; लोगो हेडिंग के ऊपर बीच में, अपने आप सही आकार में लग जाता है। फ़ाइल आपके ब्राउज़र में ही पढ़ी जाती है, कहीं अपलोड नहीं होती। अगर लोगो कोड के अंदर चाहिए तो वह QR जनरेटर देता है।"
         },
         {
           "q": "क्या यह मुफ़्त है?",
-          "a": "हाँ, और प्रिंट करने योग्य पोस्टर पर कोई वॉटरमार्क नहीं होता।"
+          "a": "हाँ। नीचे एक छोटी सी 'Made with QRix' लाइन होती है, जिसे एक चेकबॉक्स से हटाया जा सकता है — इसलिए प्रिंट किए गए पोस्टर पर कोई वॉटरमार्क नहीं रहता।"
         }
       ],
       "keywords": [
@@ -2805,11 +2805,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "¿Puedo añadir mi logo?",
-          "a": "Todavía no: el creador de pósters permite elegir plantilla, cambiar el titular y el subtítulo y ajustar tu color de marca, pero no colocar un logotipo en el diseño. Si necesitas un código con logotipo, créalo en el generador de QR y añádelo a tu propia maquetación."
+          "a": "Sí: sube un PNG, JPG, WebP o SVG y el logotipo se coloca centrado sobre el titular, ajustado al tamaño. El archivo se lee en tu navegador y no se sube a ningún sitio. Si prefieres el logotipo dentro del propio código, eso lo hace el generador de QR."
         },
         {
           "q": "¿Es gratis?",
-          "a": "Sí, y el póster imprimible no lleva marca de agua."
+          "a": "Sí. En el pie hay una pequeña línea 'Made with QRix' y una casilla la quita, así que el póster impreso no lleva marca de agua."
         }
       ],
       "keywords": [
@@ -2851,11 +2851,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "هل يمكنني إضافة شعاري؟",
-          "a": "ليس بعد — يتيح صانع الملصقات اختيار قالب وتعديل العنوان والعنوان الفرعي وضبط لون علامتك التجارية، لكنه لا يضع شعارًا على التصميم. إن أردت رمزًا يحمل شعارك، فأنشئه في مولّد رموز QR ثم أدرجه في تصميمك الخاص."
+          "a": "نعم — ارفع ملف PNG أو JPG أو WebP أو SVG ليظهر الشعار في المنتصف فوق العنوان بحجم مناسب تلقائيًا. تتم قراءة الملف داخل متصفحك ولا يُرفع إلى أي خادم. وإن أردت الشعار داخل الرمز نفسه فذلك متاح في مولّد رموز QR."
         },
         {
           "q": "هل هو مجاني؟",
-          "a": "نعم، ولا توجد أي علامة مائية على الملصق القابل للطباعة."
+          "a": "نعم. يوجد أسفل الملصق سطر صغير «Made with QRix» ويكفي مربع اختيار واحد لإزالته، فلا تبقى أي علامة مائية على الملصق المطبوع."
         }
       ],
       "keywords": [
@@ -2897,11 +2897,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Puis-je ajouter mon logo ?",
-          "a": "Pas encore : le créateur d'affiches permet de choisir un modèle, de modifier le titre et le sous-titre et d'ajuster votre couleur de marque, mais pas d'ajouter un logo à la mise en page. Si vous voulez un code avec logo, générez-le dans le générateur de QR et intégrez-le à votre propre maquette."
+          "a": "Oui : importez un PNG, JPG, WebP ou SVG et le logo se place centré au-dessus du titre, redimensionné automatiquement. Le fichier est lu dans votre navigateur et n'est jamais envoyé. Si vous préférez le logo dans le code lui-même, c'est le générateur de QR qui le fait."
         },
         {
           "q": "Est-ce gratuit ?",
-          "a": "Oui, et l'affiche imprimable ne comporte aucun filigrane."
+          "a": "Oui. Une petite ligne « Made with QRix » figure en pied de page et une case à cocher la supprime : l'affiche imprimée ne porte donc aucun filigrane."
         }
       ],
       "keywords": [
@@ -2943,11 +2943,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Posso adicionar meu logo?",
-          "a": "Ainda não: o criador de pôsteres permite escolher o modelo, mudar o título e o subtítulo e ajustar a cor da sua marca, mas não colocar um logotipo na arte. Se precisar de um código com logotipo, gere-o no gerador de QR e insira no seu próprio layout."
+          "a": "Sim — envie um PNG, JPG, WebP ou SVG e o logotipo fica centralizado acima do título, ajustado ao tamanho. O arquivo é lido no seu navegador e nunca é enviado. Se preferir o logotipo dentro do próprio código, isso é feito no gerador de QR."
         },
         {
           "q": "É grátis?",
-          "a": "Sim, e o pôster imprimível não tem marca d'água."
+          "a": "Sim. No rodapé há uma pequena linha 'Made with QRix' e uma caixa de seleção a remove, então o pôster impresso não tem marca d'água."
         }
       ],
       "keywords": [
@@ -2989,11 +2989,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Bisakah saya menambahkan logo?",
-          "a": "Belum — pembuat poster bisa mengganti template, judul dan subjudul, serta warna merek Anda, tetapi belum bisa menaruh logo di desainnya. Kalau butuh kode ber-logo, buat di generator QR lalu tempatkan pada layout Anda sendiri."
+          "a": "Bisa — unggah PNG, JPG, WebP, atau SVG; logonya diletakkan di tengah atas judul dan ukurannya disesuaikan otomatis. Berkas dibaca di browser Anda dan tidak pernah diunggah. Kalau logonya ingin berada di dalam kode, gunakan generator QR."
         },
         {
           "q": "Apakah gratis?",
-          "a": "Ya, dan poster siap cetak tanpa watermark."
+          "a": "Ya. Di bagian bawah ada baris kecil 'Made with QRix' dan satu kotak centang menghapusnya, jadi poster cetakan Anda tanpa watermark."
         }
       ],
       "keywords": [
@@ -3035,11 +3035,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Kann ich mein Logo hinzufügen?",
-          "a": "Noch nicht — im Poster-Generator lassen sich Vorlage, Überschrift und Unterzeile sowie die Markenfarbe ändern, ein Logo im Layout ist aber nicht möglich. Wenn Sie einen Code mit Logo brauchen, erzeugen Sie ihn im QR-Generator und setzen ihn in Ihr eigenes Layout ein."
+          "a": "Ja — laden Sie eine PNG-, JPG-, WebP- oder SVG-Datei hoch; das Logo sitzt zentriert über der Überschrift und wird passend skaliert. Die Datei wird in Ihrem Browser gelesen und nie hochgeladen. Soll das Logo im Code selbst stecken, übernimmt das der QR-Generator."
         },
         {
           "q": "Ist es kostenlos?",
-          "a": "Ja, und das druckbare Poster hat kein Wasserzeichen."
+          "a": "Ja. In der Fußzeile steht eine kleine Zeile „Made with QRix“, ein Häkchen entfernt sie — das gedruckte Poster trägt also kein Wasserzeichen."
         }
       ],
       "keywords": [
@@ -3081,11 +3081,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "ロゴを追加できますか?",
-          "a": "まだ対応していません——ポスターメーカーではテンプレート、見出しとサブ見出し、ブランドカラーを変更できますが、レイアウトにロゴを配置することはできません。ロゴ入りのコードが必要な場合は、QR ジェネレーターで作成してご自身のレイアウトに配置してください。"
+          "a": "はい——PNG、JPG、WebP、SVG をアップロードすると、見出しの上に中央揃えでサイズを自動調整して配置されます。ファイルはブラウザー内で読み込まれ、アップロードされることはありません。コードそのものにロゴを入れたい場合は QR ジェネレーターをご利用ください。"
         },
         {
           "q": "無料ですか?",
-          "a": "はい、印刷用ポスターにウォーターマークは入りません。"
+          "a": "はい。フッターに小さな「Made with QRix」の一行が入りますが、チェックボックス一つで消せるので、印刷したポスターにウォーターマークは残りません。"
         }
       ],
       "keywords": [
@@ -3127,11 +3127,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Logomu ekleyebilir miyim?",
-          "a": "Henüz değil — poster oluşturucuda şablonu, başlığı ve alt başlığı ve marka rengini değiştirebilirsiniz, ancak tasarıma logo ekleyemezsiniz. Logolu bir kod gerekiyorsa QR oluşturucuda hazırlayıp kendi tasarımınıza yerleştirin."
+          "a": "Evet — PNG, JPG, WebP veya SVG yükleyin; logo başlığın üstüne ortalanır ve boyutu otomatik ayarlanır. Dosya tarayıcınızda okunur, hiçbir yere yüklenmez. Logoyu kodun içine koymak isterseniz bunu QR oluşturucu yapar."
         },
         {
           "q": "Ücretsiz mi?",
-          "a": "Evet ve yazdırılabilir posterde filigran yok."
+          "a": "Evet. Alt kısımda küçük bir 'Made with QRix' satırı var ve bir onay kutusu onu kaldırıyor; böylece yazdırdığınız posterde filigran kalmaz."
         }
       ],
       "keywords": [
@@ -3173,11 +3173,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "کیا میں اپنا لوگو شامل کر سکتا ہوں؟",
-          "a": "ابھی نہیں — پوسٹر میکر میں ٹیمپلیٹ، اپنی سرخی اور ذیلی سرخی اور برانڈ کا رنگ بدلا جا سکتا ہے، مگر ڈیزائن پر لوگو نہیں لگایا جا سکتا۔ اگر لوگو والا کوڈ چاہیے تو اسے QR جنریٹر میں بنائیں اور اپنے لے آؤٹ میں شامل کر لیں۔"
+          "a": "جی ہاں — PNG، JPG، WebP یا SVG اپلوڈ کریں؛ لوگو سرخی کے اوپر درمیان میں، خودکار طور پر مناسب سائز میں لگ جاتا ہے۔ فائل آپ کے براؤزر ہی میں پڑھی جاتی ہے اور کہیں اپلوڈ نہیں ہوتی۔ اگر لوگو کوڈ کے اندر چاہیے تو یہ QR جنریٹر کرتا ہے۔"
         },
         {
           "q": "کیا یہ مفت ہے؟",
-          "a": "جی ہاں، اور قابلِ پرنٹ پوسٹر پر کوئی واٹر مارک نہیں ہوتا۔"
+          "a": "جی ہاں۔ نیچے ایک چھوٹی سی 'Made with QRix' سطر ہوتی ہے جسے ایک چیک باکس سے ہٹایا جا سکتا ہے، اس لیے پرنٹ شدہ پوسٹر پر کوئی واٹر مارک نہیں رہتا۔"
         }
       ],
       "keywords": [
@@ -3219,11 +3219,11 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "আমি কি আমার লোগো যোগ করতে পারি?",
-          "a": "এখনও নয় — পোস্টার মেকারে টেমপ্লেট, নিজের শিরোনাম ও উপ-শিরোনাম এবং ব্র্যান্ড রং বদলানো যায়, তবে ডিজাইনে লোগো বসানো যায় না। লোগোসহ কোড দরকার হলে সেটি QR জেনারেটরে তৈরি করে নিজের লেআউটে বসিয়ে নিন।"
+          "a": "হ্যাঁ — PNG, JPG, WebP বা SVG আপলোড করুন; লোগোটি শিরোনামের উপরে মাঝ বরাবর, নিজে থেকেই মাপে বসে যায়। ফাইলটি আপনার ব্রাউজারেই পড়া হয়, কোথাও আপলোড হয় না। লোগো কোডের ভিতরে চাইলে সেটি QR জেনারেটর করে দেয়।"
         },
         {
           "q": "এটি কি বিনামূল্যে?",
-          "a": "হ্যাঁ, এবং প্রিন্টযোগ্য পোস্টারে কোনো ওয়াটারমার্ক নেই।"
+          "a": "হ্যাঁ। নিচে ছোট করে 'Made with QRix' লেখা থাকে, একটি চেকবক্সেই সেটি সরানো যায় — তাই প্রিন্ট করা পোস্টারে কোনো ওয়াটারমার্ক থাকে না।"
         }
       ],
       "keywords": [

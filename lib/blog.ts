@@ -890,9 +890,14 @@ const GUIDE_SPECS: GuideSpec[] = [
     toolHref: "/poster", toolLabel: "Make a QR poster",
     intro: "A ‘Scan me’ poster turns any QR code into eye-catching print — for menus, reviews, WiFi, payments and follows — ready to hang on your wall or table.",
     what: ["It builds a print-ready A4 poster around your QR code.", "Templates cover menus, reviews, follows, WiFi and payments."],
-    steps: ["Pick a template and enter your link.", "Customize the text and colors.", "Download the print-ready poster."],
+    steps: ["Pick a template and enter your link.", "Upload your logo and customize the text and colors.", "Download the print-ready poster."],
     benefits: ["Restaurant tables and shop counters.", "Review and follow campaigns.", "WiFi and payment signage."],
-    faqs: [{ q: "What size is the poster?", a: "It exports at A4, ready to print at home or a print shop." }, FREE_FAQ, PRIVATE_FAQ],
+    faqs: [
+      { q: "What size is the poster?", a: "It exports at A4, ready to print at home or a print shop." },
+      { q: "Can I put my logo on it?", a: "Yes — upload a PNG, JPG, WebP or SVG and it sits centred above the heading, scaled to fit. The file is read in your browser and never uploaded." },
+      { q: "Is this tool free?", a: "Yes — free, no signup. A small 'Made with QRix' line sits in the footer and one checkbox removes it, so the printed poster carries no watermark." },
+      PRIVATE_FAQ,
+    ],
     related: ["qr-code-for-restaurant-menu", "wifi-qr-code-guide"],
   },
   {

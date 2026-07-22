@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { FiDownload, FiChevronDown } from "react-icons/fi";
+import { FiDownload, FiChevronDown, FiImage, FiX } from "react-icons/fi";
 import { pickSave, finishSave } from "@/lib/save-file";
 import { trackTool } from "@/lib/track";
+import { POSTER_W, POSTER_H, posterLayout, wrapLines } from "@/lib/poster-layout";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -18,7 +19,10 @@ const TEMPLATES: Tpl[] = [
   { id: "custom", label: "Custom", emoji: "✨", heading: "SCAN ME", sub: "", accent: "#F58F20" },
 ];
 
-const W = 1240, H = 1754; // A4 portrait @ ~150dpi
+const W = POSTER_W, H = POSTER_H;
+const HEADING_FONT = "800 110px Poppins, Inter, sans-serif";
+const SUB_FONT = "500 42px Inter, sans-serif";
+const LOGO_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml", "image/gif", "image/avif"];
 
 export default function PosterMakerClient() {
   const [tplId, setTplId] = useState("menu");
@@ -27,8 +31,12 @@ export default function PosterMakerClient() {
   const [sub, setSub] = useState(TEMPLATES[0].sub);
   const [accent, setAccent] = useState(TEMPLATES[0].accent);
   const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [logo, setLogo] = useState<{ src: string; name: string } | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [credit, setCredit] = useState(true);
   const [dlOpen, setDlOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   function applyTemplate(t: Tpl) {
     setTplId(t.id);
@@ -62,9 +70,25 @@ export default function PosterMakerClient() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !qrUrl) return;
-    const ctx = canvas.getContext("2d")!;
-    const img = new Image();
-    img.onload = () => {
+    let cancelled = false;
+    (async () => {
+      const [qrImg, logoImg] = await Promise.all([loadImage(qrUrl), logo ? loadImage(logo.src) : null]);
+      if (cancelled || !qrImg) return;
+      const ctx = canvas.getContext("2d")!;
+      const headingText = (heading || "SCAN ME").toUpperCase();
+      const subText = sub.trim();
+
+      // measure first — the layout below flows from how many lines these take
+      ctx.font = HEADING_FONT;
+      const headingLines = wrapLines(headingText, W - 160, (s) => ctx.measureText(s).width);
+      ctx.font = SUB_FONT;
+      const subLines = subText ? wrapLines(subText, W - 200, (s) => ctx.measureText(s).width) : [];
+      const L = posterLayout({
+        headingLines: headingLines.length,
+        subLines: subLines.length,
+        logo: logoImg ? { w: logoImg.naturalWidth || logoImg.width, h: logoImg.naturalHeight || logoImg.height } : null,
+      });
+
       // background
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, W, H);
@@ -74,47 +98,78 @@ export default function PosterMakerClient() {
       ctx.fillStyle = accent;
       ctx.fillRect(0, 0, W, 26);
       ctx.fillRect(0, H - 26, W, 26);
+      // logo
+      if (logoImg && L.logo) ctx.drawImage(logoImg, L.logo.x, L.logo.y, L.logo.w, L.logo.h);
       // heading
       ctx.fillStyle = "#111118";
       ctx.textAlign = "center";
-      ctx.font = "800 110px Poppins, Inter, sans-serif";
-      wrapText(ctx, (heading || "SCAN ME").toUpperCase(), W / 2, 250, W - 160, 116);
+      ctx.font = HEADING_FONT;
+      headingLines.forEach((line, i) => ctx.fillText(line, W / 2, L.headingBaseline + i * L.headingLineH));
       // accent underline
       ctx.fillStyle = accent;
-      ctx.fillRect(W / 2 - 90, 300, 180, 12);
+      ctx.fillRect(W / 2 - 90, L.underlineY, 180, 12);
       // QR with a soft card
-      const qrSize = 720, qx = (W - qrSize) / 2, qy = 430;
+      const { x: qx, y: qy, size: qrSize } = L.qr;
       roundRect(ctx, qx - 36, qy - 36, qrSize + 72, qrSize + 72, 40);
       ctx.fillStyle = "#ffffff";
       ctx.shadowColor = "rgba(0,0,0,0.18)"; ctx.shadowBlur = 40; ctx.shadowOffsetY = 14;
       ctx.fill();
       ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-      ctx.drawImage(img, qx, qy, qrSize, qrSize);
+      ctx.drawImage(qrImg, qx, qy, qrSize, qrSize);
       // "scan" pill
       ctx.fillStyle = accent;
-      roundRect(ctx, W / 2 - 150, qy + qrSize + 70, 300, 92, 46); ctx.fill();
+      roundRect(ctx, W / 2 - 150, L.pillY, 300, 92, 46); ctx.fill();
       ctx.fillStyle = pickText(accent);
       ctx.font = "800 44px Poppins, Inter, sans-serif";
-      ctx.fillText("📷  SCAN ME", W / 2, qy + qrSize + 132);
+      ctx.fillText("📷  SCAN ME", W / 2, L.pillTextBaseline);
       // subtext
-      if (sub.trim()) {
+      if (subLines.length) {
         ctx.fillStyle = "#4a5568";
-        ctx.font = "500 42px Inter, sans-serif";
-        wrapText(ctx, sub, W / 2, qy + qrSize + 250, W - 200, 56);
+        ctx.font = SUB_FONT;
+        subLines.forEach((line, i) => ctx.fillText(line, W / 2, L.subBaseline + i * L.subLineH));
       }
-      // footer
-      ctx.fillStyle = "#9aa3b2";
-      ctx.font = "600 28px Inter, sans-serif";
-      ctx.fillText("Made with QRix", W / 2, H - 70);
+      // credit — optional, so "no watermark" stays true
+      if (credit) {
+        ctx.fillStyle = "#9aa3b2";
+        ctx.font = "600 28px Inter, sans-serif";
+        ctx.fillText("Made with QRix", W / 2, L.footerBaseline);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [qrUrl, heading, sub, accent, logo, credit]);
+
+  function onLogoPick(file: File | null | undefined) {
+    if (!file) return;
+    if (!LOGO_TYPES.includes(file.type)) {
+      setLogoError("Use a PNG, JPG, WebP, GIF, AVIF or SVG file.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setLogoError("That file is over 8 MB — resize it first.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const src = String(reader.result);
+      // an SVG with no intrinsic size never decodes — catch it before it silently vanishes
+      const probe = await loadImage(src);
+      if (!probe || !(probe.naturalWidth || probe.width)) {
+        setLogoError("That image could not be read. An SVG needs a width and height.");
+        return;
+      }
+      setLogoError(null);
+      setLogo({ src, name: file.name });
+      trackTool("poster", { logo: "added" });
     };
-    img.src = qrUrl;
-  }, [qrUrl, heading, sub, accent]);
+    reader.onerror = () => setLogoError("That file could not be read.");
+    reader.readAsDataURL(file);
+  }
 
   async function download(kind: "pdf" | "png") {
     setDlOpen(false);
     const canvas = canvasRef.current;
     if (!canvas) return;
-    trackTool("poster", { format: kind, template: tplId });
+    trackTool("poster", { format: kind, template: tplId, logo: logo ? "yes" : "no", credit: credit ? "yes" : "no" });
     if (kind === "png") {
       const blob = await new Promise<Blob | null>((r) => canvas.toBlob((b) => r(b), "image/png"));
       if (blob) await saveAndStore(blob, "qr-poster.png");
@@ -170,6 +225,40 @@ export default function PosterMakerClient() {
               <input type="color" value={accent} onChange={(e) => setAccent(e.target.value)} className="w-7 h-7 rounded-lg cursor-pointer !p-0 !border-0" />
             </div>
           </div>
+          <div>
+            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Logo (optional)</div>
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif,image/avif"
+              className="hidden"
+              onChange={(e) => { onLogoPick(e.target.files?.[0]); e.target.value = ""; }}
+            />
+            {logo ? (
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={logo.src} alt="" className="w-7 h-7 object-contain rounded" />
+                <span className="text-[11px] font-semibold truncate flex-1" style={{ color: "var(--text-muted)" }}>{logo.name}</span>
+                <button onClick={() => logoInputRef.current?.click()} className="text-[11px] font-bold" style={{ color: "#F58F20" }}>Change</button>
+                <button onClick={() => setLogo(null)} aria-label="Remove logo" className="opacity-70 hover:opacity-100" style={{ color: "var(--text-muted)" }}><FiX size={14} /></button>
+              </div>
+            ) : (
+              <button
+                onClick={() => logoInputRef.current?.click()}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg text-[12px] font-bold transition-all hover:opacity-80"
+                style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px dashed var(--border)" }}
+              >
+                <FiImage size={14} /> Upload your logo
+              </button>
+            )}
+            <p className="text-[10.5px] mt-1.5 leading-snug" style={{ color: logoError ? "#ef4444" : "var(--text-faint)" }}>
+              {logoError || "PNG, JPG, WebP or SVG — placed above the heading. It never leaves your browser."}
+            </p>
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <input type="checkbox" checked={credit} onChange={(e) => setCredit(e.target.checked)} className="w-4 h-4 accent-[#F58F20]" />
+            <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Show “Made with QRix” credit</span>
+          </label>
           <div className="relative">
             <div className="flex">
               <button onClick={() => download("pdf")} className="qx-btn-hero flex-1 !rounded-r-none"><FiDownload size={15} /> Download PDF</button>
@@ -199,14 +288,13 @@ function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: numbe
   ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
   ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
-function wrapText(ctx: CanvasRenderingContext2D, text: string, cx: number, y: number, maxW: number, lh: number) {
-  const words = text.split(" "); let line = ""; let yy = y;
-  for (const w of words) {
-    const test = line ? line + " " + w : w;
-    if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line, cx, yy); line = w; yy += lh; }
-    else line = test;
-  }
-  ctx.fillText(line, cx, yy);
+function loadImage(src: string): Promise<HTMLImageElement | null> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
 }
 function tint(hex: string, a: number) {
   const n = parseInt(hex.replace("#", ""), 16);

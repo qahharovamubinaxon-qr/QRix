@@ -21,7 +21,8 @@
     "test:image": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-image-output.mjs",
     "test:qr": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-qr-payload.mjs",
     "test:pdf": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-pdf-compress.mjs",
-    "test:ai": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-ai-claims.mjs"
+    "test:ai": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-ai-claims.mjs",
+    "test:poster": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-poster-layout.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
