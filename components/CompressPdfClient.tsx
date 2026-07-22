@@ -5,59 +5,69 @@ import { FiMinimize2, FiCheck } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { pickSave, finishSave } from "@/lib/save-file";
 
-const LEVELS: { id: string; label: string }[] = [
-  { id: "low", label: "Low" },
-  { id: "medium", label: "Medium" },
-  { id: "high", label: "High" },
+const LEVELS: { id: "low" | "medium" | "high"; label: string; hint: string }[] = [
+  { id: "low", label: "Low", hint: "Keeps photo detail" },
+  { id: "medium", label: "Medium", hint: "Best balance" },
+  { id: "high", label: "High", hint: "Smallest file" },
 ];
 
-/* Compression runs server-side, and the platform rejects request bodies over
-   4.5 MB at the edge — measured: 4.19 MB uploads, 4.4 MB comes back 413 before
-   the route ever runs. A 413 body isn't JSON, so without this guard the user
-   just got "Compression failed" with no reason. Checked here so the file that
-   can't work is never uploaded at all. */
-export const MAX_UPLOAD_BYTES = 4.3 * 1024 * 1024;
+type Result = {
+  originalSize: number;
+  compressedSize: number;
+  savedPercent: number;
+  imagesFound: number;
+  imagesRecompressed: number;
+};
 
+/* Compression runs entirely in this component now. It used to POST to
+   /api/pdf/compress, which capped the tool at ~4.3 MB — the platform rejects
+   bigger request bodies at the edge — on a page whose whole promise is getting
+   a 25 MB attachment under Gmail's limit. In the browser there is no upload
+   limit, and the file genuinely never leaves the device. */
 export default function CompressPdfClient() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [level, setLevel] = useState("medium");
-  const [result, setResult] = useState<{ originalSize: number; compressedSize: number; savedPercent: number } | null>(null);
+  const [progress, setProgress] = useState(0);
+  const [level, setLevel] = useState<"low" | "medium" | "high">("medium");
+  const [result, setResult] = useState<Result | null>(null);
 
   const toMB = (b: number) => (b / 1024 / 1024).toFixed(2);
 
-  async function compressPdf() {
+  async function runCompress() {
     if (!file) return;
-    if (file.size > MAX_UPLOAD_BYTES) {
-      alert(
-        `This PDF is ${toMB(file.size)} MB. Compression runs on our server, which accepts files up to about 4 MB — larger uploads are rejected before they reach it.\n\n` +
-        `To shrink a bigger file, split it first (PDF tools → Split), compress each part, then merge the results.`
-      );
-      return;
-    }
     const outName = file.name.replace(/\.pdf$/i, "") + "-compressed.pdf";
+    // Asked for before the work starts: the save picker needs the click gesture.
     const target = await pickSave(outName);
     if (target.kind === "cancelled") return;
     setLoading(true);
+    setProgress(0);
     setResult(null);
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("level", level);
-      const res = await fetch("/api/pdf/compress", { method: "POST", body: formData });
-      if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || "Compression failed"); }
-      const blob = await res.blob();
-      const originalSize = Number(res.headers.get("X-Original-Size") || file.size);
-      const compressedSize = Number(res.headers.get("X-Compressed-Size") || blob.size);
-      const savedPercent = Number(res.headers.get("X-Saved-Percent") || 0);
+      // Loaded on demand — pdf-lib is a big chunk and most visitors to the page
+      // read the copy without ever compressing anything.
+      const [{ compressPdf }, { canvasJpegReencoder }] = await Promise.all([
+        import("@/lib/pdf-compress"),
+        import("@/lib/pdf-compress-canvas"),
+      ]);
+      const input = new Uint8Array(await file.arrayBuffer());
+      const out = await compressPdf(input, {
+        level,
+        reencodeJpeg: canvasJpegReencoder,
+        onProgress: setProgress,
+      });
       setLoading(false);
+      const blob = new Blob([out.bytes as unknown as BlobPart], { type: "application/pdf" });
       await finishSave(target, blob, outName);
-      setResult({ originalSize, compressedSize, savedPercent });
+      setResult(out);
     } catch (e) {
       setLoading(false);
       alert("Compression failed: " + (e as Error).message);
     }
   }
+
+  // Nothing to re-encode means the weight is text, vectors or already-dense
+  // scans — saying "already optimized" alone reads like the tool did nothing.
+  const noImages = result != null && result.imagesRecompressed === 0;
 
   return (
     <div className="qx-card p-6 max-w-2xl">
@@ -67,7 +77,7 @@ export default function CompressPdfClient() {
         <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Compression level</div>
         <div className="grid grid-cols-3 gap-2">
           {LEVELS.map((l) => (
-            <button key={l.id} onClick={() => setLevel(l.id)} className="py-2 rounded-lg text-xs font-bold transition-all"
+            <button key={l.id} onClick={() => setLevel(l.id)} title={l.hint} className="py-2 rounded-lg text-xs font-bold transition-all"
               style={{ background: level === l.id ? "#F58F20" : "var(--surface-2)", color: level === l.id ? "#0c0c0c" : "var(--text-muted)", border: `1px solid ${level === l.id ? "transparent" : "var(--border)"}` }}>{l.label}</button>
           ))}
         </div>
@@ -75,19 +85,19 @@ export default function CompressPdfClient() {
 
       {file && (
         <div className="mt-3 text-[12px]" style={{ color: "var(--text-muted)" }}>
-          Original size: <b style={{ color: "var(--text)" }}>{toMB(file.size)} MB</b>
-          {file.size > MAX_UPLOAD_BYTES && (
-            <div className="mt-2 p-3 rounded-xl text-[12px] leading-relaxed" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", color: "var(--text)" }}>
-              Too large to compress here — the server accepts about 4 MB. Split it into
-              parts first, compress each, then merge them back.
-            </div>
-          )}
+          Original size: <b style={{ color: "var(--text)" }}>{toMB(file.size)} MB</b> · compressed on this device, nothing is uploaded
         </div>
       )}
 
-      <button onClick={compressPdf} disabled={!file || loading} className="qx-btn-hero w-full mt-4 disabled:opacity-50">
-        {loading ? "Compressing…" : <><FiMinimize2 size={15} /> Compress PDF</>}
+      <button onClick={runCompress} disabled={!file || loading} className="qx-btn-hero w-full mt-4 disabled:opacity-50">
+        {loading ? `Compressing… ${Math.round(progress * 100)}%` : <><FiMinimize2 size={15} /> Compress PDF</>}
       </button>
+
+      {loading && (
+        <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: "var(--surface-2)" }}>
+          <div className="h-full rounded-full transition-[width] duration-300" style={{ width: `${Math.max(4, progress * 100)}%`, background: "#F58F20" }} />
+        </div>
+      )}
 
       {result && (
         <div className="mt-4 p-4 rounded-xl" style={{ background: "rgba(70,116,52,0.1)", border: "1px solid rgba(70,116,52,0.3)" }}>
@@ -97,6 +107,12 @@ export default function CompressPdfClient() {
             <div className="flex justify-between"><span>Compressed</span><b style={{ color: "var(--text)" }}>{toMB(result.compressedSize)} MB</b></div>
             <div className="flex justify-between"><span>Saved</span><b style={{ color: "var(--primary-bright)" }}>{result.savedPercent > 0 ? `${result.savedPercent}% smaller` : "Already optimized"}</b></div>
           </div>
+          {noImages && (
+            <div className="mt-2 text-[11px] leading-relaxed" style={{ color: "var(--text-faint)" }}>
+              This PDF is mostly text or vector graphics — there were no photos to
+              shrink, so it was already close to its smallest lossless size.
+            </div>
+          )}
         </div>
       )}
     </div>
