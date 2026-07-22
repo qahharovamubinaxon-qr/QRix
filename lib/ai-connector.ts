@@ -43,21 +43,39 @@ export function isAiEngineLive(): boolean {
                 polish). The page stays on-device with a caveat, and
                 the new mode discloses at its own control.
    Engines absent from this table never leave the device, live or not.
+
+   `wired` is the half that is easy to get backwards. isAiEngineLive()
+   only reports that an engine is CONFIGURED — and NEXT_PUBLIC_AI_ENGINE
+   is already set in local envs while aiProcess() still has no callers
+   anywhere in the app. Deriving the claim from the env var alone would
+   therefore announce an upload that never happens, which is the same
+   failure as the old hardcoded promise, just pointing the other way.
+   A page's claim has to follow the code path that actually runs, so a
+   route only counts once its client really calls aiProcess(); the
+   suite in scripts/test-ai-claims.mjs holds the flag to the call sites
+   in both directions.
    ------------------------------------------------------------------ */
+
 export type CloudMode = "replaces" | "adds";
-export type CloudRoute = { task: AiTask; sends: "file" | "text"; mode: CloudMode };
+export type CloudRoute = {
+  task: AiTask;
+  sends: "file" | "text";
+  mode: CloudMode;
+  /** True only when this engine's client actually calls aiProcess(). */
+  wired: boolean;
+};
 
 export const AI_CLOUD_ROUTES: Record<string, CloudRoute> = {
-  "fx:colorize": { task: "colorize", sends: "file", mode: "replaces" },
-  removeobj: { task: "inpaint", sends: "file", mode: "replaces" },
-  describe: { task: "describe", sends: "file", mode: "replaces" },
-  translate: { task: "translate", sends: "text", mode: "replaces" },
-  imagegen: { task: "generate-image", sends: "text", mode: "replaces" },
-  speech: { task: "transcribe", sends: "file", mode: "adds" },
-  subtitles: { task: "transcribe", sends: "file", mode: "adds" },
-  avatar: { task: "generate-image", sends: "text", mode: "adds" },
-  resume: { task: "improve-text", sends: "text", mode: "adds" },
-  captions: { task: "improve-text", sends: "text", mode: "adds" },
+  "fx:colorize": { task: "colorize", sends: "file", mode: "replaces", wired: false },
+  removeobj: { task: "inpaint", sends: "file", mode: "replaces", wired: false },
+  describe: { task: "describe", sends: "file", mode: "replaces", wired: false },
+  translate: { task: "translate", sends: "text", mode: "replaces", wired: false },
+  imagegen: { task: "generate-image", sends: "text", mode: "replaces", wired: false },
+  speech: { task: "transcribe", sends: "file", mode: "adds", wired: false },
+  subtitles: { task: "transcribe", sends: "file", mode: "adds", wired: false },
+  avatar: { task: "generate-image", sends: "text", mode: "adds", wired: false },
+  resume: { task: "improve-text", sends: "text", mode: "adds", wired: false },
+  captions: { task: "improve-text", sends: "text", mode: "adds", wired: false },
 };
 
 export function cloudRoute(engine: string): CloudRoute | undefined {
@@ -68,7 +86,7 @@ export function cloudRoute(engine: string): CloudRoute | undefined {
  *  page's trust strip and privacy FAQ are built from. */
 export function engineProcessing(engine: string): "device" | "cloud" | "hybrid" {
   const r = cloudRoute(engine);
-  if (!r || !isAiEngineLive()) return "device";
+  if (!r || !r.wired || !isAiEngineLive()) return "device";
   return r.mode === "replaces" ? "cloud" : "hybrid";
 }
 

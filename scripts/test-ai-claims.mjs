@@ -6,21 +6,30 @@
  * goes is not written down on the page, it is COMPUTED — and the input is an
  * environment variable. Every /ai-tools page used to assert "runs in your
  * browser; files never upload" unconditionally, which is true today only
- * because NEXT_PUBLIC_AI_ENGINE is unset. Setting one env var on Vercel would
- * have turned ten pages into false privacy claims with no code change and
- * nothing to review. That failure mode is invisible in a normal test run, so
- * this suite runs the real modules TWICE — once with the engine off, once with
- * it on — in child processes, because the env is read at module load.
+ * because no engine is configured. Setting one env var on Vercel would have
+ * turned ten pages into false privacy claims with no code change and nothing
+ * to review.
+ *
+ * The mirror-image mistake is just as easy: NEXT_PUBLIC_AI_ENGINE is ALREADY
+ * set in local envs while aiProcess() still has no callers anywhere, so keying
+ * the claim off the env var alone would announce uploads that never happen.
+ * A page's claim has to follow the code path that actually runs.
+ *
+ * Neither failure shows up in a normal run, so this suite loads the real
+ * modules in three child processes — env unset, env set, and env set with the
+ * clients routed through the connector — because the env is read at load time.
  *
  *   node scripts/test-ai-claims.mjs      (or: npm run test:ai)
  */
 
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
 const SELF = fileURLToPath(import.meta.url);
+const ROOT = dirname(dirname(SELF));
 
 /* The child pass: import the shipped modules under whatever env we inherited
    and print the facts the pages are built from. */
@@ -28,6 +37,10 @@ if (process.argv[2] === "--dump") {
   const { register } = await import("node:module");
   register("./alias-hooks.mjs", import.meta.url); // ai-tools-meta imports "@/lib/ai-connector"
   const { AI_CLOUD_ROUTES, engineProcessing } = await import("../lib/ai-connector.ts");
+  /* --wire simulates the day the connector gets its first caller: flip every
+     route's `wired` before ai-tools-meta derives its FAQs from the table. That
+     future is the state worth testing — it is the one nobody can see today. */
+  if (process.argv.includes("--wire")) for (const r of Object.values(AI_CLOUD_ROUTES)) r.wired = true;
   const { AI_TOOLS } = await import("../lib/ai-tools-meta.ts");
   process.stdout.write(JSON.stringify({
     routes: AI_CLOUD_ROUTES,
@@ -41,13 +54,13 @@ if (process.argv[2] === "--dump") {
   process.exit(0);
 }
 
-function dump(engineValue) {
+function dump(engineValue, wire = false) {
   const env = { ...process.env };
   if (engineValue) env.NEXT_PUBLIC_AI_ENGINE = engineValue;
   else delete env.NEXT_PUBLIC_AI_ENGINE;
-  const r = spawnSync(process.execPath, ["--disable-warning=MODULE_TYPELESS_PACKAGE_JSON", SELF, "--dump"], {
-    env, encoding: "utf8",
-  });
+  const args = ["--disable-warning=MODULE_TYPELESS_PACKAGE_JSON", SELF, "--dump"];
+  if (wire) args.push("--wire");
+  const r = spawnSync(process.execPath, args, { env, encoding: "utf8" });
   if (r.status !== 0) throw new Error(`child failed (${r.status}):\n${r.stderr}`);
   return JSON.parse(r.stdout);
 }
@@ -59,8 +72,31 @@ const t = (name, fn) => {
   catch (e) { fails.push(`${name}\n    ${e.message.split("\n").join("\n    ")}`); }
 };
 
-const OFF = dump(null);
-const ON = dump("replicate");
+const OFF = dump(null);              // no engine configured — today, in production
+const CONFIGURED = dump("replicate"); // env var set, nothing routed through it yet
+const ON = dump("replicate", true);   // the future: configured AND the clients call it
+
+/* Every aiProcess("<task>", …) call site in the app. The claim on a page has to
+   follow the code that runs, not the env var: NEXT_PUBLIC_AI_ENGINE is already
+   set in local envs while aiProcess() has no callers at all, so an env-only
+   derivation would announce uploads that never happen. */
+function callSiteTasks() {
+  const out = new Set();
+  const walk = (dir) => {
+    for (const e of readdirSync(dir, { withFileTypes: true })) {
+      if (e.name === "node_modules" || e.name === ".next" || e.name === ".git") continue;
+      const p = join(dir, e.name);
+      if (e.isDirectory()) { walk(p); continue; }
+      if (!/\.(ts|tsx)$/.test(e.name)) continue;
+      if (p.endsWith(join("lib", "ai-connector.ts"))) continue; // the definition itself
+      const src = readFileSync(p, "utf8");
+      for (const m of src.matchAll(/aiProcess(?:<[^>]*>)?\(\s*["'`]([\w-]+)["'`]/g)) out.add(m[1]);
+    }
+  };
+  walk(ROOT);
+  return out;
+}
+const CALLED = callSiteTasks();
 
 /* Wording that asserts the work stays on the reader's machine. If any of these
    survives into a routed tool's FAQ while the engine is on, the page is lying. */
@@ -86,6 +122,41 @@ t("every routed engine is actually reachable from a tool page", () => {
   }
 });
 
+/* ---- wired must mean wired ------------------------------------------- */
+
+t("a route is only wired if its client actually calls aiProcess for that task", () => {
+  for (const [engine, r] of Object.entries(OFF.routes)) {
+    if (!r.wired) continue;
+    assert.ok(CALLED.has(r.task),
+      `${engine} is marked wired but nothing calls aiProcess("${r.task}") — the page would claim an upload that never happens`);
+  }
+});
+
+t("an aiProcess call site must have its route marked wired", () => {
+  // The direction that caused this mission: code ships, the claim doesn't move.
+  const wired = new Set(Object.values(OFF.routes).filter((r) => r.wired).map((r) => r.task));
+  for (const task of CALLED) {
+    assert.ok(wired.has(task),
+      `something calls aiProcess("${task}") but no route is wired for it — that page still promises on-device work`);
+  }
+});
+
+t("nothing is wired today, because aiProcess has no callers", () => {
+  // Reads as a snapshot on purpose: when this fails, the connector finally got
+  // its first caller and the table above is what has to be updated.
+  assert.equal(CALLED.size, 0, `aiProcess is now called for: ${[...CALLED].join(", ")}`);
+  assert.deepEqual(Object.values(OFF.routes).filter((r) => r.wired), []);
+});
+
+t("a configured-but-unwired engine changes nothing on any page", () => {
+  // NEXT_PUBLIC_AI_ENGINE is already set in local envs. Setting it must not by
+  // itself flip a single claim while no tool routes through the connector.
+  assert.deepEqual(
+    CONFIGURED.tools.map((x) => ({ slug: x.slug, processing: x.processing, faqs: x.faqs })),
+    OFF.tools.map((x) => ({ slug: x.slug, processing: x.processing, faqs: x.faqs })),
+  );
+});
+
 /* ---- engine OFF: nothing changes ------------------------------------- */
 
 t("with no engine configured every tool page is on-device", () => {
@@ -102,7 +173,7 @@ t("with no engine configured the FAQs are untouched", () => {
 
 /* ---- engine ON: the claims invert exactly where they must ------------- */
 
-t("with the engine on, 'replaces' tools become cloud pages", () => {
+t("once the clients route through it, 'replaces' tools become cloud pages", () => {
   for (const [engine, r] of Object.entries(ON.routes)) {
     if (r.mode !== "replaces") continue;
     for (const x of ON.tools.filter((y) => y.engine === engine)) {
@@ -111,7 +182,7 @@ t("with the engine on, 'replaces' tools become cloud pages", () => {
   }
 });
 
-t("with the engine on, 'adds' tools become hybrid, not cloud", () => {
+t("once routed, 'adds' tools become hybrid, not cloud", () => {
   for (const [engine, r] of Object.entries(ON.routes)) {
     if (r.mode !== "adds") continue;
     for (const x of ON.tools.filter((y) => y.engine === engine)) {
@@ -120,14 +191,14 @@ t("with the engine on, 'adds' tools become hybrid, not cloud", () => {
   }
 });
 
-t("with the engine on, unrouted tools stay on-device", () => {
+t("even fully routed, unlisted engines stay on-device", () => {
   for (const x of ON.tools) {
     if (ON.routes[x.engine]) continue;
     assert.equal(x.processing, "device", `${x.slug} (${x.engine}) drifted to ${x.processing}`);
   }
 });
 
-t("no 'replaces' tool keeps an on-device privacy answer once the engine is on", () => {
+t("no 'replaces' tool keeps an on-device privacy answer once routed", () => {
   for (const x of ON.tools) {
     const r = ON.routes[x.engine];
     if (!r || r.mode !== "replaces") continue;
@@ -137,7 +208,7 @@ t("no 'replaces' tool keeps an on-device privacy answer once the engine is on", 
   }
 });
 
-t("every routed tool answers the upload question once the engine is on", () => {
+t("every routed tool answers the upload question once routed", () => {
   for (const x of ON.tools) {
     const r = ON.routes[x.engine];
     if (!r) continue;
@@ -150,7 +221,7 @@ t("every routed tool answers the upload question once the engine is on", () => {
   }
 });
 
-t("the upload answer is asked about the thing that is actually sent", () => {
+t("the upload answer asks about the thing that is actually sent", () => {
   // A text tool asking "is my file uploaded" answers a question nobody asked.
   for (const x of ON.tools) {
     const r = ON.routes[x.engine];
@@ -224,4 +295,4 @@ if (fails.length) {
   console.error("\n" + fails.map((f) => `  ✗ ${f}`).join("\n\n") + "\n");
   process.exit(1);
 }
-console.log("  ✓ every /ai-tools privacy claim tracks the connector, engine off and on\n");
+console.log("  ✓ every /ai-tools privacy claim tracks the connector — off, configured, and routed\n");

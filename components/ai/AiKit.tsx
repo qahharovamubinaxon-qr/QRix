@@ -209,7 +209,7 @@ export function AiResultBar({ blob, filename, onReset, shareText }: {
    disclosure replaces the promise. */
 export function CloudNotice({ engine, children }: { engine?: string; children?: React.ReactNode }) {
   const route = engine ? cloudRoute(engine) : undefined;
-  const live = !!route && isAiEngineLive();
+  const live = !!route && route.wired && isAiEngineLive();
   const noun = route?.sends === "text" ? "text" : "image";
 
   return (

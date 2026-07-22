@@ -453,7 +453,7 @@ function privacyFaq(r: CloudRoute): { q: string; a: string } {
 
 function deriveClaims(t: AiTool): AiTool {
   const r = cloudRoute(t.engine);
-  if (!r || !isAiEngineLive()) return t;
+  if (!r || !r.wired || !isAiEngineLive()) return t;
   const f = privacyFaq(r);
   const i = t.faqs.findIndex((x) => x.q === PRIVATE.q);
   return { ...t, faqs: i >= 0 ? t.faqs.map((x, k) => (k === i ? f : x)) : [...t.faqs, f] };
