@@ -7,7 +7,7 @@ import { pageMeta, jsonLd, breadcrumbLd, faqLd, softwareAppLd, SITE_URL } from "
 import { FiGlobe } from "react-icons/fi";
 import {
   USE_CASES_EN, USE_LANGS, UI, LANG_NAMES, getUseCase, localizedContent, localizedKeywords, hasTranslation, isRtl,
-  type Lang,
+  freeLabel, type Lang,
 } from "@/lib/usecase-content";
 
 const isLang = (v: string): v is Lang => (USE_LANGS as string[]).includes(v);
@@ -173,7 +173,7 @@ export default async function UseCasePage({ params }: { params: Promise<{ lang: 
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(245,143,32,.16), transparent 70%)" }} />
         <div className="relative">
           <span className="inline-flex w-14 h-14 rounded-2xl items-center justify-center text-3xl mb-3" style={{ background: u.grad }}>{u.emoji}</span>
-          <p className="text-sm mb-4" style={{ color: "var(--text-muted)" }}>{ui.free}</p>
+          <p className="text-sm mb-4" style={{ color: "var(--text-muted)" }}>{freeLabel(ui, u.onDevice !== false)}</p>
           <Link href={u.toolHref} className="qx-btn-hero inline-flex">{ui.open} <FiArrowRight size={15} /></Link>
         </div>
       </div>

@@ -11,6 +11,13 @@ const LEVELS: { id: string; label: string }[] = [
   { id: "high", label: "High" },
 ];
 
+/* Compression runs server-side, and the platform rejects request bodies over
+   4.5 MB at the edge — measured: 4.19 MB uploads, 4.4 MB comes back 413 before
+   the route ever runs. A 413 body isn't JSON, so without this guard the user
+   just got "Compression failed" with no reason. Checked here so the file that
+   can't work is never uploaded at all. */
+export const MAX_UPLOAD_BYTES = 4.3 * 1024 * 1024;
+
 export default function CompressPdfClient() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -21,6 +28,13 @@ export default function CompressPdfClient() {
 
   async function compressPdf() {
     if (!file) return;
+    if (file.size > MAX_UPLOAD_BYTES) {
+      alert(
+        `This PDF is ${toMB(file.size)} MB. Compression runs on our server, which accepts files up to about 4 MB — larger uploads are rejected before they reach it.\n\n` +
+        `To shrink a bigger file, split it first (PDF tools → Split), compress each part, then merge the results.`
+      );
+      return;
+    }
     const outName = file.name.replace(/\.pdf$/i, "") + "-compressed.pdf";
     const target = await pickSave(outName);
     if (target.kind === "cancelled") return;
@@ -59,7 +73,17 @@ export default function CompressPdfClient() {
         </div>
       </div>
 
-      {file && <div className="mt-3 text-[12px]" style={{ color: "var(--text-muted)" }}>Original size: <b style={{ color: "var(--text)" }}>{toMB(file.size)} MB</b></div>}
+      {file && (
+        <div className="mt-3 text-[12px]" style={{ color: "var(--text-muted)" }}>
+          Original size: <b style={{ color: "var(--text)" }}>{toMB(file.size)} MB</b>
+          {file.size > MAX_UPLOAD_BYTES && (
+            <div className="mt-2 p-3 rounded-xl text-[12px] leading-relaxed" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", color: "var(--text)" }}>
+              Too large to compress here — the server accepts about 4 MB. Split it into
+              parts first, compress each, then merge them back.
+            </div>
+          )}
+        </div>
+      )}
 
       <button onClick={compressPdf} disabled={!file || loading} className="qx-btn-hero w-full mt-4 disabled:opacity-50">
         {loading ? "Compressing…" : <><FiMinimize2 size={15} /> Compress PDF</>}

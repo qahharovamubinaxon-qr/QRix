@@ -62,6 +62,10 @@ export type UseCaseSeed = {
   slug: string; toolHref: string; toolLabel: string;
   category: UseCase["category"]; emoji: string; grad: string;
   keywords: string[]; content: UseCaseContent;
+  /** False when the linked tool processes server-side. Every tool here runs in
+      the browser except PDF compression, which re-encodes embedded images on
+      the server — so the shared "on-device" badge would be a lie on that page. */
+  onDevice?: boolean;
 };
 
 export const USE_CASES_EN: UseCaseSeed[] = [
@@ -275,27 +279,27 @@ export const USE_CASES_EN: UseCaseSeed[] = [
   },
   {
     slug: "compress-pdf-for-email", toolHref: "/pdf-tools/compress", toolLabel: "Compress a PDF",
-    category: "PDF", emoji: "🗜️", grad: "linear-gradient(135deg,#ef4444,#f97316)",
+    category: "PDF", emoji: "🗜️", grad: "linear-gradient(135deg,#ef4444,#f97316)", onDevice: false,
     keywords: ["compress pdf for email", "reduce pdf size", "pdf too big for email", "shrink pdf", "compress pdf online"],
     content: {
       title: "Compress a PDF for Email — Get Under the Size Limit",
-      metaDescription: "Shrink a PDF that's too big to email. Reduce the file size in your browser — no upload, no watermark. Free and private.",
-      intro: "When a PDF is too large to email, compressing it reduces the file size while keeping it readable. QRix does this in your browser, so the document never leaves your device.",
+      metaDescription: "Shrink a PDF that's too big to email. Cut the file size without splitting it — no signup, no watermark, and the file is never stored.",
+      intro: "When a PDF is too large to email, compressing it reduces the file size while keeping it readable. QRix recompresses the images inside the document, which is where the bulk of the weight usually sits.",
       benefits: [
-        "Get under Gmail/Outlook's 25 MB limit without splitting the file.",
-        "Runs on your device — sensitive documents never upload.",
+        "Get a borderline attachment under Gmail/Outlook's 25 MB limit without splitting it.",
+        "Processed over an encrypted connection and never written to disk — the file is discarded the moment your download is sent.",
         "Keeps text sharp and readable at a much smaller size.",
         "Free, unlimited and watermark-free.",
       ],
       steps: [
-        { title: "Drop your PDF", desc: "It opens locally — nothing is uploaded." },
+        { title: "Drop your PDF", desc: "It's sent over HTTPS for compression and never saved." },
         { title: "Choose a quality level", desc: "Balance size against quality for your needs." },
         { title: "Download", desc: "Save the smaller PDF and attach it to your email." },
       ],
       faqs: [
-        { q: "Is my document uploaded to a server?", a: "No — compression happens entirely in your browser, so the file stays private." },
+        { q: "Is my document uploaded to a server?", a: "Yes — unlike our in-browser tools, PDF compression runs on our server because it re-encodes the embedded images. It is held in memory only, never written to disk, and discarded as soon as the compressed file is sent back. For documents you'd rather not send anywhere, the fill-and-sign tool runs entirely in your browser." },
         { q: "Will the text still be readable?", a: "Yes — pick the balanced setting to keep text crisp while cutting size significantly." },
-        { q: "Is there a file limit?", a: "Only your device's memory; typical documents compress comfortably." },
+        { q: "Is there a file limit?", a: "Yes — uploads are capped at about 4 MB, which covers most text-and-image documents. If yours is bigger, split it into parts, compress each one, and merge them back together." },
       ],
     },
   },
@@ -450,6 +454,16 @@ export function localizedContent(u: UseCaseSeed, lang: Lang): UseCaseContent {
 export function localizedKeywords(u: UseCaseSeed, lang: Lang): string[] {
   if (lang === "en") return u.keywords;
   return USE_CASE_I18N[u.slug]?.[lang]?.keywords ?? u.keywords;
+}
+
+/** The "Free · on-device · no signup" badge, with the middle claim dropped for
+    server-side tools. Every localization is authored as three ` · ` segments
+    with on-device in the middle, so removing it stays grammatical in all 15
+    languages without needing a second translated string. */
+export function freeLabel(ui: UiStrings, onDevice: boolean): string {
+  if (onDevice) return ui.free;
+  const parts = ui.free.split(" · ");
+  return parts.length === 3 ? `${parts[0]} · ${parts[2]}` : parts[0];
 }
 
 /** True when a real (non-fallback) translation exists — used to gate hreflang. */
