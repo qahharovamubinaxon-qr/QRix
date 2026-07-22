@@ -13,6 +13,7 @@ import { creditStats } from "./credits";
 import { db } from "./db";
 import { dbHealthy } from "./prisma";
 import { telegramConfigured, telegramMissing, tgConfig } from "./telegram/config";
+import { AI_CLOUD_ROUTES } from "@/lib/ai-connector";
 
 export type HealthState = "ok" | "degraded" | "down";
 
@@ -26,7 +27,18 @@ export function envValidation(): { ok: boolean; issues: string[] } {
   if (serverConfig.storage.driver === "s3" && (!serverConfig.storage.accessKey || !serverConfig.storage.secretKey)) issues.push("S3 driver selected but S3_ACCESS_KEY_ID/S3_SECRET_ACCESS_KEY missing");
   if (serverConfig.email.driver === "resend" && !serverConfig.email.resendKey) issues.push("EMAIL_DRIVER=resend but RESEND_API_KEY missing");
   if (process.env.CREDITS_ENFORCED === "1") issues.push("CREDITS_ENFORCED=1 is being IGNORED — the credit store is still the in-memory mock (wire lib/server/db.ts to Prisma before charging users)");
-  if (prod && !process.env.NEXT_PUBLIC_AI_ENGINE) issues.push("NEXT_PUBLIC_AI_ENGINE not set — AI tools stay on their on-device fallbacks even though server keys exist");
+  /* NEXT_PUBLIC_AI_ENGINE only reports that an engine is CONFIGURED, and this
+     check used to read it as "the AI tools are live". It is set in production
+     today while aiProcess() has no callers at all, so the flag changes nothing
+     and the old message told the owner to go set something already set — to
+     enable a path that does not exist. Report the actual state instead: the
+     var matters only alongside a route whose client really calls the
+     connector. See AI_CLOUD_ROUTES in lib/ai-connector.ts. */
+  const wired = Object.entries(AI_CLOUD_ROUTES).filter(([, r]) => r.wired).map(([e]) => e);
+  if (prod && !process.env.NEXT_PUBLIC_AI_ENGINE && wired.length)
+    issues.push(`NEXT_PUBLIC_AI_ENGINE not set while ${wired.length} AI engine(s) route through the connector (${wired.join(", ")}) — those tools fall back to their on-device path`);
+  if (prod && process.env.NEXT_PUBLIC_AI_ENGINE && !wired.length)
+    issues.push("NEXT_PUBLIC_AI_ENGINE is set but no AI engine routes through the connector — aiProcess() has no callers, so the flag changes nothing. Wire a route or unset the var.");
   if (prod && !process.env.CRON_SECRET) issues.push("CRON_SECRET not set — all cron routes are rejected (fail-closed)");
   return { ok: issues.length === 0, issues };
 }

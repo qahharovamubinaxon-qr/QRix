@@ -278,6 +278,13 @@ t("the tool page reads processing from the connector, not a literal", () => {
     "app/ai-tools/[slug]/page.tsx no longer derives `processing` per engine");
 });
 
+t("the health check judges the connector by its routes, not the env var", () => {
+  const src = readFileSync(new URL("../lib/server/monitor.ts", import.meta.url), "utf8");
+  assert.match(src, /AI_CLOUD_ROUTES/, "monitor.ts no longer consults the route table");
+  assert.doesNotMatch(src, /NEXT_PUBLIC_AI_ENGINE not set — AI tools stay on their on-device fallbacks/,
+    "monitor.ts is back to reporting the env var as if it made the AI tools live");
+});
+
 t("the shell still has a distinct copy set per processing mode", () => {
   const src = readFileSync(new URL("../components/ToolPageShell.tsx", import.meta.url), "utf8");
   for (const k of ["device", "cloud", "hybrid"]) {
