@@ -639,3 +639,53 @@ escapeVCard fails 4. Round trip driven in the pane: the generated QR carries
 
 Files: lib/qr-payload.ts, lib/qr-types.ts, app/page.tsx,
 components/QrDecodeClient.tsx, scripts/test-qr-payload.mjs. Branch design-v2.
+
+## M131 — the /ai-tools privacy claim follows the code, not an env var (Jul 22)
+
+Every /ai-tools page rendered "Runs in your browser; files never upload" and
+answered "Is my file uploaded to a server?" with "No — processing runs on your
+device". Both were constants. The backlog framed this as preventative work:
+isAiEngineLive() was assumed false in production, so the claims were assumed
+true, and the job was to derive them before anyone set the env var.
+
+The assumption was wrong in a way only a deploy could show. NEXT_PUBLIC_AI_ENGINE
+is already set on Vercel — the first version of this fix keyed the claim off
+isAiEngineLive() alone, and /ai-tools/colorize-photo came back from production
+announcing "Sent over HTTPS to be processed, then discarded" for a canvas filter
+that never touches the network. Meanwhile aiProcess() has zero callers anywhere
+in the app, so no AI tool uploads anything at all. The flag reports that an
+engine is CONFIGURED and says nothing about where a user's file goes; keying a
+privacy claim to it produces the same lie as the hardcoded promise, pointing the
+other way. (lib/server/monitor.ts reports the var being unset as a production
+issue, which is presumably how it came to be set.)
+
+lib/ai-connector.ts now carries AI_CLOUD_ROUTES — per engine: the AiTask it
+routes to, whether it sends a file or text, whether the cloud replaces the tool's
+main action or only adds a mode, and `wired`, false until that engine's client
+really calls aiProcess(). Ten engines are listed, each only where the tool's own
+shipped copy already promises the cloud engine will do that work. Today every
+`wired` is false, so setting the env var changes nothing on any page.
+
+ToolPageShell gained a third copy set. "cloud" and "device" do not cover
+speech-to-text or the resume builder: the tool is local and only an optional step
+would ever upload, so "cloud" claims an upload most sessions never make while
+"device" hides the one they do. The privacy FAQ is rewritten from the same table
+(and the routed tools that had no privacy FAQ at all — speech, subtitles — get
+one instead of staying quiet), and the four CloudNotice banners whose text is a
+claim about where the work happens take the engine key and swap promise for
+disclosure.
+
+npm run test:ai: 19 assertions. The env is read at module load, so the suite
+loads the shipped modules in three child processes — env unset, env set, and env
+set with every route wired — which is the only way to test the future state
+nobody can see today. It scans every .ts/.tsx for aiProcess("<task>") call sites
+and holds `wired` to them in both directions: a route may not claim wired without
+a call site, and a call site may not exist without its route being wired, which
+is the direction that lets code ship while the claim stays behind. Seven
+mutations verified, including dropping the wired gate.
+
+Files: lib/ai-connector.ts, lib/ai-tools-meta.ts, components/ToolPageShell.tsx,
+components/ai/AiKit.tsx, components/ai/AiImageFxClient.tsx,
+components/ai/AiTextClients.tsx, components/ai/AiWorkspaceClients.tsx,
+app/ai-tools/[slug]/page.tsx, scripts/test-ai-claims.mjs, scripts/alias-hooks.mjs.
+Branch design-v2.

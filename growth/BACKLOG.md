@@ -7,12 +7,16 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
   browser, same pattern as @imgly for the background remover) or rename it.
   Owner decision: renaming costs the "улучшить фото ии" keyword.
-- [~] Bind the AI tool pages' `processing` flag to the connector before a cloud
-  engine is ever switched on — today isAiEngineLive() is false so /ai-tools/*
-  really is on-device, but the moment NEXT_PUBLIC_AI_ENGINE is set, every one
-  of those pages starts claiming "files never upload" while posting the file.
-  The flag exists (M128); it just needs to be derived per engine, and the
-  registry has to say which engines upload.
+- [ ] NEXT_PUBLIC_AI_ENGINE is set on Vercel but aiProcess() has no callers, so
+  the connector is dead code and lib/server/monitor.ts reports the var being
+  UNSET as a production issue — i.e. it pushes the owner toward setting a flag
+  that does nothing. Either wire aiProcess into the five "replaces" tools
+  (colorize, inpaint, describe, translate, imagegen — needs a paid provider,
+  so [B] for the engine itself) or make the monitor check assert the thing it
+  actually cares about: an engine configured AND at least one wired route.
+  The second half is free and should ship regardless. Flipping any route's
+  `wired` also requires updating the tool's intro/about/desc copy, which still
+  says "activates with the cloud engine" in the present tense.
 - [ ] Poster maker logo upload — M126 had to answer "no" to "Can I add my
   logo?" in 15 languages. Templates/heading/colour exist; a logo would make the
   review-poster page's strongest claim true again.
@@ -49,6 +53,26 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: the AI tool pages' processing flag derives from the connector
+  (M131). The item assumed isAiEngineLive() was false in production and the
+  work was preventative. It is not: NEXT_PUBLIC_AI_ENGINE is SET on Vercel
+  (proved by deploying the env-keyed version and watching /ai-tools/colorize-
+  photo flip to the cloud strip on production), while aiProcess() has zero
+  callers anywhere in the app. So the flag was already true and meant nothing.
+  lib/ai-connector.ts now holds AI_CLOUD_ROUTES: per engine, the AiTask it
+  routes to, whether it sends a file or text, whether the cloud replaces the
+  tool's main action or only adds a mode, and `wired` — false until that
+  engine's client actually calls aiProcess(). engineProcessing() reads all
+  four, so setting the env var alone changes nothing on any page. Ten engines
+  listed, each only where the tool's own copy already promises the cloud will
+  do that work. ToolPageShell gained a hybrid copy set (speech-to-text is
+  neither: the tool is local, only the optional step would upload), the
+  privacy FAQ is rewritten from the same table, and the four CloudNotice
+  banners that make a where-it-runs claim now swap promise for disclosure.
+  npm run test:ai — 19 assertions across three child processes (env unset,
+  env set, env set + routed), scanning every .ts/.tsx for aiProcess() call
+  sites so `wired` cannot drift from the source in either direction. Seven
+  mutations verified.
 - [x] Jul 22: internal links off the /url-qr and /vcard-qr 308s (M130). The
   item named the four use-case CTAs; the same two dead paths were also linked
   from the homepage, dashboard, sidebar, PDF and image category pages, the
