@@ -527,3 +527,52 @@ lib/qr-types.ts, lib/usecase-content.ts, lib/usecase-content.i18n.ts,
 components/QRGenerator.tsx, components/QrDecodeClient.tsx,
 components/CompressPdfClient.tsx, app/page.tsx, app/use/[lang]/[slug]/page.tsx,
 package.json. Branch design-v2.
+
+## M127 — PDF compression moved into the browser (Jul 22)
+
+The tool could not do the job its funnel page is built to sell. The page targets
+"my PDF is too big to email" — files well over 25 MB — and the client POSTed to
+/api/pdf/compress, which the platform rejects above ~4.5 MB at the edge. The one
+file shape the page ranks for was the one shape guaranteed to fail. M126 made the
+copy honest about that; this removes the limit instead.
+
+lib/pdf-compress.ts walks the indirect objects and re-encodes each DCTDecode
+image XObject through an injected encoder, writing it back as a properly formed
+stream — /Length /Width /Height /BitsPerComponent /ColorSpace /Filter updated to
+describe the new bytes, /Decode and /DecodeParms dropped. Text, vectors, links
+and form fields are never touched. Left alone deliberately: /ImageMask stencils
+(1-bit; JPEG has no 1-bit mode), anything but a lone /DCTDecode, images under
+3 KB, and any ref used as an /SMask — those are grayscale by spec and an RGB
+JPEG in that slot paints the image as noise. Per image the result is kept only
+if it is genuinely smaller and its SOF header reports 1 or 3 components; a whole
+re-save that comes out bigger returns the original file.
+
+The encoder is an argument, not an import, so the module is free of both DOM and
+Node APIs: the browser passes lib/pdf-compress-canvas.ts, the suite passes sharp,
+and both exercise identical object surgery. npm run test:pdf — 26 assertions,
+output validated with pdf.js (a strict parser that is not the one that wrote the
+file) and every re-encoded image decoded again to prove its dict matches its
+bytes; a broken PDF compressor looks exactly like a working one, and a truncated
+file scores a fantastic saving.
+
+The old route was the proof of that: it scanned raw bytes for FF D8 FF and
+spliced in re-encoded JPEGs of a different length, leaving every /Length and
+every xref offset after the first image wrong. Readers rebuild a damaged xref
+silently, so it opened. The route now runs the same shared code with sharp.
+
+Verified in the pane (rAF unblock per growth/PREVIEW_VERIFICATION.md): 0.58 MB →
+0.09 MB, 85%, %PDF-1.7; feeding the output back in re-parses and correctly says
+"Already optimized"; zero requests to /api/pdf/*.
+
+Copy: M126's honesty rewrite reverse-applied, restoring the same 98 translated
+strings in 14 languages rather than re-translating. EN keeps what M126 got right
+and gains a fourth FAQ for the text-only PDF that barely shrinks. The tool's own
+page had no JSON-LD and no FAQ section at all (the shell renders faqs; the page
+passed none) — added SoftwareApp + Breadcrumb + HowTo + FAQ. RU/UZ twins at
+/ru/compress and /uz/compress rewritten with a size-limit FAQ each.
+
+Files: lib/pdf-compress.ts (new), lib/pdf-compress-canvas.ts (new),
+scripts/test-pdf-compress.mjs (new), components/CompressPdfClient.tsx,
+app/api/pdf/compress/route.ts, app/pdf-tools/compress/page.tsx,
+lib/localized-tools.ts, lib/usecase-content.ts, lib/usecase-content.i18n.ts,
+package.json. Branch design-v2.

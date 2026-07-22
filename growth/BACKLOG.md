@@ -7,13 +7,13 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
   browser, same pattern as @imgly for the background remover) or rename it.
   Owner decision: renaming costs the "улучшить фото ии" keyword.
-- [~] PDF compress can't do the job its page is built to sell — the funnel page
-  targets "my PDF is too big to email" (>25 MB) but the server rejects anything
-  over ~4.5 MB at the edge (measured: 4.19 MB in, 4.4 MB → 413). M126 made the
-  copy and the UI honest; the fix is a client-side path (pdf-lib + canvas
-  re-encode of embedded images, same pattern as the image engines) so large
-  files work at all — and that would restore the "never leaves your device"
-  claim the page used to make falsely.
+- [ ] ToolPageShell's trust strip says "Private by design — runs in your
+  browser; files never upload" on EVERY tool page, and it is hardcoded, not
+  derived from the engine. It was false on /pdf-tools/compress until M127 and
+  is still false anywhere that POSTs a file: PDF→Word (Adobe/Aspose/
+  CloudConvert chain), the AI tools, the downloader, /api/pdf/merge. Same class
+  of bug as M126 but on far more pages. Make the strip a prop off the tool's
+  real engine, then sweep every page that has to switch.
 - [ ] Poster maker logo upload — M126 had to answer "no" to "Can I add my
   logo?" in 15 languages. Templates/heading/colour exist; a logo would make the
   review-poster page's strongest claim true again.
@@ -56,6 +56,24 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: PDF compression moved into the browser (M127) — the tool can now
+  do the job its funnel page is built to sell. lib/pdf-compress.ts walks the
+  indirect objects and re-encodes each DCTDecode image XObject through an
+  injected encoder, rewriting /Length /Width /Height /ColorSpace /Filter and
+  dropping /Decode + /DecodeParms; text, vectors, links and form fields are
+  untouched. Skips /ImageMask stencils, non-lone-DCTDecode filters, images
+  under 3 KB and any ref used as an /SMask; keeps the original whenever the
+  re-encode is not smaller or its SOF header is not 1 or 3 components.
+  The encoder is an argument, so the same shipped code runs against canvas in
+  the browser and sharp in `npm run test:pdf` (26 assertions, output validated
+  by pdf.js, every re-encoded image decoded again to prove its dict matches its
+  bytes). The route stayed but now runs that code instead of splicing JPEGs
+  into raw bytes and leaving every later xref offset wrong.
+  Driven end to end in the pane: 0.58 MB → 0.09 MB (85%), output re-parses,
+  second pass correctly reports "Already optimized", zero network requests.
+  M126's honesty rewrite reverse-applied — 98 translated strings across 14
+  languages back to on-device, EN rewritten to keep what M126 got right, plus
+  the tool page (which had no JSON-LD and no FAQ at all) and the RU/UZ twins.
 - [x] Jul 22: audited usecase-content.i18n.ts — 3 false claims across 15
   languages, and the audit turned up a silent data-corruption bug (M126).
   The file is 9,228 lines of generated copy for 14 use cases × 15 languages,
