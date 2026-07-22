@@ -34,22 +34,28 @@ async function call(method: string, payload: Record<string, unknown> = {}): Prom
 export type BotStatus = {
   configured: boolean;
   username?: string;
-  /** Telegram only sends inline_query updates when it is in allowed_updates. */
-  inlineEnabled: boolean;
+  /* Inline needs BOTH halves and they fail independently, so report them
+     separately — a single "inline on" chip would go green off the webhook
+     alone while typing @bot in a chat still does nothing. */
+  /** BotFather /setinline was run (getMe reports it). */
+  inlineAllowed: boolean;
+  /** inline_query is in the webhook's allowed_updates, so Telegram delivers it. */
+  inlineSubscribed: boolean;
   webhookUrl?: string;
   pendingUpdates?: number;
   lastError?: string;
 };
 
 export async function botStatus(): Promise<BotStatus> {
-  if (!token()) return { configured: false, inlineEnabled: false };
+  if (!token()) return { configured: false, inlineAllowed: false, inlineSubscribed: false };
   const [me, hook] = await Promise.all([call("getMe"), call("getWebhookInfo")]);
   const allowed: string[] = hook?.allowed_updates || [];
   return {
     configured: true,
     username: me?.username,
+    inlineAllowed: !!me?.supports_inline_queries,
     // an empty allowed_updates means "all except chat_member", which includes inline
-    inlineEnabled: allowed.length === 0 || allowed.includes("inline_query"),
+    inlineSubscribed: allowed.length === 0 || allowed.includes("inline_query"),
     webhookUrl: hook?.url || undefined,
     pendingUpdates: hook?.pending_update_count,
     lastError: hook?.last_error_message || undefined,
@@ -58,7 +64,7 @@ export async function botStatus(): Promise<BotStatus> {
 
 /** (Re)register the webhook including inline_query — the button behind /admin. */
 export async function registerWebhook(): Promise<{ ok: boolean; status: BotStatus }> {
-  if (!token()) return { ok: false, status: { configured: false, inlineEnabled: false } };
+  if (!token()) return { ok: false, status: { configured: false, inlineAllowed: false, inlineSubscribed: false } };
   const res = await call("setWebhook", {
     url: `${SITE_URL}/api/telegram/bot`,
     secret_token: process.env.TELEGRAM_PUBLIC_SECRET || undefined,
