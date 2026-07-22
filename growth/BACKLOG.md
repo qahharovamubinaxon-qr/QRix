@@ -16,9 +16,6 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] Poster maker logo upload — M126 had to answer "no" to "Can I add my
   logo?" in 15 languages. Templates/heading/colour exist; a logo would make the
   review-poster page's strongest claim true again.
-- [ ] Point the use-case CTAs at /qr-tools/url and /qr-tools/vcard directly —
-  all 15 language variants currently send users (and link equity) through a
-  301 from /url-qr and /vcard-qr.
 - [ ] Batch/multi-file conversion for real — AiDropzone takes a single file
   everywhere. ImageBatchClient exists but is a separate engine. Wiring
   multi-file into the /convert pages would make the (now removed) claim
@@ -52,6 +49,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: internal links off the /url-qr and /vcard-qr 308s (M130). The
+  item named the four use-case CTAs; the same two dead paths were also linked
+  from the homepage, dashboard, sidebar, PDF and image category pages, the
+  category showcase and /free-forever — 18 links, each a redirect hop. The
+  config redirects stay for external links; nothing inside the site should hit
+  one. Blog slugs containing "vcard-qr-code-..." untouched.
 - [x] Jul 22: vCard and MECARD payload escaping (M129) — the half M126 left.
   Worse than the WiFi bug it matched: vCard's N and ADR are structured, so an
   unescaped `;` inside a value shifts every later component up a slot rather
