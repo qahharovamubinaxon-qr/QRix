@@ -31,12 +31,14 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   wired, flip its `wired` in AI_CLOUD_ROUTES — the trust strip, privacy FAQ
   and CloudNotice follow automatically (M131) — and rewrite that tool's
   intro/about/desc, which still promise the cloud engine in the future tense.
-- [~] Stats page /qr-code-statistics — 20+ sourced stats; citation magnet
-  for LLMs + journalists (backlinks). Promoted over the two items below: ten
-  consecutive missions have been correctness work, the year goal is traffic,
-  and this is the only NOW item that is itself an acquisition asset.
-  Every number must carry a real, checkable source — no stat ships without one.
 - [ ] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile.
+- [ ] /qr-code-statistics follow-ups, ranked: (1) an /embed-able "stat card"
+  so a blogger quoting a figure links back — the actual backlink mechanism,
+  which the page currently only invites in prose; (2) re-check the four
+  sources each quarter, since two are annual reports that will move (a
+  `published` date older than ~14 months should fail test:qr-stats); (3) RU/UZ
+  twins once the EN page shows impressions in GSC — not before, the copy is
+  argumentative and expensive to translate well.
 
 ## NEXT (2-4 weeks)
 - [ ] Multi-file for the engines that still take one file. The old "batch
@@ -76,6 +78,38 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: /qr-code-statistics — 26 stats, every one openable (M134). The
+  category is a citation loop: the headline numbers ("over 2 billion scans a
+  day", a worldwide scan count given to the single digit) have no study under
+  them and contradict the annual totals printed on the same pages. So the page
+  inverts the format — fewer figures, each carrying its source's own
+  publication date, a visible tier badge (government / analyst / vendor
+  platform / vendor survey / regulator) and a written caveat naming what it
+  does not prove. Juniper on payment value ($5.4tn 2025 → >$8tn 2029), NPCI's
+  UPI volumes via a Government of India release (21.63bn transactions in Dec
+  2025, +29% YoY) as the only official-statistic tier, Bitly platform data on
+  regional scans (Europe: +7% codes created, +53% scans — the installed base
+  being used harder, not replaced), and a Bitly marketer survey labelled as a
+  vendor polling its own buyers. Where a source contradicts itself the page
+  prints both figures and says the text doesn't resolve it. The rejected list
+  is the reason to link here: four of the most-quoted QR numbers appear only
+  as failures, incl. the quishing percentages, traced by reading the roundup
+  they come from — 69 statistics, 3-4 attributed. No quishing number is quoted;
+  the security section cites the FTC's own alert and says the numbers don't
+  exist. lib/qr-stats.ts is the single source for the cards, the JSON-LD
+  citation array and the CSS bar chart. npm run test:qr-stats = 13 assertions
+  (no stat without an https source + name + date; no non-government stat
+  without a caveat; ≥3 distinct source hosts so it can't decay into one
+  vendor's press kit; FTC link pinned to consumer.ftc.gov), 6 mutations
+  verified. First deploy 404'd for 20 min: the page passed QR_TYPES.url —
+  which carries a build() function — from a Server Component into a Client
+  Component, which Next refuses at build time, so Vercel kept serving the old
+  build. Fixed with a client wrapper, same shape as QRToolClient. Live and
+  verified: 200, canonical, all 5 source hosts in the HTML, Article JSON-LD
+  with 4 citations + FAQPage(6) + BreadcrumbList, sitemap + llms.txt carry it,
+  IndexNow 200. Generator embed renders a real QR; its interactivity could not
+  be driven in the preview pane, but /qr-tools/url behaves identically there,
+  so that is the pane, not the page.
 - [x] Jul 22: poster maker logo upload + a removable credit (M133). The
   review-poster landing answered "Can I add my logo?" with "not yet" in 15
   languages and promised "no watermark on the printable poster" in the same

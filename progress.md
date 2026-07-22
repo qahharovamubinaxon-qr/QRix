@@ -755,3 +755,65 @@ description/about/steps and the qr-code-poster-maker guide.
 Files: lib/poster-layout.ts (new), components/PosterMakerClient.tsx,
 app/poster/page.tsx, lib/usecase-content.ts, lib/usecase-content.i18n.ts,
 lib/blog.ts, scripts/test-poster-layout.mjs, package.json. Branch design-v2.
+
+---
+
+## M134 — /qr-code-statistics: a citation asset that can survive being checked
+
+Ten missions in a row were correctness work on tools we already shipped. This
+one is acquisition: the year goal is traffic, and the only NOW item that is
+itself an asset was the stats page. Taken ahead of two items above it in the
+backlog (both re-ranked in the same commit, with reasons).
+
+The category is a swamp. "80+ QR code statistics" posts cite each other in a
+loop, and the load-bearing numbers dissolve when you pull on them: "over 2
+billion scans a day" has no study under it and contradicts the annual totals
+printed on the same pages; a worldwide scan count given to the single digit
+(130,115,528) can only be one platform's logs. So the page is built on the
+opposite premise — fewer numbers, each one openable.
+
+26 stats across four groups. Juniper Research for payment value ($5.4tn in
+2025, >$8tn forecast for 2029). NPCI's UPI volumes via a Government of India
+release (21.63bn transactions in December 2025, +29% YoY) — the only tier on
+the page that is an official statistic rather than marketing. Bitly's platform
+data for regional scan growth, which carries the one genuinely interesting
+finding: Europe created 7% more codes and scanned them 53% more, i.e. the
+installed base is being used harder, not replaced. And a Bitly marketer survey,
+labelled a vendor survey of the audience it sells to, because that is what it
+is.
+
+Every stat carries: the source's own publication date, a `kind` (government /
+analyst / vendor-platform / vendor-survey / regulator) rendered as a visible
+badge, and a written caveat naming what the number does not prove. The caveats
+are the product. "UPI includes payments made without scanning anything, so it
+is an upper bound." "This measures what marketers believe consumers think."
+Where a source contradicts itself — Bitly gives Europe as both +42% and +53%
+in two different tables — the page prints both and says the published text does
+not resolve which is which.
+
+The rejected list is the reason to link to this page rather than a competitor's.
+Four of the most-quoted QR figures appear only as failures, each with what we
+actually checked. The quishing one was verified by reading the roundup those
+percentages come from: 69 statistics, three or four attributed to a named
+report. No quishing number appears above; the security section cites the FTC's
+own consumer alert instead and says plainly that the numbers do not exist.
+
+lib/qr-stats.ts holds the data, so the cards, the JSON-LD `citation` array and
+the CSS bar chart cannot drift apart. scripts/test-qr-stats.mjs (npm run
+test:qr-stats) — 13 assertions: no stat without an https source, a source name
+and a publication date; no non-government stat without a caveat over 20 chars;
+unique ids; at least three distinct source hosts, so the page can never quietly
+decay into one vendor's press kit; the FTC link must stay on consumer.ftc.gov.
+Six mutations verified, including gutting a caveat and repointing every source
+at one host.
+
+Chart is CSS only — no chart library, nothing to hydrate. A live URL generator
+is embedded (the page has a working tool, per the page bar). Article +
+Breadcrumb + FAQ JSON-LD, every source URL emitted as a schema.org citation,
+6 FAQs written to answer the queries the page targets ("how many QR codes are
+scanned every day" is answered "nobody credibly knows", which is the truth and
+also the pitch). Registered in sitemap, search index and llms.txt.
+
+Files: lib/qr-stats.ts (new), app/qr-code-statistics/page.tsx (new),
+scripts/test-qr-stats.mjs (new), app/sitemap.ts, lib/search-index.ts,
+public/llms.txt, package.json. Branch design-v2.
