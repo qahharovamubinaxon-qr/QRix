@@ -194,7 +194,7 @@ export const USE_CASES_EN: UseCaseSeed[] = [
       ],
       faqs: [
         { q: "Where do I get my Google review link?", a: "In your Google Business profile, use 'Ask for reviews' to copy the short review link, then paste it here." },
-        { q: "Can I add my logo?", a: "Yes — the poster maker lets you brand it with your colors and logo." },
+        { q: "Can I add my logo?", a: "Not yet — the poster maker covers templates, your own heading and subtitle, and your brand color, but it can't place a logo on the artwork. If you need a branded code, generate it with your logo in the QR generator and drop that into your own layout." },
         { q: "Is it free?", a: "Yes, and there's no watermark on the printable poster." },
       ],
     },

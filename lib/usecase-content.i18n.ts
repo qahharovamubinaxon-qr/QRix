@@ -2621,7 +2621,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Можно ли добавить логотип?",
-          "a": "Да — конструктор постеров позволяет оформить его в ваших цветах и с логотипом."
+          "a": "Пока нет — конструктор постеров позволяет выбрать шаблон, изменить заголовок и подзаголовок и подобрать фирменный цвет, но разместить логотип на макете нельзя. Если нужен код с логотипом, создайте его в генераторе QR и вставьте в свой макет."
         },
         {
           "q": "Это бесплатно?",
@@ -2667,7 +2667,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Логотип қўша оламанми?",
-          "a": "Ҳа — постер яратгич уни ўз рангларингиз ва логотип билан безашга имкон беради."
+          "a": "Ҳозирча йўқ — постер конструктори шаблон танлаш, сарлавҳа ва тагсарлавҳани ўзгартириш ҳамда фирма рангини созлаш имконини беради, лекин макетга логотип жойлаштириб бўлмайди. Логотипли код керак бўлса, уни QR генераторда яратинг ва ўз макетингизга қўйинг."
         },
         {
           "q": "Бу бепулми?",
@@ -2713,7 +2713,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "可以加上我的 logo 吗?",
-          "a": "可以 — 海报制作工具支持用你的品牌色和 logo 进行定制。"
+          "a": "暂时不行——海报制作器支持选择模板、修改标题和副标题以及设置品牌配色，但无法在版面上放置 Logo。如果需要带 Logo 的二维码，请在二维码生成器中制作，再放进你自己的版面。"
         },
         {
           "q": "是免费的吗?",
@@ -2759,7 +2759,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "क्या मैं अपना लोगो जोड़ सकता हूँ?",
-          "a": "हाँ — पोस्टर मेकर आपको अपने रंगों और लोगो के साथ ब्रांडिंग करने देता है।"
+          "a": "अभी नहीं — पोस्टर मेकर में टेम्पलेट, अपनी हेडिंग और सबहेडिंग तथा ब्रांड कलर बदले जा सकते हैं, पर डिज़ाइन पर लोगो नहीं लगाया जा सकता। लोगो वाला कोड चाहिए तो उसे QR जनरेटर में बनाएँ और अपने लेआउट में जोड़ लें।"
         },
         {
           "q": "क्या यह मुफ़्त है?",
@@ -2805,7 +2805,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "¿Puedo añadir mi logo?",
-          "a": "Sí: el creador de pósters te deja personalizarlo con tus colores y tu logo."
+          "a": "Todavía no: el creador de pósters permite elegir plantilla, cambiar el titular y el subtítulo y ajustar tu color de marca, pero no colocar un logotipo en el diseño. Si necesitas un código con logotipo, créalo en el generador de QR y añádelo a tu propia maquetación."
         },
         {
           "q": "¿Es gratis?",
@@ -2851,7 +2851,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "هل يمكنني إضافة شعاري؟",
-          "a": "نعم — يتيح لك منشئ الملصقات تخصيصه بألوان علامتك التجارية وشعارك."
+          "a": "ليس بعد — يتيح صانع الملصقات اختيار قالب وتعديل العنوان والعنوان الفرعي وضبط لون علامتك التجارية، لكنه لا يضع شعارًا على التصميم. إن أردت رمزًا يحمل شعارك، فأنشئه في مولّد رموز QR ثم أدرجه في تصميمك الخاص."
         },
         {
           "q": "هل هو مجاني؟",
@@ -2897,7 +2897,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Puis-je ajouter mon logo ?",
-          "a": "Oui — le créateur d'affiches vous permet de la personnaliser avec vos couleurs et votre logo."
+          "a": "Pas encore : le créateur d'affiches permet de choisir un modèle, de modifier le titre et le sous-titre et d'ajuster votre couleur de marque, mais pas d'ajouter un logo à la mise en page. Si vous voulez un code avec logo, générez-le dans le générateur de QR et intégrez-le à votre propre maquette."
         },
         {
           "q": "Est-ce gratuit ?",
@@ -2943,7 +2943,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Posso adicionar meu logo?",
-          "a": "Sim — o criador de pôsteres permite personalizar com suas cores e seu logo."
+          "a": "Ainda não: o criador de pôsteres permite escolher o modelo, mudar o título e o subtítulo e ajustar a cor da sua marca, mas não colocar um logotipo na arte. Se precisar de um código com logotipo, gere-o no gerador de QR e insira no seu próprio layout."
         },
         {
           "q": "É grátis?",
@@ -2989,7 +2989,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Bisakah saya menambahkan logo?",
-          "a": "Bisa — pembuat poster memungkinkan Anda memberi merek dengan warna dan logo sendiri."
+          "a": "Belum — pembuat poster bisa mengganti template, judul dan subjudul, serta warna merek Anda, tetapi belum bisa menaruh logo di desainnya. Kalau butuh kode ber-logo, buat di generator QR lalu tempatkan pada layout Anda sendiri."
         },
         {
           "q": "Apakah gratis?",
@@ -3035,7 +3035,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Kann ich mein Logo hinzufügen?",
-          "a": "Ja — im Poster-Maker kannst du es mit deinen Farben und deinem Logo branden."
+          "a": "Noch nicht — im Poster-Generator lassen sich Vorlage, Überschrift und Unterzeile sowie die Markenfarbe ändern, ein Logo im Layout ist aber nicht möglich. Wenn Sie einen Code mit Logo brauchen, erzeugen Sie ihn im QR-Generator und setzen ihn in Ihr eigenes Layout ein."
         },
         {
           "q": "Ist es kostenlos?",
@@ -3081,7 +3081,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "ロゴを追加できますか?",
-          "a": "はい — ポスターメーカーでブランドカラーとロゴを使って自由にデザインできます。"
+          "a": "まだ対応していません——ポスターメーカーではテンプレート、見出しとサブ見出し、ブランドカラーを変更できますが、レイアウトにロゴを配置することはできません。ロゴ入りのコードが必要な場合は、QR ジェネレーターで作成してご自身のレイアウトに配置してください。"
         },
         {
           "q": "無料ですか?",
@@ -3127,7 +3127,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Logomu ekleyebilir miyim?",
-          "a": "Evet — poster oluşturucu, kendi renkleriniz ve logonuzla markalamanıza olanak tanır."
+          "a": "Henüz değil — poster oluşturucuda şablonu, başlığı ve alt başlığı ve marka rengini değiştirebilirsiniz, ancak tasarıma logo ekleyemezsiniz. Logolu bir kod gerekiyorsa QR oluşturucuda hazırlayıp kendi tasarımınıza yerleştirin."
         },
         {
           "q": "Ücretsiz mi?",
@@ -3173,7 +3173,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "کیا میں اپنا لوگو شامل کر سکتا ہوں؟",
-          "a": "جی ہاں — پوسٹر میکر آپ کو اپنے رنگوں اور لوگو کے ساتھ برانڈنگ کرنے دیتا ہے۔"
+          "a": "ابھی نہیں — پوسٹر میکر میں ٹیمپلیٹ، اپنی سرخی اور ذیلی سرخی اور برانڈ کا رنگ بدلا جا سکتا ہے، مگر ڈیزائن پر لوگو نہیں لگایا جا سکتا۔ اگر لوگو والا کوڈ چاہیے تو اسے QR جنریٹر میں بنائیں اور اپنے لے آؤٹ میں شامل کر لیں۔"
         },
         {
           "q": "کیا یہ مفت ہے؟",
@@ -3219,7 +3219,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "আমি কি আমার লোগো যোগ করতে পারি?",
-          "a": "হ্যাঁ — পোস্টার মেকার আপনাকে নিজের রং ও লোগো দিয়ে ব্র্যান্ডিং করতে দেয়।"
+          "a": "এখনও নয় — পোস্টার মেকারে টেমপ্লেট, নিজের শিরোনাম ও উপ-শিরোনাম এবং ব্র্যান্ড রং বদলানো যায়, তবে ডিজাইনে লোগো বসানো যায় না। লোগোসহ কোড দরকার হলে সেটি QR জেনারেটরে তৈরি করে নিজের লেআউটে বসিয়ে নিন।"
         },
         {
           "q": "এটি কি বিনামূল্যে?",
