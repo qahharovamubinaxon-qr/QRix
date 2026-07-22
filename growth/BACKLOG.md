@@ -7,7 +7,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
   browser, same pattern as @imgly for the background remover) or rename it.
   Owner decision: renaming costs the "улучшить фото ии" keyword.
-- [ ] Audit usecase-content.i18n.ts (9,228 lines) — the one localized surface
+- [~] Audit usecase-content.i18n.ts (9,228 lines) — the one localized surface
   M120 only spot-checked. Sampled claims held up (QR "без ограничений" is true,
   the WhatsApp video-compress page's on-device claim matches the Mediabunny
   engine), but it is the largest programmatic copy file in the repo.
