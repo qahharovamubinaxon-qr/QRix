@@ -5176,18 +5176,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
   "compress-pdf-for-email": {
     "ru": {
       "title": "Сжать PDF для отправки по почте — уложитесь в лимит размера",
-      "metaDescription": "Уменьшите слишком большой для почты PDF. Сократите размер файла, не разбивая его на части — без регистрации, без водяных знаков, файл нигде не сохраняется.",
-      "intro": "Если PDF слишком большой для отправки по почте, сжатие уменьшает его размер, сохраняя читаемость. QRix пережимает изображения внутри документа — именно они обычно занимают основную часть объёма.",
+      "metaDescription": "Уменьшите слишком большой PDF для отправки по почте. Сжатие в браузере — без загрузки на сервер и водяных знаков. Бесплатно и приватно.",
+      "intro": "Если PDF слишком большой для отправки по почте, сжатие уменьшает его размер, сохраняя читаемость. QRix делает это прямо в браузере, поэтому документ не покидает ваше устройство.",
       "benefits": [
-        "Уложите пограничное вложение в лимит 25 МБ в Gmail и Outlook, не разбивая его на части.",
-        "Обработка идёт по защищённому соединению, файл не записывается на диск и удаляется сразу после того, как вы получили результат.",
+        "Уложитесь в лимит 25 МБ в Gmail и Outlook, не разбивая файл на части.",
+        "Работает на вашем устройстве — конфиденциальные документы никуда не загружаются.",
         "Текст остаётся чётким и читаемым при гораздо меньшем размере.",
         "Бесплатно, без ограничений и водяных знаков."
       ],
       "steps": [
         {
           "title": "Загрузите PDF",
-          "desc": "Файл отправляется по HTTPS для сжатия и нигде не сохраняется."
+          "desc": "Файл открывается локально — ничего не отправляется на сервер."
         },
         {
           "title": "Выберите уровень качества",
@@ -5201,7 +5201,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "Загружается ли мой документ на сервер?",
-          "a": "Да — в отличие от наших браузерных инструментов, сжатие PDF выполняется на сервере, потому что оно заново кодирует встроенные изображения. Файл хранится только в оперативной памяти, не записывается на диск и удаляется сразу после отправки результата. Если документ лучше вообще никуда не отправлять, инструмент заполнения и подписи работает полностью в браузере."
+          "a": "Нет — сжатие происходит полностью в браузере, поэтому файл остаётся приватным."
         },
         {
           "q": "Останется ли текст читаемым?",
@@ -5209,7 +5209,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Есть ли ограничение на размер файла?",
-          "a": "Да — загрузка ограничена примерно 4 МБ, чего хватает для большинства документов с текстом и картинками. Если файл больше, разделите его на части, сожмите каждую и снова объедините."
+          "a": "Только память вашего устройства; обычные документы сжимаются без проблем."
         }
       ],
       "keywords": [
@@ -5222,18 +5222,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "uz": {
       "title": "PDF ни почта учун сиқиш — ҳажм чегарасига мослашинг",
-      "metaDescription": "Почта учун жуда катта PDF ни кичрайтиринг. Файлни бўлакларга ажратмасдан ҳажмини камайтиринг — рўйхатдан ўтишсиз, сув белгисисиз, файл сақланмайди.",
-      "intro": "PDF почта орқали юбориш учун жуда катта бўлса, сиқиш уни ўқилиши мумкин ҳолда сақлаб, ҳажмини камайтиради. QRix ҳужжат ичидаги расмларни қайта кодлайди — одатда ҳажмнинг асосий қисми айнан уларга тўғри келади.",
+      "metaDescription": "Почта орқали юбориш учун жуда катта PDF ни кичрайтиринг. Файл ҳажмини браузерда сиқинг — серверга юкламасдан, сув белгисисиз. Бепул ва махфий.",
+      "intro": "PDF почта орқали юбориш учун жуда катта бўлса, сиқиш уни ўқилиши мумкин ҳолда сақлаб, ҳажмини камайтиради. QRix буни браузерингизда бажаради, шунинг учун ҳужжат қурилмангиздан чиқмайди.",
       "benefits": [
-        "Чегарага яқин иловани Gmail ва Outlook'нинг 25 МБ лимитига бўлакларга ажратмасдан сиғдиринг.",
-        "Ҳимояланган уланиш орқали қайта ишланади, дискка ёзилмайди ва натижа юборилиши билан ўчирилади.",
+        "Файлни бўлакларга бўлмасдан Gmail ва Outlook нинг 25 МБ чегарасига мослашинг.",
+        "Қурилмангизда ишлайди — махфий ҳужжатлар ҳеч қаерга юкланмайди.",
         "Матн анча кичик ҳажмда ҳам аниқ ва ўқилиши осон қолади.",
         "Бепул, чекловсиз ва сув белгисисиз."
       ],
       "steps": [
         {
           "title": "PDF ни ташланг",
-          "desc": "Файл сиқиш учун HTTPS орқали юборилади ва сақланмайди."
+          "desc": "У локал очилади — ҳеч нарса серверга юкланмайди."
         },
         {
           "title": "Сифат даражасини танланг",
@@ -5247,7 +5247,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "Ҳужжатим серверга юкланадими?",
-          "a": "Ҳа — браузерда ишлайдиган бошқа воситаларимиздан фарқли ўлароқ, PDF сиқиш серверда бажарилади, чунки у ичкаридаги расмларни қайта кодлайди. Файл фақат оператив хотирада сақланади, дискка ёзилмайди ва натижа юборилгач дарҳол ўчирилади. Ҳужжатни умуман ҳеч қаерга юбормаслик учун тўлдириш ва имзолаш воситаси тўлиқ браузерда ишлайди."
+          "a": "Йўқ — сиқиш тўлиқ браузерингизда амалга ошади, шунинг учун файл махфий қолади."
         },
         {
           "q": "Матн ўқилиши мумкин бўлиб қоладими?",
@@ -5255,7 +5255,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Файл ҳажмига чеклов борми?",
-          "a": "Ҳа — юклаш тахминан 4 МБ билан чегараланган, бу матн ва расмли кўпчилик ҳужжатлар учун етарли. Файл каттароқ бўлса, уни бўлакларга ажратинг, ҳар бирини сиқинг ва қайта бирлаштиринг."
+          "a": "Фақат қурилмангиз хотираси; одатдаги ҳужжатлар бемалол сиқилади."
         }
       ],
       "keywords": [
@@ -5268,18 +5268,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "zh": {
       "title": "压缩 PDF 以便发送邮件 — 轻松低于大小限制",
-      "metaDescription": "PDF 太大发不了邮件？无需拆分即可减小文件体积——免注册、无水印，文件不会被保存。",
-      "intro": "当 PDF 太大无法通过邮件发送时，压缩可以在保持清晰可读的同时减小体积。QRix 会重新压缩文档内嵌的图片，那通常正是体积的主要来源。",
+      "metaDescription": "PDF 太大发不了邮件？在浏览器里压缩、减小文件体积——无需上传，无水印，免费又私密。",
+      "intro": "当 PDF 太大无法通过邮件发送时，压缩可以在保持清晰可读的同时减小文件体积。QRix 直接在你的浏览器中完成，文档始终不会离开你的设备。",
       "benefits": [
-        "让体积接近上限的附件顺利满足 Gmail 和 Outlook 的 25 MB 限制，无需拆分文件。",
-        "通过加密连接处理，不写入磁盘——文件在你下载完成的那一刻即被丢弃。",
+        "无需拆分文件，即可轻松低于 Gmail/Outlook 的 25 MB 上限。",
+        "在你的设备本地运行——敏感文档绝不上传。",
         "体积大幅缩小，文字依然清晰易读。",
         "免费、无限次，且不含水印。"
       ],
       "steps": [
         {
           "title": "拖入你的 PDF",
-          "desc": "文件通过 HTTPS 发送以进行压缩，不会被保存。"
+          "desc": "文件在本地打开——不会上传任何内容。"
         },
         {
           "title": "选择压缩质量",
@@ -5293,7 +5293,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "我的文档会上传到服务器吗？",
-          "a": "会——与我们在浏览器中运行的工具不同，PDF 压缩在服务器上进行，因为它需要重新编码内嵌的图片。文件仅保存在内存中，不写入磁盘，压缩结果发回后立即丢弃。如果你希望文档完全不外传，填写与签名工具是完全在浏览器中运行的。"
+          "a": "不会——压缩完全在你的浏览器中进行，文件始终保持私密。"
         },
         {
           "q": "压缩后文字还清晰吗？",
@@ -5301,7 +5301,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "有文件大小限制吗？",
-          "a": "有——上传上限约为 4 MB，足以覆盖大多数图文文档。如果文件更大，请先拆分，分别压缩后再合并。"
+          "a": "仅受你设备内存限制；常见文档都能轻松压缩。"
         }
       ],
       "keywords": [
@@ -5314,18 +5314,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "hi": {
       "title": "ईमेल के लिए PDF कंप्रेस करें — साइज़ लिमिट के अंदर लाएँ",
-      "metaDescription": "ईमेल के लिए बहुत बड़ी PDF को छोटा करें। फ़ाइल को बाँटे बिना साइज़ घटाएँ — बिना साइनअप, बिना वॉटरमार्क, और फ़ाइल कहीं सेव नहीं होती।",
-      "intro": "जब कोई PDF ईमेल करने के लिए बहुत बड़ी हो, तो कंप्रेस करने से साइज़ घट जाता है और वह पढ़ने लायक भी रहती है। QRix दस्तावेज़ के अंदर मौजूद तस्वीरों को दोबारा कंप्रेस करता है — आमतौर पर वज़न का बड़ा हिस्सा वहीं होता है।",
+      "metaDescription": "ईमेल के लिए बहुत बड़ी PDF को छोटा करें। ब्राउज़र में ही फ़ाइल साइज़ घटाएँ — कोई अपलोड नहीं, कोई वॉटरमार्क नहीं। फ्री और प्राइवेट।",
+      "intro": "जब कोई PDF ईमेल करने के लिए बहुत बड़ी हो, तो उसे कंप्रेस करने से फ़ाइल का साइज़ घट जाता है और वह पढ़ने लायक भी रहती है। QRix यह काम आपके ब्राउज़र में ही करता है, इसलिए दस्तावेज़ कभी आपके डिवाइस से बाहर नहीं जाता।",
       "benefits": [
-        "सीमा के करीब वाले अटैचमेंट को बिना बाँटे Gmail/Outlook की 25 MB सीमा के भीतर लाएँ।",
-        "एन्क्रिप्टेड कनेक्शन पर प्रोसेस होती है और डिस्क पर कभी नहीं लिखी जाती — डाउनलोड भेजते ही फ़ाइल हटा दी जाती है।",
+        "फ़ाइल को बाँटे बिना ही Gmail/Outlook की 25 MB लिमिट के अंदर लाएँ।",
+        "आपके डिवाइस पर ही चलता है — संवेदनशील दस्तावेज़ कभी अपलोड नहीं होते।",
         "काफ़ी छोटे साइज़ पर भी टेक्स्ट साफ़ और पढ़ने लायक रहता है।",
         "फ्री, अनलिमिटेड और वॉटरमार्क-फ्री।"
       ],
       "steps": [
         {
           "title": "अपनी PDF ड्रॉप करें",
-          "desc": "यह कंप्रेशन के लिए HTTPS से भेजी जाती है और कहीं सेव नहीं होती।"
+          "desc": "यह लोकल रूप से खुलती है — कुछ भी अपलोड नहीं होता।"
         },
         {
           "title": "क्वालिटी लेवल चुनें",
@@ -5339,7 +5339,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "क्या मेरा दस्तावेज़ किसी सर्वर पर अपलोड होता है?",
-          "a": "हाँ — हमारे ब्राउज़र-आधारित टूल्स के विपरीत, PDF कंप्रेशन हमारे सर्वर पर चलता है, क्योंकि इसमें अंदर की तस्वीरें दोबारा एन्कोड होती हैं। फ़ाइल सिर्फ़ मेमोरी में रहती है, डिस्क पर नहीं लिखी जाती, और नतीजा वापस भेजते ही हटा दी जाती है। जिन दस्तावेज़ों को आप कहीं भेजना ही नहीं चाहते, उनके लिए फ़िल-एंड-साइन टूल पूरी तरह आपके ब्राउज़र में चलता है।"
+          "a": "नहीं — कंप्रेशन पूरी तरह आपके ब्राउज़र में होता है, इसलिए फ़ाइल प्राइवेट रहती है।"
         },
         {
           "q": "क्या टेक्स्ट पढ़ने लायक रहेगा?",
@@ -5347,7 +5347,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "क्या कोई फ़ाइल लिमिट है?",
-          "a": "हाँ — अपलोड की सीमा लगभग 4 MB है, जो टेक्स्ट और तस्वीरों वाले ज़्यादातर दस्तावेज़ों के लिए काफ़ी है। इससे बड़ी फ़ाइल हो तो उसे हिस्सों में बाँटें, हर हिस्से को कंप्रेस करें और फिर जोड़ दें।"
+          "a": "सिर्फ़ आपके डिवाइस की मेमोरी; आम दस्तावेज़ आसानी से कंप्रेस हो जाते हैं।"
         }
       ],
       "keywords": [
@@ -5360,18 +5360,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "es": {
       "title": "Comprime un PDF para enviarlo por correo — sin superar el límite",
-      "metaDescription": "¿Un PDF demasiado grande para tu correo? Reduce su tamaño sin dividirlo: sin registro, sin marca de agua y el archivo no se almacena.",
-      "intro": "Cuando un PDF es demasiado grande para enviarlo por correo, comprimirlo reduce su tamaño sin perder legibilidad. QRix vuelve a comprimir las imágenes incrustadas en el documento, que suelen ser la mayor parte del peso.",
+      "metaDescription": "¿Un PDF demasiado grande para tu correo? Reduce su tamaño en el navegador: sin subirlo, sin marca de agua. Gratis y privado.",
+      "intro": "Cuando un PDF es demasiado grande para enviarlo por correo, comprimirlo reduce su tamaño sin perder legibilidad. QRix lo hace en tu navegador, así que el documento nunca sale de tu dispositivo.",
       "benefits": [
-        "Deja un adjunto que roza el límite por debajo de los 25 MB de Gmail y Outlook, sin dividirlo.",
-        "Se procesa por una conexión cifrada y nunca se escribe en disco: el archivo se descarta en cuanto se envía tu descarga.",
+        "Baja del límite de 25 MB de Gmail/Outlook sin dividir el archivo.",
+        "Funciona en tu dispositivo: los documentos sensibles nunca se suben.",
         "Mantiene el texto nítido y legible con un tamaño mucho menor.",
         "Gratis, ilimitado y sin marca de agua."
       ],
       "steps": [
         {
           "title": "Suelta tu PDF",
-          "desc": "Se envía por HTTPS para comprimirlo y no se guarda en ningún momento."
+          "desc": "Se abre localmente: no se sube nada."
         },
         {
           "title": "Elige el nivel de calidad",
@@ -5385,7 +5385,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "¿Se sube mi documento a un servidor?",
-          "a": "Sí: a diferencia de nuestras herramientas que funcionan en el navegador, la compresión de PDF se ejecuta en nuestro servidor porque vuelve a codificar las imágenes incrustadas. El archivo solo permanece en memoria, nunca se escribe en disco y se descarta en cuanto se devuelve el resultado. Para documentos que prefieras no enviar a ningún sitio, la herramienta de rellenar y firmar funciona por completo en tu navegador."
+          "a": "No: la compresión ocurre por completo en tu navegador, así que el archivo sigue siendo privado."
         },
         {
           "q": "¿El texto seguirá siendo legible?",
@@ -5393,7 +5393,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "¿Hay un límite de tamaño?",
-          "a": "Sí: la subida está limitada a unos 4 MB, suficiente para la mayoría de documentos con texto e imágenes. Si el tuyo es mayor, divídelo en partes, comprime cada una y vuelve a unirlas."
+          "a": "Solo la memoria de tu dispositivo; los documentos habituales se comprimen sin problema."
         }
       ],
       "keywords": [
@@ -5406,18 +5406,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "ar": {
       "title": "اضغط ملف PDF لإرساله بالبريد — انزل تحت حد الحجم",
-      "metaDescription": "هل ملف PDF كبير جدًا على البريد؟ قلّل حجمه دون تقسيمه — بلا تسجيل، بلا علامة مائية، ولا يُخزَّن الملف.",
-      "intro": "عندما يكون ملف PDF أكبر من أن يُرسل بالبريد، يقلّل الضغط حجمه مع بقائه مقروءًا. يعيد QRix ضغط الصور داخل المستند، وهي عادةً مصدر معظم الحجم.",
+      "metaDescription": "ملف PDF أكبر من أن يُرسل بالبريد؟ صغّر حجمه داخل المتصفح — بدون رفع وبدون علامة مائية. مجاني وخاص.",
+      "intro": "عندما يكون ملف PDF أكبر من أن يُرسل عبر البريد، يقلّل الضغط من حجمه مع الحفاظ على وضوحه. يقوم QRix بذلك داخل متصفحك، فلا يغادر المستند جهازك أبدًا.",
       "benefits": [
-        "اجعل مرفقًا قريبًا من الحد يمر ضمن حد 25 ميغابايت في Gmail وOutlook دون تقسيمه.",
-        "تتم المعالجة عبر اتصال مشفَّر ولا يُكتب الملف على القرص — يُحذف فور إرسال التنزيل إليك.",
+        "انزل تحت حد 25 MB في Gmail/Outlook دون تقسيم الملف.",
+        "يعمل على جهازك — المستندات الحساسة لا تُرفع أبدًا.",
         "يحافظ على وضوح النص وسهولة قراءته بحجم أصغر بكثير.",
         "مجاني وغير محدود وبدون علامة مائية."
       ],
       "steps": [
         {
           "title": "أفلت ملف PDF",
-          "desc": "يُرسل عبر HTTPS للضغط ولا يُحفظ إطلاقًا."
+          "desc": "يُفتح محليًا — لا يُرفع أي شيء."
         },
         {
           "title": "اختر مستوى الجودة",
@@ -5431,7 +5431,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "هل يُرفع مستندي إلى خادم؟",
-          "a": "نعم — بخلاف أدواتنا التي تعمل داخل المتصفح، يجري ضغط PDF على خادمنا لأنه يعيد ترميز الصور المضمّنة. يبقى الملف في الذاكرة فقط، ولا يُكتب على القرص، ويُحذف فور إعادة النتيجة. أما المستندات التي تفضّل ألا ترسلها إلى أي مكان، فأداة التعبئة والتوقيع تعمل بالكامل داخل متصفحك."
+          "a": "لا — يتم الضغط بالكامل داخل متصفحك، فيبقى الملف خاصًا."
         },
         {
           "q": "هل يبقى النص واضحًا للقراءة؟",
@@ -5439,7 +5439,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "هل هناك حد لحجم الملف؟",
-          "a": "نعم — الرفع محدود بنحو 4 ميغابايت، وهو ما يكفي لمعظم المستندات النصية والمصوّرة. إن كان ملفك أكبر، فقسّمه إلى أجزاء، اضغط كل جزء، ثم ادمجها معًا."
+          "a": "فقط ذاكرة جهازك؛ والمستندات المعتادة تُضغط بسهولة."
         }
       ],
       "keywords": [
@@ -5452,18 +5452,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "fr": {
       "title": "Compresser un PDF pour l'e-mail — passez sous la limite de taille",
-      "metaDescription": "Un PDF trop lourd pour l'e-mail ? Réduisez sa taille sans le découper — sans inscription, sans filigrane, et le fichier n'est jamais conservé.",
-      "intro": "Quand un PDF est trop lourd pour être envoyé par e-mail, la compression réduit sa taille tout en le gardant lisible. QRix recompresse les images contenues dans le document, qui représentent en général l'essentiel du poids.",
+      "metaDescription": "Un PDF trop lourd pour votre e-mail ? Réduisez sa taille dans le navigateur : sans envoi, sans filigrane. Gratuit et privé.",
+      "intro": "Quand un PDF est trop lourd pour être envoyé par e-mail, le compresser réduit sa taille tout en le gardant lisible. QRix le fait dans votre navigateur, donc le document ne quitte jamais votre appareil.",
       "benefits": [
-        "Faites passer une pièce jointe limite sous la barre des 25 Mo de Gmail et Outlook, sans la découper.",
-        "Traité via une connexion chiffrée et jamais écrit sur disque : le fichier est supprimé dès que votre téléchargement est envoyé.",
+        "Passez sous la limite de 25 Mo de Gmail/Outlook sans découper le fichier.",
+        "Fonctionne sur votre appareil : les documents sensibles ne sont jamais envoyés.",
         "Garde un texte net et lisible pour une taille bien plus réduite.",
         "Gratuit, illimité et sans filigrane."
       ],
       "steps": [
         {
           "title": "Déposez votre PDF",
-          "desc": "Il est envoyé en HTTPS pour la compression et n'est jamais conservé."
+          "desc": "Il s'ouvre en local : rien n'est envoyé."
         },
         {
           "title": "Choisissez le niveau de qualité",
@@ -5477,7 +5477,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "Mon document est-il envoyé sur un serveur ?",
-          "a": "Oui — contrairement à nos outils qui tournent dans le navigateur, la compression PDF s'exécute sur notre serveur, car elle réencode les images intégrées. Le fichier reste uniquement en mémoire, n'est jamais écrit sur disque et est supprimé dès que le résultat vous est renvoyé. Pour les documents que vous préférez n'envoyer nulle part, l'outil de remplissage et signature fonctionne entièrement dans votre navigateur."
+          "a": "Non — la compression se fait entièrement dans votre navigateur, le fichier reste donc privé."
         },
         {
           "q": "Le texte restera-t-il lisible ?",
@@ -5485,7 +5485,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Y a-t-il une limite de taille ?",
-          "a": "Oui — l'envoi est limité à environ 4 Mo, ce qui suffit pour la plupart des documents texte et images. Si le vôtre est plus lourd, découpez-le, compressez chaque partie, puis fusionnez-les."
+          "a": "Seulement la mémoire de votre appareil ; les documents courants se compressent sans souci."
         }
       ],
       "keywords": [
@@ -5498,18 +5498,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "pt": {
       "title": "Comprima um PDF para e-mail — fique abaixo do limite de tamanho",
-      "metaDescription": "PDF grande demais para o e-mail? Reduza o tamanho sem dividir o arquivo — sem cadastro, sem marca d'água e o arquivo nunca é armazenado.",
-      "intro": "Quando um PDF é grande demais para enviar por e-mail, comprimir reduz o tamanho mantendo a legibilidade. O QRix recomprime as imagens dentro do documento, que costumam responder pela maior parte do peso.",
+      "metaDescription": "PDF grande demais para enviar por e-mail? Reduza o tamanho no navegador: sem upload, sem marca d'água. Grátis e privado.",
+      "intro": "Quando um PDF é grande demais para enviar por e-mail, comprimi-lo reduz o tamanho do arquivo sem perder a legibilidade. O QRix faz isso no seu navegador, então o documento nunca sai do seu dispositivo.",
       "benefits": [
-        "Faça um anexo no limite caber nos 25 MB do Gmail e do Outlook, sem dividi-lo.",
-        "Processado por conexão criptografada e nunca gravado em disco — o arquivo é descartado assim que o seu download é enviado.",
+        "Fique abaixo do limite de 25 MB do Gmail/Outlook sem dividir o arquivo.",
+        "Roda no seu dispositivo — documentos sensíveis nunca são enviados.",
         "Mantém o texto nítido e legível em um tamanho bem menor.",
         "Grátis, ilimitado e sem marca d'água."
       ],
       "steps": [
         {
           "title": "Solte seu PDF",
-          "desc": "É enviado por HTTPS para a compressão e nunca fica salvo."
+          "desc": "Ele abre localmente — nada é enviado."
         },
         {
           "title": "Escolha o nível de qualidade",
@@ -5523,7 +5523,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "Meu documento é enviado para um servidor?",
-          "a": "Sim — ao contrário das nossas ferramentas que rodam no navegador, a compressão de PDF acontece no nosso servidor, porque ela recodifica as imagens embutidas. O arquivo fica apenas na memória, nunca é gravado em disco e é descartado assim que o resultado é devolvido. Para documentos que você prefere não enviar a lugar nenhum, a ferramenta de preencher e assinar funciona inteiramente no seu navegador."
+          "a": "Não — a compressão acontece inteiramente no seu navegador, então o arquivo continua privado."
         },
         {
           "q": "O texto continuará legível?",
@@ -5531,7 +5531,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Existe limite de arquivo?",
-          "a": "Sim — o envio é limitado a cerca de 4 MB, o que cobre a maioria dos documentos com texto e imagens. Se o seu for maior, divida em partes, comprima cada uma e junte de novo."
+          "a": "Apenas a memória do seu dispositivo; documentos comuns comprimem tranquilamente."
         }
       ],
       "keywords": [
@@ -5544,18 +5544,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "id": {
       "title": "Kompres PDF untuk Email — Turun di Bawah Batas Ukuran",
-      "metaDescription": "PDF terlalu besar untuk email? Perkecil ukurannya tanpa memecah file — tanpa daftar, tanpa watermark, dan file tidak pernah disimpan.",
-      "intro": "Saat PDF terlalu besar untuk dikirim lewat email, kompresi memperkecil ukurannya tanpa mengorbankan keterbacaan. QRix mengompres ulang gambar di dalam dokumen, yang biasanya menyumbang sebagian besar ukurannya.",
+      "metaDescription": "PDF terlalu besar untuk dikirim lewat email? Perkecil ukurannya di browser: tanpa unggah, tanpa watermark. Gratis dan privat.",
+      "intro": "Saat PDF terlalu besar untuk dikirim lewat email, mengompresnya memperkecil ukuran file tanpa mengorbankan keterbacaan. QRix melakukannya di browser Anda, jadi dokumen tidak pernah keluar dari perangkat Anda.",
       "benefits": [
-        "Buat lampiran yang nyaris melebihi batas menjadi muat dalam batas 25 MB Gmail dan Outlook, tanpa memecahnya.",
-        "Diproses lewat koneksi terenkripsi dan tidak pernah ditulis ke disk — file dihapus begitu unduhan Anda dikirim.",
+        "Turun di bawah batas 25 MB Gmail/Outlook tanpa memecah file.",
+        "Berjalan di perangkat Anda — dokumen sensitif tidak pernah diunggah.",
         "Teks tetap tajam dan mudah dibaca meski ukurannya jauh lebih kecil.",
         "Gratis, tanpa batas, dan tanpa watermark."
       ],
       "steps": [
         {
           "title": "Jatuhkan PDF Anda",
-          "desc": "File dikirim lewat HTTPS untuk dikompres dan tidak pernah disimpan."
+          "desc": "File terbuka secara lokal — tidak ada yang diunggah."
         },
         {
           "title": "Pilih tingkat kualitas",
@@ -5569,7 +5569,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "Apakah dokumen saya diunggah ke server?",
-          "a": "Ya — berbeda dengan alat kami yang berjalan di browser, kompresi PDF dijalankan di server kami karena proses ini mengodekan ulang gambar di dalamnya. File hanya disimpan di memori, tidak pernah ditulis ke disk, dan dihapus begitu hasilnya dikirim balik. Untuk dokumen yang sebaiknya tidak dikirim ke mana pun, alat isi-dan-tanda-tangan berjalan sepenuhnya di browser Anda."
+          "a": "Tidak — kompresi terjadi sepenuhnya di browser Anda, jadi file tetap privat."
         },
         {
           "q": "Apakah teksnya masih bisa dibaca?",
@@ -5577,7 +5577,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Apakah ada batas ukuran file?",
-          "a": "Ya — unggahan dibatasi sekitar 4 MB, cukup untuk sebagian besar dokumen teks dan gambar. Kalau file Anda lebih besar, pecah dulu, kompres tiap bagian, lalu gabungkan kembali."
+          "a": "Hanya memori perangkat Anda; dokumen umum terkompres dengan mudah."
         }
       ],
       "keywords": [
@@ -5590,18 +5590,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "de": {
       "title": "PDF für E-Mail komprimieren — unter das Größenlimit kommen",
-      "metaDescription": "PDF zu groß für die E-Mail? Verkleinern Sie die Datei, ohne sie aufzuteilen — ohne Anmeldung, ohne Wasserzeichen, und die Datei wird nie gespeichert.",
-      "intro": "Wenn ein PDF zu groß für den Mailversand ist, verringert das Komprimieren die Dateigröße, ohne die Lesbarkeit zu opfern. QRix komprimiert die Bilder im Dokument neu — dort steckt in der Regel der größte Teil des Gewichts.",
+      "metaDescription": "PDF zu groß für die E-Mail? Verkleinere die Datei direkt im Browser: kein Upload, kein Wasserzeichen. Kostenlos und privat.",
+      "intro": "Wenn ein PDF zu groß für den E-Mail-Versand ist, verringert das Komprimieren die Dateigröße, ohne die Lesbarkeit zu beeinträchtigen. QRix erledigt das in deinem Browser, sodass das Dokument dein Gerät nie verlässt.",
       "benefits": [
-        "Bringen Sie einen grenzwertigen Anhang unter das 25-MB-Limit von Gmail und Outlook, ohne ihn aufzuteilen.",
-        "Verarbeitung über eine verschlüsselte Verbindung, ohne je auf die Festplatte geschrieben zu werden — die Datei wird verworfen, sobald Ihr Download rausgeht.",
+        "Komm unter das 25-MB-Limit von Gmail/Outlook, ohne die Datei zu teilen.",
+        "Läuft auf deinem Gerät — vertrauliche Dokumente werden nie hochgeladen.",
         "Hält den Text scharf und lesbar bei deutlich kleinerer Größe.",
         "Kostenlos, unbegrenzt und ohne Wasserzeichen."
       ],
       "steps": [
         {
           "title": "PDF ablegen",
-          "desc": "Sie wird zum Komprimieren per HTTPS übertragen und nirgends gespeichert."
+          "desc": "Sie öffnet sich lokal — nichts wird hochgeladen."
         },
         {
           "title": "Qualitätsstufe wählen",
@@ -5615,7 +5615,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "Wird mein Dokument auf einen Server hochgeladen?",
-          "a": "Ja — anders als unsere Werkzeuge, die im Browser laufen, findet die PDF-Komprimierung auf unserem Server statt, weil dabei die eingebetteten Bilder neu codiert werden. Die Datei bleibt nur im Arbeitsspeicher, wird nie auf die Festplatte geschrieben und verworfen, sobald das Ergebnis zurückgeschickt ist. Für Dokumente, die Sie lieber gar nicht verschicken, läuft das Ausfüllen-und-Signieren-Werkzeug vollständig in Ihrem Browser."
+          "a": "Nein — die Komprimierung läuft vollständig in deinem Browser, die Datei bleibt also privat."
         },
         {
           "q": "Bleibt der Text lesbar?",
@@ -5623,7 +5623,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Gibt es ein Dateilimit?",
-          "a": "Ja — der Upload ist auf rund 4 MB begrenzt, was für die meisten Text- und Bilddokumente reicht. Ist Ihre Datei größer, teilen Sie sie auf, komprimieren Sie jeden Teil und fügen Sie sie wieder zusammen."
+          "a": "Nur der Speicher deines Geräts; übliche Dokumente lassen sich problemlos komprimieren."
         }
       ],
       "keywords": [
@@ -5636,18 +5636,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "ja": {
       "title": "メール用にPDFを圧縮 — 容量制限をラクにクリア",
-      "metaDescription": "PDF が大きすぎてメールで送れない？ファイルを分割せずにサイズを削減——登録不要、透かしなし、ファイルは保存されません。",
-      "intro": "PDF がメールで送るには大きすぎるとき、圧縮すれば読みやすさを保ったままサイズを小さくできます。QRix は文書内に埋め込まれた画像を再圧縮します。容量の大部分は通常そこにあります。",
+      "metaDescription": "PDFが大きすぎてメールで送れない？アップロードもウォーターマークもなし、ブラウザ内でファイルサイズを削減。無料でプライベート。",
+      "intro": "PDFが大きすぎてメールで送れないときは、圧縮すれば読みやすさを保ったままファイルサイズを小さくできます。QRixはブラウザ内で処理するので、書類が端末から外に出ることはありません。",
       "benefits": [
-        "上限ぎりぎりの添付ファイルを、分割せずに Gmail や Outlook の 25 MB 制限に収めます。",
-        "暗号化された通信で処理し、ディスクには一切書き込みません。ダウンロードを送った時点でファイルは破棄されます。",
+        "ファイルを分割せずに、Gmail／Outlookの25MB制限をクリアできます。",
+        "端末上で動作 — 機密書類が外部にアップロードされることはありません。",
         "サイズを大幅に抑えても、文字はくっきり読みやすいまま。",
         "無料・無制限・ウォーターマークなし。"
       ],
       "steps": [
         {
           "title": "PDFをドロップ",
-          "desc": "圧縮のため HTTPS で送信され、保存されることはありません。"
+          "desc": "ローカルで開きます — 何もアップロードされません。"
         },
         {
           "title": "画質レベルを選ぶ",
@@ -5661,7 +5661,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "書類はサーバーにアップロードされますか？",
-          "a": "はい——ブラウザ内で完結する他のツールとは異なり、PDF 圧縮は埋め込み画像を再エンコードするためサーバー上で実行されます。ファイルはメモリ上にのみ保持され、ディスクには書き込まれず、結果を返した時点で破棄されます。どこにも送りたくない文書には、ブラウザ内で完結する入力・署名ツールをお使いください。"
+          "a": "いいえ — 圧縮はすべてブラウザ内で行われるため、ファイルは非公開のままです。"
         },
         {
           "q": "圧縮後も文字は読めますか？",
@@ -5669,7 +5669,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "ファイルサイズの上限はありますか？",
-          "a": "はい——アップロードは約 4 MB までです。テキストと画像の一般的な文書ならこれで足ります。それより大きい場合は分割し、それぞれを圧縮してから結合してください。"
+          "a": "端末のメモリだけが上限です。一般的な書類なら余裕で圧縮できます。"
         }
       ],
       "keywords": [
@@ -5682,18 +5682,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "tr": {
       "title": "E-posta için PDF Sıkıştır — Boyut Sınırının Altına İn",
-      "metaDescription": "PDF e-postaya sığmayacak kadar büyük mü? Dosyayı bölmeden boyutunu küçültün — kayıt yok, filigran yok ve dosya hiçbir zaman saklanmaz.",
-      "intro": "Bir PDF e-postayla gönderilemeyecek kadar büyük olduğunda, sıkıştırmak okunabilirliği koruyarak boyutu küçültür. QRix belgenin içindeki görselleri yeniden sıkıştırır; ağırlığın büyük kısmı genellikle oradadır.",
+      "metaDescription": "PDF e-postayla göndermek için çok mu büyük? Dosya boyutunu tarayıcıda küçült: yükleme yok, filigran yok. Ücretsiz ve gizli.",
+      "intro": "Bir PDF e-postayla gönderilemeyecek kadar büyük olduğunda, sıkıştırmak okunabilirliği koruyarak dosya boyutunu küçültür. QRix bunu tarayıcınızda yapar, böylece belge cihazınızdan hiç çıkmaz.",
       "benefits": [
-        "Sınırda kalan bir eki bölmeden Gmail ve Outlook'un 25 MB sınırının altına indirin.",
-        "Şifreli bağlantı üzerinden işlenir ve diske hiç yazılmaz — indirmeniz gönderilir gönderilmez dosya silinir.",
+        "Dosyayı bölmeden Gmail/Outlook'un 25 MB sınırının altına inin.",
+        "Cihazınızda çalışır — hassas belgeler asla yüklenmez.",
         "Çok daha küçük boyutta bile metni net ve okunabilir tutar.",
         "Ücretsiz, sınırsız ve filigransız."
       ],
       "steps": [
         {
           "title": "PDF'nizi bırakın",
-          "desc": "Sıkıştırma için HTTPS ile gönderilir ve hiçbir yerde saklanmaz."
+          "desc": "Yerel olarak açılır — hiçbir şey yüklenmez."
         },
         {
           "title": "Bir kalite seviyesi seçin",
@@ -5707,7 +5707,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "Belgem bir sunucuya yükleniyor mu?",
-          "a": "Evet — tarayıcıda çalışan diğer araçlarımızın aksine, PDF sıkıştırma gömülü görselleri yeniden kodladığı için sunucumuzda çalışır. Dosya yalnızca bellekte tutulur, diske yazılmaz ve sonuç geri gönderilir gönderilmez silinir. Hiçbir yere göndermek istemediğiniz belgeler için doldur-ve-imzala aracı tamamen tarayıcınızda çalışır."
+          "a": "Hayır — sıkıştırma tamamen tarayıcınızda gerçekleşir, böylece dosya gizli kalır."
         },
         {
           "q": "Metin yine de okunabilir olacak mı?",
@@ -5715,7 +5715,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "Dosya sınırı var mı?",
-          "a": "Evet — yükleme yaklaşık 4 MB ile sınırlıdır; bu, metin ve görsel içeren belgelerin çoğu için yeterlidir. Dosyanız daha büyükse parçalara bölün, her birini sıkıştırın ve sonra birleştirin."
+          "a": "Yalnızca cihazınızın belleği; sıradan belgeler rahatça sıkışır."
         }
       ],
       "keywords": [
@@ -5728,18 +5728,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "ur": {
       "title": "ای میل کے لیے PDF کمپریس کریں — سائز کی حد سے نیچے آئیں",
-      "metaDescription": "کیا PDF ای میل کے لیے بہت بڑی ہے؟ فائل کو تقسیم کیے بغیر اس کا حجم کم کریں — بغیر سائن اپ، بغیر واٹر مارک، اور فائل کہیں محفوظ نہیں ہوتی۔",
-      "intro": "جب PDF ای میل کرنے کے لیے بہت بڑی ہو تو کمپریس کرنے سے اس کا حجم کم ہو جاتا ہے اور وہ پڑھنے کے قابل بھی رہتی ہے۔ QRix دستاویز کے اندر موجود تصاویر کو دوبارہ کمپریس کرتا ہے، عام طور پر وزن کا بڑا حصہ وہیں ہوتا ہے۔",
+      "metaDescription": "PDF ای میل کے لیے بہت بڑی ہے؟ فائل کا سائز براؤزر ہی میں کم کریں — نہ اپلوڈ، نہ واٹر مارک۔ مفت اور نجی۔",
+      "intro": "جب کوئی PDF ای میل کرنے کے لیے بہت بڑی ہو تو اسے کمپریس کرنے سے فائل کا سائز کم ہو جاتا ہے اور وہ پڑھنے کے قابل بھی رہتی ہے۔ QRix یہ کام آپ کے براؤزر ہی میں کرتا ہے، اس لیے دستاویز کبھی آپ کے ڈیوائس سے باہر نہیں جاتی۔",
       "benefits": [
-        "حد کے قریب پہنچی ہوئی اٹیچمنٹ کو تقسیم کیے بغیر Gmail اور Outlook کی 25 MB کی حد میں لے آئیں۔",
-        "خفیہ کردہ کنکشن پر پروسیس ہوتی ہے اور ڈسک پر کبھی نہیں لکھی جاتی — آپ کا ڈاؤن لوڈ بھیجتے ہی فائل ختم کر دی جاتی ہے۔",
+        "فائل کو تقسیم کیے بغیر Gmail/Outlook کی 25 MB کی حد سے نیچے آ جائیں۔",
+        "آپ کے ڈیوائس پر چلتا ہے — حساس دستاویزات کبھی اپلوڈ نہیں ہوتیں۔",
         "بہت چھوٹے سائز پر بھی متن واضح اور پڑھنے کے قابل رہتا ہے۔",
         "مفت، لامحدود اور واٹر مارک کے بغیر۔"
       ],
       "steps": [
         {
           "title": "اپنی PDF ڈراپ کریں",
-          "desc": "یہ کمپریشن کے لیے HTTPS پر بھیجی جاتی ہے اور کہیں محفوظ نہیں ہوتی۔"
+          "desc": "یہ مقامی طور پر کھلتی ہے — کچھ بھی اپلوڈ نہیں ہوتا۔"
         },
         {
           "title": "کوالٹی کی سطح منتخب کریں",
@@ -5753,7 +5753,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "کیا میری دستاویز کسی سرور پر اپلوڈ ہوتی ہے؟",
-          "a": "جی ہاں — براؤزر میں چلنے والے ہمارے دیگر ٹولز کے برعکس، PDF کمپریشن ہمارے سرور پر چلتا ہے کیونکہ اس میں اندر موجود تصاویر دوبارہ انکوڈ ہوتی ہیں۔ فائل صرف میموری میں رہتی ہے، ڈسک پر نہیں لکھی جاتی، اور نتیجہ واپس بھیجتے ہی ختم کر دی جاتی ہے۔ جن دستاویزات کو آپ کہیں بھیجنا ہی نہیں چاہتے، ان کے لیے فل اینڈ سائن ٹول مکمل طور پر آپ کے براؤزر میں چلتا ہے۔"
+          "a": "نہیں — کمپریشن مکمل طور پر آپ کے براؤزر میں ہوتا ہے، اس لیے فائل نجی رہتی ہے۔"
         },
         {
           "q": "کیا متن پھر بھی پڑھنے کے قابل رہے گا؟",
@@ -5761,7 +5761,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "کیا فائل کی کوئی حد ہے؟",
-          "a": "جی ہاں — اپ لوڈ کی حد تقریباً 4 MB ہے، جو متن اور تصاویر والی زیادہ تر دستاویزات کے لیے کافی ہے۔ اگر آپ کی فائل اس سے بڑی ہے تو اسے حصوں میں تقسیم کریں، ہر حصہ کمپریس کریں اور پھر جوڑ دیں۔"
+          "a": "صرف آپ کے ڈیوائس کی میموری؛ عام دستاویزات آسانی سے کمپریس ہو جاتی ہیں۔"
         }
       ],
       "keywords": [
@@ -5774,18 +5774,18 @@ export const USE_CASE_I18N: UseCaseI18n = {
     },
     "bn": {
       "title": "ইমেইলের জন্য PDF কমপ্রেস করুন — সাইজ লিমিটের নিচে নামুন",
-      "metaDescription": "PDF ইমেলের জন্য খুব বড়? ফাইল ভাগ না করেই আকার কমান — সাইনআপ ছাড়াই, ওয়াটারমার্ক ছাড়াই, আর ফাইল কোথাও জমা রাখা হয় না।",
-      "intro": "যখন কোনো PDF ইমেল করার পক্ষে খুব বড় হয়, কম্প্রেস করলে পড়ার সুবিধা বজায় রেখেই আকার কমে যায়। QRix নথির ভেতরের ছবিগুলো নতুন করে কম্প্রেস করে — সাধারণত আকারের বড় অংশ সেখানেই থাকে।",
+      "metaDescription": "PDF ইমেইল করার জন্য অনেক বড়? ব্রাউজারেই ফাইলের সাইজ কমান — কোনো আপলোড নেই, কোনো ওয়াটারমার্ক নেই। ফ্রি ও প্রাইভেট।",
+      "intro": "কোনো PDF ইমেইল করার জন্য অনেক বড় হলে, কমপ্রেস করলে পড়ার উপযোগী রেখেই ফাইলের সাইজ কমে যায়। QRix এটি আপনার ব্রাউজারেই করে, তাই নথি কখনো আপনার ডিভাইস থেকে বের হয় না।",
       "benefits": [
-        "সীমার কাছাকাছি থাকা অ্যাটাচমেন্টকে ভাগ না করেই Gmail ও Outlook-এর 25 MB সীমার মধ্যে আনুন।",
-        "এনক্রিপ্ট করা সংযোগে প্রক্রিয়া করা হয় এবং কখনও ডিস্কে লেখা হয় না — আপনার ডাউনলোড পাঠানোর সঙ্গে সঙ্গেই ফাইলটি মুছে ফেলা হয়।",
+        "ফাইল ভাগ না করেই Gmail/Outlook-এর 25 MB সীমার নিচে নামুন।",
+        "আপনার ডিভাইসে চলে — সংবেদনশীল নথি কখনো আপলোড হয় না।",
         "অনেক ছোট সাইজেও লেখা পরিষ্কার ও পড়ার উপযোগী থাকে।",
         "ফ্রি, আনলিমিটেড এবং ওয়াটারমার্ক ছাড়া।"
       ],
       "steps": [
         {
           "title": "আপনার PDF ড্রপ করুন",
-          "desc": "কম্প্রেশনের জন্য এটি HTTPS-এ পাঠানো হয় এবং কোথাও সংরক্ষণ করা হয় না।"
+          "desc": "এটি লোকালি খোলে — কিছুই আপলোড হয় না।"
         },
         {
           "title": "কোয়ালিটি লেভেল বেছে নিন",
@@ -5799,7 +5799,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
       "faqs": [
         {
           "q": "আমার নথি কি কোনো সার্ভারে আপলোড হয়?",
-          "a": "হ্যাঁ — ব্রাউজারে চলা আমাদের অন্য টুলগুলোর বিপরীতে, PDF কম্প্রেশন আমাদের সার্ভারে চলে, কারণ এতে ভেতরের ছবিগুলো নতুন করে এনকোড করতে হয়। ফাইলটি কেবল মেমোরিতে থাকে, ডিস্কে লেখা হয় না, এবং ফলাফল ফেরত পাঠানোর সঙ্গে সঙ্গেই মুছে ফেলা হয়। যে নথি আপনি কোথাও পাঠাতেই চান না, তার জন্য ফিল-অ্যান্ড-সাইন টুল পুরোপুরি আপনার ব্রাউজারে চলে।"
+          "a": "না — কমপ্রেশন পুরোপুরি আপনার ব্রাউজারে হয়, তাই ফাইল প্রাইভেট থাকে।"
         },
         {
           "q": "লেখা কি পড়ার উপযোগী থাকবে?",
@@ -5807,7 +5807,7 @@ export const USE_CASE_I18N: UseCaseI18n = {
         },
         {
           "q": "ফাইলের কোনো সীমা আছে কি?",
-          "a": "হ্যাঁ — আপলোডের সীমা প্রায় 4 MB, যা লেখা ও ছবিসহ বেশিরভাগ নথির জন্য যথেষ্ট। আপনার ফাইল বড় হলে সেটিকে ভাগ করুন, প্রতিটি অংশ কম্প্রেস করুন, তারপর আবার জুড়ে দিন।"
+          "a": "শুধু আপনার ডিভাইসের মেমরি; সাধারণ নথি সহজেই কমপ্রেস হয়।"
         }
       ],
       "keywords": [
