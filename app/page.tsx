@@ -872,7 +872,7 @@ export default function HomePage() {
             <h3 className="qx-foot-h">{t.footProduct}</h3>
             <div className="space-y-3 text-sm">
               {[
-                { href: "/url-qr", label: "URL QR" },
+                { href: "/qr-tools/url", label: "URL QR" },
                 { href: "/bulk-qr", label: "Bulk QR" },
                 { href: "/scanner", label: "QR Scanner" },
                 { href: "/dashboard", label: "Dashboard" },

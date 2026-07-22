@@ -14,9 +14,9 @@ import {
 
 const SIDE_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: <FiHome size={15} /> },
-  { href: "/url-qr", label: "URL QR", icon: <FiLinkIcon size={15} /> },
+  { href: "/qr-tools/url", label: "URL QR", icon: <FiLinkIcon size={15} /> },
   { href: "/wifi-qr", label: "WiFi QR", icon: <FiWifi size={15} /> },
-  { href: "/vcard-qr", label: "vCard / NFC", icon: <FiUser size={15} /> },
+  { href: "/qr-tools/vcard", label: "vCard / NFC", icon: <FiUser size={15} /> },
 ];
 
 export default function ImageToolsPage() {

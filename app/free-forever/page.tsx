@@ -71,7 +71,7 @@ export default function FreeForeverPage() {
         </p>
         <div className="flex flex-wrap justify-center gap-3 mt-7">
           <Link href="/qr-tools" className="qx-btn-hero inline-flex">Make a free QR code <FiArrowRight size={15} /></Link>
-          <Link href="/url-qr" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl text-sm font-bold"
+          <Link href="/qr-tools/url" className="inline-flex items-center gap-1.5 px-5 py-3 rounded-xl text-sm font-bold"
             style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}>
             Dynamic QR + analytics <FiArrowRight size={14} />
           </Link>

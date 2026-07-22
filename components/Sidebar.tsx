@@ -54,13 +54,13 @@ export default function Sidebar() {
   const currentLang = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
 
   const qrLinks = [
-    { href: "/url-qr", label: "URL QR", icon: <FiLink size={15} /> },
+    { href: "/qr-tools/url", label: "URL QR", icon: <FiLink size={15} /> },
     { href: "/wifi-qr", label: "WiFi QR", icon: <FiWifi size={15} /> },
     { href: "/whatsapp-qr", label: "WhatsApp QR", icon: <FiMessageCircle size={15} /> },
     { href: "/email-qr", label: "Email QR", icon: <FiMail size={15} /> },
     { href: "/telegram-qr", label: "Telegram QR", icon: <FiSend size={15} /> },
     { href: "/sms-qr", label: "SMS QR", icon: <FiMessageSquare size={15} /> },
-    { href: "/vcard-qr", label: "vCard QR", icon: <FiUser size={15} /> },
+    { href: "/qr-tools/vcard", label: "vCard QR", icon: <FiUser size={15} /> },
   ];
 
   return (

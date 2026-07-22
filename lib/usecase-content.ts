@@ -70,7 +70,7 @@ export type UseCaseSeed = {
 
 export const USE_CASES_EN: UseCaseSeed[] = [
   {
-    slug: "restaurant-menu-qr-code", toolHref: "/url-qr", toolLabel: "Create a menu QR",
+    slug: "restaurant-menu-qr-code", toolHref: "/qr-tools/url", toolLabel: "Create a menu QR",
     category: "QR", emoji: "🍽️", grad: "linear-gradient(135deg,#ff6a13,#e14e08)",
     keywords: ["restaurant menu qr code", "qr code menu", "digital menu qr", "scan to view menu", "contactless menu"],
     content: {
@@ -122,7 +122,7 @@ export const USE_CASES_EN: UseCaseSeed[] = [
     },
   },
   {
-    slug: "business-card-qr-code", toolHref: "/vcard-qr", toolLabel: "Create a vCard QR",
+    slug: "business-card-qr-code", toolHref: "/qr-tools/vcard", toolLabel: "Create a vCard QR",
     category: "QR", emoji: "👤", grad: "linear-gradient(135deg,#7c3aed,#a78bfa)",
     keywords: ["business card qr code", "vcard qr code", "digital business card", "qr code contact", "scan to save contact"],
     content: {
@@ -200,7 +200,7 @@ export const USE_CASES_EN: UseCaseSeed[] = [
     },
   },
   {
-    slug: "wedding-qr-code", toolHref: "/url-qr", toolLabel: "Create a wedding QR",
+    slug: "wedding-qr-code", toolHref: "/qr-tools/url", toolLabel: "Create a wedding QR",
     category: "QR", emoji: "💍", grad: "linear-gradient(135deg,#fb7185,#f9a8d4)",
     keywords: ["wedding qr code", "qr code for wedding", "wedding rsvp qr", "photo sharing qr wedding", "wedding website qr"],
     content: {
@@ -226,7 +226,7 @@ export const USE_CASES_EN: UseCaseSeed[] = [
     },
   },
   {
-    slug: "product-packaging-qr-code", toolHref: "/url-qr", toolLabel: "Create a product QR",
+    slug: "product-packaging-qr-code", toolHref: "/qr-tools/url", toolLabel: "Create a product QR",
     category: "QR", emoji: "📦", grad: "linear-gradient(135deg,#0e7490,#22d3ee)",
     keywords: ["product packaging qr code", "qr code on packaging", "product qr code", "qr for product info", "how to use qr"],
     content: {

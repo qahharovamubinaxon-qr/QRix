@@ -19,7 +19,7 @@ const CATS: Cat[] = [
   {
     name: "QR Tools", count: "30+", href: "/qr-tools",
     tools: [
-      { label: "URL QR Code", href: "/url-qr" },
+      { label: "URL QR Code", href: "/qr-tools/url" },
       { label: "WiFi QR", href: "/qr-tools/wifi" },
       { label: "vCard QR", href: "/qr-tools/vcard" },
       { label: "Bulk QR from CSV", href: "/bulk-qr" },
