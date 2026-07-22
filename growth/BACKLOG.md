@@ -2,7 +2,7 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [ ] Make registry-backed canvas engines drivable in the preview pane. M122
+- [~] Make registry-backed canvas engines drivable in the preview pane. M122
   fixed hydration (explicit width/height, not the desktop preset) but the
   `dynamic(ssr:false)` chunk in ImageEngineRegistry never resolves there, so
   convert/resize/batch/upscale still cannot be driven end to end — the
