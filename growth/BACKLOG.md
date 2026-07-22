@@ -14,14 +14,10 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   wired, flip its `wired` in AI_CLOUD_ROUTES — the trust strip, privacy FAQ
   and CloudNotice follow automatically (M131) — and rewrite that tool's
   intro/about/desc, which still promise the cloud engine in the future tense.
-- [~] Poster maker logo upload (M133) — M126 had to answer "no" to "Can I add
-  my logo?" in 15 languages. Templates/heading/colour exist; a logo would make
-  the review-poster page's strongest claim true again. Second claim found while
-  scoping: the same FAQ says the printable poster has "no watermark" in all 15
-  languages while PosterMakerClient draws "Made with QRix" into the footer of
-  every export. next: extract the poster layout to lib/poster-layout.ts (the
-  fixed y-coordinates already collide when a heading wraps to two lines), add
-  logo upload + a credit toggle, then rewrite both FAQ answers ×15.
+- [ ] Poster maker: template-aware defaults for the logo slot — a logo makes
+  the "Custom" template's empty subtitle look unbalanced, and the menu/review
+  templates could offer a logo-left layout instead of centred. Small, follows
+  M133.
 - [ ] Batch/multi-file conversion for real — AiDropzone takes a single file
   everywhere. ImageBatchClient exists but is a separate engine. Wiring
   multi-file into the /convert pages would make the (now removed) claim
@@ -55,6 +51,24 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: poster maker logo upload + a removable credit (M133). The
+  review-poster landing answered "Can I add my logo?" with "not yet" in 15
+  languages and promised "no watermark on the printable poster" in the same
+  breath, while PosterMakerClient drew "Made with QRix" into every export.
+  Logo upload (PNG/JPG/WebP/GIF/AVIF/SVG, FileReader → data URL, never leaves
+  the browser, aspect-preserved into a 560x150 header box, 0x0 SVGs rejected
+  with a message) and a credit checkbox now make both answers true. Neither
+  could ship without fixing the layout first: every y was a literal, so a
+  heading that wrapped drew its second line through the accent underline into
+  the QR card. lib/poster-layout.ts resolves the page from its own content and
+  shrinks the QR — never under 360px — when the blocks above eat the room; a
+  default poster is pixel-identical (underline still at y=300, asserted live).
+  npm run test:poster = 18 assertions incl. all 36 heading×subtitle×logo
+  combinations, 5 mutations verified. Driven on production: uploading a 400x200
+  logo moved the underline 300 → 400 exactly as the module predicts, the
+  exported PNG (184 KB, valid magic, 1240x1754) carries the logo and, with the
+  box unchecked, zero ink in the footer band; the only request the page made
+  was /api/v1/track. IndexNow 200 for 17 URLs.
 - [x] Jul 22: the AI health check asserted a flag, not a capability (M132).
   envValidation() reported NEXT_PUBLIC_AI_ENGINE being unset as a production
   issue — a check that never fired (the var is set) and that, if acted on,

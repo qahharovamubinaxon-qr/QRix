@@ -714,3 +714,44 @@ test:ai grew a 20th assertion holding monitor.ts to the route table so the check
 cannot quietly revert to reading the env var alone. Mutation verified.
 
 Files: lib/server/monitor.ts, scripts/test-ai-claims.mjs. Branch design-v2.
+
+## M133 — the poster maker's two false answers (Jul 22)
+
+The /use/*/google-review-qr-code landing sends people to /poster and then, in
+15 languages, answered "Can I add my logo?" with "not yet" and "Is it free?"
+with "there's no watermark on the printable poster" — while PosterMakerClient
+drew "Made with QRix" into the footer of every PDF and PNG it exported. One
+claim under-sold the tool, the other over-sold it.
+
+Logo upload: PNG/JPG/WebP/GIF/AVIF/SVG, read with FileReader and drawn from a
+data URL, so it never leaves the browser and never taints the canvas the export
+reads back. It is centred above the heading and scaled into a 560x150 box with
+its aspect ratio kept. An SVG with no intrinsic width/height decodes to a 0x0
+image, which would have vanished silently, so it is probed after load and
+rejected with a message instead.
+
+Credit: a checkbox, on by default. Off means the export carries nothing but the
+user's own artwork, which is what "no watermark" has to mean.
+
+The layout had to change before a logo could exist. Every y on the poster was a
+literal — heading baseline 250, underline 300, QR 430 — so a heading long enough
+to wrap drew its second line at y=366, straight through the underline and into
+the QR card. Nothing above the QR could grow. lib/poster-layout.ts now resolves
+the page from what is on it (heading lines, subtitle lines, logo box) and
+shrinks the QR — never below 360px, where a printed A4 code stops being
+reliable — when the blocks above have eaten the room. A poster with no logo and
+a one-line heading comes out pixel-identical to before; the test asserts those
+old literals directly.
+
+scripts/test-poster-layout.mjs (npm run test:poster) — 18 assertions over the
+shipped module, including 1-3 heading lines x 0-3 subtitle lines x no/wide/tall
+logo, all 36 combinations required to stay on the page, keep the QR scannable
+and not overlap each other. Five mutations verified, including the original
+two-line-heading collision.
+
+Copy: both answers rewritten in EN + 14 languages, plus /poster's
+description/about/steps and the qr-code-poster-maker guide.
+
+Files: lib/poster-layout.ts (new), components/PosterMakerClient.tsx,
+app/poster/page.tsx, lib/usecase-content.ts, lib/usecase-content.i18n.ts,
+lib/blog.ts, scripts/test-poster-layout.mjs, package.json. Branch design-v2.

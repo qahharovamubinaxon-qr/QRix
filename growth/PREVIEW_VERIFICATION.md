@@ -87,6 +87,15 @@ HTMLAnchorElement.prototype.click = function () {};   // stop the real download
 
 ## Still true
 
+`document.querySelector("canvas")` is **never** the tool's canvas. CursorGlow
+renders a fixed background canvas first in the DOM, and in the pane it sizes to
+0x0 — so reading pixels from it returns transparent black everywhere and a
+working tool looks broken (cost ~20 minutes in M133). Select by size instead:
+
+```js
+const canvas = [...document.querySelectorAll("canvas")].find(c => c.width === 1240);
+```
+
 `document.body.innerText` is unreliable in the pane — assert against the DOM
 (`querySelectorAll`, `getBoundingClientRect`) or against `#main`.innerText, not
 `body.innerText`.
