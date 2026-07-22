@@ -3,8 +3,7 @@ import Link from "next/link";
 import { FiExternalLink, FiAlertTriangle, FiCheckCircle, FiArrowRight, FiSlash } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME } from "@/lib/seo";
 import { STAT_GROUPS, ALL_STATS, REJECTED, FTC_ALERT, type SourceKind } from "@/lib/qr-stats";
-import QRGenerator from "@/components/QRGenerator";
-import { QR_TYPES } from "@/lib/qr-types";
+import StatsQrTool from "./StatsQrTool";
 
 const PATH = "/qr-code-statistics";
 const UPDATED = "2026-07-22";
@@ -355,7 +354,7 @@ export default function QrCodeStatisticsPage() {
           working for years and why no one can produce a global scan count. This generator runs entirely in your
           browser — the URL you type is never sent anywhere.
         </p>
-        <QRGenerator type={QR_TYPES.url} />
+        <StatsQrTool />
       </section>
 
       {/* ----------------------------------------------------------- faq */}
