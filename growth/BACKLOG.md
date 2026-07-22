@@ -14,9 +14,14 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   wired, flip its `wired` in AI_CLOUD_ROUTES — the trust strip, privacy FAQ
   and CloudNotice follow automatically (M131) — and rewrite that tool's
   intro/about/desc, which still promise the cloud engine in the future tense.
-- [ ] Poster maker logo upload — M126 had to answer "no" to "Can I add my
-  logo?" in 15 languages. Templates/heading/colour exist; a logo would make the
-  review-poster page's strongest claim true again.
+- [~] Poster maker logo upload (M133) — M126 had to answer "no" to "Can I add
+  my logo?" in 15 languages. Templates/heading/colour exist; a logo would make
+  the review-poster page's strongest claim true again. Second claim found while
+  scoping: the same FAQ says the printable poster has "no watermark" in all 15
+  languages while PosterMakerClient draws "Made with QRix" into the footer of
+  every export. next: extract the poster layout to lib/poster-layout.ts (the
+  fixed y-coordinates already collide when a heading wraps to two lines), add
+  logo upload + a credit toggle, then rewrite both FAQ answers ×15.
 - [ ] Batch/multi-file conversion for real — AiDropzone takes a single file
   everywhere. ImageBatchClient exists but is a separate engine. Wiring
   multi-file into the /convert pages would make the (now removed) claim
