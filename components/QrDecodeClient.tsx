@@ -5,7 +5,7 @@ import Link from "next/link";
 import { FiSearch, FiCopy, FiCheck, FiExternalLink, FiShield, FiAlertTriangle } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { trackTool } from "@/lib/track";
-import { readWifiField } from "@/lib/qr-payload";
+import { readWifiField, readVCardField } from "@/lib/qr-payload";
 
 /* eslint-disable @next/next/no-img-element */
 
@@ -56,8 +56,12 @@ function classify(text: string): Decoded {
     };
   }
   if (/^BEGIN:VCARD/i.test(t)) {
-    const name = (t.match(/FN:(.*)/) || [])[1];
-    return { text: t, kind: "🪪 Contact card (vCard)", hint: name ? `Name: ${name.trim()}` : undefined };
+    // Read through the escapes: a card for "Acme, Inc." carries `ORG:Acme\, Inc.`
+    // on the wire, and showing the backslash back to the user reads as corruption.
+    const name = readVCardField(t, "FN");
+    const org = readVCardField(t, "ORG");
+    const hint = [name && `Name: ${name}`, org && `Company: ${org}`].filter(Boolean).join(" · ");
+    return { text: t, kind: "🪪 Contact card (vCard)", hint: hint || undefined };
   }
   if (/^mailto:/i.test(t)) return { text: t, kind: "📧 Email address" };
   if (/^tel:/i.test(t)) return { text: t, kind: "📞 Phone number" };

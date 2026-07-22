@@ -6,7 +6,7 @@ import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import ReviewsSection from "@/components/ReviewsSection";
 import { trackTool } from "@/lib/track";
 import { exportQrPng, saveDataUrl } from "@/lib/qr-export";
-import { buildWifi } from "@/lib/qr-payload";
+import { buildWifi, buildVCard } from "@/lib/qr-payload";
 import { TG_CHANNEL, TG_CHANNEL_URL, TG_BOT, TG_BOT_URL } from "@/lib/social";
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
 import CategoryShowcase from "@/components/CategoryShowcase";
@@ -271,7 +271,7 @@ export default function HomePage() {
       case "text": return textVal.trim() || "QRix";
       case "wifi": return buildWifi({ ssid, password: wifiPass });
       case "vcard":
-        return `BEGIN:VCARD\nVERSION:3.0\nFN:${vName}\nTEL:${vPhone}\nEMAIL:${vEmail}\nORG:${vOrg}\nEND:VCARD`;
+        return buildVCard({ name: vName, phone: vPhone, email: vEmail, org: vOrg });
       case "email": return `mailto:${emTo}?subject=${encodeURIComponent(emSub)}&body=${encodeURIComponent(emBody)}`;
       case "sms": return `SMSTO:${smsNum}:${smsMsg}`;
       case "whatsapp": return `https://wa.me/${waNum.replace(/\D/g, "")}${waMsg ? `?text=${encodeURIComponent(waMsg)}` : ""}`;

@@ -1,5 +1,5 @@
 import type { QrType } from "@/components/QRGenerator";
-import { buildWifi, buildEvent } from "./qr-payload";
+import { buildWifi, buildEvent, buildVCard, buildMeCard } from "./qr-payload";
 
 const enc = encodeURIComponent;
 
@@ -105,8 +105,7 @@ export const QR_TYPES: Record<string, QrType> = {
       { key: "url", label: "Website", placeholder: "https://example.com", type: "url" },
       { key: "address", label: "Address", placeholder: "Street, City" },
     ],
-    build: (v) =>
-      `BEGIN:VCARD\nVERSION:3.0\nN:${v.last || ""};${v.first || ""}\nFN:${v.first || ""} ${v.last || ""}\nTEL:${v.phone || ""}\nEMAIL:${v.email || ""}\nORG:${v.org || ""}\nTITLE:${v.title || ""}\nURL:${v.url || ""}\nADR:;;${v.address || ""}\nEND:VCARD`,
+    build: (v) => buildVCard(v),
   },
   mecard: {
     id: "mecard",
@@ -115,7 +114,7 @@ export const QR_TYPES: Record<string, QrType> = {
       { key: "phone", label: "Phone", placeholder: "+998901234567", type: "tel" },
       { key: "email", label: "Email", placeholder: "john@example.com", type: "email" },
     ],
-    build: (v) => `MECARD:N:${v.name || ""};TEL:${v.phone || ""};EMAIL:${v.email || ""};;`,
+    build: (v) => buildMeCard(v),
   },
   event: {
     id: "event",

@@ -23,6 +23,11 @@ import {
   escapeICal,
   icalDate,
   buildEvent,
+  escapeVCard,
+  unescapeVCard,
+  readVCardField,
+  buildVCard,
+  buildMeCard,
 } from "../lib/qr-payload.ts";
 
 let pass = 0;
@@ -134,6 +139,71 @@ t("the event payload still opens and closes a VEVENT", () => {
   const out = buildEvent({ title: "T", start: "2026-07-22T09:00", end: "2026-07-22T10:00" });
   assert.ok(out.startsWith("BEGIN:VEVENT"));
   assert.ok(out.endsWith("END:VEVENT"));
+});
+
+/* ---- contact cards ------------------------------------------------------ */
+
+t("a semicolon in a surname is escaped instead of adding an N component", () => {
+  const out = buildVCard({ first: "John", last: "Berg; Jr" });
+  const n = out.split("\n").find((l) => l.startsWith("N:"));
+  // family;given;additional;prefix;suffix — five slots, and the escaped ; must
+  // not create a sixth or push "John" into the additional-names field.
+  assert.equal(n, "N:Berg\\; Jr;John;;;");
+  // Structured properties must be split on their UNescaped separators first —
+  // unescaping the whole value would turn the escaped ; back into a separator.
+  const components = n.slice(2).split(/(?<!\\);/).map(unescapeVCard);
+  assert.deepEqual(components.slice(0, 2), ["Berg; Jr", "John"]);
+});
+
+t("a comma in ORG does not read as two organisations", () => {
+  const out = buildVCard({ first: "A", org: "Acme, Inc." });
+  assert.ok(out.includes("ORG:Acme\\, Inc."));
+  assert.equal(readVCardField(out, "ORG"), "Acme, Inc.");
+});
+
+t("a newline in the address cannot break out of the property", () => {
+  const out = buildVCard({ first: "A", address: "12 Main St\nSuite 4" });
+  assert.equal(out.split("\n").filter((l) => l.startsWith("ADR")).length, 1);
+  assert.ok(out.includes("ADR:;;12 Main St\\nSuite 4;;;;"));
+});
+
+t("a backslash survives the round trip", () => {
+  assert.equal(unescapeVCard(escapeVCard("a\\b;c,d")), "a\\b;c,d");
+});
+
+t("empty properties are omitted, not emitted blank", () => {
+  const out = buildVCard({ first: "John", last: "Doe", phone: "+123" });
+  assert.ok(out.includes("TEL:+123"));
+  for (const key of ["EMAIL", "ORG", "TITLE", "URL", "ADR"]) {
+    assert.ok(!out.includes(`${key}:`), `${key} should be omitted when blank`);
+  }
+});
+
+t("the single-name form still produces a valid FN", () => {
+  const out = buildVCard({ name: "Jane Roe", email: "j@example.com" });
+  assert.ok(out.includes("FN:Jane Roe"));
+  assert.ok(!out.split("\n").some((l) => l.startsWith("N:")), "no structured name when only a full name was given");
+});
+
+t("the card still opens and closes a VCARD with a version", () => {
+  const out = buildVCard({ first: "A", last: "B" });
+  assert.ok(out.startsWith("BEGIN:VCARD\nVERSION:3.0"));
+  assert.ok(out.endsWith("END:VCARD"));
+});
+
+t("readVCardField reads a property that carries parameters", () => {
+  assert.equal(readVCardField("BEGIN:VCARD\nTEL;TYPE=CELL:+998901234567\nEND:VCARD", "TEL"), "+998901234567");
+});
+
+t("MECARD escapes the delimiters it reserves", () => {
+  const out = buildMeCard({ name: "Doe;John", phone: "+1", email: "a:b@x.com" });
+  assert.ok(out.includes("N:Doe\\;John;"));
+  assert.ok(out.includes("EMAIL:a\\:b@x.com;"));
+  assert.ok(out.startsWith("MECARD:") && out.endsWith(";;"));
+});
+
+t("MECARD omits fields the user left blank", () => {
+  assert.equal(buildMeCard({ name: "Solo" }), "MECARD:N:Solo;;");
 });
 
 /* ---------------------------------------------------------------------- */
