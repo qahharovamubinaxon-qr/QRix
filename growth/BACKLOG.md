@@ -32,6 +32,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   and CloudNotice follow automatically (M131) — and rewrite that tool's
   intro/about/desc, which still promise the cloud engine in the future tense.
 - [ ] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile.
+  Practical note (M134): the in-app preview pane could not composite frames
+  this session — screenshots time out and every CSS box measures 0x0, which
+  also makes layout/paint metrics meaningless. Confirmed environmental, not a
+  site bug: /qr-tools/url behaves identically. So drive this from PageSpeed
+  Insights against the live URLs (or a local lighthouse CLI run) rather than
+  the pane, and don't trust anything the pane reports about geometry.
 - [ ] /qr-code-statistics follow-ups, ranked: (1) an /embed-able "stat card"
   so a blogger quoting a figure links back — the actual backlink mechanism,
   which the page currently only invites in prose; (2) re-check the four
