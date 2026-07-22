@@ -368,3 +368,45 @@ and fmt defaults to "webp" with no picker on that path — so every transparent
 PNG batch-compressed to a JPEG with a black background. Confirmed by running
 the old path in a real browser: [0,0,0,255] in the transparent region, white
 after the fix. Both now share the extracted helpers.
+
+## Mission 123 — the preview pane, actually fixed
+
+Two sessions blamed `dynamic(ssr:false)` for canvas engines never mounting in
+the browser pane. It was never the lazy chunk. Instrumenting instead of
+guessing turned up two unrelated traps stacked on each other, and the leading
+hypothesis (`dynamicParams=false`, added in M118) was refuted by experiment
+before any fix was written.
+
+First: `preview_start` serves the PRIMARY checkout, not this worktree. That
+checkout has no app/convert, app/resize, app/downloader, app/image-tools/[slug]
+and no lib/image-tools-meta.ts at all, so every design-v2 route 404s locally
+while returning 200 in production — while a stale untracked
+app/image-tools/exif-remover/ still sits there, which is exactly why that one
+page appeared drivable and every registry page appeared broken. Proof: neither
+generateStaticParams nor the page body ever ran. The port-3001 worktree launch
+config added in M120 was never actually exercised; it works.
+
+Second, and the real one: the pane runs the tab with visibilityState "hidden",
+and browsers don't run requestAnimationFrame for a hidden document (timers
+still run). React 19 gates its streaming-Suspense reveal on rAF — `$RC` refuses
+to reveal until `typeof $RT === "number"`, and `$RT` is only ever assigned
+inside a rAF callback. So any route slow enough to flush the loading.tsx
+fallback deadlocks permanently: the real content stays parked in
+`<div hidden id="S:0">`, nothing inside it mounts, and `body.innerText` stays
+~126 chars no matter what the page contains — which retroactively explains the
+M122 "126-char mystery" that had been written off as a pane quirk.
+
+Unblocking it is three lines (polyfill rAF onto timers, seed `$RT`, flush
+`$RB`), now in growth/PREVIEW_VERIFICATION.md along with both traps and the
+blob-capture trick for reading a tool's output. Measured on
+/image-tools/batch-compress and reproduced on /convert/png-to-webp:
+scrollHeight 900→2081/2099, file inputs 0→1, innerText 126→1710/2770, fallback
+gone. Then driven end to end for the first time — a DataTransfer-injected file
+surfaced the real Quality and "Process 1 → ZIP" controls, and clicking through
+produced a genuine application/zip (PK magic, 918 bytes).
+
+No production code changed: a real user's tab is visible, so the deadlock is
+pane-only. Driving the tool did surface a live false claim — the shared
+baseFaq() promises "results download as high-quality PNG" while the compress
+preset writes a JPEG (transparent.jpg, JFIF header confirmed inside the ZIP),
+on every image tool that doesn't emit PNG. Filed as the next NOW item.

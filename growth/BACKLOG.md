@@ -2,13 +2,12 @@
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
 ## NOW (this week)
-- [~] Make registry-backed canvas engines drivable in the preview pane. M122
-  fixed hydration (explicit width/height, not the desktop preset) but the
-  `dynamic(ssr:false)` chunk in ImageEngineRegistry never resolves there, so
-  convert/resize/batch/upscale still cannot be driven end to end — the
-  "Loading the image workspace…" fallback sits in the DOM forever. Options:
-  find why the lazy chunk stalls in a hidden pane, or add a dev-only query
-  flag that renders the engine eagerly for verification runs.
+- [ ] baseFaq() misstates the output format on every image tool that doesn't
+  emit PNG. Found by driving batch-compress end to end (M123): the shared FAQ
+  says "results download as high-quality PNG (or your chosen format)" but the
+  compress preset writes `transparent.jpg` (JFIF confirmed in the ZIP). Same
+  bug class as the M120/M122 claim audit, on ~40 pages at once because the FAQ
+  is shared. Derive the sentence from the engine's real output format.
 - [ ] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
   an unsharp mask. M120 made the RU/UZ body copy honest, but the tool name and
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
@@ -54,6 +53,34 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: registry-backed canvas engines are drivable in the preview pane
+  (M123) — the item open since M120, and the lazy chunk was never the cause.
+  Two independent traps, both found by instrumenting rather than guessing;
+  `dynamicParams=false` was hypothesised and **refuted** by experiment first.
+  (1) `preview_start` serves the PRIMARY checkout, not this worktree. The
+  primary has no app/convert, app/resize, app/downloader, app/image-tools/
+  [slug] and no lib/image-tools-meta.ts at all, so every design-v2 route 404s
+  locally while 200ing in production — and it *does* carry a stale untracked
+  app/image-tools/exif-remover/, which is precisely why that lone page seemed
+  drivable and every registry page looked broken. The port-3001 worktree
+  launch config was added in M120 but never actually exercised; it works.
+  Proved by neither generateStaticParams nor the page body ever executing.
+  (2) The pane runs the tab `visibilityState:"hidden"`, so requestAnimation-
+  Frame never fires (timers do). React 19 gates its streaming-Suspense reveal
+  on rAF — `$RC` won't reveal until `typeof $RT === "number"`, and `$RT` is
+  only ever set inside a rAF callback. So every route slow enough to flush the
+  loading.tsx fallback deadlocks forever: content parked in <div hidden
+  id="S:0">, engines never mounted, and body.innerText pinned at ~126 chars
+  whatever the page held — the M122 "126-char mystery", explained.
+  Unblock (polyfill rAF → seed $RT → flush $RB) documented in
+  growth/PREVIEW_VERIFICATION.md. Measured on /image-tools/batch-compress and
+  reproduced on /convert/png-to-webp: scrollHeight 900→2081/2099, file inputs
+  0→1, innerText 126→1710/2770, fallback gone. Then driven end to end — a
+  DataTransfer file surfaced the real Quality + "Process 1 → ZIP" controls and
+  produced a genuine application/zip (PK magic, 918 B). No production code
+  changed: a real user's tab is visible, so this is pane-only.
+  Found while driving it: baseFaq() promises PNG output but compress emits
+  JPG (new NOW item).
 - [x] Jul 22: canvas output rules made testable (M122) — the [~] item open
   since M120. (b) is fully done; (a) is partly fixed and honestly scoped:
   (a) The 0x0-viewport trap has a fix, and it is not the preset:

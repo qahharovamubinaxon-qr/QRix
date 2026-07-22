@@ -45,6 +45,11 @@ brand; conversion from tool quality. All three must grow together.
 4. Update progress.md (one dense line).
 5. If tokens/time remain → next item. Never stop after one.
 
+To drive a tool in the browser pane, read `growth/PREVIEW_VERIFICATION.md`
+first: use the port-3001 worktree launch config (port 3000 serves the primary
+checkout and 404s design-v2 routes), and run the rAF unblock snippet after
+every navigate or the page deadlocks on its loading fallback forever.
+
 ## Hard rules
 
 - Never add YouTube downloading (AdSense death — permanent).
