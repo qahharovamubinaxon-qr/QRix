@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { FiCopy, FiCheck } from "react-icons/fi";
 import { AiDropzone, AiResultBar, CloudNotice, BeforeAfter } from "@/components/ai/AiKit";
 import { trackTool } from "@/lib/track";
+import { keepFormat, flattensToWhite } from "@/lib/image-output";
 
 function loadImg(f: File): Promise<HTMLImageElement> { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(f); }); }
 function human(b: number) { return b > 1e6 ? `${(b / 1e6).toFixed(2)} MB` : `${(b / 1e3).toFixed(0)} KB`; }
@@ -17,6 +18,7 @@ export function ImageMetaClient({ mode }: { mode: "view" | "remove" | "exif" }) 
   const [exif, setExif] = useState<[string, string][]>([]);
   const [blob, setBlob] = useState<Blob | null>(null);
   const [copied, setCopied] = useState(false);
+  const [outExt, setOutExt] = useState("png");
 
   async function onFile(f: File) {
     trackTool(`img-meta-${mode}`); setFile(f); setBlob(null);
@@ -28,9 +30,23 @@ export function ImageMetaClient({ mode }: { mode: "view" | "remove" | "exif" }) 
     if (buf.getUint16(0) === 0xffd8) { for (let o = 2; o < Math.min(buf.byteLength - 2, 60000);) { const marker = buf.getUint16(o); if (marker === 0xffe1) { hasExif = true; break; } if ((marker & 0xff00) !== 0xff00) break; o += 2 + buf.getUint16(o + 2); } }
     rows.push(["EXIF metadata", hasExif ? "Present (camera/GPS/timestamp may be embedded)" : "None detected"]);
     setExif(rows);
-    if (mode === "remove") { const c = document.createElement("canvas"); c.width = image.naturalWidth; c.height = image.naturalHeight; c.getContext("2d")!.drawImage(image, 0, 0); c.toBlob((b) => setBlob(b), "image/png"); }
+    /* Stripping metadata must not also rewrite the format. This hardcoded
+       image/png, so a JPEG came back as a far larger PNG and a WebP lost its
+       format — the bug M122 fixed in ExifCleanerClient, whose registry twin
+       this is. Flatten first when the target has no alpha, or a transparent
+       source encodes black. */
+    if (mode === "remove") {
+      const fmtKey = keepFormat(f.type, f.name);
+      const mime = `image/${fmtKey}`;
+      const c = document.createElement("canvas"); c.width = image.naturalWidth; c.height = image.naturalHeight;
+      const ctx = c.getContext("2d")!;
+      if (flattensToWhite(mime, fmtKey)) { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, c.width, c.height); }
+      ctx.drawImage(image, 0, 0);
+      setOutExt(fmtKey === "jpeg" ? "jpg" : fmtKey);
+      c.toBlob((b) => setBlob(b), mime, fmtKey === "png" ? undefined : 0.92);
+    }
   }
-  async function download() { if (blob) { const { saveBlob } = await import("@/lib/save-file"); await saveBlob(blob, (file?.name.replace(/\.\w+$/, "") || "clean") + ".png"); } }
+  async function download() { if (blob) { const { saveBlob } = await import("@/lib/save-file"); await saveBlob(blob, (file?.name.replace(/\.\w+$/, "") || "clean") + "." + outExt); } }
 
   return <div className="qx-card p-6 space-y-5">
     {!img && <AiDropzone onFile={onFile} hint="Read locally — nothing is uploaded" />}

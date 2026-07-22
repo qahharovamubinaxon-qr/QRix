@@ -6,7 +6,7 @@ import { useState } from "react";
 import { FiX, FiDownload } from "react-icons/fi";
 import { AiDropzone } from "@/components/ai/AiKit";
 import { trackTool } from "@/lib/track";
-import { flattensToWhite } from "@/lib/image-output";
+import { flattensToWhite, keepFormat } from "@/lib/image-output";
 
 type Job = { file: File; url: string };
 function loadImg(src: string): Promise<HTMLImageElement> { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
@@ -27,7 +27,6 @@ export default function ImageBatchClient({ preset }: { preset: "convert" | "resi
     setBusy(true); setDone(0);
     trackTool(`img-batch-${preset}`, { count: jobs.length });
     const { default: JSZip } = await import("jszip"); const zip = new JSZip();
-    const ext = fmt === "jpeg" ? "jpg" : fmt;
     for (let k = 0; k < jobs.length; k++) {
       const j = jobs[k];
       if (preset === "rename") { zip.file(pattern.replace(/#+/, (m) => String(k + 1).padStart(m.length, "0")) + "." + (j.file.name.split(".").pop() || "png"), j.file); }
@@ -35,16 +34,20 @@ export default function ImageBatchClient({ preset }: { preset: "convert" | "resi
         const img = await loadImg(j.url); let w = img.width, h = img.height;
         if (preset === "resize" && Math.max(w, h) > maxDim) { const s = maxDim / Math.max(w, h); w = Math.round(w * s); h = Math.round(h * s); }
         const c = document.createElement("canvas"); c.width = w; c.height = h; const ctx = c.getContext("2d")!;
-        /* Flatten on the format actually being ENCODED, not the one the picker
-           holds: compress always emits JPEG while `fmt` stays at its "webp"
-           default (the picker only shows for convert), so guarding on `fmt`
-           let transparent PNGs through the compress path encode black. */
-        const mime = preset === "compress" ? "image/jpeg" : `image/${fmt}`;
-        if (flattensToWhite(mime, fmt)) { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); }
+        /* Resolve the format actually being ENCODED, per file. `fmt` is only
+           meaningful for convert — that is the one preset whose picker renders
+           — so reading it anywhere else silently rewrote the file: compress
+           always emits JPEG, and resize was shipping every image as WebP
+           because "webp" is the picker's default (the M120 resize bug, which
+           was fixed in ImageConvertClient but never here). Resizing must
+           preserve the format, so a transparent PNG stays a PNG. */
+        const outFmt = preset === "compress" ? "jpeg" : preset === "resize" ? keepFormat(j.file.type, j.file.name) : fmt;
+        const mime = `image/${outFmt}`;
+        if (flattensToWhite(mime, outFmt)) { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); }
         ctx.drawImage(img, 0, 0, w, h);
-        const q = (preset === "compress" || fmt !== "png") ? quality / 100 : undefined;
+        const q = outFmt === "png" ? undefined : quality / 100;
         const b = await new Promise<Blob | null>((r) => c.toBlob(r, mime, q));
-        if (b) zip.file(j.file.name.replace(/\.\w+$/, "") + "." + (preset === "compress" ? "jpg" : ext), b);
+        if (b) zip.file(j.file.name.replace(/\.\w+$/, "") + "." + (outFmt === "jpeg" ? "jpg" : outFmt), b);
       }
       setDone(k + 1);
     }
@@ -60,7 +63,10 @@ export default function ImageBatchClient({ preset }: { preset: "convert" | "resi
       <div className="flex flex-wrap items-center gap-4">
         {preset === "convert" && <div className="flex gap-2">{(["jpeg", "png", "webp"] as const).map((f) => <button key={f} onClick={() => setFmt(f)} className="px-3 py-1.5 rounded-lg text-[12px] font-bold uppercase" style={{ background: fmt === f ? "var(--primary-dim)" : "var(--surface-2)", border: `1px solid ${fmt === f ? "var(--primary-bright)" : "var(--border)"}`, color: "var(--text)" }}>{f === "jpeg" ? "jpg" : f}</button>)}</div>}
         {preset === "resize" && <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>Max dimension <input type="number" value={maxDim} onChange={(e) => setMaxDim(+e.target.value)} className="qx-auth-input !py-1 !px-2 w-24" /> px</label>}
-        {(preset === "convert" || preset === "compress") && fmt !== "png" && <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>Quality <input type="range" min={30} max={100} value={quality} onChange={(e) => setQuality(+e.target.value)} className="w-32 accent-[#e1ff04]" /> {quality}</label>}
+        {/* Quality drives every re-encoding preset, so resize shows it too —
+            it silently applied there before while the control stayed hidden.
+            Only a PNG target ignores it (canvas is lossless for png). */}
+        {preset !== "rename" && !(preset === "convert" && fmt === "png") && <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>Quality <input type="range" min={30} max={100} value={quality} onChange={(e) => setQuality(+e.target.value)} className="w-32 accent-[#e1ff04]" /> {quality}</label>}
         {preset === "rename" && <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>Pattern <input value={pattern} onChange={(e) => setPattern(e.target.value)} className="qx-auth-input !py-1.5 !px-2 w-40" placeholder="photo-###" /></label>}
         <button onClick={process} disabled={busy} className="qx-btn-hero !py-2.5 !px-5 text-sm disabled:opacity-50" data-magnetic><FiDownload size={14} /> {busy ? `Processing ${done}/${jobs.length}…` : `Process ${jobs.length} → ZIP`}</button>
       </div>

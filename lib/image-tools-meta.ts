@@ -19,7 +19,35 @@ export type ImgTool = {
 
 const FREE = { q: "Is this tool free?", a: "Yes — completely free, no watermark and no signup." };
 const PRIV = { q: "Are my images uploaded?", a: "No. Everything runs on your device in the browser; images never leave your computer." };
-const FMT = { q: "Which formats work?", a: "JPG, PNG and WebP input; results download as high-quality PNG (or your chosen format)." };
+/* The shared "which formats" answer used to claim a PNG download for every
+   tool in the registry. Driving batch-compress end to end (M123) showed it
+   handing back transparent.jpg, so the claim was false on every tool that
+   doesn't encode PNG. The answer is now derived from the engine that actually
+   runs (see fmtAnswer), and this object is only the marker that gets replaced
+   — a new tool inherits an accurate sentence instead of a wrong one. */
+const FMT = { q: "Which formats work?", a: "" };
+
+const FMT_PNG = "JPG, PNG and WebP input; the result downloads as a lossless PNG.";
+function fmtAnswer(engine: string): string {
+  if (engine.startsWith("batch:")) {
+    const p = engine.slice(6);
+    if (p === "compress") return "JPG, PNG and WebP input. Compression re-encodes to JPG — that is what makes the files small — and every image comes back in one ZIP.";
+    if (p === "convert") return "JPG, PNG and WebP input; you pick JPG, PNG or WebP for the whole batch and it downloads as one ZIP.";
+    if (p === "resize") return "JPG, PNG and WebP input. Each file keeps its own format — a transparent PNG stays a PNG — and the batch downloads as one ZIP.";
+    return "Any image type. Renaming copies the original files untouched, so nothing is re-encoded and no quality is lost; they download as one ZIP.";
+  }
+  if (engine.startsWith("convert:")) {
+    const to = engine.split(":")[1]?.split("-to-").pop();
+    return to ? `JPG, PNG and WebP input; the result downloads as ${to.toUpperCase()}.` : FMT_PNG;
+  }
+  if (engine.startsWith("resize:") || engine.startsWith("social:")) return "JPG, PNG and WebP input, and the format is preserved — a transparent PNG comes back a PNG, not flattened onto white. Anything else (HEIC, TIFF, BMP…) downloads as JPG.";
+  if (engine === "meta:remove" || engine === "meta:exif") return "JPG, PNG and WebP. The cleaned copy keeps the format you uploaded, so a JPEG stays a JPEG rather than ballooning into a PNG.";
+  if (engine === "meta:view") return "JPG, PNG and WebP. This tool only reads the file and reports on it — nothing is written or downloaded.";
+  if (engine === "special:passport") return "JPG, PNG and WebP input; the photo and the print sheet download as high-quality JPG, which is what photo labs and passport portals accept.";
+  if (engine.startsWith("color:")) return "JPG, PNG and WebP input. Colour values copy as HEX/RGB text; palette swatches and gradients download as PNG.";
+  if (engine === "layout:split") return "JPG, PNG and WebP input; the tiles download as lossless PNGs in one ZIP.";
+  return FMT_PNG;
+}
 const MOB = { q: "Does it work on mobile?", a: "Yes — every tool works in modern mobile browsers." };
 const S3 = (a: string, b: string, c: string) => [
   { title: "Upload an image", desc: a }, { title: "Adjust", desc: b }, { title: "Download", desc: c },
@@ -46,7 +74,7 @@ function fx(slug: string, title: string, short: string, emoji: string, grad: str
   };
 }
 
-export const IMAGE_TOOLS: ImgTool[] = [
+const RAW_IMAGE_TOOLS: ImgTool[] = [
   /* ── ADJUST ── */
   fx("brightness", "Brightness Adjuster", "Brightness", "☀️", G.amber, "Adjust", "fx:brightness", ["brightness adjuster", "brighten image", "make photo brighter"], "Brighten or darken any image with a live slider.", "Fix under- or over-exposed photos by adjusting brightness on-device with an instant preview.", { popular: true }),
   fx("contrast", "Contrast Adjuster", "Contrast", "◐", G.slate, "Adjust", "fx:contrast", ["contrast adjuster", "increase contrast", "photo contrast"], "Boost or soften image contrast instantly.", "Add punch to flat photos or tame harsh ones with an on-device contrast slider and live preview."),
@@ -153,6 +181,15 @@ export const IMAGE_TOOLS: ImgTool[] = [
   { slug: "image-comparison", title: "Image Comparison", short: "Compare", desc: "Compare two images side by side with a slider.", emoji: "🔬", grad: G.cyan, category: "Studio", engine: "layout:compare", status: "live", keywords: ["image comparison tool", "compare two photos", "difference slider"], intro: "Compare two images side by side with a slider.", about: "Load two versions and drag to compare edits, compression or before/after — export a combined comparison image.", steps: S3("Upload two images.", "Drag the comparison slider.", "Download a side-by-side PNG."), faqs: baseFaq() },
   { slug: "remove-watermark", title: "Remove Watermark", short: "Remove Watermark", desc: "Brush over a watermark to blend it away.", emoji: "🧽", grad: G.orange, category: "Studio", engine: "special:removewm", status: "preview", keywords: ["remove watermark from image", "erase watermark", "watermark remover"], intro: "Brush over a watermark to blend it away.", about: "Paint over a watermark and the tool blends surrounding pixels to hide it — great for small marks. Full neural inpainting for large logos is wired through the QRix connector. Only use on images you have the rights to.", steps: S3("Upload an image.", "Brush over the watermark.", "Blend and download."), faqs: baseFaq() },
 ];
+
+/* Swap the FMT marker for the answer this tool's engine can actually honour.
+   Done here, once, rather than at 30 call sites — so adding a tool can't
+   reintroduce the wrong claim, and an engine family without a rule falls back
+   to the PNG sentence that the fx/transform/overlay/layout clients do honour. */
+export const IMAGE_TOOLS: ImgTool[] = RAW_IMAGE_TOOLS.map((t) => ({
+  ...t,
+  faqs: t.faqs.map((f) => (f === FMT ? { q: FMT.q, a: fmtAnswer(t.engine) } : f)),
+}));
 
 export function getImgTool(slug: string): ImgTool | undefined {
   return IMAGE_TOOLS.find((t) => t.slug === slug);

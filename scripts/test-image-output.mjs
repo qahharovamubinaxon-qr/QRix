@@ -22,6 +22,7 @@ import {
   flattensToWhite,
   drawRect,
 } from "../lib/image-output.ts";
+import { IMAGE_TOOLS } from "../lib/image-tools-meta.ts";
 
 let pass = 0;
 const fails = [];
@@ -171,6 +172,48 @@ t("batch compress flattens even though the picker still holds webp", () => {
 t("batch convert to png/webp still does not flatten", () => {
   assert.equal(flattensToWhite("image/png", "png"), false);
   assert.equal(flattensToWhite("image/webp", "webp"), false);
+});
+
+
+/* ---- the FAQ must describe the format the engine really writes ---------
+   M123 drove batch-compress end to end and got transparent.jpg back while the
+   shared FAQ promised "results download as high-quality PNG". The answer is
+   now derived from the engine (lib/image-tools-meta fmtAnswer), so assert the
+   derivation against what each client actually encodes. */
+
+const FMT_Q = "Which formats work?";
+const fmtA = (slug) => {
+  const tool = IMAGE_TOOLS.find((x) => x.slug === slug);
+  assert.ok(tool, `no such tool: ${slug}`);
+  const f = tool.faqs.find((x) => x.q === FMT_Q);
+  assert.ok(f && f.a, `${slug} has no format answer`);
+  return f.a;
+};
+
+t("no image tool is left with the empty FMT marker", () => {
+  const empty = IMAGE_TOOLS.filter((x) => x.faqs.some((f) => f.q === FMT_Q && !f.a));
+  assert.deepEqual(empty.map((x) => x.slug), []);
+});
+t("batch-compress says JPG, not PNG (it encodes image/jpeg)", () => {
+  const a = fmtA("batch-compress");
+  assert.match(a, /JPG/);
+  assert.doesNotMatch(a, /downloads? as .*PNG|lossless PNG/);
+});
+t("batch-resize promises the format preservation the fix implements", () => {
+  assert.match(fmtA("batch-resize"), /keeps its own format/);
+});
+t("batch-rename says nothing is re-encoded (it zips the original File)", () => {
+  assert.match(fmtA("batch-rename"), /untouched|re-encoded/);
+});
+t("metadata remover no longer promises a PNG for a JPEG", () => {
+  assert.match(fmtA("metadata-remover"), /keeps the format/);
+  assert.match(fmtA("metadata-viewer"), /nothing is written/);
+});
+t("passport photo says JPG (it encodes image/jpeg at 0.95)", () => {
+  assert.match(fmtA("passport-photo"), /JPG/);
+});
+t("a PNG-encoding tool still gets the lossless-PNG sentence", () => {
+  assert.match(fmtA("crop-image"), /lossless PNG/);
 });
 
 /* ---- report ---------------------------------------------------------- */
