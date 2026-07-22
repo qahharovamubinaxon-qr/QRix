@@ -4,6 +4,7 @@ import { detectPlatform } from "@/lib/downloader-platforms";
 import { rateLimit } from "@/lib/server/security";
 import { cronAuthorized } from "@/lib/server/cron-auth";
 import { SITE_URL } from "@/lib/seo";
+import { recordStart, recordUse, cleanSource, sourceStats } from "@/lib/server/telegram/attribution";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -71,6 +72,144 @@ async function whoAmI(): Promise<string | undefined> {
 /** Signed streaming URL for a format token. */
 const proxy = (t: string) => `${SITE_URL}/api/download/file?t=${encodeURIComponent(t)}`;
 
+/* ── Inline mode ──────────────────────────────────────────────────────────
+   `@qrix_downloader_bot <link>` typed inside ANY chat or group. This is the
+   only way a bot legitimately reaches groups: a member invokes it, Telegram
+   stamps every result "via @bot" for everyone to see, and no admin has to add
+   anything — so there is nothing to ban. Telegram wants an answer within ~10s,
+   so a slow extraction falls back to a deep link rather than timing out. */
+
+type Lang = "ru" | "uz" | "en";
+const pickLang = (code?: string): Lang =>
+  /^uz/i.test(code || "") ? "uz" : /^(ru|be|kk|ky|tg|hy|az)/i.test(code || "") ? "ru" : "en";
+
+const T = {
+  ru: {
+    open: "Открыть в боте", paste: "Вставьте ссылку на видео",
+    hint: "TikTok · Instagram · VK · OK · Pinterest · SoundCloud",
+    big: "Файл готов — откройте бота", unsupported: "Платформа не поддерживается",
+    failed: "Не удалось прочитать ссылку", pm: "Открыть QRix",
+    tools: "185+ бесплатных инструментов",
+  },
+  uz: {
+    open: "Botda ochish", paste: "Video havolasini tashlang",
+    hint: "TikTok · Instagram · VK · OK · Pinterest · SoundCloud",
+    big: "Fayl tayyor — botni oching", unsupported: "Bu platforma qo'llab-quvvatlanmaydi",
+    failed: "Havolani o'qib bo'lmadi", pm: "QRix'ni ochish",
+    tools: "185+ bepul vosita",
+  },
+  en: {
+    open: "Open in the bot", paste: "Paste a video link",
+    hint: "TikTok · Instagram · VK · OK · Pinterest · SoundCloud",
+    big: "File ready — open the bot", unsupported: "Platform not supported",
+    failed: "Couldn't read that link", pm: "Open QRix",
+    tools: "185+ free tools",
+  },
+} as const;
+
+/** Icon to fall back on when a source gives us no thumbnail (required by Telegram). */
+const FALLBACK_THUMB = `${SITE_URL}/icon.png`;
+
+/** Deep link that opens the bot with the link pre-filled, and tags the placement. */
+const deepLink = (bot: string, payload: string) =>
+  `https://t.me/${bot}?start=${encodeURIComponent(payload)}`;
+
+/** What we show when someone opens inline with no link yet — the tools, not an ad. */
+function promoResults(l: Lang) {
+  const t = T[l];
+  const utm = "utm_source=telegram&utm_medium=inline";
+  const items = [
+    { id: "p_dl", title: "⬇️ Downloader", desc: t.hint, path: "/downloader" },
+    { id: "p_qr", title: "🔳 QR Code Generator", desc: "URL · WiFi · vCard · WhatsApp", path: "/qr-tools" },
+    { id: "p_pdf", title: "📄 PDF Tools", desc: "Merge · Split · Compress · Sign", path: "/pdf-tools" },
+    { id: "p_img", title: "🖼 Image Tools", desc: "Compress · Resize · Remove background", path: "/image-tools" },
+  ];
+  return items.map((i) => ({
+    type: "article",
+    id: i.id,
+    title: i.title,
+    description: i.desc,
+    thumbnail_url: FALLBACK_THUMB,
+    input_message_content: {
+      message_text: `<b>${i.title}</b> — ${t.tools}\n${SITE_URL}${i.path}?${utm}`,
+      parse_mode: "HTML",
+    },
+  }));
+}
+
+async function handleInline(iq: any): Promise<void> {
+  const id = iq?.id;
+  if (!id) return;
+  const query: string = String(iq?.query || "").trim();
+  const l = pickLang(iq?.from?.language_code);
+  const t = T[l];
+  const bot = (await whoAmI()) || "qrix_downloader_bot";
+
+  const answer = (results: unknown[], cache = 30) =>
+    tg("answerInlineQuery", {
+      inline_query_id: id, results, cache_time: cache, is_personal: true,
+      button: { text: t.pm, start_parameter: "inline" },
+    });
+
+  const url = query.match(/https?:\/\/\S+/)?.[0];
+  if (!url) { await answer(promoResults(l), 300); return; }
+
+  if (!detectPlatform(url)) {
+    await answer([{
+      type: "article", id: "unsup", title: t.unsupported, description: t.hint,
+      thumbnail_url: FALLBACK_THUMB,
+      input_message_content: { message_text: `${t.hint}\n${SITE_URL}/downloader?utm_source=telegram&utm_medium=inline`, parse_mode: "HTML" },
+    }]);
+    return;
+  }
+
+  // Race the extraction: an inline answer that arrives late is an answer that
+  // never happened, so hand back a deep link instead of losing the user.
+  const info = await Promise.race([
+    resolveMedia(url),
+    new Promise<null>((r) => setTimeout(() => r(null), 6_000)),
+  ]).catch(() => null);
+
+  if (!info || !info.ok) {
+    await answer([{
+      type: "article", id: "open", title: info ? t.failed : t.big, description: t.open,
+      thumbnail_url: FALLBACK_THUMB,
+      input_message_content: { message_text: `${t.open}: ${deepLink(bot, "inline")}\n${url}`, disable_web_page_preview: true },
+      reply_markup: { inline_keyboard: [[{ text: t.open, url: deepLink(bot, "inline") }]] },
+    }], 0);
+    return;
+  }
+
+  const title = (info.title || "QRix").slice(0, 90);
+  const caption = `${title}\n\n@ QRix — qrixtools.com`;
+  const thumb = info.thumbnail || FALLBACK_THUMB;
+  const video = info.formats.find((f) => f.type === "video");
+  const audio = info.formats.find((f) => f.type === "audio");
+  const image = info.formats.find((f) => f.type === "image");
+
+  const results: Record<string, unknown>[] = [];
+  if (video) results.push({
+    type: "video", id: "v", video_url: proxy(video.token), mime_type: "video/mp4",
+    thumbnail_url: thumb, title: `🎬 ${title}`, description: video.label, caption,
+  });
+  if (audio) results.push({
+    type: "audio", id: "a", audio_url: proxy(audio.token),
+    title: `🎵 ${title}`, performer: info.author || "QRix", caption,
+  });
+  if (image) results.push({
+    type: "photo", id: "i", photo_url: proxy(image.token), thumbnail_url: thumb,
+    title: `🖼 ${title}`, caption,
+  });
+  if (!results.length) results.push({
+    type: "article", id: "open", title: t.open, description: title,
+    thumbnail_url: thumb,
+    input_message_content: { message_text: `${t.open}: ${deepLink(bot, "inline")}`, disable_web_page_preview: true },
+  });
+
+  await answer(results, 0);
+  void recordUse(iq?.from?.id, iq?.from?.language_code);
+}
+
 /** Callback buttons for the formats a link actually offers. */
 function formatKeyboard(has: { video: boolean; audio: boolean; image: boolean }) {
   const row: { text: string; callback_data: string }[][] = [];
@@ -88,9 +227,14 @@ export async function GET(req: NextRequest) {
     const res = await tg("setWebhook", {
       url: `${SITE_URL}/api/telegram/bot`,
       secret_token: secret() || undefined,
-      allowed_updates: ["message", "callback_query"],
+      allowed_updates: ["message", "callback_query", "inline_query"],
     });
     return NextResponse.json({ ok: !!res?.ok, telegram: res });
+  }
+  // owner-only: which placement actually brought users, and who came back
+  if (req.nextUrl.searchParams.get("stats") === "1") {
+    if (!cronAuthorized(req)) return NextResponse.json({ ok: false }, { status: 401 });
+    return NextResponse.json({ ok: true, sources: await sourceStats() });
   }
   return NextResponse.json({ ok: true, bot: !!token() });
 }
@@ -103,6 +247,12 @@ export async function POST(req: NextRequest) {
 
   const update = await req.json().catch(() => null);
 
+  // `@bot <link>` typed in any chat or group — the group-reach path
+  if (update?.inline_query) {
+    await handleInline(update.inline_query);
+    return NextResponse.json({ ok: true });
+  }
+
   // a tapped format button → deliver that file into the chat
   if (update?.callback_query) {
     await handleCallback(update.callback_query);
@@ -113,6 +263,12 @@ export async function POST(req: NextRequest) {
   const chatId = msg?.chat?.id;
   const text: string = msg?.text || "";
   if (!chatId) return NextResponse.json({ ok: true });
+
+  // "/start g_toshkent" — credit the placement that brought this user (once).
+  const start = text.match(/^\/start(?:\s+(\S+))?/);
+  if (start) {
+    void recordStart(msg?.from?.id, cleanSource(start[1]), msg?.from?.language_code);
+  }
 
   // per-chat fair-use limit
   const rl = await rateLimit(`tgbot:${chatId}`, { max: 20, windowMs: 3_600_000 });
@@ -159,6 +315,8 @@ export async function POST(req: NextRequest) {
   // at 64 bytes (our signed tokens are far longer), so the handler re-reads the
   // original link from the message we are replying to — stateless, no storage.
   const kb = formatKeyboard({ video: !!video, audio: !!audio, image: !!image });
+  // retention signal: the metric that separates a real placement from a tap
+  void recordUse(msg?.from?.id, msg?.from?.language_code);
 
   const first = video
     ? await tg("sendVideo", { chat_id: chatId, video: proxy(video.token), caption, reply_to_message_id: msg.message_id, reply_markup: { inline_keyboard: kb } })
