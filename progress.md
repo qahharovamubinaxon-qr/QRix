@@ -466,3 +466,64 @@ diff: qrixtools.com/ru/resize/1080x1080 renders Заполнить · Вписа
 Worth recording for next time — the engine chunk is dynamic(ssr:false), so it
 never appears in the initial HTML and grepping HTML-linked chunks cannot prove
 it shipped; the page has to be driven.
+
+## M126 — usecase-content.i18n.ts claim audit (Jul 22)
+
+Audited the largest programmatic copy file in the repo (9,228 lines: 14 use
+cases × 15 languages) by checking each claim against the engine it describes,
+not by reading it through. Three claims were false in every language, and
+chasing one of them surfaced a silent corruption bug that had nothing to do
+with copy.
+
+**The copy.** compress-pdf-for-email asserted on-device processing five times
+over — metaDescription, intro, a benefit, a step, and the lead FAQ answering
+"Is my document uploaded to a server?" with "No". CompressPdfClient POSTs the
+file to /api/pdf/compress unconditionally; there is no browser path. The tool's
+own page said "Upload a PDF" and was fine, so the lie lived only on the pages
+built to rank. Rewritten to what the route does (server-side because it
+re-encodes embedded images, memory-only, no fs or storage call anywhere in it,
+discarded after the response). The shared "Free · on-device · no signup" badge
+was rendering there too; UseCaseSeed gained `onDevice` and freeLabel() drops the
+middle segment — every localization is authored as three ` · ` segments, so all
+15 stay grammatical without a new translated string.
+
+Checking the "only your device's memory" file-limit answer against production
+found a harder problem: 4.19 MB uploads, 4.4 MB comes back 413 at the edge
+before the route runs. A 413 body isn't JSON, so `err.message` was undefined and
+the user saw "Compression failed" with no reason — on the page whose headline
+promise is getting a 25 MB attachment under Gmail's limit. Added a pre-upload
+guard with a split→compress→merge workaround and an inline warning on file pick.
+The real fix (a client-side path so big files work at all) is queued in NOW.
+
+The review-poster page promised a logo upload PosterMakerClient doesn't have.
+Answered honestly and pointed at the QR generator, which does support logos.
+
+**The bug.** The WiFi page claimed hidden-SSID support that didn't exist. Adding
+it exposed that both WiFi builders — plus the homepage's inline one — built
+payloads by raw interpolation, so any reserved character truncated the field:
+password `pa;ss` shipped as `...;P:pa;ss;;` and parses as `pa` + junk. The code
+renders, scans, and simply fails to connect, which is why it survived. QRix's
+own decoder read `/P:([^;]*)/` and truncated the same way, so the round trip was
+self-consistently wrong and looked correct from inside. Now escaped per spec in
+both directions, `H:true` shipped, and open networks omit the password field
+instead of emitting an empty `P:`. The calendar payload got the same treatment:
+the description field and real start/end times its copy had promised, RFC 5545
+escaping, and `VALUE=DATE` so date-only events stop being invalid DATE-TIMEs.
+
+Extracted to lib/qr-payload.ts with scripts/test-qr-payload.mjs (npm run
+test:qr) — 21 assertions against the shipped module, mutation-verified: drop
+the escaping and 4 fail, drop H:true and 2 fail. Same pattern as
+lib/image-output.ts, and for the same reason: a payload bug is invisible to
+tsc and to anyone looking at the rendered QR.
+
+Verified live on production. Claims deliberately left alone because they hold:
+remove-bg is genuinely on-device (@imgly) and does offer white backgrounds, SVG
+export exists for the print claims, vCard carries title/URL/org, the Instagram
+tool takes a username, fill-and-sign never touches the network, and all 14 CTAs
+resolve (two via 301 — queued).
+
+Files: lib/qr-payload.ts (new), scripts/test-qr-payload.mjs (new),
+lib/qr-types.ts, lib/usecase-content.ts, lib/usecase-content.i18n.ts,
+components/QRGenerator.tsx, components/QrDecodeClient.tsx,
+components/CompressPdfClient.tsx, app/page.tsx, app/use/[lang]/[slug]/page.tsx,
+package.json. Branch design-v2.

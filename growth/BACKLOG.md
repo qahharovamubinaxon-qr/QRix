@@ -7,10 +7,22 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the EN title still say AI. Either ship a real model (ONNX/Real-ESRGAN in the
   browser, same pattern as @imgly for the background remover) or rename it.
   Owner decision: renaming costs the "улучшить фото ии" keyword.
-- [~] Audit usecase-content.i18n.ts (9,228 lines) — the one localized surface
-  M120 only spot-checked. Sampled claims held up (QR "без ограничений" is true,
-  the WhatsApp video-compress page's on-device claim matches the Mediabunny
-  engine), but it is the largest programmatic copy file in the repo.
+- [ ] PDF compress can't do the job its page is built to sell — the funnel page
+  targets "my PDF is too big to email" (>25 MB) but the server rejects anything
+  over ~4.5 MB at the edge (measured: 4.19 MB in, 4.4 MB → 413). M126 made the
+  copy and the UI honest; the fix is a client-side path (pdf-lib + canvas
+  re-encode of embedded images, same pattern as the image engines) so large
+  files work at all — and that would restore the "never leaves your device"
+  claim the page used to make falsely.
+- [ ] Poster maker logo upload — M126 had to answer "no" to "Can I add my
+  logo?" in 15 languages. Templates/heading/colour exist; a logo would make the
+  review-poster page's strongest claim true again.
+- [ ] Escape the remaining structured payloads — M126 fixed WiFi and VEVENT,
+  but vCard still interpolates raw: an ORG of "Acme, Inc." or any name with a
+  semicolon corrupts the same way. Same helper, same test file.
+- [ ] Point the use-case CTAs at /qr-tools/url and /qr-tools/vcard directly —
+  all 15 language variants currently send users (and link equity) through a
+  301 from /url-qr and /vcard-qr.
 - [ ] Batch/multi-file conversion for real — AiDropzone takes a single file
   everywhere. ImageBatchClient exists but is a separate engine. Wiring
   multi-file into the /convert pages would make the (now removed) claim
@@ -44,6 +56,39 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 22: audited usecase-content.i18n.ts — 3 false claims across 15
+  languages, and the audit turned up a silent data-corruption bug (M126).
+  The file is 9,228 lines of generated copy for 14 use cases × 15 languages,
+  so it was audited by checking every claim against the engine it describes
+  rather than by reading it end to end.
+  (1) compress-pdf-for-email promised on-device processing four separate ways
+  (metaDescription, intro, a benefit, a step, and "Is my document uploaded to
+  a server?" → "No"). CompressPdfClient POSTs to /api/pdf/compress with no
+  client-side path at all. The tool's own page was already honest — only the
+  pages that rank lied. Rewritten, and the shared "Free · on-device · no
+  signup" badge now drops its middle segment for server-side tools (all 15
+  localizations are three ` · ` segments, so no new translation was needed).
+  (2) Measured against production while checking the "only your device's
+  memory" limit answer: 4.19 MB uploads fine, 4.4 MB returns 413 at the edge.
+  A 413 body isn't JSON, so the user got a bare "Compression failed" — on the
+  page whose whole promise is beating Gmail's 25 MB limit. Pre-upload guard +
+  inline warning + honest FAQ; the real fix is queued in NOW.
+  (3) The review-poster page promised a logo upload PosterMakerClient does not
+  have. Answered honestly, pointed at the QR generator, follow-up queued.
+  The WiFi page claimed hidden-SSID support that did not exist, and checking
+  it exposed the real prize: both WiFi builders interpolated raw, so a
+  password containing ; : , \ or " truncated at the delimiter — the code scans
+  perfectly and just fails to connect. QRix's own decoder read /P:([^;]*)/ and
+  truncated identically, so the round trip was self-consistently wrong. Now
+  escaped per spec, with H:true shipped, open networks omitting the password,
+  and the calendar payload given the description field and real times its copy
+  had promised (plus RFC 5545 escaping and VALUE=DATE for all-day events).
+  lib/qr-payload.ts + npm run test:qr — 21 assertions, mutation-verified:
+  removing the escaping fails 4, removing H:true fails 2.
+  Claims checked and left alone because they hold: remove-bg is genuinely
+  on-device (@imgly) and does offer white backgrounds, SVG export exists,
+  vCard carries title/URL/org, Instagram takes a username, fill-and-sign never
+  touches the network, and all 14 CTAs resolve.
 - [x] Jul 22: localized the sizing controls the RU/UZ copy names (M125) — the
   copy said "switch to «вписать»" and that «to'ldirish» crops the sides (8 RU
   and 13 UZ mentions across 50+ pages) while the buttons rendered English
