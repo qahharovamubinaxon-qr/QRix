@@ -31,7 +31,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   wired, flip its `wired` in AI_CLOUD_ROUTES — the trust strip, privacy FAQ
   and CloudNotice follow automatically (M131) — and rewrite that tool's
   intro/about/desc, which still promise the cloud engine in the future tense.
-- [ ] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile.
+- [~] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile. (M135)
   Practical note (M134): the in-app preview pane could not composite frames
   this session — screenshots time out and every CSS box measures 0x0, which
   also makes layout/paint metrics meaningless. Confirmed environmental, not a
