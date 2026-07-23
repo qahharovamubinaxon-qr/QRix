@@ -79,25 +79,50 @@ export default function EraBunny() {
   );
 }
 
-/* generator mascot: the small film beside the CREATE card */
+/* generator mascot: the small film beside the CREATE card.
+
+   The film is 2 MB. It used to mount with the page, and even at the browser's
+   Low priority that is the single heaviest thing the homepage fetches — it was
+   worth ~11s of Speed Index on a throttled mobile run (16.5s home vs ~5.5s on
+   every other template) for a decorative loop that sits below the fold. So the
+   <video> is not rendered at all until the card is within a viewport of the
+   scroll position; until then the poster still stands in, which is the same
+   frame the video starts on, so the swap is invisible. Someone who never
+   scrolls that far never pays for it. */
 export function GenBunny() {
   const smokeRef = useSmoke<HTMLDivElement>(0.25);
   const paraRef = useParallax<HTMLDivElement>(12);
+  const holderRef = useRef<HTMLDivElement>(null);
   const [reduced, setReduced] = useState(false);
+  const [near, setNear] = useState(false);
+
   useEffect(() => {
     setReduced(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
   }, []);
 
+  useEffect(() => {
+    const el = holderRef.current;
+    if (!el) return;
+    if (typeof IntersectionObserver === "undefined") { setNear(true); return; }
+    const io = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setNear(true); io.disconnect(); } },
+      { rootMargin: "100% 0px" } // one viewport of lead time, so it is playing by the time it arrives
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   return (
-    <div className="qx-gm" aria-hidden>
+    <div className="qx-gm" aria-hidden ref={holderRef}>
       <div ref={smokeRef} className="qx-smoke">
         <div ref={paraRef}>
-          {reduced ? (
+          {reduced || !near ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img className="qx-gm-media" src="/scenes/bunny-blue.webp" alt="" draggable={false} />
+            <img className="qx-gm-media" src="/scenes/bunny-blue.webp" alt="" draggable={false}
+              loading="lazy" decoding="async" />
           ) : (
             <video className="qx-gm-media" src="/scenes/bunny-gen-live.webm"
-              autoPlay muted loop playsInline poster="/scenes/bunny-blue.webp" />
+              autoPlay muted loop playsInline preload="none" poster="/scenes/bunny-blue.webp" />
           )}
         </div>
       </div>
