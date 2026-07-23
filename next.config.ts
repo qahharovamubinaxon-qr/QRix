@@ -31,6 +31,16 @@ const nextConfig: NextConfig = {
     return [
       { source: "/embed/:path*", headers: [...embeddable, { key: "Content-Security-Policy", value: "frame-ancestors *" }] },
       { source: "/((?!embed/).*)", headers: securityHeaders },
+      // Self-hosted fonts live in public/, which Next serves must-revalidate by
+      // default — that is a 304 round trip in front of first paint on every
+      // repeat visit, which defeats the point of self-hosting them. Their names
+      // are content-stable (scripts/fetch-fonts.mjs writes the same filename for
+      // a given family/style/weight/subset), so if a family is ever swapped the
+      // path has to change with it or cached clients keep the old face.
+      {
+        source: "/fonts/:file*.woff2",
+        headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
+      },
     ];
   },
   // Old stub URLs (a heading, no generator) → the real tools. A config redirect

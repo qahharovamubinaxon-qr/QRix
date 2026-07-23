@@ -1,7 +1,10 @@
-/* Google Fonts are loaded via <link rel="preconnect"> + <link rel="stylesheet">
-   in app/layout.tsx <head>, not an @import here — an @import is discovered only
-   after this stylesheet is parsed, which delays first render. */
+/* Fonts are self-hosted — see scripts/fetch-fonts.mjs for why and how to
+   regenerate. This @import is inlined by the bundler at build time (same as
+   design-v2.css below), so unlike a remote @import it costs no extra request
+   and nothing is discovered late. The one file first paint depends on,
+   bricolage-grotesque latin, is additionally preloaded from <head>. */
 @import "tailwindcss";
+@import "./fonts.css";
 @import "./design-v2.css";
 
 /* ============================================
