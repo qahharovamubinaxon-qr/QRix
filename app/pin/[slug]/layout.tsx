@@ -11,7 +11,8 @@ import type { Metadata } from "next";
    The inline script runs before paint, so the chrome never flashes. */
 
 export const metadata: Metadata = {
-  title: "PIN Protected — QRix",
+  // the root layout's template already appends " | QRix" — don't repeat it
+  title: "PIN Protected",
   robots: { index: false, follow: false },   // a gate is not a landing page
 };
 
