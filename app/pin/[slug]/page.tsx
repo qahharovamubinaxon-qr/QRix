@@ -1,10 +1,40 @@
 import { redirect } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { FiLock } from "react-icons/fi";
 
 type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ error?: string }>;
+};
+
+/* Deliberately plain: flat black, one input, one button, no card, no gradient,
+   no glow, no motion. The visitor scanned a code to open a link — every extra
+   element is something between them and that. Colours are literal rather than
+   themed because `qx-bare` forces a black page in both themes. */
+
+const INPUT: React.CSSProperties = {
+  width: "100%",
+  padding: "16px",
+  fontSize: "20px",
+  textAlign: "center",
+  letterSpacing: "0.3em",
+  color: "#fff",
+  background: "#000",
+  border: "1px solid #333",
+  borderRadius: "8px",
+  outline: "none",
+};
+
+const BUTTON: React.CSSProperties = {
+  width: "100%",
+  marginTop: "12px",
+  padding: "16px",
+  fontSize: "15px",
+  fontWeight: 600,
+  color: "#000",
+  background: "#fff",
+  border: "none",
+  borderRadius: "8px",
+  cursor: "pointer",
 };
 
 export default async function Page({ params, searchParams }: Props) {
@@ -19,13 +49,11 @@ export default async function Page({ params, searchParams }: Props) {
 
   if (!data) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg-gradient)" }}>
-        <div className="qx-card p-8 text-center">
-          <div className="text-4xl mb-3">🔍</div>
-          <h1 className="font-display text-xl font-bold" style={{ color: "var(--text)" }}>Link not found</h1>
-          <p className="text-sm mt-2" style={{ color: "var(--text-muted)" }}>This QR code does not exist or was removed.</p>
-        </div>
-      </div>
+      <main style={{ minHeight: "100vh", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+        <p style={{ color: "#888", fontSize: "15px", textAlign: "center" }}>
+          This link does not exist or was removed.
+        </p>
+      </main>
     );
   }
 
@@ -34,28 +62,19 @@ export default async function Page({ params, searchParams }: Props) {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg-gradient)" }}>
-      <div className="qx-card p-8 w-full max-w-sm">
-        <div className="flex flex-col items-center text-center mb-6">
-          <span className="w-14 h-14 rounded-2xl flex items-center justify-center text-white mb-4"
-            style={{ background: "var(--grad-primary)", boxShadow: "var(--glow-primary)" }}>
-            <FiLock size={24} />
-          </span>
-          <h1 className="font-display text-xl font-bold" style={{ color: "var(--text)" }}>
-            PIN Protected
-          </h1>
-          <p className="text-sm mt-1.5" style={{ color: "var(--text-muted)" }}>
-            Enter the PIN to open this link
-          </p>
-        </div>
+    <main style={{ minHeight: "100vh", background: "#000", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" }}>
+      <div style={{ width: "100%", maxWidth: "300px" }}>
+        <h1 style={{ color: "#fff", fontSize: "17px", fontWeight: 600, textAlign: "center", marginBottom: "6px" }}>
+          Enter PIN
+        </h1>
+        <p style={{ color: "#777", fontSize: "13px", textAlign: "center", marginBottom: "24px" }}>
+          This link is protected
+        </p>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl text-xs text-center"
-            style={{ background: "rgba(248,113,113,.1)", border: "1px solid rgba(248,113,113,.3)", color: "var(--danger)" }}>
-            {error === "rate"
-              ? "🔒 Too many attempts — please wait a few minutes and try again"
-              : "❌ Wrong PIN — try again"}
-          </div>
+          <p style={{ color: "#e05252", fontSize: "13px", textAlign: "center", marginBottom: "16px" }}>
+            {error === "rate" ? "Too many attempts — wait a few minutes" : "Wrong PIN"}
+          </p>
         )}
 
         <form action={`/pin/${slug}/verify`} method="POST">
@@ -63,20 +82,16 @@ export default async function Page({ params, searchParams }: Props) {
             name="pin"
             type="password"
             inputMode="numeric"
-            placeholder="Enter PIN"
+            autoComplete="off"
+            aria-label="PIN"
             autoFocus
-            className="w-full px-4 py-3.5 text-center text-lg tracking-[0.3em] rounded-xl"
-            style={{ background: "var(--surface-hover)", border: "1.5px solid var(--border-strong)", color: "var(--text)" }}
+            style={INPUT}
           />
-          <button type="submit" className="qx-btn w-full mt-4 !py-3.5">
-            Open Link →
+          <button type="submit" style={BUTTON}>
+            Open
           </button>
         </form>
-
-        <p className="text-[11px] text-center mt-5" style={{ color: "var(--text-faint)" }}>
-          Protected by QRix
-        </p>
       </div>
-    </div>
+    </main>
   );
 }

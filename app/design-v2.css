@@ -1062,6 +1062,21 @@ html.light .qx-glitter { display: none; }
 }
 .qx-smoke.on { opacity: 1; filter: blur(0); transform: none; }
 
+/* The hero mascot is the homepage's LCP element, and it is in view by
+   definition — it does not need an observer to tell it so. While its reveal
+   was driven only by JS adding .on, the largest paint could not happen until
+   the React bundle had downloaded and hydrated: measured 4918 ms of "render
+   delay", 76% of a 6.5s LCP, for an image that had finished loading at 1.5s.
+   So the same reveal runs as a CSS animation that starts when this stylesheet
+   parses. On mount the component sets .on and drops --auto in one go, which
+   hands control back to the transition above with no flash (both states are
+   opacity 1) so the scroll-away dissolve still works. */
+@keyframes qx-smoke-in {
+  from { opacity: 0; filter: blur(18px); transform: scale(1.06) translateY(10px); }
+  to   { opacity: 1; filter: blur(0);    transform: none; }
+}
+.qx-smoke--auto { animation: qx-smoke-in 0.9s var(--ease-out) both; }
+
 /* hero stage — lives INSIDE the era section, scrolls with it */
 .qx-hm {
   position: absolute; left: 50%; bottom: clamp(72px, 11vh, 122px); z-index: 5;
@@ -1101,6 +1116,7 @@ html.light .qx-glitter { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .qx-smoke { transition: none; opacity: 1; filter: none; transform: none; }
+  .qx-smoke--auto { animation: none; }
   .qx-hm-img, .qx-hm-vid { transition: none; }
 }
 
@@ -1334,6 +1350,18 @@ html.light .qx-dl-glow::before { opacity: 0.5; }
 html.qx-embed body > *:not(#main) { display: none !important; }
 html.qx-embed, html.qx-embed body { background: transparent !important; min-height: 0 !important; }
 .qx-embed-shell { max-width: 560px; margin: 0 auto; padding: 14px; }
+
+/* ── bare mode: the PIN gate ──
+   Arrived here by scanning a QR code to open ONE link. No nav, no footer, no
+   dot canvas (it runs a rAF loop inside whatever in-app browser the camera
+   opened), and nothing that moves. Flat black in both themes — this screen is
+   a lock, not a page. */
+html.qx-bare body > *:not(#main) { display: none !important; }
+html.qx-bare, html.qx-bare body { background: #000 !important; }
+html.qx-bare *, html.qx-bare *::before, html.qx-bare *::after {
+  animation: none !important;
+  transition: none !important;
+}
 
 /* ── footer readability veil: gently blur the world-map dots behind the text ── */
 .qx-foot-veil {
