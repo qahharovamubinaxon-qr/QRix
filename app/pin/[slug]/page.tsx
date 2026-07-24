@@ -21,7 +21,8 @@ const INPUT: React.CSSProperties = {
   background: "#000",
   border: "1px solid #333",
   borderRadius: "8px",
-  outline: "none",
+  // no `outline: none` — with transitions disabled there is nothing else to
+  // signal focus, and a keyboard user needs to see where they are typing
 };
 
 const BUTTON: React.CSSProperties = {
