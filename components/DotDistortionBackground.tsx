@@ -122,9 +122,55 @@ export default function DotDistortionBackground({
     let hidden = false;
     const R2 = influence * influence;
 
-    const loop = () => {
-      if (disposed) return;
-      t += 0.016;
+    /* Per-frame createRadialGradient is the single most expensive thing this
+       canvas used to do: six orb gradients plus a full-screen vignette, all
+       re-evaluated per pixel every frame. Both are cached instead — the orbs
+       as unit sprites drawn with globalAlpha, the vignette as one bitmap that
+       only changes on resize or theme flip. */
+    const SPRITE_R = 128;
+    const orbSprites = new Map<string, HTMLCanvasElement>();
+    const orbSprite = (color: [number, number, number]) => {
+      const key = color.join(",");
+      const cached = orbSprites.get(key);
+      if (cached) return cached;
+      const s = document.createElement("canvas");
+      s.width = s.height = SPRITE_R * 2;
+      const sc = s.getContext("2d")!;
+      const g = sc.createRadialGradient(SPRITE_R, SPRITE_R, 0, SPRITE_R, SPRITE_R, SPRITE_R);
+      g.addColorStop(0, `rgba(${key},1)`);
+      g.addColorStop(0.42, `rgba(${key},0.38)`);
+      g.addColorStop(1, `rgba(${key},0)`);
+      sc.fillStyle = g;
+      sc.fillRect(0, 0, SPRITE_R * 2, SPRITE_R * 2);
+      orbSprites.set(key, s);
+      return s;
+    };
+
+    let vigCanvas: HTMLCanvasElement | null = null;
+    let vigKey = "";
+    const vignette = () => {
+      const light = isLight();
+      const key = `${W}x${H}:${light}`;
+      if (vigCanvas && vigKey === key) return vigCanvas;
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, W);
+      c.height = Math.max(1, H);
+      const vc = c.getContext("2d")!;
+      const vigBase = light ? "244,245,251" : "7,7,15";
+      const vig = vc.createRadialGradient(W / 2, H / 2, H * 0.28, W / 2, H / 2, H * 0.88);
+      vig.addColorStop(0, `rgba(${vigBase},0)`);
+      vig.addColorStop(1, `rgba(${vigBase},${light ? 0.42 : 0.52})`);
+      vc.fillStyle = vig;
+      vc.fillRect(0, 0, W, H);
+      vigCanvas = c;
+      vigKey = key;
+      return c;
+    };
+
+    /* `k` scales anything that used to advance once per 60 Hz frame, so the
+       drift reads at the same speed under the 30 fps cap below. */
+    const drawFrame = (k = 1) => {
+      t += 0.016 * k;
       const pal = palette();
       ctx.clearRect(0, 0, W, H);
 
@@ -135,20 +181,13 @@ export default function DotDistortionBackground({
         const pulse = 1 + (reduce ? 0 : 0.05 * Math.sin(t * 0.7 + orb.phase));
         const r = orb.r * pulse;
         const a = orb.alpha * (reduce ? 1 : 0.88 + 0.12 * Math.sin(t * 0.9 + orb.phase));
-        const [rc, gc, bc] = orb.color;
 
-        const grad = ctx.createRadialGradient(orb.x, orb.y, 0, orb.x, orb.y, r);
-        grad.addColorStop(0,    `rgba(${rc},${gc},${bc},${a})`);
-        grad.addColorStop(0.42, `rgba(${rc},${gc},${bc},${a * 0.38})`);
-        grad.addColorStop(1,    `rgba(${rc},${gc},${bc},0)`);
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(orb.x, orb.y, r, 0, Math.PI * 2);
-        ctx.fill();
+        ctx.globalAlpha = a;
+        ctx.drawImage(orbSprite(orb.color), orb.x - r, orb.y - r, r * 2, r * 2);
 
         if (!reduce) {
-          orb.x += orb.vx;
-          orb.y += orb.vy;
+          orb.x += orb.vx * k;
+          orb.y += orb.vy * k;
           if (orb.x < -orb.r) orb.x = W + orb.r;
           if (orb.x > W + orb.r) orb.x = -orb.r;
           if (orb.y < -orb.r) orb.y = H + orb.r;
@@ -159,20 +198,27 @@ export default function DotDistortionBackground({
 
       // ── Layer 2: Dots ────────────────────────────────────
       if (!reduce) {
-        pulseTimer += 0.016;
+        pulseTimer += 0.016 * k;
         if (pulseTimer > 0.35) {
           pulseTimer = 0;
-          for (let k = 0; k < 3; k++)
+          for (let n = 0; n < 3; n++)
             pulses.push({ i: Math.floor(Math.random() * dots.length), t: 0 });
           pulses = pulses.filter((p) => p.t < 1.4);
         }
-        for (const p of pulses) p.t += 0.016;
+        for (const p of pulses) p.t += 0.016 * k;
       }
       const pulseMap = new Map<number, number>();
       for (const p of pulses) {
         const v = Math.sin((p.t / 1.4) * Math.PI);
         pulseMap.set(p.i, Math.max(pulseMap.get(p.i) || 0, v));
       }
+
+      /* Every dot that is neither under the cursor nor pulsing shares one
+         colour, so they go into a single path and cost one fill() between
+         them instead of one each. */
+      const baseStyle = `rgba(${pal.base[0]},${pal.base[1]},${pal.base[2]},${pal.baseA})`;
+      ctx.beginPath();
+      const boosted: { x: number; y: number; r: number; a: number; col: [number, number, number] }[] = [];
 
       for (let i = 0; i < dots.length; i++) {
         const d = dots[i];
@@ -194,44 +240,85 @@ export default function DotDistortionBackground({
 
         const breathe = reduce ? 0 : Math.sin(t * 1.6 + d.ph) * 0.22;
         const pulse = pulseMap.get(i) || 0;
-        const r = dotRadius + breathe + sizeBoost + pulse * 1.1;
-        const a = Math.min(1, pal.baseA + aBoost + pulse * 0.8);
-        const col = pulse > 0.3 || aBoost > 0.3 ? pal.bright : pal.base;
+        const r = Math.max(0.3, dotRadius + breathe + sizeBoost + pulse * 1.1);
 
+        if (aBoost === 0 && pulse === 0) {
+          ctx.moveTo(x + r, y);
+          ctx.arc(x, y, r, 0, Math.PI * 2);
+        } else {
+          boosted.push({
+            x, y, r,
+            a: Math.min(1, pal.baseA + aBoost + pulse * 0.8),
+            col: pulse > 0.3 || aBoost > 0.3 ? pal.bright : pal.base,
+          });
+        }
+      }
+      ctx.fillStyle = baseStyle;
+      ctx.fill();
+
+      for (const b of boosted) {
         ctx.beginPath();
-        ctx.arc(x, y, Math.max(0.3, r), 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${col[0]},${col[1]},${col[2]},${a})`;
+        ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${b.col[0]},${b.col[1]},${b.col[2]},${b.a})`;
         ctx.fill();
       }
 
       // ── Layer 3: Vignette ────────────────────────────────
-      const light = isLight();
-      const vigBase = light ? "244,245,251" : "7,7,15";
-      const vig = ctx.createRadialGradient(W / 2, H / 2, H * 0.28, W / 2, H / 2, H * 0.88);
-      vig.addColorStop(0, `rgba(${vigBase},0)`);
-      vig.addColorStop(1, `rgba(${vigBase},${light ? 0.42 : 0.52})`);
-      ctx.fillStyle = vig;
-      ctx.fillRect(0, 0, W, H);
-
-      // Reduced-motion → one static frame, no loop. Hidden tab → pause.
-      if (!reduce && !hidden) raf = requestAnimationFrame(loop);
+      ctx.drawImage(vignette(), 0, 0, W, H);
     };
 
-    if (reduce) loop(); // draw a single static frame and stop
-    else raf = requestAnimationFrame(loop);
+    /* 30 fps. The orbs drift at 0.15 px/frame and the dots breathe over
+       seconds — nothing here reads as motion at 60 Hz that does not read the
+       same at 30, and it halves the main-thread cost of the whole layer. */
+    const FRAME_MS = 1000 / 30;
+    let lastFrame = 0;
+
+    const loop = (now: number) => {
+      if (disposed) return;
+      const dt = lastFrame ? now - lastFrame : FRAME_MS;
+      if (dt >= FRAME_MS - 1) {
+        lastFrame = now;
+        drawFrame(Math.min(dt, 100) / (1000 / 60));
+      }
+      if (!hidden) raf = requestAnimationFrame(loop);
+    };
+
+    /* The background is decoration behind the fold-one content, but it used to
+       start competing for the main thread the moment it hydrated — inside the
+       window LCP and TBT are measured in. It now paints one frame straight
+       away (so the page never looks unfinished) and only starts animating once
+       the document has loaded and the thread is idle. */
+    const startLoop = () => {
+      if (disposed || reduce) return;
+      lastFrame = 0;
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(loop);
+    };
+    const whenIdle = (fn: () => void) => {
+      const ric = (window as unknown as { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void })
+        .requestIdleCallback;
+      if (ric) ric(fn, { timeout: 3000 });
+      else setTimeout(fn, 1200);
+    };
+
+    drawFrame(0); // one static frame, immediately
+    if (!reduce) {
+      if (document.readyState === "complete") whenIdle(startLoop);
+      else window.addEventListener("load", () => whenIdle(startLoop), { once: true });
+    }
 
     // Pause the loop while the tab is hidden (saves CPU / battery)
     const onVis = () => {
       hidden = document.hidden;
-      if (!hidden && !reduce && !disposed) { cancelAnimationFrame(raf); raf = requestAnimationFrame(loop); }
+      if (!hidden && !reduce && !disposed) startLoop();
     };
     document.addEventListener("visibilitychange", onVis);
 
     // Theme change → re-seed orbs (and repaint once if we're in static mode)
-    const themeObs = new MutationObserver(() => { seedOrbs(W, H); if (reduce) loop(); });
+    const themeObs = new MutationObserver(() => { seedOrbs(W, H); if (reduce) drawFrame(0); });
     themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
 
-    const onResize = () => { build(); if (reduce) loop(); };
+    const onResize = () => { build(); drawFrame(0); };
     window.addEventListener("resize", onResize);
 
     return () => {
