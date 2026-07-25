@@ -1,6 +1,45 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+
+/* The CSS twin of the canvas, for every device without a cursor. Positions are
+   fixed rather than random so the server and the client render the same tree;
+   the drift comes from one keyframe on `transform`, so this whole layer lives
+   on the compositor and costs no main-thread time at all. */
+const CSS_ORBS = [
+  { c: "124,58,237", size: 62, x: 8,  y: 12, dur: 34, delay: 0 },
+  { c: "34,211,238", size: 54, x: 68, y: 4,  dur: 41, delay: -6 },
+  { c: "99,102,241", size: 70, x: 40, y: 55, dur: 47, delay: -13 },
+  { c: "168,85,247", size: 48, x: 78, y: 62, dur: 38, delay: -21 },
+  { c: "6,182,212",  size: 58, x: 2,  y: 68, dur: 44, delay: -9 },
+  { c: "139,92,246", size: 52, x: 52, y: 26, dur: 36, delay: -17 },
+];
+
+function CssBackdrop() {
+  return (
+    <div className="qx-bgcss">
+      <div className="qx-bgcss-orbs">
+        {CSS_ORBS.map((o, i) => (
+          <div
+            key={i}
+            className="qx-bgcss-orb"
+            style={{
+              left: `${o.x}%`,
+              top: `${o.y}%`,
+              width: `${o.size}vmax`,
+              height: `${o.size}vmax`,
+              marginLeft: `-${o.size / 2}vmax`,
+              marginTop: `-${o.size / 2}vmax`,
+              background: `radial-gradient(circle, rgba(${o.c},0.13) 0%, rgba(${o.c},0.05) 42%, rgba(${o.c},0) 70%)`,
+              animationDuration: `${o.dur}s`,
+              animationDelay: `${o.delay}s`,
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /* ============================================================
    QRix Premium Background v2
@@ -23,8 +62,22 @@ export default function DotDistortionBackground({
   strength?: number;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [useCanvas, setUseCanvas] = useState(false);
+
+  /* Pushing the dots around is the only thing the canvas does that the CSS
+     layer cannot, and it needs a cursor to do it. On touch — and on every
+     Lighthouse mobile run — the canvas was repainting a full-screen,
+     screen-blended composite forever to render an effect nobody could
+     trigger. It now mounts only where a fine pointer exists. */
+  useEffect(() => {
+    setUseCanvas(
+      window.matchMedia("(pointer: fine)").matches &&
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+  }, []);
 
   useEffect(() => {
+    if (!useCanvas) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -330,11 +383,11 @@ export default function DotDistortionBackground({
       document.removeEventListener("visibilitychange", onVis);
       themeObs.disconnect();
     };
-  }, [gap, dotRadius, influence, strength]);
+  }, [useCanvas, gap, dotRadius, influence, strength]);
 
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      <canvas ref={canvasRef} className="absolute inset-0" />
+      {useCanvas ? <canvas ref={canvasRef} className="absolute inset-0" /> : <CssBackdrop />}
     </div>
   );
 }

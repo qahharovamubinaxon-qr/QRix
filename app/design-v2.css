@@ -1425,3 +1425,51 @@ html.light .qx-chip2 { background: rgba(0, 0, 0, 0.04); border-color: rgba(0, 0,
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5), 0 0 70px rgba(255, 77, 28, 0.1);
 }
 html.light .qx-tool-preview { border-color: rgba(0, 0, 0, 0.1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.14); }
+
+/* ============================================================
+   Background v3 — the CSS twin of DotDistortionBackground
+   ------------------------------------------------------------
+   The canvas earns its cost only where a cursor can push the dots
+   around. Everywhere else (touch, and every Lighthouse mobile run)
+   the same three layers are painted as GPU-composited CSS: the dot
+   grid is one tiled radial-gradient, the aurora orbs are blurred
+   gradient blobs drifting on transforms, the vignette is static.
+   It is also server-rendered, so the background is there at first
+   paint instead of arriving with hydration.
+   ============================================================ */
+.qx-bgcss { position: absolute; inset: 0; overflow: hidden; }
+.qx-bgcss::before {           /* dot grid */
+  content: ""; position: absolute; inset: -30px;
+  background-image: radial-gradient(circle at 1px 1px, rgba(34, 197, 130, 0.18) 1px, transparent 0);
+  background-size: 28px 28px;
+}
+.qx-bgcss::after {            /* vignette */
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 100% 88% at 50% 50%, rgba(7, 7, 15, 0) 28%, rgba(7, 7, 15, 0.52) 100%);
+}
+html.light .qx-bgcss::before {
+  background-image: radial-gradient(circle at 1px 1px, rgba(124, 58, 237, 0.22) 1px, transparent 0);
+}
+html.light .qx-bgcss::after {
+  background: radial-gradient(ellipse 100% 88% at 50% 50%, rgba(244, 245, 251, 0) 28%, rgba(244, 245, 251, 0.42) 100%);
+}
+
+.qx-bgcss-orbs { position: absolute; inset: 0; mix-blend-mode: screen; }
+html.light .qx-bgcss-orbs { mix-blend-mode: normal; opacity: 0.9; }
+.qx-bgcss-orb {
+  position: absolute; border-radius: 50%;
+  will-change: transform;
+  animation: qx-orb-drift linear infinite;
+}
+@keyframes qx-orb-drift {
+  0%   { transform: translate3d(0, 0, 0) scale(1); }
+  25%  { transform: translate3d(6vw, -4vh, 0) scale(1.05); }
+  50%  { transform: translate3d(-3vw, 5vh, 0) scale(0.98); }
+  75%  { transform: translate3d(-6vw, -2vh, 0) scale(1.04); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+/* Reduced motion → the orbs simply hold their position. */
+@media (prefers-reduced-motion: reduce) {
+  .qx-bgcss-orb { animation: none; }
+}
