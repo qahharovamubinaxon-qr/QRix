@@ -32,12 +32,37 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   and CloudNotice follow automatically (M131) — and rewrite that tool's
   intro/about/desc, which still promise the cloud engine in the future tense.
 - [~] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile. (M135)
-  Practical note (M134): the in-app preview pane could not composite frames
-  this session — screenshots time out and every CSS box measures 0x0, which
-  also makes layout/paint metrics meaningless. Confirmed environmental, not a
-  site bug: /qr-tools/url behaves identically. So drive this from PageSpeed
-  Insights against the live URLs (or a local lighthouse CLI run) rather than
-  the pane, and don't trust anything the pane reports about geometry.
+  Lighthouse mobile against production, measured (not estimated):
+    baseline   home 36 · qr-tools/url 51 · image-tools/compress 41 ·
+               convert/png-to-jpg 45 · qr-code-statistics 46
+    after 7a073dd  home 55 · 87 · 87 · 80 · 83
+  The whole first tranche was one cause: DotDistortionBackground, mounted by
+  layout on every page, repainting a full-screen screen-blended canvas forever.
+  It produced back-to-back ~200 ms long tasks and TBT of 5.9-9.2 s on the tool
+  templates; TBT is now 120-540 ms. Deferring the loop and cheapening the
+  frame (bdc463d) did NOT fix it — only not running a canvas at all on devices
+  with no cursor did (7a073dd).
+  next: LCP is now the only thing between the tool templates and 95. It sits at
+  3.1-4.1 s and lcp-breakdown attributes ~1.4-1.6 s of it to *element render
+  delay*, with TTFB at only ~335 ms and no LCP image — so this is a text LCP
+  waiting on something after CSS. Ruled out already: data-reveal (zero
+  occurrences on /qr-tools/url) and font-display (audit passes). Two live
+  suspects, in order: (1) the preloaded bricolage latin woff2 is 75 KB / 482 ms
+  and text repaints when it swaps in, which moves LCP — check whether a
+  tighter subset or dropping the preload lowers it; (2) the render-blocking
+  29 KB CSS chunk (est. 80 ms). Re-measure home LAST — it is a different and
+  much larger problem (see below).
+  Home is a separate mission, do not fold it in: at 55 it is the only template
+  still far off, because app/page.tsx is one giant "use client" component, so
+  the entire homepage hydrates on the client. Its TBT variance across 3 runs
+  was 2810-4110 ms, so single-run comparisons there are worthless — take a
+  median of 3. Fixing it means splitting the page into server components,
+  which is a mission of its own.
+  Measurement notes: the in-app preview pane cannot composite (screenshots time
+  out), so verify CSS structurally via computed styles, not screenshots — that
+  works fine and geometry was NOT 0x0 this session. PSI's API 429s without a
+  key; drive `npx lighthouse` against the live URL instead. The machine idles
+  at ~29% CPU, which is why TBT swings; only trust deltas of >1 s.
 - [ ] /qr-code-statistics follow-ups, ranked: (1) an /embed-able "stat card"
   so a blogger quoting a figure links back — the actual backlink mechanism,
   which the page currently only invites in prose; (2) re-check the four

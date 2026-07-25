@@ -817,3 +817,42 @@ also the pitch). Registered in sitemap, search index and llms.txt.
 Files: lib/qr-stats.ts (new), app/qr-code-statistics/page.tsx (new),
 scripts/test-qr-stats.mjs (new), app/sitemap.ts, lib/search-index.ts,
 public/llms.txt, package.json. Branch design-v2.
+
+## M135 — CWV audit: the background canvas was the whole first tranche
+
+Lighthouse mobile against production, 5 template types. Baseline: home 36,
+/qr-tools/url 51, /image-tools/compress 41, /convert/png-to-jpg 45,
+/qr-code-statistics 46. After: 55 / 87 / 87 / 80 / 83.
+
+One cause dominated four of the five templates. DotDistortionBackground is
+mounted by layout on every page, and it repainted a full-screen,
+screen-blended canvas every frame forever. That showed up as back-to-back
+~200 ms long tasks and TBT of 5.9-9.2 s; it is now 120-540 ms.
+
+Two commits, and the first one is the instructive one:
+
+- bdc463d deferred the loop past `load`+idle, replaced the six per-frame
+  createRadialGradient calls with cached sprites, collapsed ~500 dot fills into
+  one path, and capped to 30 fps. Measured effect: none outside the noise band.
+  The arithmetic was never the cost.
+- 7a073dd removed the canvas instead. It exists to push the dot grid away from
+  the cursor, so on `(pointer: coarse)` — every phone, and every Lighthouse
+  mobile run — it was animating forever to render an interaction that cannot be
+  triggered. Those devices now get .qx-bgcss: the dot grid as one tiled
+  radial-gradient, the aurora orbs as blurred blobs on a transform keyframe, a
+  static vignette. Compositor-only, and server-rendered, so the background is
+  present at first paint instead of arriving with hydration. Cursor devices
+  keep the canvas untouched. prefers-reduced-motion takes the CSS path with the
+  orbs held still.
+
+Palette parity verified on production via computed styles in both themes:
+dots rgba(34,197,130,.18) dark / rgba(124,58,237,.22) light at 28px, vignettes
+identical to the canvas stops.
+
+Remaining: LCP, now the only thing between the tool templates and 95 — 3.1-4.1s
+with ~1.4-1.6s of element render delay on a text LCP, TTFB only ~335ms. Home is
+a separate mission: at 55 it is held back by app/page.tsx being one giant
+"use client" component.
+
+Files: components/DotDistortionBackground.tsx, app/design-v2.css.
+Branch design-v2.
