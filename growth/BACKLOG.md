@@ -74,7 +74,17 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   already lazyOnload, so the remaining lever there is loading it on first
   interaction with a timeout fallback — that trades away page_views for
   bounced sessions, so price it before shipping. Take the app chunk first:
-  find what /qr-tools/[slug] actually hydrates. CAUTION on scores this
+  find what /qr-tools/[slug] actually hydrates. Do NOT start with the search
+  catalog — already checked: chunk 2mthhglzdvgh7.js is the biggest single
+  download on the page (82 KB transfer / 250 KB raw, and it does hold the
+  whole blog + convert-pairs catalog that CommandSearch pulls in from the root
+  layout), but it does not appear in bootup-time at all, so it costs bandwidth
+  and ~0 main thread. Deferring it is a real but separate LCP/bandwidth win,
+  not a TBT one. TBT is 948 ms of *scripting* against 30 ms of parse in
+  2pqvdscfnq65v.js — that is React hydrating the template, so the fix is
+  shipping less client UI on it (server components), the same shape of
+  mission as the homepage one below. That needs trustworthy TBT numbers,
+  which this machine cannot currently give. CAUTION on scores this
   session: two back-to-back runs of the identical build scored 49 and 65 on
   simTBT 2233 vs 645 ms. Absolute scores are worthless right now (a second
   Claude session is running on this machine); only observed-metric deltas
