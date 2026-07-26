@@ -144,7 +144,11 @@ html.light .qx-stat-pill {
 
 /* ============ Base ============ */
 *, *::before, *::after { border-color: var(--border); box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+/* scroll-padding-top clears the 68px sticky header: without it every in-page
+   anchor lands with its target tucked underneath the nav. It matters more now
+   that the tool pages' "Use the tool" button is a plain href="#top" instead of
+   a scrollTo() call — that was the last reason ToolPageShell needed JS. */
+html { scroll-behavior: smooth; scroll-padding-top: 84px; }
 
 body {
   /* Solid base — the animated starfield canvas paints orbs + dots behind */
