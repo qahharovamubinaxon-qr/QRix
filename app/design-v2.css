@@ -1071,9 +1071,17 @@ html.light .qx-glitter { display: none; }
    parses. On mount the component sets .on and drops --auto in one go, which
    hands control back to the transition above with no flash (both states are
    opacity 1) so the scroll-away dissolve still works. */
+/* The keyframe starts at 0.26 opacity, not 0, and that number is the whole
+   point: Chrome will not accept an opacity:0 element as a contentful paint, so
+   while this began at 0 the mascot was not the LCP candidate on the first
+   painted frame — it became one only on the next frame the main thread could
+   produce, which during hydration is over a second later (measured: element
+   render delay stayed at ~2.4s even after the image itself was arriving at
+   1.1s). Starting from a faint blurred ghost registers the paint immediately
+   and still reads as materializing out of the smoke. */
 @keyframes qx-smoke-in {
-  from { opacity: 0; filter: blur(18px); transform: scale(1.06) translateY(10px); }
-  to   { opacity: 1; filter: blur(0);    transform: none; }
+  from { opacity: 0.26; filter: blur(18px); transform: scale(1.06) translateY(10px); }
+  to   { opacity: 1;    filter: blur(0);    transform: none; }
 }
 .qx-smoke--auto { animation: qx-smoke-in 0.9s var(--ease-out) both; }
 

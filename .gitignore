@@ -52,3 +52,6 @@ geoip/*.mmdb
 
 # growth continuous-loop lock (per-machine, never committed)
 growth/.lock
+
+# raw lighthouse runs kept while a CWV mission is open (per-machine, large)
+/.psi/
