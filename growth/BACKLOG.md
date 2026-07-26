@@ -153,14 +153,25 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   1281.3 KB (-258.6 KB). Driven on production: "jpg to pdf" returns JPG to PDF
   first, and the Cyrillic transliteration path ("жпг то пдф") returns the same
   row, so the on-demand catalog serves both. Zero page errors.
-  next: two modules are still eager on the homepage and only ONE of them has to
-  be. app/page.tsx genuinely uses HOME_I18N. The other is the auth SDK:
-  app/page.tsx:6 imports ReviewsSection (which imports supabase-browser) and
-  renders it at line 817, below the fold in the "dusk" scene — so the whole SDK
-  is eager on the site's most important page for a section most visitors never
-  scroll to. lib/blog is a third, via LatestPosts at the same depth. Both are
-  the CommandSearchLoader shape again and the homepage is the biggest CWV item
-  left. Then the remaining hydration weight in the ROOT
+  Sixth tranche, same session (8173b05 + f212ba2): ReviewsSection was the last
+  eager importer of the auth SDK on the homepage — app/page.tsx:6 imports it and
+  renders it at line 817, below the fold in the "dusk" scene, and app/page.tsx
+  is one giant "use client" component so depth on the page buys nothing. Nothing
+  it paints needs the SDK (it renders from SEED until the query answers), so
+  both call sites went through the same dynamic import. Homepage 21 scripts /
+  1281.3 KB -> 20 / 1044.7 KB. End to end this session the homepage eager set is
+  1539.9 -> 1044.7 KB (-32%). Verified on production: chunk 0zrey3cxfzgvi.js is
+  absent from the HTML's script set, still requested after load, and the real
+  query still fires (a REST call to /rest/v1/reviews), zero page errors.
+  Deferring introduced a failure mode a static import cannot have — a chunk
+  fetch can fail — so both call sites now take the localStorage path a query
+  error already took (f212ba2). Worth remembering on every one of these.
+  next: lib/blog is the last of the three still eager on the homepage, via
+  LatestPosts (app/page.tsx:15, rendered at 810, also below the fold) — but
+  unlike the SDK it feeds what that section PAINTS, so it needs the deferral to
+  be viewport-driven rather than intent-driven, which is a different shape from
+  anything shipped so far. HOME_I18N stays; app/page.tsx genuinely uses it.
+  After that, the remaining hydration weight in the ROOT
   LAYOUT, which mounts eleven client components on every page in the site:
   TopNav (400 lines), DotDistortionBackground (393), CommandSearch (234),
   MotionLayer (196), CookieConsent (80), ErrorMonitor (59), Toaster (49),

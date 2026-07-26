@@ -985,3 +985,27 @@ components/CommandSearchLoader.tsx, components/HeroSearch.tsx, app/layout.tsx,
 lib/nav-i18n.ts, scripts/test-nav-i18n.mjs, scripts/test-eager-layout.mjs,
 scripts/measure-eager-bundle.mjs, package.json.
 Branch design-v2.
+
+### M138 tranche 6 — the last eager auth SDK on the homepage
+
+ReviewsSection was the only remaining eager importer of supabaseBrowser on
+app/page.tsx. It renders below the fold, but app/page.tsx is one giant
+"use client" component, so depth on the page buys nothing — the whole
+auth/postgrest client was in the homepage's eager bundle for a block most
+visitors never scroll to. Nothing it paints needs it (SEED renders until the
+query answers), so both call sites go through a dynamic import.
+
+  homepage eager set  21 scripts / 1281.3 KB -> 20 / 1044.7 KB
+  end to end today    22 / 1539.9 KB -> 20 / 1044.7 KB   (-32%)
+
+Verified on production: the SDK chunk is absent from the HTML's script set,
+still requested after load, and the real query still fires (REST call to
+/rest/v1/reviews), zero page errors.
+
+Deferring an import adds a failure mode the static one could not have — a chunk
+fetch can fail where a bundled module cannot — so both call sites now take the
+same localStorage fallback a query error already took. Apply that to every one
+of these deferrals.
+
+Files: components/ReviewsSection.tsx, scripts/test-eager-layout.mjs.
+Branch design-v2.
