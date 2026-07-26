@@ -141,19 +141,24 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
   // Load: Supabase first, fall back to localStorage.
   useEffect(() => {
     (async () => {
-      const { data, error } = await (await db())
-        .from("reviews")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(12);
-      if (error) {
+      const readLocal = () => {
         setUseLocal(true);
         try {
           setReviews(JSON.parse(localStorage.getItem("qrix-reviews") || "[]").slice(0, 12));
         } catch { /* nothing stored */ }
-      } else {
-        setReviews(data || []);
-      }
+      };
+      // A static import could not fail at runtime; a chunk fetch can. Degrade to
+      // the same localStorage path a query error already takes.
+      let data, error;
+      try {
+        ({ data, error } = await (await db())
+          .from("reviews")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(12));
+      } catch { readLocal(); return; }
+      if (error) readLocal();
+      else setReviews(data || []);
     })();
   }, []);
 
@@ -180,12 +185,14 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
     };
 
     if (!useLocal) {
-      const { error } = await (await db()).from("reviews").insert({
-        name: newReview.name,
-        rating: newReview.rating,
-        comment: newReview.comment,
-      });
-      if (error) { setUseLocal(true); saveLocal(); }
+      try {
+        const { error } = await (await db()).from("reviews").insert({
+          name: newReview.name,
+          rating: newReview.rating,
+          comment: newReview.comment,
+        });
+        if (error) { setUseLocal(true); saveLocal(); }
+      } catch { setUseLocal(true); saveLocal(); }  // chunk fetch failed — keep the review
     } else {
       saveLocal();
     }
