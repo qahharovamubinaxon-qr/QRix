@@ -94,6 +94,16 @@ ok("the hero search bar loads the catalog on intent, not on page load", () => {
   assert.ok(/onFocus=\{[^}]*loadIndex\(\)/.test(hero), "nothing warms the catalog on focus — the first query would stall");
 });
 
+/* ---- the homepage's below-the-fold sections -------------------------------- */
+/* app/page.tsx is one giant "use client" component, so anything it imports is in
+ * the homepage's eager bundle no matter how far down the page it renders. */
+
+ok("the reviews section does not statically import the auth SDK", () => {
+  const reviews = read("components/ReviewsSection.tsx");
+  assert.ok(!staticallyImports(reviews, "supabase-browser"), "the SDK is eager on the homepage for a block below the fold");
+  assert.ok(/import\("@\/lib\/supabase-browser"\)/.test(reviews), "ReviewsSection no longer loads the SDK at all");
+});
+
 /* ---- and the layout as a whole -------------------------------------------- */
 
 ok("the layout imports no heavy catalog directly", () => {

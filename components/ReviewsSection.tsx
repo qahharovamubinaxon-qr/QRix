@@ -7,7 +7,6 @@
    pauses on hover, and under prefers-reduced-motion it does not move at all. */
 
 import { useEffect, useMemo, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
 import { FiStar, FiSend } from "react-icons/fi";
 import { type Lang } from "@/lib/lang";
 
@@ -132,10 +131,17 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
   const [useLocal, setUseLocal] = useState(false);
   const [freshId, setFreshId] = useState<string | number | null>(null);
 
+  /* This section sits below the fold on the homepage and renders from SEED
+     until the query answers, so nothing it paints needs the SDK. Importing it
+     statically made the whole auth/postgrest client part of the homepage's
+     eager bundle — the site's most important page carrying it for a block most
+     visitors never scroll to. Same move as TopNav in M138. */
+  const db = () => import("@/lib/supabase-browser").then((m) => m.supabaseBrowser);
+
   // Load: Supabase first, fall back to localStorage.
   useEffect(() => {
     (async () => {
-      const { data, error } = await supabaseBrowser
+      const { data, error } = await (await db())
         .from("reviews")
         .select("*")
         .order("created_at", { ascending: false })
@@ -174,7 +180,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
     };
 
     if (!useLocal) {
-      const { error } = await supabaseBrowser.from("reviews").insert({
+      const { error } = await (await db()).from("reviews").insert({
         name: newReview.name,
         rating: newReview.rating,
         comment: newReview.comment,
