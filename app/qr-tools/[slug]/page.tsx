@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import QRToolClient from "./QRToolClient";
+import QRToolView from "./QRToolView";
 import { getQrTool, QR_TOOLS } from "@/lib/qr-tools-meta";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 
@@ -43,7 +43,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           ...(meta.faqs && meta.faqs.length ? [faqLd(meta.faqs)] : []),
         ])}
       />
-      <QRToolClient slug={slug} />
+      <QRToolView slug={slug} />
     </>
   );
 }

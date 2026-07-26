@@ -1,18 +1,19 @@
-"use client";
+/* A SERVER component. It was "use client" for two reasons only — one
+   usePathname() call and one scroll-to-top onClick — and it wraps every tool
+   page on the site, so those two lines were shipping ~200 lines of static
+   markup plus nine react-icons into the hydration bundle of 46 routes. The
+   hook moved to ToolFavorite; the scroll became `href="#top"` against the id
+   below, which the `html { scroll-behavior: smooth }` in globals.css already
+   animates without a line of JS. Keep it a server component: anything
+   interactive added here belongs in its own "use client" child. */
 
 import Link from "next/link";
 import { FiChevronRight, FiInfo, FiArrowRight, FiShield, FiZap, FiGift, FiSmartphone, FiGlobe, FiSlash } from "react-icons/fi";
 import GlobalFileDrop from "@/components/GlobalFileDrop";
 import AdSlot from "@/components/AdSlot";
 import ShareButtons from "@/components/ShareButtons";
-import FavoriteButton from "@/components/FavoriteButton";
+import ToolFavorite from "@/components/ToolFavorite";
 import RecordVisit from "@/components/RecordVisit";
-import { usePathname } from "next/navigation";
-
-function ToolFavorite({ title, group }: { title: string; group: string }) {
-  const pathname = usePathname();
-  return <FavoriteButton tool={{ href: pathname || "", title, group }} />;
-}
 
 type Step = { title: string; desc: string };
 type Faq = { q: string; a: string };
@@ -87,7 +88,7 @@ export default function ToolPageShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="max-w-6xl mx-auto p-5 lg:p-8">
+    <div id="top" className="max-w-6xl mx-auto p-5 lg:p-8">
       <GlobalFileDrop />
       <RecordVisit title={title} group={category} />
       {/* Breadcrumb */}
@@ -214,8 +215,7 @@ export default function ToolPageShell({
             It's free, private and works right in your browser — no signup, no watermark.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 mt-5">
-            <a href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-              className="qx-btn-hero inline-flex">Use the tool <FiArrowRight size={15} /></a>
+            <a href="#top" className="qx-btn-hero inline-flex">Use the tool <FiArrowRight size={15} /></a>
             <Link href={categoryHref} className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold"
               style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}>
               Explore all {category} <FiArrowRight size={14} />
