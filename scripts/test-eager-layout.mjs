@@ -36,10 +36,11 @@ const ok = (label, fn) => {
 };
 
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
-/** A static `import ... from "<spec>"` — the thing that puts a module in the eager
- *  bundle. A dynamic `import("<spec>")` reads differently and is what we want. */
+/** A static `import ... from "<spec>"` that carries a VALUE — the thing that puts
+ *  a module in the eager bundle. `import type` is erased before a bundler ever
+ *  sees it, so it does not count; a dynamic `import("<spec>")` is what we want. */
 const staticallyImports = (src, spec) =>
-  new RegExp(`^\\s*import\\s[^;]*?from\\s*["'][^"']*${spec}["']`, "m").test(src) ||
+  new RegExp(`^\\s*import\\s+(?!type\\s)[^;]*?from\\s*["'][^"']*${spec}["']`, "m").test(src) ||
   new RegExp(`^\\s*import\\s*["'][^"']*${spec}["']`, "m").test(src);
 
 const layout = read("app/layout.tsx");
@@ -79,6 +80,18 @@ ok("the loader itself stays small enough to be worth it", () => {
 ok("the search catalog is reachable from the palette only", () => {
   assert.ok(!staticallyImports(loader, "search-index"), "the loader pulls the catalog it exists to defer");
   assert.ok(!staticallyImports(layout, "search-index"), "the layout pulls the search catalog directly");
+});
+
+/* ---- the homepage hero ----------------------------------------------------- */
+/* Same catalog, other half of the problem: HeroSearch is a visible box on the
+ * homepage, so unlike the palette it cannot wait for a shortcut — it waits for
+ * a focus instead, which is still a whole intent ahead of the first keystroke. */
+
+ok("the hero search bar loads the catalog on intent, not on page load", () => {
+  const hero = read("components/HeroSearch.tsx");
+  assert.ok(!staticallyImports(hero, "search-index"), "HeroSearch imports the search catalog for value, not just its types");
+  assert.ok(/import\("@\/lib\/search-index"\)/.test(hero), "HeroSearch never loads the catalog at all");
+  assert.ok(/onFocus=\{[^}]*loadIndex\(\)/.test(hero), "nothing warms the catalog on focus — the first query would stall");
 });
 
 /* ---- and the layout as a whole -------------------------------------------- */

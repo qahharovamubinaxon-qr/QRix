@@ -9,7 +9,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FiSearch, FiArrowRight } from "react-icons/fi";
-import { searchIndex, type SearchItem } from "@/lib/search-index";
+import type { SearchItem } from "@/lib/search-index";
 
 /* phonetic Cyrillic → Latin so "жпг то пдф" finds "jpg to pdf" */
 const CYR: Record<string, string> = {
@@ -37,15 +37,32 @@ export default function HeroSearch({ placeholder, fly = false }: { placeholder: 
   const [sel, setSel] = useState(0);
   const boxRef = useRef<HTMLDivElement>(null);
 
+  /* lib/search-index pulls every metadata registry on the site — the tool
+     tables, the whole blog, all 40 convert pairs, all 25 resize presets — and
+     this bar sits on the homepage, where it was the single biggest thing the
+     page downloaded before it could paint. Most visitors never type in it. So
+     the catalog is fetched on the first focus (see onFocus below), which is a
+     whole intent ahead of the first keystroke, and the 110 ms debounce below
+     covers the rest. */
+  const indexRef = useRef<typeof import("@/lib/search-index").searchIndex | null>(null);
+  const loadIndex = () =>
+    indexRef.current
+      ? Promise.resolve(indexRef.current)
+      : import("@/lib/search-index").then((m) => (indexRef.current = m.searchIndex));
+
   useEffect(() => {
     if (!q.trim()) { setItems([]); setOpen(false); return; }
+    let cancelled = false;
     const id = setTimeout(() => {
-      const qq = translit(q);
-      let found = searchIndex(qq, 6);
-      if (!found.length && qq !== q) found = searchIndex(q, 6);
-      setItems(found); setSel(0); setOpen(true);
+      loadIndex().then((searchIndex) => {
+        if (cancelled) return;
+        const qq = translit(q);
+        let found = searchIndex(qq, 6);
+        if (!found.length && qq !== q) found = searchIndex(q, 6);
+        setItems(found); setSel(0); setOpen(true);
+      });
     }, 110);
-    return () => clearTimeout(id);
+    return () => { cancelled = true; clearTimeout(id); };
   }, [q]);
 
   useEffect(() => {
@@ -85,7 +102,7 @@ export default function HeroSearch({ placeholder, fly = false }: { placeholder: 
       <form className="qx-hsearch-bar" onSubmit={(e) => { e.preventDefault(); go(); }} role="search">
         <span className="qx-hsearch-ic" aria-hidden><FiSearch size={17} /></span>
         <input value={q} onChange={(e) => setQ(e.target.value)} onKeyDown={onKey}
-          onFocus={() => q.trim() && items.length > 0 && setOpen(true)}
+          onFocus={() => { void loadIndex(); if (q.trim() && items.length > 0) setOpen(true); }}
           placeholder={placeholder} aria-label={placeholder}
           autoComplete="off" spellCheck={false} />
         <button type="submit" className="qx-hsearch-go" aria-label="Search"><FiArrowRight size={18} /></button>
