@@ -42,16 +42,44 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   templates; TBT is now 120-540 ms. Deferring the loop and cheapening the
   frame (bdc463d) did NOT fix it — only not running a canvas at all on devices
   with no cursor did (7a073dd).
-  next: LCP is now the only thing between the tool templates and 95. It sits at
-  3.1-4.1 s and lcp-breakdown attributes ~1.4-1.6 s of it to *element render
-  delay*, with TTFB at only ~335 ms and no LCP image — so this is a text LCP
-  waiting on something after CSS. Ruled out already: data-reveal (zero
-  occurrences on /qr-tools/url) and font-display (audit passes). Two live
-  suspects, in order: (1) the preloaded bricolage latin woff2 is 75 KB / 482 ms
-  and text repaints when it swaps in, which moves LCP — check whether a
-  tighter subset or dropping the preload lowers it; (2) the render-blocking
-  29 KB CSS chunk (est. 80 ms). Re-measure home LAST — it is a different and
-  much larger problem (see below).
+  Second tranche (708e617, 8d5ec27) closed the element render delay. Both of
+  the suspects above were WRONG — the font and the CSS chunk were never the
+  cause. lcp-breakdown names the LCP node, and on every template it was not
+  page content at all: it was the cookie consent banner's paragraph, a 354x81
+  text block pinned to the bottom of the viewport, i.e. the biggest contentful
+  paint on the page. It started at show=false and flipped in an effect, so LCP
+  waited for the JS bundle. It now ships in the server HTML, hidden by CSS
+  unless the pre-paint script in layout <head> finds no stored choice.
+  Measured twice each side: observed LCP minus observed FCP went 532 ms -> 0 ms,
+  i.e. the LCP element now paints with first paint. (The 2251 ms lcp-breakdown
+  quoted for it was Lantern's simulated attribution, not observed; on a phone
+  where hydration takes seconds the real gap is much closer to the simulated
+  one, which is the case this fixes.)
+  Painting it early cost 0.091 CLS — bottom-anchored box, Bricolage swaps in,
+  text re-wraps, box grows, banner moves. Fixed by rendering the banner in the
+  system stack (8d5ec27); CLS back to 0 on both re-runs.
+  Also fixed in passing: the <head> script read the consent value with
+  JSON.parse, but the banner writes a plain string and JSON.parse("granted")
+  throws — so the catch reset every returning visitor to denied while the
+  banner (raw string compare) stayed hidden and never re-issued the update.
+  Accepted consent died silently after one page view. Verified live in all
+  three states: fresh -> data-consent="pending" + banner visible; accept ->
+  stored granted, attribute dropped, banner unmounts, gtag update granted;
+  reload -> Consent Mode boots ad_storage/analytics_storage GRANTED (it booted
+  denied before this commit) with the banner display:none, no flash.
+  next: TBT is now the only thing between the tool templates and 95, and it is
+  a bundle problem, not a paint problem. Per bootup-time on /qr-tools/url:
+  chunk 2pqvdscfnq65v.js is 1168 ms total / 1048 ms scripting (the hydration
+  bundle), gtag.js is 695 ms / 581 ms in 3 long tasks at 5.5-6.4 s. gtag is
+  already lazyOnload, so the remaining lever there is loading it on first
+  interaction with a timeout fallback — that trades away page_views for
+  bounced sessions, so price it before shipping. Take the app chunk first:
+  find what /qr-tools/[slug] actually hydrates. CAUTION on scores this
+  session: two back-to-back runs of the identical build scored 49 and 65 on
+  simTBT 2233 vs 645 ms. Absolute scores are worthless right now (a second
+  Claude session is running on this machine); only observed-metric deltas
+  measured twice per side are trustworthy. Re-measure home LAST — it is a
+  different and much larger problem (see below).
   Home is a separate mission, do not fold it in: at 55 it is the only template
   still far off, because app/page.tsx is one giant "use client" component, so
   the entire homepage hydrates on the client. Its TBT variance across 3 runs
@@ -72,6 +100,15 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   argumentative and expensive to translate well.
 
 ## NEXT (2-4 weeks)
+- [ ] Metric-matched @font-face fallback for Bricolage Grotesque
+  (size-adjust / ascent-override / descent-override on a `local("Arial")`
+  face, the trick next/font's adjustFontFallback does). Every text block on
+  the site re-wraps when the 75 KB webfont swaps in; the consent banner is
+  just the one place it was measurable, because it is bottom-anchored, and
+  M135 bought that one back by dropping the brand font there. A matched
+  fallback would let it keep the face and would cut swap reflow everywhere.
+  Needs the font's real metrics — @capsizecss/metrics has them, or measure
+  empirically in the browser; do NOT guess the numbers.
 - [ ] Multi-file for the engines that still take one file. The old "batch
   conversion for real" item was written against a gap that has since closed:
   ImageConvertClient (convert:/social:/resize: — the /convert pages the item

@@ -856,3 +856,27 @@ a separate mission: at 55 it is held back by app/page.tsx being one giant
 
 Files: components/DotDistortionBackground.tsx, app/design-v2.css.
 Branch design-v2.
+
+## M135 tranche 2 — the LCP element was not page content (708e617, 8d5ec27)
+lcp-breakdown had been read as "text LCP waiting on the font", and both suspects
+carried over from tranche 1 (the 75 KB Bricolage preload, the 29 KB blocking CSS)
+were wrong. The audit names the node: on every template the largest contentful
+paint was the cookie consent banner's paragraph — a 354x81 text block anchored to
+the bottom of the viewport — and it started at show=false and flipped in an
+effect, so LCP waited for the JS bundle. It now renders in the server HTML and is
+hidden by CSS unless the pre-paint script in layout <head> finds no stored choice
+(data-consent="pending" on <html>). Observed LCP minus observed FCP: 532ms -> 0ms.
+Painting it before the webfont cost 0.091 CLS, all of it that one element — a
+bottom-anchored box grows when Bricolage re-wraps the text — so the banner now
+renders in the system stack. Not Inter: it is self-hosted too and unpreloaded, so
+it would land later than Bricolage and shift harder. CLS back to 0.
+Fixed alongside: the <head> script read consent with JSON.parse while the banner
+writes a plain string, and JSON.parse("granted") throws — so every returning
+visitor was reset to denied while the banner (raw compare) stayed hidden and never
+re-issued the update. Accepted consent had been dying after one page view.
+Next is TBT, which is now the only thing between the tool templates and 95: the
+hydration chunk is 1048ms of scripting, gtag 581ms. Scores this session swung
+49-65 between identical runs — trust observed deltas, not scores.
+
+Files: app/layout.tsx, components/CookieConsent.tsx, app/globals.css.
+Branch design-v2.
