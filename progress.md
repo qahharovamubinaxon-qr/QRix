@@ -931,3 +931,57 @@ app/globals.css, components/ToolPageShell.tsx, components/ToolFavorite.tsx,
 components/QRGeneratorByType.tsx, app/qr-tools/[slug]/QRToolView.tsx,
 app/qr-tools/[slug]/page.tsx, app/qr-code-statistics/page.tsx, app/manifest.ts.
 Branch design-v2.
+
+## M138 — three catalogs stopped shipping to every page (CWV, tranche 5)
+
+The root layout mounts eleven client components on all ~800 pages, so a single
+static import inside any one of them is an import on every page. Three were:
+
+  HOME_I18N       TopNav read 13 nav labels per language out of 57 KB of
+                  homepage copy. Extracted to lib/nav-i18n.ts (3.9 KB).
+  the auth SDK    TopNav statically imported supabaseBrowser for a getSession()
+                  that cannot paint before hydration anyway. Now import()ed in
+                  the effect; it lands in a chunk the HTML does not link.
+  the search      CommandSearch pulls lib/search-index — every tool registry,
+  catalog         the whole blog, 40 convert pairs, 25 resize presets. Its only
+                  opener is Ctrl/⌘+K and there is no search button in the
+                  chrome, so a phone downloaded the catalog on every page view
+                  for a feature it cannot reach. CommandSearchLoader is the ~30
+                  lines that listen for the shortcut; the palette arrives on a
+                  dynamic import, warmed at idle only where (pointer: fine).
+
+Measured as bytes on production, not as a score — an identical build scored 49
+and 65 on this machine, so scores cannot answer this. Eager <script> set:
+  /qr-tools/url   19 scripts / 1405.2 KB  ->  18 / 790.1 KB   (-44%)
+  /                22 scripts / 1539.9 KB  ->  21 / 1281.3 KB  (-17%)
+The homepage keeps HOME_I18N legitimately (app/page.tsx uses it) and still has
+the SDK via ReviewsSection and lib/blog via LatestPosts — both below the fold,
+both queued as follow-ups.
+
+Driven on production in real headless Chrome, zero page errors: nav labels
+render, header hydrated, Ctrl+K opens the palette, "merge pdf" returns 9 rows
+incl. the merge hit, Escape closes and a second Ctrl+K re-opens (the palette's
+own listener took over from the loader), the account menu opens with Sign in /
+Sign up and all six account links, the SDK is absent from the HTML's script set
+but still requested after load, and the hero bar answers both "jpg to pdf" and
+the Cyrillic "жпг то пдф".
+
+Two traps worth keeping. Marker strings for "is this module in the bundle" are
+easy to get wrong twice over: "onAuthStateChange" reported the SDK as present on
+a page holding only TopNav's CALL SITE, and a blog title reported the search
+catalog as present on the homepage where the title came from LatestPosts
+importing lib/blog directly. Use a literal out of the module's own data. And
+`import type` is erased before a bundler sees it, so an eager-import guard that
+does not skip type-only imports flags files that cost nothing.
+
+Guards: npm run test:nav (6 assertions — the extracted table must stay
+byte-identical to the HOME_I18N nav slice in both directions) and npm run
+test:layout (8 assertions on which import may live where). 6 mutations verified
+between them. Both exist because every one of these regressions looks and
+behaves completely correct.
+
+Files: components/TopNav.tsx, components/CommandSearch.tsx,
+components/CommandSearchLoader.tsx, components/HeroSearch.tsx, app/layout.tsx,
+lib/nav-i18n.ts, scripts/test-nav-i18n.mjs, scripts/test-eager-layout.mjs,
+scripts/measure-eager-bundle.mjs, package.json.
+Branch design-v2.

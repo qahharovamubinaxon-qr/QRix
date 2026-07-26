@@ -16,14 +16,22 @@ if (!url) {
   process.exit(1);
 }
 
-/* Strings that exist in exactly one module, so finding one in the eager set
- * proves that module is in it. */
+/* Strings that survive minification and exist in exactly ONE module, so finding
+ * one in the eager set proves that module is in it. Picking these is the whole
+ * trick and it is easy to get wrong: "onAuthStateChange" looks like a marker for
+ * the auth SDK but every caller of the SDK contains it too, so it reported the
+ * SDK as present on a page that only held TopNav's call site. Identifiers get
+ * mangled and module paths disappear; data does not, so each marker below is a
+ * literal string out of the module's own data. */
 const MARKERS = [
   ["home-i18n (homepage copy, 12 langs)", "一体化 QR 平台"],
-  ["supabase auth SDK", "onAuthStateChange"],
-  ["supabase auth SDK (2)", "GoTrueClient"],
-  ["nav-i18n (the extracted slice)", "Herramientas de vídeo"],
-  ["search catalog", "search-index"],
+  ["supabase auth SDK", "GoTrueClient"],
+  /* search-index's OWN literal, not one of the registries it merges: a blog
+   * title reported the catalog as present on the homepage, where the title
+   * actually came from LatestPosts importing lib/blog directly. */
+  ["search catalog (lib/search-index)", "Image Resizer (presets)"],
+  ["blog posts (lib/blog)", "WiFi QR Code: Let Guests Connect"],
+  ["nav labels (either catalog — these must stay)", "Herramientas de vídeo"],
 ];
 
 const html = await (await fetch(url, { headers: { "user-agent": "Mozilla/5.0 QRix-bundle-audit" } })).text();

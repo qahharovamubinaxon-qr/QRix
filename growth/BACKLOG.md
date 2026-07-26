@@ -107,23 +107,83 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   {"href":"/qr-tools/url",...} so usePathname still resolves from its new
   home, and there are zero page errors. See the measurement notes below for
   why the in-app pane cannot answer this.
-  next: keep going on TBT — the remaining hydration weight is in the ROOT
+  Fifth tranche (M138) took the root layout, and the lever turned out not to be
+  hydration at all — it was three modules that layout-level components imported
+  for a detail, each one therefore an import on all ~800 pages:
+    HOME_I18N        TopNav read 13 nav labels per language out of 57 KB of
+                     homepage copy. Extracted to lib/nav-i18n.ts (3.9 KB).
+    the auth SDK     TopNav statically imported supabaseBrowser for a
+                     getSession() that cannot paint before hydration anyway.
+                     Now import()ed inside the effect.
+    the search       CommandSearch pulls lib/search-index, which pulls every
+    catalog          metadata registry on the site — tool tables, the whole
+                     blog, 40 convert pairs, 25 resize presets. Its ONLY opener
+                     is Ctrl/⌘+K; there is no search button in the chrome. So a
+                     phone downloaded the catalog on every page view for a
+                     feature it cannot reach. CommandSearchLoader is the ~30
+                     lines that listen for the shortcut; the palette arrives
+                     through a dynamic import when it fires, warmed at idle only
+                     where (pointer: fine) matches.
+  Measured on production as BYTES, not as a score — see the CAUTION below for
+  why scores are worthless on this machine. /qr-tools/url eager <script> set:
+    19 scripts, 1405.2 KB raw  ->  18 scripts, 790.0 KB raw   (-615.2 KB, -44%)
+  and the three markers went YES/YES/YES -> no/no/no while the nav labels stayed.
+  scripts/measure-eager-bundle.mjs is that measurement; it fetches a URL,
+  collects every <script src> the HTML links and greps them for strings that can
+  only come from one module. Picking those markers is the trick and it is easy
+  to get wrong: "onAuthStateChange" reported the SDK as present on a page that
+  held only TopNav's CALL SITE. Use literal strings out of the module's data.
+  Driven on production in real headless Chrome, zero page errors: nav labels
+  render, header hydrated, Ctrl+K opens the palette, "merge pdf" returns 9 rows
+  incl. the merge hit (so the catalog loads on demand), Escape closes and a
+  second Ctrl+K re-opens (so the palette's own listener took over from the
+  loader), the account menu opens with Sign in/Sign up and all six account
+  links, and the SDK now lives in chunk 0zrey3cxfzgvi.js — absent from the
+  HTML's script set, still requested after load. Moved, not dropped.
+  npm run test:layout is the guard, and it is the point: every one of these
+  regressions LOOKS correct. A static import in a layout-level component is an
+  import on every page and nothing in the type system, the linter or a
+  Lighthouse score says so. 8 assertions, 6 mutations verified. It ignores
+  `import type`, which is erased before a bundler sees it — without that it
+  flagged HeroSearch for an import that costs nothing.
+  The homepage needed its own half, because HeroSearch is a VISIBLE box and so
+  cannot wait for a shortcut — it waits for a focus instead (06c1d67), which is
+  a whole intent ahead of the first keystroke, and the 110 ms debounce already
+  there covers the rest. Homepage eager set 22 scripts / 1539.9 KB -> 21 /
+  1281.3 KB (-258.6 KB). Driven on production: "jpg to pdf" returns JPG to PDF
+  first, and the Cyrillic transliteration path ("жпг то пдф") returns the same
+  row, so the on-demand catalog serves both. Zero page errors.
+  next: two modules are still eager on the homepage and only ONE of them has to
+  be. app/page.tsx genuinely uses HOME_I18N. The other is the auth SDK:
+  app/page.tsx:6 imports ReviewsSection (which imports supabase-browser) and
+  renders it at line 817, below the fold in the "dusk" scene — so the whole SDK
+  is eager on the site's most important page for a section most visitors never
+  scroll to. lib/blog is a third, via LatestPosts at the same depth. Both are
+  the CommandSearchLoader shape again and the homepage is the biggest CWV item
+  left. Then the remaining hydration weight in the ROOT
   LAYOUT, which mounts eleven client components on every page in the site:
   TopNav (400 lines), DotDistortionBackground (393), CommandSearch (234),
   MotionLayer (196), CookieConsent (80), ErrorMonitor (59), Toaster (49),
   PwaVitals (43), HtmlLangSync (34), GoogleAnalytics (26), ReferralCapture
-  (23). TopNav is the one worth taking first: it is mostly static nav markup
-  and its interactive parts (mobile menu, dropdowns, theme toggle) are
-  separable islands, same shape as the ToolPageShell split that just worked.
+  (23). CommandSearch is off that list as of M138 (it is CommandSearchLoader
+  now, and only arrives on ⌘K). TopNav is still the one worth taking first for
+  HYDRATION — M138 only took its imports, not its markup: it is mostly static
+  nav links and its interactive parts (mobile menu, dropdowns, language and
+  account menus) are separable islands, same shape as the ToolPageShell split
+  that worked in M137. Note the constraint before starting: the labels come from
+  localStorage via setLang, so the server cannot know the language and a naive
+  "make it a server component" will not work — the label-bearing parts have to
+  stay client, and what moves is the static link markup around them.
   gtag.js is the other 695 ms / 581 ms in 3 long tasks at 5.5-6.4 s; it is
   already lazyOnload, so the only lever left is first-interaction loading with
   a timeout fallback, which trades away page_views for bounced sessions —
-  price it before shipping. Do NOT start with the search catalog — already
-  checked: chunk 2mthhglzdvgh7.js is the biggest single download on the page
-  (82 KB transfer / 250 KB raw, holding the whole blog + convert-pairs catalog
-  CommandSearch pulls in from the root layout), but it does not appear in
-  bootup-time at all, so it costs bandwidth and ~0 main thread. Deferring it
-  is a real but separate LCP/bandwidth win, not a TBT one.
+  price it before shipping.
+  The search catalog note that used to sit here said "do NOT start with it —
+  it costs bandwidth and ~0 main thread, a real but separate LCP/bandwidth win".
+  That was accurate and it is now SHIPPED (M138): 244.6 KB off every page,
+  because the palette it belonged to could only ever be opened with a keyboard
+  shortcut. The lesson worth keeping is that bootup-time is a TBT instrument and
+  says nothing about download weight — check both, they find different things.
   CAUTION on scores: two back-to-back runs of an identical build scored 49 and
   65 with simTBT 2233 vs 645 ms. Absolute scores are worthless while a second
   Claude session shares this machine; only deltas measured twice per side are
