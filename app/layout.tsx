@@ -93,11 +93,24 @@ export default function RootLayout({
         <link rel="preload" as="font" type="font/woff2" href={LCP_FONT} crossOrigin="anonymous" />
         {/* Google Consent Mode v2 — default DENIED until the user opts in.
             Must run before AdSense/GA so no ad/analytics storage is set
-            without consent (GDPR / AdSense EEA requirement). */}
+            without consent (GDPR / AdSense EEA requirement).
+
+            The stored value is a PLAIN string ("granted"/"denied") — that is what
+            CookieConsent writes. This script used to JSON.parse it, which throws
+            on `granted`, so the catch reset every returning visitor to denied and
+            the banner (which compares the raw string) stayed hidden and never
+            issued a consent update: accepted consent silently died after the
+            first page view.
+
+            It also sets data-consent="pending" on <html> before first paint, so
+            the banner can ship in the server HTML and be revealed by CSS instead
+            of mounting after hydration — it is a 354x81 block of text at the
+            bottom of the viewport, i.e. the LCP element on every template, and
+            mounting it late put 2.25 s of element render delay in front of LCP. */}
         <script
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=window.gtag||gtag;try{var c=JSON.parse(localStorage.getItem("qrix_consent")||"null");}catch(e){c=null;}var v=c==="granted"?"granted":"denied";gtag("consent","default",{ad_storage:v,ad_user_data:v,ad_personalization:v,analytics_storage:v,functionality_storage:"granted",security_storage:"granted",wait_for_update:500});`,
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=window.gtag||gtag;var c=null;try{c=localStorage.getItem("qrix_consent")}catch(e){}var v=c==="granted"?"granted":"denied";if(c!=="granted"&&c!=="denied"){document.documentElement.setAttribute("data-consent","pending")}gtag("consent","default",{ad_storage:v,ad_user_data:v,ad_personalization:v,analytics_storage:v,functionality_storage:"granted",security_storage:"granted",wait_for_update:500});`,
           }}
         />
         {/* Google AdSense loader — only injected once the publisher id is configured */}

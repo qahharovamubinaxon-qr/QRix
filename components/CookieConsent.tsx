@@ -3,9 +3,18 @@
 /* GDPR / AdSense cookie consent (Mission 65). Consent Mode v2 defaults to
    "denied" (set in layout <head>); this banner lets the user grant or
    decline non-essential (ads/analytics) storage and updates gtag consent
-   accordingly. The choice persists in localStorage as `qrix_consent`. */
+   accordingly. The choice persists in localStorage as `qrix_consent`.
 
-import { useEffect, useState } from "react";
+   It renders in the SERVER HTML and is hidden by CSS unless the pre-paint
+   script in layout <head> found no stored choice and set data-consent="pending"
+   on <html> (M135). It used to start at show=false and flip in an effect, so on
+   a first visit the banner appeared only after hydration — and since it is the
+   largest text block in the viewport, LCP waited for it: 2.25 s of element
+   render delay on the tool templates, against a TTFB of ~0.2 s. Deciding
+   visibility before paint keeps the returning-visitor case flash-free without
+   putting the banner behind the JS bundle. */
+
+import { useState } from "react";
 import Link from "next/link";
 import { FiShield } from "react-icons/fi";
 
@@ -29,21 +38,21 @@ function apply(v: Consent) {
 }
 
 export default function CookieConsent() {
-  const [show, setShow] = useState(false);
+  const [done, setDone] = useState(false);
 
-  useEffect(() => {
-    let stored: string | null = null;
-    try { stored = localStorage.getItem("qrix_consent"); } catch { /* ignore */ }
-    if (stored !== "granted" && stored !== "denied") setShow(true);
-  }, []);
+  if (done) return null;
 
-  if (!show) return null;
-
-  const choose = (v: Consent) => { apply(v); setShow(false); };
+  const choose = (v: Consent) => {
+    apply(v);
+    // Drop the pre-paint flag too, so the banner cannot come back if this
+    // subtree is re-rendered before the next navigation.
+    try { document.documentElement.removeAttribute("data-consent"); } catch { /* ignore */ }
+    setDone(true);
+  };
 
   return (
     <div role="dialog" aria-label="Cookie consent" aria-live="polite"
-      className="fixed inset-x-3 bottom-3 z-[9999] mx-auto max-w-3xl rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4"
+      className="qx-consent fixed inset-x-3 bottom-3 z-[9999] mx-auto max-w-3xl rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4"
       style={{ background: "var(--surface-solid)", border: "1px solid var(--border-hover)", boxShadow: "0 20px 60px rgba(0,0,0,.4)", backdropFilter: "var(--glass-blur, blur(10px))" }}>
       <span className="w-10 h-10 rounded-xl hidden sm:flex items-center justify-center shrink-0"
         style={{ background: "var(--primary-dim)", color: "var(--primary-bright)", border: "1px solid var(--border-hover)" }}>

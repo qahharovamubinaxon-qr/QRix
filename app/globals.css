@@ -1134,6 +1134,13 @@ html.qx-perf .qx-cs-card::after { display: none; }
 }
 .qx-skip-link:focus-visible { top: 0; }
 
+/* Cookie consent (M135) — the banner ships in the server HTML so it paints with
+   FCP instead of after hydration; the pre-paint script in layout <head> marks
+   <html data-consent="pending"> only when there is no stored choice. !important
+   because the element also carries Tailwind's `flex`, which has equal
+   specificity and whose source order we do not control. */
+html:not([data-consent="pending"]) .qx-consent { display: none !important; }
+
 @media (prefers-contrast: more) {
   :root { --text-muted: var(--text); --text-faint: var(--text); --border: color-mix(in srgb, var(--text) 45%, transparent); }
   .qx-card { backdrop-filter: none; }
