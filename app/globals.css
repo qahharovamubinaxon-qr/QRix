@@ -1140,6 +1140,18 @@ html.qx-perf .qx-cs-card::after { display: none; }
    because the element also carries Tailwind's `flex`, which has equal
    specificity and whose source order we do not control. */
 html:not([data-consent="pending"]) .qx-consent { display: none !important; }
+/* …and it renders in the fallback stack, not Bricolage. It is anchored to the
+   bottom edge, so when the webfont swapped in, the text re-wrapped, the box grew
+   and the whole banner moved up — 0.091 CLS, all of it this one element, which
+   is the price of painting it before the font instead of after. 12.5 px of
+   legal boilerplate is the one place on the site that can give up the display
+   face; everything else keeps it. (A metric-matched @font-face fallback for
+   Bricolage would fix the swap reflow site-wide — see BACKLOG.) Nothing here
+   may name a webfont: Inter is self-hosted too and is not even preloaded, so it
+   would arrive later than Bricolage and shift the box harder. */
+.qx-consent, .qx-consent button {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
 
 @media (prefers-contrast: more) {
   :root { --text-muted: var(--text); --text-faint: var(--text); --border: color-mix(in srgb, var(--text) 45%, transparent); }
