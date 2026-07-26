@@ -76,21 +76,7 @@ ok("every language actually carries all 13 labels (no silent English)", () => {
 });
 
 /* ---- and the point of the split has to hold ------------------------------ */
-
-ok("TopNav does not import HOME_I18N", () => {
-  const src = readFileSync(new URL("../components/TopNav.tsx", import.meta.url), "utf8");
-  assert.ok(!/home-i18n/.test(src), "TopNav imports lib/home-i18n again — the 57 KB is back on every page");
-  assert.ok(/nav-i18n/.test(src), "TopNav does not import lib/nav-i18n");
-});
-
-ok("TopNav does not statically import the auth SDK", () => {
-  const src = readFileSync(new URL("../components/TopNav.tsx", import.meta.url), "utf8");
-  assert.ok(
-    !/^import\s+\{[^}]*supabaseBrowser[^}]*\}\s+from/m.test(src),
-    "TopNav statically imports supabaseBrowser — the auth SDK is back in the eager bundle of every page",
-  );
-  assert.ok(/import\("@\/lib\/supabase-browser"\)/.test(src), "TopNav no longer loads supabase-browser at all");
-});
+/* (which import lands in whose bundle is asserted in test-eager-layout.mjs) */
 
 ok("nav-i18n is a fraction of the catalog it was cut from", () => {
   const nav = readFileSync(new URL("../lib/nav-i18n.ts", import.meta.url)).length;

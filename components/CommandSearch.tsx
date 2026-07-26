@@ -30,9 +30,9 @@ const readPins = (): { href: string; label: string }[] => {
 /** Global ⌘K / Ctrl+K command palette — full-text search across every module
     (tools, AI, blog, docs, FAQ, pages) with filters, trending, pinned commands,
     debounced instant results, voice input and keyboard navigation. */
-export default function CommandSearch() {
+export default function CommandSearch({ defaultOpen = false }: { defaultOpen?: boolean } = {}) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const [q, setQ] = useState("");
   const [dq, setDq] = useState(""); // debounced query
   // Log searches that find NOTHING — users literally telling us which tool to
