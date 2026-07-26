@@ -880,3 +880,54 @@ hydration chunk is 1048ms of scripting, gtag 581ms. Scores this session swung
 
 Files: app/layout.tsx, components/CookieConsent.tsx, app/globals.css.
 Branch design-v2.
+
+## M136-M137 — the homepage LCP element, and the tool shell off the client
+
+lcp-breakdown names img.qx-hm-img — the hero mascot — as the homepage's LCP
+element on every run, and three of its four subparts were ours. fetchPriority
+="high" took resourceLoadDelay from 1241/259ms to 87/128ms (the browser had
+been waiting for layout to prove the image was on screen). Re-encoding the file
+took resourceLoadDuration from 1884/972ms to 430/821ms: it was 186KB of badly
+compressed webp, now 103KB at the identical 613x1876 with alpha, PSNR 44.4dB
+against the old bytes, so nothing visible changed. Element render delay did not
+move at all — and that turned out to be the interesting one. The CSS reveal
+(.qx-smoke--auto, shipped dead in 7a073dd and wired here) does run before
+hydration exactly as designed, but it animated FROM opacity 0, and Chrome will
+not accept an opacity:0 element as a contentful paint. The frame painted at FCP
+did not count; the next frame the main thread could spare came ~1.2s later.
+Starting the keyframe at 0.26 — a faint blurred ghost that still reads as
+materializing — collapsed render delay 2383/2491ms -> 673/934ms and the observed
+LCP-FCP gap 1230/1313ms -> 50/266ms. Home obsLCP over the session:
+6395/3791ms -> 1746/2050ms.
+
+Then TBT, which is a hydration problem rather than a download one: 948ms of
+scripting against 30ms of parse in the app chunk. ToolPageShell wraps all 46
+tool routes and carried "use client" for exactly two lines — one usePathname()
+for the favorite star, one onClick that scrolled to the top — while ~200 lines
+of static markup and nine react-icons hydrated behind them. The hook is
+ToolFavorite.tsx, the scroll is href="#top" (with scroll-padding-top so the
+anchor clears the sticky nav), and QRToolClient, which had "use client" for
+nothing whatsoever, is now the server component QRToolView. The generator keeps
+its client boundary because QR_TYPES entries carry a build() function and a
+function cannot cross into a Client Component, so QRGeneratorByType takes the id
+and looks it up itself; StatsQrTool, which existed only to do that same lookup,
+is gone. On /qr-tools/url: TBT 2233/644ms -> 245/460ms, hydration chunk
+948/1849ms -> 483/862ms of scripting, score 49/65 -> 77/72, script transfer
+essentially unchanged at 562KB — the bytes were never the point.
+Also fixed in passing: the web manifest pointed both icons at /icon and
+/apple-icon, which are 404s (the files are static, so they live at /icon.png and
+/apple-icon.png), so an installed QRix had no icon at all.
+Verification note worth keeping: the in-app preview pane reports a 0x0 viewport
+and never hydrates anything below the root layout — on the homepage 0 of 1880
+elements under <main> carry a React fiber — so it cannot answer "did this
+hydrate". Real headless Chrome via the puppeteer-core in lighthouse's npx cache
+can, and did: typing re-renders the QR canvas, the favorite star writes
+{"href":"/qr-tools/url",...}, zero page errors.
+Next: the root layout still mounts eleven client components on every page in the
+site; TopNav (400 lines) is the biggest separable one.
+
+Files: components/EraBunny.tsx, public/scenes/bunny-hero.webp, app/design-v2.css,
+app/globals.css, components/ToolPageShell.tsx, components/ToolFavorite.tsx,
+components/QRGeneratorByType.tsx, app/qr-tools/[slug]/QRToolView.tsx,
+app/qr-tools/[slug]/page.tsx, app/qr-code-statistics/page.tsx, app/manifest.ts.
+Branch design-v2.

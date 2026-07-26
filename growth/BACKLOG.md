@@ -67,40 +67,98 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   stored granted, attribute dropped, banner unmounts, gtag update granted;
   reload -> Consent Mode boots ad_storage/analytics_storage GRANTED (it booted
   denied before this commit) with the banner display:none, no flash.
-  next: TBT is now the only thing between the tool templates and 95, and it is
-  a bundle problem, not a paint problem. Per bootup-time on /qr-tools/url:
-  chunk 2pqvdscfnq65v.js is 1168 ms total / 1048 ms scripting (the hydration
-  bundle), gtag.js is 695 ms / 581 ms in 3 long tasks at 5.5-6.4 s. gtag is
-  already lazyOnload, so the remaining lever there is loading it on first
-  interaction with a timeout fallback — that trades away page_views for
-  bounced sessions, so price it before shipping. Take the app chunk first:
-  find what /qr-tools/[slug] actually hydrates. Do NOT start with the search
-  catalog — already checked: chunk 2mthhglzdvgh7.js is the biggest single
-  download on the page (82 KB transfer / 250 KB raw, and it does hold the
-  whole blog + convert-pairs catalog that CommandSearch pulls in from the root
-  layout), but it does not appear in bootup-time at all, so it costs bandwidth
-  and ~0 main thread. Deferring it is a real but separate LCP/bandwidth win,
-  not a TBT one. TBT is 948 ms of *scripting* against 30 ms of parse in
-  2pqvdscfnq65v.js — that is React hydrating the template, so the fix is
-  shipping less client UI on it (server components), the same shape of
-  mission as the homepage one below. That needs trustworthy TBT numbers,
-  which this machine cannot currently give. CAUTION on scores this
-  session: two back-to-back runs of the identical build scored 49 and 65 on
-  simTBT 2233 vs 645 ms. Absolute scores are worthless right now (a second
-  Claude session is running on this machine); only observed-metric deltas
-  measured twice per side are trustworthy. Re-measure home LAST — it is a
-  different and much larger problem (see below).
-  Home is a separate mission, do not fold it in: at 55 it is the only template
-  still far off, because app/page.tsx is one giant "use client" component, so
-  the entire homepage hydrates on the client. Its TBT variance across 3 runs
-  was 2810-4110 ms, so single-run comparisons there are worthless — take a
-  median of 3. Fixing it means splitting the page into server components,
-  which is a mission of its own.
+  Third tranche (86f0781, 3599eaf) is the HOME LCP, and it turned out to be
+  cheap — the element is img.qx-hm-img, the hero mascot, on every run. Two of
+  its three fixable subparts collapsed, measured twice per side on production:
+    resourceLoadDelay    1241 / 259 ms  ->   87 / 128 ms   (fetchPriority high;
+      the browser had been waiting for layout to prove the image was in view)
+    resourceLoadDuration 1884 / 972 ms  ->  430 / 821 ms   (the file was 186 KB
+      of badly-encoded webp; re-encoded to 103 KB at identical 613x1876,
+      PSNR 44.4 dB, nothing visible changed)
+    elementRenderDelay   2444 / 1798 ms -> 2383 / 2491 ms  (UNCHANGED)
+  The render delay is the interesting one. The CSS reveal (.qx-smoke--auto,
+  which 7a073dd had shipped as dead CSS and 86f0781 finally wired) does run
+  before hydration exactly as designed — but it animated FROM opacity 0, and
+  Chrome will not accept an opacity:0 element as a contentful paint. So the
+  frame painted at FCP did not count and the next frame the main thread could
+  spare came ~1.2 s later. 3599eaf starts the keyframe at 0.26 instead, and
+  that was the whole thing — measured twice more on production:
+    elementRenderDelay 2383 / 2491 ms -> 673 / 934 ms
+    observed LCP - FCP  1230 / 1313 ms ->  50 / 266 ms
+    observed LCP        3519 / 4040 ms -> 1746 / 2050 ms
+  Home end to end this session: obsLCP 6395 / 3791 -> 1746 / 2050 ms,
+  score 33 / 36 -> 52 / 56. It is still not 95 and the reason is TBT, not
+  paint — see the homepage note below, which is unchanged.
+  Fourth tranche (M137, ce0c162 + add02aa) took the first bite of TBT on the
+  tool templates. ToolPageShell — the wrapper on all 46 tool routes — was a
+  client component for two lines: a usePathname() call and a scrollTo onClick.
+  Both are gone (ToolFavorite.tsx, and href="#top" with the
+  scroll-padding-top add02aa adds for the sticky nav), and QRToolClient, which
+  had "use client" for nothing at all, is the server component QRToolView, so
+  the 40 QR tool routes no longer hydrate the shell either. Measured twice per
+  side on /qr-tools/url:
+    TBT               2233 / 644 ms -> 245 / 460 ms
+    hydration chunk    948 / 1849 ms scripting -> 483 / 862 ms
+    perf score           49 / 65    -> 77 / 72
+    script transfer   564.3 KB      -> 562.1 KB   (bytes were never the point)
+  Verified interactively in real headless Chrome, which is the only surface
+  that works: typing in the URL field re-renders the QR canvas, the input
+  carries a React fiber, the favorite star writes
+  {"href":"/qr-tools/url",...} so usePathname still resolves from its new
+  home, and there are zero page errors. See the measurement notes below for
+  why the in-app pane cannot answer this.
+  next: keep going on TBT — the remaining hydration weight is in the ROOT
+  LAYOUT, which mounts eleven client components on every page in the site:
+  TopNav (400 lines), DotDistortionBackground (393), CommandSearch (234),
+  MotionLayer (196), CookieConsent (80), ErrorMonitor (59), Toaster (49),
+  PwaVitals (43), HtmlLangSync (34), GoogleAnalytics (26), ReferralCapture
+  (23). TopNav is the one worth taking first: it is mostly static nav markup
+  and its interactive parts (mobile menu, dropdowns, theme toggle) are
+  separable islands, same shape as the ToolPageShell split that just worked.
+  gtag.js is the other 695 ms / 581 ms in 3 long tasks at 5.5-6.4 s; it is
+  already lazyOnload, so the only lever left is first-interaction loading with
+  a timeout fallback, which trades away page_views for bounced sessions —
+  price it before shipping. Do NOT start with the search catalog — already
+  checked: chunk 2mthhglzdvgh7.js is the biggest single download on the page
+  (82 KB transfer / 250 KB raw, holding the whole blog + convert-pairs catalog
+  CommandSearch pulls in from the root layout), but it does not appear in
+  bootup-time at all, so it costs bandwidth and ~0 main thread. Deferring it
+  is a real but separate LCP/bandwidth win, not a TBT one.
+  CAUTION on scores: two back-to-back runs of an identical build scored 49 and
+  65 with simTBT 2233 vs 645 ms. Absolute scores are worthless while a second
+  Claude session shares this machine; only deltas measured twice per side are
+  trustworthy, and TBT specifically needs both post-runs to sit below both
+  pre-runs before you believe it.
+  Home is a separate mission, do not fold it in: app/page.tsx is one giant
+  "use client" component, so the entire homepage hydrates on the client. Its
+  TBT variance across runs was 625-5628 ms, so single-run comparisons there
+  are worthless — take a median of 3. Fixing it means splitting the page into
+  server components, which is a mission of its own, and it is now the biggest
+  single CWV item left.
   Measurement notes: the in-app preview pane cannot composite (screenshots time
-  out), so verify CSS structurally via computed styles, not screenshots — that
-  works fine and geometry was NOT 0x0 this session. PSI's API 429s without a
-  key; drive `npx lighthouse` against the live URL instead. The machine idles
-  at ~29% CPU, which is why TBT swings; only trust deltas of >1 s.
+  out), so verify CSS structurally via computed styles, not screenshots. It
+  also cannot verify hydration AT ALL: innerWidth/innerHeight report 0 and
+  resize_window does not fix it, and with no viewport React never attaches to
+  anything below the root layout. Proof it is the pane and not the page: on the
+  homepage — which is one giant "use client" component — 0 of 1880 elements
+  under <main> carry a __reactFiber$ key, while <header> does. Do not read that
+  as a regression. To actually drive the page, launch real headless Chrome from
+  the lighthouse npx cache, which has puppeteer-core and chrome-launcher:
+    cd "$(npm config get cache)/_npx/0f94ee7615faf582" && node -e "
+      const p=require('puppeteer-core'), {Launcher}=require('chrome-launcher');
+      ... p.launch({executablePath:Launcher.getFirstInstallation(), headless:'new'})"
+  Set a viewport explicitly; that is the whole difference.
+  Also: the preview server runs from the PRIMARY checkout, not this worktree —
+  localhost:3000 serves D:\Projects\QRix's older components even though the
+  route and metadata look right, so a worktree change appears not to have taken
+  effect. Verify on production instead.
+  PSI's API 429s without a key; drive `npx lighthouse` against the live URL.
+  Deploys: production builds have been taking 25-30 min (the design-v2 preview
+  goes READY in ~2). If a poll seems stuck, check the real state — the repo is
+  public, so `curl -s api.github.com/repos/qahharovamubinaxon-qr/QRix/commits/
+  <sha>/status` answers it, and the Vercel MCP works with projectId "q-rix" +
+  teamId team_Ymbc9KJNvDDWkr2X0FzvzoSE (list_projects returns empty; go
+  straight to list_deployments).
 - [ ] /qr-code-statistics follow-ups, ranked: (1) an /embed-able "stat card"
   so a blogger quoting a figure links back — the actual backlink mechanism,
   which the page currently only invites in prose; (2) re-check the four
