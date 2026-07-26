@@ -4,7 +4,6 @@ import Link from "next/link";
 import Logo from "@/components/Logo";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { supabaseBrowser } from "@/lib/supabase-browser";
 import type { User } from "@supabase/supabase-js";
 import {
   FiGlobe, FiChevronDown, FiLogOut, FiSend, FiMenu, FiX,
@@ -15,7 +14,7 @@ import {
 } from "react-icons/fi";
 
 import { type Lang, SITE_LANGS, isLang } from "@/lib/lang";
-import { HOME_I18N } from "@/lib/home-i18n";
+import { NAV_I18N } from "@/lib/nav-i18n";
 
 const LANGUAGES = SITE_LANGS;
 
@@ -27,7 +26,7 @@ const NAV_BASE: Record<"en" | "ru" | "uz", NavStrings> = {
 };
 // Merge the 12 generated languages; fall back to English per language.
 const NAV: Record<string, NavStrings> = { ...NAV_BASE };
-for (const [code, v] of Object.entries(HOME_I18N)) NAV[code] = { ...NAV_BASE.en, ...(v.nav as Partial<NavStrings>) };
+for (const [code, v] of Object.entries(NAV_I18N)) NAV[code] = { ...NAV_BASE.en, ...(v as Partial<NavStrings>) };
 
 const DROPDOWNS: Record<string, { href: string; label: string; desc: string; icon: React.ReactNode; color: string }[]> = {
   "/qr-tools": [
@@ -150,18 +149,28 @@ export default function TopNav() {
     setPill({ x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight, show: true });
   };
 
+  // TopNav is mounted by the root layout, so a static `import { supabaseBrowser }`
+  // put the whole auth SDK in the eager bundle of every page on the site — for a
+  // session read that cannot paint before hydration anyway. Importing it inside
+  // the effect puts it in its own chunk, off the hydration critical path. By the
+  // time the account menu can be clicked the chunk is already resolved.
   useEffect(() => {
     const savedLang = localStorage.getItem("language");
     if (isLang(savedLang)) setLang(savedLang);
 
     let mounted = true;
-    supabaseBrowser.auth.getSession().then(({ data }) => {
-      if (mounted) setUser(data.session?.user ?? null);
+    let unsubscribe: (() => void) | undefined;
+    import("@/lib/supabase-browser").then(({ supabaseBrowser }) => {
+      if (!mounted) return;
+      supabaseBrowser.auth.getSession().then(({ data }) => {
+        if (mounted) setUser(data.session?.user ?? null);
+      });
+      const { data: listener } = supabaseBrowser.auth.onAuthStateChange((_, session) => {
+        setUser(session?.user ?? null);
+      });
+      unsubscribe = () => listener.subscription.unsubscribe();
     });
-    const { data: listener } = supabaseBrowser.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => { mounted = false; listener.subscription.unsubscribe(); };
+    return () => { mounted = false; unsubscribe?.(); };
   }, []);
 
   const changeLang = (code: string) => {
@@ -172,6 +181,7 @@ export default function TopNav() {
   };
 
   const signOut = async () => {
+    const { supabaseBrowser } = await import("@/lib/supabase-browser");
     await supabaseBrowser.auth.signOut();
     location.reload();
   };
