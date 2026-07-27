@@ -27,7 +27,11 @@ export const dynamicParams = true;
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = getPost(slug) || (await getAutopilotPost(slug));
-  if (!post) return pageMeta({ title: "Article not found", path: `/blog/${slug}`, noindex: true });
+  /* notFound() HERE, not only in the page body: metadata resolves before the
+     root loading boundary starts streaming, so this yields a real HTTP 404.
+     Thrown from the body it lands after the 200 shell has been sent and the
+     status can't change — the soft-404 M118 documented on this route. */
+  if (!post) notFound();
   const meta = pageMeta({
     title: post.title,
     description: post.description,
