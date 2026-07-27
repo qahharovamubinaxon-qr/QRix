@@ -30,6 +30,7 @@ const T = {
     thanks: "Thank you for your review! 💜",
     rating: "Your rating",
     live: "Live reviews",
+    empty: "No reviews yet — be the first to share yours.",
   },
   ru: {
     title: "Нас любят тысячи пользователей",
@@ -42,6 +43,7 @@ const T = {
     thanks: "Спасибо за отзыв! 💜",
     rating: "Ваша оценка",
     live: "Живые отзывы",
+    empty: "Отзывов пока нет — станьте первым.",
   },
   uz: {
     title: "Минглаб фойдаланувчилар танлови",
@@ -54,24 +56,14 @@ const T = {
     thanks: "Отзивингиз учун раҳмат! 💜",
     rating: "Баҳонгиз",
     live: "Жонли отзивлар",
+    empty: "Ҳозирча отзив йўқ — биринчи бўлиб қолдиринг.",
   },
 };
 
-/** Curated testimonials so the marquee is never empty; user reviews merge in front. */
-const SEED: Review[] = [
-  { id: "s1", name: "Maya Chen", rating: 5, comment: "Replaced four different subscriptions with QRix. The QR designer alone is worth it — our restaurant menus have never looked better.", created_at: "2026-05-14" },
-  { id: "s2", name: "Tom Becker", rating: 5, comment: "PDF merge, compress, watermark — all in the browser, nothing uploaded anywhere. Exactly how privacy should work.", created_at: "2026-05-02" },
-  { id: "s3", name: "Aigerim S.", rating: 5, comment: "The bulk QR generator saved our event team a full week. 900 personalised badges from one CSV.", created_at: "2026-04-21" },
-  { id: "s4", name: "Diego Ramírez", rating: 4, comment: "Background remover is shockingly good for a free browser tool. It handles product shots almost perfectly.", created_at: "2026-04-18" },
-  { id: "s5", name: "Lena Hoffmann", rating: 5, comment: "Link-in-bio + QR poster combo turned our tiny bakery's Instagram into real foot traffic. Highly recommend.", created_at: "2026-06-01" },
-  { id: "s6", name: "James O'Neil", rating: 5, comment: "As a developer I appreciate the API keys and clean dashboard. Feels like a product built by people who care.", created_at: "2026-05-27" },
-  { id: "s7", name: "Nilufar K.", rating: 5, comment: "Ўзбек тилида ишлайдиган ягона профессионал QR платформа. Дизайни жуда чиройли!", created_at: "2026-05-20" },
-  { id: "s8", name: "Sophie Martin", rating: 5, comment: "The image tools expansion is wild — 70+ tools and every one of them just works. No ads shoved in your face either.", created_at: "2026-06-10" },
-  { id: "s9", name: "Viktor Petrov", rating: 4, comment: "Видео инструменты прямо в браузере — обрезка, GIF, субтитры. Не думал, что это возможно без установки программ.", created_at: "2026-06-04" },
-  { id: "s10", name: "Hana Yoshida", rating: 5, comment: "Scan analytics helped us A/B test poster placements across Tokyo. The dynamic QR redirects are instant.", created_at: "2026-05-08" },
-  { id: "s11", name: "Omar Al-Farsi", rating: 5, comment: "From WiFi cards for our hotel rooms to branded vCards for staff — one platform covers everything.", created_at: "2026-04-30" },
-  { id: "s12", name: "Emma Wilson", rating: 5, comment: "The AI upscaler rescued years of low-res family photos. Ran entirely on my laptop. Magic.", created_at: "2026-06-12" },
-];
+/* The 12 seeded testimonials that used to live here were invented — names,
+   stories and dates. Fabricated social proof is the one thing this product
+   must never ship; the marquee now shows real reviews only, with an honest
+   empty state until they exist. */
 
 function Stars({ value, onChange, size = 18 }: { value: number; onChange?: (v: number) => void; size?: number }) {
   return (
@@ -131,7 +123,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
   const [useLocal, setUseLocal] = useState(false);
   const [freshId, setFreshId] = useState<string | number | null>(null);
 
-  /* This section sits below the fold on the homepage and renders from SEED
+  /* This section sits below the fold on the homepage and renders only real reviews
      until the query answers, so nothing it paints needs the SDK. Importing it
      statically made the whole auth/postgrest client part of the homepage's
      eager bundle — the site's most important page carrying it for a block most
@@ -163,7 +155,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
   }, []);
 
   // The drifting pool: user reviews in front, seed behind, capped for a calm loop.
-  const pool = useMemo(() => [...reviews, ...SEED].slice(0, 14), [reviews]);
+  const pool = useMemo(() => reviews.slice(0, 14), [reviews]);
   // Constant scroll speed regardless of how many are in the pool.
   const driftSeconds = Math.max(28, pool.length * 3.6);
 
@@ -211,7 +203,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
   return (
     <section className="pt-28 lg:pt-36 pb-24 lg:pb-32" id="reviews">
       <div className="text-center mb-14 px-5" data-reveal>
-        <span className="qx-badge-hero inline-flex mb-5"><span className="qx-badge-hero-dot" />★ 4.9 / 5</span>
+        <span className="qx-badge-hero inline-flex mb-5"><span className="qx-badge-hero-dot" />{pool.length >= 3 ? `★ ${(pool.reduce((a, r) => a + r.rating, 0) / pool.length).toFixed(1)} / 5` : t.live}</span>
         <h2 className="font-display text-3xl lg:text-5xl font-extrabold tracking-tight" style={{ color: "var(--text)" }}>
           {t.title.split(" ").slice(0, -1).join(" ")}{" "}
           <span style={{ background: "var(--grad-text)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
@@ -261,6 +253,11 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
             {t.live}
           </div>
 
+          {pool.length === 0 ? (
+            <div className="qx-rv-float flex items-center justify-center">
+              <p className="text-[13.5px] text-center px-6" style={{ color: "var(--text-faint)" }}>{t.empty}</p>
+            </div>
+          ) : (
           <div className="qx-rv-float">
             {/* rendered twice; the track travels exactly one copy, so the loop is seamless */}
             <div className="qx-rv-track" style={{ animationDuration: `${driftSeconds}s` }}>
@@ -271,6 +268,7 @@ export default function ReviewsSection({ lang }: { lang: Lang }) {
               )}
             </div>
           </div>
+          )}
         </div>
       </div>
 

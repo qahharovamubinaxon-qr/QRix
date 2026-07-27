@@ -16,8 +16,13 @@ export function generateStaticParams() {
   return POSTS.map((p) => ({ slug: p.slug }));
 }
 
-/* Params outside the registry must 404, not render an empty 200 page. */
-export const dynamicParams = false;
+/* M118 set dynamicParams=false here to kill soft-404s, but this route is NOT
+   registry-only: autopilot posts live in Supabase and publish daily WITHOUT a
+   deploy, so they were never in generateStaticParams and every one of them
+   404'd in production (6 of the 10 newest posts at the time of the M142 audit)
+   while the blog index and Blog schema kept advertising them. dynamicParams
+   must stay true; unknown slugs still hard-404 via the notFound() below. */
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

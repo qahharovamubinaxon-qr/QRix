@@ -38,7 +38,7 @@ const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
   en: {
     badge: "🚀 The All-in-One QR Platform",
     h1a: "Generate. Track.", h1b: "Analyze.", h1c: "Grow.",
-    sub: "185+ free tools in your browser — QR codes with live analytics, PDF & image converters, AI generators, video and 3D. Nothing leaves your device.",
+    sub: "185+ free tools in your browser — QR codes with live analytics, PDF & image converters, AI generators, video and 3D. Most tools run fully on your device — the few that need a server say so on their page.",
     cta: "Create Your First QR Code", demo: "Watch Demo", rating: "4.9/5 from 2,847+ users",
     cardTitle: "Create Your QR Code", cardSub: "It's fast, easy and free to get started.",
     url: "URL", text: "Text", wifi: "WiFi", vcard: "vCard", more: "More",
@@ -75,7 +75,7 @@ const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
   ru: {
     badge: "🚀 Всё-в-одном QR платформа",
     h1a: "Создавай. Отслеживай.", h1b: "Анализируй.", h1c: "Расти.",
-    sub: "185+ бесплатных инструментов в браузере — QR коды с аналитикой, PDF и фото конвертеры, AI генераторы, видео и 3D. Файлы не покидают устройство.",
+    sub: "185+ бесплатных инструментов в браузере — QR коды с аналитикой, PDF и фото конвертеры, AI генераторы, видео и 3D. Большинство инструментов работают прямо на устройстве — те немногие, которым нужен сервер, честно сообщают об этом на своей странице.",
     cta: "Создать первый QR код", demo: "Смотреть демо", rating: "4.9/5 от 2,847+ пользователей",
     cardTitle: "Создайте ваш QR код", cardSub: "Быстро, легко и бесплатно.",
     url: "URL", text: "Текст", wifi: "WiFi", vcard: "vCard", more: "Ещё",
@@ -112,7 +112,7 @@ const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
   uz: {
     badge: "🚀 Ҳаммаси-бирда QR платформа",
     h1a: "Яратинг. Кузатинг.", h1b: "Таҳлил қилинг.", h1c: "Ўсинг.",
-    sub: "Браузерингизда 185+ бепул асбоб — аналитикали QR кодлар, PDF ва расм конвертерлари, AI генераторлар, видео ва 3D. Файллар қурилмангиздан чиқмайди.",
+    sub: "Браузерингизда 185+ бепул асбоб — аналитикали QR кодлар, PDF ва расм конвертерлари, AI генераторлар, видео ва 3D. Аксарият асбоблар тўғридан-тўғри қурилмангизда ишлайди — сервер керак бўлган озчилиги буни ўз саҳифасида очиқ айтади.",
     cta: "Биринчи QR кодингизни яратинг", demo: "Демо кўриш", rating: "4.9/5 — 2,847+ фойдаланувчи",
     cardTitle: "QR кодингизни яратинг", cardSub: "Тез, осон ва бепул.",
     url: "URL", text: "Матн", wifi: "WiFi", vcard: "vCard", more: "Яна",
@@ -157,7 +157,10 @@ const BG_PRESETS = ["#ffffff", "#f4f4f8", "#fef9c3", "#e0f2fe", "#f3e8ff", "#dcf
 
 /* Жонли санагич */
 function CountUp({ end, suffix = "" }: { end: number; suffix?: string }) {
-  const [val, setVal] = useState(0);
+  /* Server-render the FINAL value: crawlers and AI extractors don't run JS, so
+     starting the state at 0 made every stat read as literal "0+" in the HTML.
+     The count-up is a hydration-only effect on top of the true number. */
+  const [val, setVal] = useState(end);
   const ref = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     const el = ref.current;
@@ -368,12 +371,16 @@ export default function HomePage() {
   ];
 
 
+  /* Every figure here is a verifiable product fact (tool registries, i18n
+     langs, QR type count). The previous set — 1M+ QR created, 50M+ scans,
+     10K+ businesses — was invented, and invented numbers next to a review
+     section is exactly what makes skeptical visitors close the tab. */
   const stats = [
     { end: 185, suffix: "+", label: lang === "uz" ? "Текин восита" : lang === "ru" ? "Бесплатных инструментов" : "Free tools", icon: <FiGrid />, color: "#ff6a13" },
-    { end: 1000000, suffix: "+", label: t.statQr, icon: <FiZap />, color: "#a78bfa" },
-    { end: 50000000, suffix: "+", label: t.statScans, icon: <FiBarChart2 />, color: "#22d3ee" },
-    { end: 150, suffix: "+", label: t.statCountries, icon: <FiSend />, color: "#3b82f6" },
-    { end: 10000, suffix: "+", label: t.statBiz, icon: <FiUser />, color: "#ec4899" },
+    { end: 32, suffix: "", label: lang === "uz" ? "QR код тури" : lang === "ru" ? "Типа QR кодов" : "QR code types", icon: <FiZap />, color: "#a78bfa" },
+    { end: 21, suffix: "", label: lang === "uz" ? "PDF асбоби" : lang === "ru" ? "PDF инструмент" : "PDF tools", icon: <FiBarChart2 />, color: "#22d3ee" },
+    { end: 15, suffix: "", label: lang === "uz" ? "Тилда ишлайди" : lang === "ru" ? "Языков интерфейса" : "Languages", icon: <FiSend />, color: "#3b82f6" },
+    { end: 0, suffix: "", label: lang === "uz" ? "Сув белгиси — нол" : lang === "ru" ? "Водяных знаков" : "Watermarks, ever", icon: <FiUser />, color: "#ec4899" },
   ];
 
   const features = [
@@ -863,7 +870,7 @@ export default function HomePage() {
             </div>
             <p className="qx-mono text-[10.5px] tracking-[0.18em] uppercase" style={{ color: "var(--text-faint)" }}>
               <FiShield className="inline -mt-0.5 mr-1.5" size={11} aria-hidden />
-              {lang === "uz" ? "Файллар қурилмангиздан чиқмайди" : lang === "ru" ? "Файлы не покидают устройство" : "Files never leave your device"}
+              {lang === "uz" ? "Аксарият асбоблар файлни юкламайди" : lang === "ru" ? "Большинство инструментов не загружают файлы" : "Most tools never upload your files"}
             </p>
           </div>
 

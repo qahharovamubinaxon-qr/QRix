@@ -31,7 +31,9 @@ export function OrbitIcons() {
 /** Count-up statistic — eases to the target once scrolled into view. */
 export function CountUp({ to, suffix = "", duration = 1400 }: { to: number; suffix?: string; duration?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const [val, setVal] = useState(0);
+  // SSR the final value — crawlers don't run JS, so starting at 0 shipped
+  // literal "0+" stats to every non-browser reader. Animation is hydration-only.
+  const [val, setVal] = useState(to);
 
   useEffect(() => {
     const el = ref.current;

@@ -10,7 +10,7 @@ import { FAQ_I18N } from "@/lib/home-faq-i18n";
 const FAQS_BASE: Partial<Record<Lang, { q: string; a: string }[]>> = {
   en: [
     { q: "Is QRix really free?", a: "Yes — all 185+ tools are free with no watermark and no signup. Pro adds unlimited dynamic QR codes, deeper analytics and an ad-free experience." },
-    { q: "Are my files uploaded to a server?", a: "No. PDF, image and QR tools run entirely in your browser — your files never leave your device." },
+    { q: "Are my files uploaded to a server?", a: "Mostly no. PDF, image and QR tools run entirely in your browser. The few that need a server — PDF compress and the best-quality PDF-to-Word mode — say so right on their page." },
     { q: "Do my QR codes expire?", a: "Static QR codes never expire. Dynamic QR codes stay active while your link exists, and you can edit their destination anytime." },
     { q: "Can I add my logo and brand colors to a QR code?", a: "Yes — the Design Studio supports logos, custom colors, dot shapes and 'Scan me' frames while keeping the code scannable." },
     { q: "Does QRix work on mobile?", a: "Yes — every tool is responsive and works in any modern mobile browser. You can also install QRix as an app from your browser menu." },
@@ -20,7 +20,7 @@ const FAQS_BASE: Partial<Record<Lang, { q: string; a: string }[]>> = {
   ],
   ru: [
     { q: "QRix действительно бесплатный?", a: "Да — все 185+ инструментов бесплатны, без водяных знаков и регистрации. Pro добавляет безлимитные динамические QR и расширенную аналитику." },
-    { q: "Мои файлы загружаются на сервер?", a: "Нет. PDF, изображения и QR обрабатываются прямо в браузере — файлы не покидают ваше устройство." },
+    { q: "Мои файлы загружаются на сервер?", a: "В основном нет. PDF, изображения и QR обрабатываются прямо в браузере. Немногие инструменты, которым нужен сервер — сжатие PDF и облачный режим PDF в Word — честно сообщают об этом на своей странице." },
     { q: "Истекают ли QR коды?", a: "Статические QR не истекают никогда. Динамические работают, пока активна ссылка, и их назначение можно менять." },
     { q: "Можно добавить логотип и цвета бренда?", a: "Да — студия дизайна поддерживает логотипы, цвета, формы точек и рамки «Scan me»." },
     { q: "Работает ли QRix на телефоне?", a: "Да — все инструменты адаптивны и работают в любом современном мобильном браузере." },
@@ -30,7 +30,7 @@ const FAQS_BASE: Partial<Record<Lang, { q: string; a: string }[]>> = {
   ],
   uz: [
     { q: "QRix ҳақиқатан бепулми?", a: "Ҳа — барча 185+ асбоб бепул, ватермарксиз ва рўйхатсиз. Pro чексиз динамик QR ва чуқур аналитика беради." },
-    { q: "Файлларим серверга юкланадими?", a: "Йўқ. PDF, расм ва QR асбоблари тўлиқ браузерингизда ишлайди — файллар қурилмангиздан чиқмайди." },
+    { q: "Файлларим серверга юкланадими?", a: "Асосан йўқ. PDF, расм ва QR асбоблари тўлиқ браузерингизда ишлайди. Сервер керак бўлган озчилиги — PDF сиқиш ва сифатли PDF-дан-Word режими — буни ўз саҳифасида очиқ айтади." },
     { q: "QR кодлар муддати тугайдими?", a: "Статик QR ҳеч қачон тугамайди. Динамик QR ҳаволангиз актив бўлса ишлайверади ва манзилини ўзгартириш мумкин." },
     { q: "Логотип ва бренд рангларини қўшсам бўладими?", a: "Ҳа — Дизайн студияси логотип, ранглар, нуқта шакллари ва «Scan me» рамкаларини қўллайди." },
     { q: "QRix телефонда ишлайдими?", a: "Ҳа — барча асбоблар мослашувчан ва ҳар қандай замонавий мобил браузерда ишлайди." },

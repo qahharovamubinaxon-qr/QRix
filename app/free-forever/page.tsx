@@ -19,7 +19,7 @@ const PROMISES = [
   { icon: <FiZap size={16} />, t: "No scan limits", d: "Your code won't die on your busiest day. Unlimited scans, always." },
   { icon: <FiShield size={16} />, t: "No watermark, no ads", d: "Clean codes you fully own. We never stamp a logo or inject ads into your scan flow." },
   { icon: <FiCheck size={16} />, t: "No signup, no credit card", d: "Open the tool and go. We never ask for a card 'to start a free trial.'" },
-  { icon: <FiEye size={16} />, t: "Private by design", d: "QR, PDF and image tools run in your browser — your files and links never leave your device." },
+  { icon: <FiEye size={16} />, t: "Private by design", d: "QR and most PDF/image tools run entirely in your browser. The few that use a server — like PDF compress — say so right on their page." },
   { icon: <FiArrowRight size={16} />, t: "Free features others charge for", d: "Vector SVG export, bulk CSV, a design studio and 15 languages — all free." },
 ];
 
@@ -41,7 +41,7 @@ const FAQS = [
   { q: "Will my QR code stop working after a while?", a: "No. A static QR code stores its data inside the code itself, so it works forever — even offline, even if QRix disappeared tomorrow. There's nothing on our servers to 'switch off,' which is exactly the trap other generators use." },
   { q: "Do you cap how many times my code can be scanned?", a: "No. There are no scan limits on your codes. The horror story of a menu QR dying on a busy Saturday because it hit a hidden scan cap simply can't happen here." },
   { q: "Do I need to give a credit card?", a: "Never for the free tools. We don't run 'free trials' that quietly convert into a subscription." },
-  { q: "Are my files or links uploaded to your servers?", a: "The QR, PDF and image tools run entirely in your browser, so your files never leave your device. Dynamic QR codes (optional, for analytics) store only the destination link you choose." },
+  { q: "Are my files or links uploaded to your servers?", a: "Most tools run entirely in your browser, so your files stay on your device. A few need a server to work — PDF compress and the best-quality PDF-to-Word mode — and each of those says so on its own page. Dynamic QR codes (optional, for analytics) store only the destination link you choose." },
   { q: "Can I download a print-ready vector (SVG)?", a: "Yes, for free. Export crisp SVG or PNG at any size — ideal for packaging, signage and posters that need to stay sharp." },
 ];
 

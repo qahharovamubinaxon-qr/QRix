@@ -31,14 +31,18 @@ const IMAGE_TOOLS = ["remove-bg", "image-to-text", "compress", "resize", "conver
 const LEGAL = ["about", "privacy", "terms", "contact"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
   const autoPosts = await getAutopilotPosts();
+  /* lastmod is emitted ONLY when a real change date exists (blog posts).
+     Defaulting it to the build time stamped 737 of 808 URLs with one identical
+     deploy timestamp — Google honors lastmod only when it is "consistently and
+     verifiably accurate", so a fleet-wide fake date teaches it to ignore the
+     field site-wide, including on the blog where it is genuine. */
   const entry = (
     path: string,
     priority: number,
     changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"] = "weekly",
-    lastModified: Date = now,
-  ) => ({ url: `${SITE_URL}${path}`, lastModified, changeFrequency, priority });
+    lastModified?: Date,
+  ) => ({ url: `${SITE_URL}${path}`, ...(lastModified ? { lastModified } : {}), changeFrequency, priority });
 
   // Programmatic SEO use-case pages (localized, with hreflang alternates).
   const langReady = (l: string) => l === "en" || USE_CASES_EN.some((u) => hasTranslation(u.slug, l as never));
@@ -47,7 +51,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...USE_CASES_EN.flatMap((u) =>
       USE_LANGS.filter((l) => hasTranslation(u.slug, l)).map((l) => ({
         url: `${SITE_URL}/use/${l}/${u.slug}`,
-        lastModified: now,
         changeFrequency: "monthly" as const,
         priority: 0.7,
         alternates: {
