@@ -193,12 +193,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   instead: ~300 B, links unchanged in the HTML, no skeleton and no chunk that can
   fail. Generalisable: defer on INTENT, inline on PAINT — if a crawler must see
   it, a dynamic import is a downgrade however far below the fold it sits.
-  next: awaiting the Vercel deploy of 66400a3 (25-30 min). Verify with
-  `node scripts/measure-eager-bundle.mjs https://qrixtools.com/` — the marker
-  "blog posts (lib/blog)" must flip YES -> no while the 3 /blog/ links stay in
-  the HTML; record the byte delta off the 20 scripts / 1044.7 KB baseline. Then
-  the remaining hydration weight in the ROOT LAYOUT (below). HOME_I18N stays;
-  app/page.tsx genuinely uses it.
+  Measured on production: homepage eager set 20 scripts / 1044.7 KB -> 19 /
+  970.4 KB (-74.3 KB), the marker went YES -> no, and the 74.6 KB chunk that
+  carried the catalog 404s — it is not deferred, it is gone from the page's graph
+  entirely. Driven in real headless Chrome: all three cards render with their
+  right title, category and read time, carry React fibers, the three /blog/ links
+  are still in the HTML and all three 200. Zero page errors. No sitemap change,
+  so no IndexNow.
+  Two guards, because inlining pays in drift: npm run test:home-posts (5
+  assertions — the list vs allPostsSorted(), and it PRINTS the corrected block to
+  paste on failure; plus every slug must resolve, since these render as
+  /blog/<slug> on the most crawled page) and test:layout, now 10, holding the
+  import boundary. 4 mutations verified, incl. appending a newer post to lib/blog.
+  RUN test:home-posts WHENEVER A POST IS ADDED — a stale list looks perfectly
+  correct on the page, which is the whole reason the guard exists.
+  next: the remaining hydration weight in the ROOT LAYOUT (below) — TopNav's
+  markup split is the biggest separable one, same shape as the M137 ToolPageShell
+  split. HOME_I18N stays; app/page.tsx genuinely uses it.
   After that, the remaining hydration weight in the ROOT
   LAYOUT, which mounts eleven client components on every page in the site:
   TopNav (400 lines), DotDistortionBackground (393), CommandSearch (234),

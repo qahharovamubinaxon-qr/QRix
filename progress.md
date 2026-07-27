@@ -1009,3 +1009,38 @@ of these deferrals.
 
 Files: components/ReviewsSection.tsx, scripts/test-eager-layout.mjs.
 Branch design-v2.
+
+## M139 — the homepage stopped shipping 60 blog posts to read three titles
+
+components/LatestPosts.tsx paints three cards below the fold and reached them
+through allPostsSorted(), so all 88 KB of lib/blog — 60 posts with their full
+bodies, sections and FAQs — was in the eager bundle of every homepage view.
+app/page.tsx is one giant "use client" component, so rendering depth buys
+nothing; the import is the cost.
+
+The backlog said this one needed a VIEWPORT-driven deferral, being the one of
+the three catalogs that feeds what its section paints. Checking that premise
+first is what saved it: those three cards are the only /blog/* links in the
+homepage's server HTML — the site's whole crawlable path from the root into the
+blog — and a crawler does not scroll, so an IntersectionObserver would have
+traded an indexing asset for bytes. The four painted fields are inlined in
+lib/home-posts.ts instead (~300 B), links untouched.
+
+  homepage eager set  20 scripts / 1044.7 KB -> 19 / 970.4 KB   (-74.3 KB)
+
+The rule worth keeping: defer on INTENT, inline on PAINT. A dynamic import is a
+downgrade for anything a crawler must see, however far below the fold it sits.
+
+Inlining trades bytes for drift — append a newer post and the homepage silently
+keeps the old three, and nothing about the page looks wrong. npm run
+test:home-posts is the guard: it asserts the list against allPostsSorted(),
+prints the corrected block ready to paste, and requires every slug to resolve,
+since a typo here is a 404 on the most crawled page. Run it whenever a post is
+added. test:layout (now 10) holds the import boundary. 4 mutations verified.
+
+Verified on production: the marker flipped, the 74.6 KB chunk 404s (gone, not
+deferred), all three cards render right and hydrated in real headless Chrome,
+the three links 200, zero page errors.
+
+Files: lib/home-posts.ts, components/LatestPosts.tsx, scripts/test-home-posts.mjs,
+scripts/test-eager-layout.mjs, package.json. Branch design-v2.
