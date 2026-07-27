@@ -378,3 +378,59 @@ export const REJECTED: Rejected[] = [
       "Traced to a roundup listing 69 quishing statistics that attributes only three or four of them to a named report. The underlying vendor telemetry may well be sound, but nothing published lets a reader check which vendor measured what, over what period.",
   },
 ];
+
+/* ------------------------------------------------------- the embeddable card */
+/* /qr-code-statistics asks to be cited in prose, which is a request, not a
+   mechanism. The card at /embed/qr-stat/<id> is the mechanism: a blogger who
+   quotes one of these figures can paste an iframe that carries the number, the
+   period, the source's own name and date, the tier badge and the caveat — and a
+   link back here. It is the caveat travelling with the number that makes this
+   worth shipping rather than just a backlink trick, since the failure mode this
+   whole page exists to fight is a figure quoted with none of its conditions. */
+
+/** Tier wording and colour, shared by the page and the embed so a badge cannot
+ *  mean one thing in the card and another in the iframe. */
+export const KIND_LABEL: Record<SourceKind, string> = {
+  government: "Government statistic",
+  regulator: "Regulator",
+  analyst: "Research house",
+  "vendor-platform": "Vendor platform data",
+  "vendor-survey": "Vendor survey",
+};
+
+export const KIND_TONE: Record<SourceKind, string> = {
+  government: "var(--success)",
+  regulator: "var(--success)",
+  analyst: "var(--primary-bright)",
+  "vendor-platform": "var(--primary-bright)",
+  "vendor-survey": "var(--text-faint)",
+};
+
+/** Width the height below is computed for. An embedder sets width="100%", so the
+ *  rendered width is the HOST's column and we cannot know it — 320 is the narrow
+ *  case inside a typical blog body, and sizing for it means the card never
+ *  clips. A wider column just leaves slack, which is invisible because the embed
+ *  paints no background of its own and centres the card in whatever it is given. */
+export const EMBED_WIDTH_BASIS = 320;
+
+/** Height for a stat's iframe, in px. Deterministic, so the snippet on the page
+ *  and any test agree without measuring a browser — but it IS an estimate of
+ *  text wrapping, so scripts/test-qr-stats.mjs holds it to the dataset and the
+ *  real rendered heights were checked in a browser at this width. Generous by
+ *  design: too tall is invisible, too short clips the caveat. */
+export function embedHeight(s: Stat): number {
+  /* chars that fit on one line at EMBED_WIDTH_BASIS, per text style */
+  const lines = (text: string, perLine: number) => Math.ceil(text.length / perLine) || 1;
+  const CHROME = 150;                    // value + badge row + source line + padding + footer
+  return CHROME + lines(s.claim, 42) * 20 + (s.caveat ? 12 + lines(s.caveat, 52) * 15 : 0);
+}
+
+/** The snippet an embedder pastes. Kept here so the page, the widgets directory
+ *  and the tests cannot render three different versions of it. */
+export function embedSnippet(s: Stat, siteUrl: string): string {
+  return (
+    `<iframe src="${siteUrl}/embed/qr-stat/${s.id}" width="100%" height="${embedHeight(s)}" ` +
+    `style="border:0;max-width:640px" loading="lazy" ` +
+    `title="${s.claim.replace(/"/g, "&quot;")}"></iframe>`
+  );
+}

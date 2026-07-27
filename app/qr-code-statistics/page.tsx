@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FiExternalLink, FiAlertTriangle, FiCheckCircle, FiArrowRight, FiSlash } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME } from "@/lib/seo";
-import { STAT_GROUPS, ALL_STATS, REJECTED, FTC_ALERT, type SourceKind } from "@/lib/qr-stats";
+import { STAT_GROUPS, ALL_STATS, REJECTED, FTC_ALERT, KIND_LABEL, KIND_TONE, embedSnippet } from "@/lib/qr-stats";
+import StatCopyDelegate from "@/components/StatCopyDelegate";
 import QRGeneratorByType from "@/components/QRGeneratorByType";
 
 const PATH = "/qr-code-statistics";
@@ -20,22 +21,9 @@ export const metadata: Metadata = pageMeta({
   ],
 });
 
-/* How much weight a number can carry, said plainly next to it. */
-const KIND_LABEL: Record<SourceKind, string> = {
-  government: "Government statistic",
-  regulator: "Regulator",
-  analyst: "Research house",
-  "vendor-platform": "Vendor platform data",
-  "vendor-survey": "Vendor survey",
-};
-
-const KIND_TONE: Record<SourceKind, string> = {
-  government: "var(--success)",
-  regulator: "var(--success)",
-  analyst: "var(--primary-bright)",
-  "vendor-platform": "var(--primary-bright)",
-  "vendor-survey": "var(--text-faint)",
-};
+/* How much weight a number can carry, said plainly next to it. KIND_LABEL and
+   KIND_TONE live in lib/qr-stats.ts so this page and the embeddable card cannot
+   disagree about what a tier means. */
 
 /* The regional figures, drawn as a bar chart in CSS — no chart library, no
    client JS, nothing to hydrate. Values are read from the dataset so the chart
@@ -180,7 +168,7 @@ export default function QrCodeStatisticsPage() {
 
           <div className="grid sm:grid-cols-2 gap-4">
             {group.stats.map((s) => (
-              <article key={s.id} className="qx-card p-5 flex flex-col">
+              <article key={s.id} id={s.id} className="qx-card p-5 flex flex-col scroll-mt-24">
                 <div
                   className="font-display font-extrabold leading-none mb-3"
                   style={{ color: "var(--primary-bright)", fontSize: "clamp(1.5rem,3.4vw,2.1rem)" }}
@@ -222,6 +210,34 @@ export default function QrCodeStatisticsPage() {
                       <strong style={{ color: "var(--text-faint)" }}>What it doesn&rsquo;t prove:</strong> {s.caveat}
                     </p>
                   )}
+
+                  {/* The page asks in prose to be cited; this is the mechanism.
+                      Native <details> + a server-rendered snippet, so it works
+                      with JS off — StatCopyDelegate only upgrades the button. */}
+                  <details className="group">
+                    <summary
+                      className="qx-mono text-[10px] uppercase tracking-wider cursor-pointer list-none select-none hover:underline underline-offset-2"
+                      style={{ color: "var(--text-faint)" }}
+                    >
+                      Cite / embed this figure
+                    </summary>
+                    <div className="mt-2 space-y-1.5">
+                      <textarea
+                        readOnly
+                        rows={3}
+                        aria-label={`Embed code for: ${s.claim}`}                        className="w-full qx-mono text-[10px] leading-snug p-2 rounded-lg"
+                        style={{ background: "var(--surface-2)", color: "var(--text-muted)", border: "1px solid var(--border)" }}
+                        value={embedSnippet(s, SITE_URL)}
+                      />
+                      <button
+                        type="button"
+                        data-copy={embedSnippet(s, SITE_URL)}
+                        className="qx-btn-ghost !text-[10px] !py-1.5 !px-2.5"
+                      >
+                        <span data-copy-label>Copy embed code</span>
+                      </button>
+                    </div>
+                  </details>
                 </div>
               </article>
             ))}
@@ -412,6 +428,10 @@ export default function QrCodeStatisticsPage() {
           ))}
         </div>
       </section>
+
+      {/* One delegated listener upgrades every [data-copy] button above; the
+          snippets themselves are server-rendered and work without it. */}
+      <StatCopyDelegate />
     </main>
   );
 }
