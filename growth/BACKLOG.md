@@ -279,13 +279,29 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   <sha>/status` answers it, and the Vercel MCP works with projectId "q-rix" +
   teamId team_Ymbc9KJNvDDWkr2X0FzvzoSE (list_projects returns empty; go
   straight to list_deployments).
-- [ ] /qr-code-statistics follow-ups, ranked: (1) an /embed-able "stat card"
-  so a blogger quoting a figure links back — the actual backlink mechanism,
-  which the page currently only invites in prose; (2) re-check the four
-  sources each quarter, since two are annual reports that will move (a
-  `published` date older than ~14 months should fail test:qr-stats); (3) RU/UZ
-  twins once the EN page shows impressions in GSC — not before, the copy is
-  argumentative and expensive to translate well.
+- [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
+  verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
+  /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
+  /embed/* only and X-Frame-Options is dropped there, and all 26 snippets are in
+  the page's server HTML inside <details>. See M141 below for what shipping it
+  exposed; (2) re-check the four sources each quarter, since two are annual
+  reports that will move (a `published` date older than ~14 months should fail
+  test:qr-stats); (3) RU/UZ twins once the EN page shows impressions in GSC —
+  not before, the copy is argumentative and expensive to translate well.
+- [~] M141: the embed card must stop shipping the whole site into someone
+  else's page. Measured on production the moment M140 went live: the card is a
+  page under the ROOT layout, so /embed/qr-stat/pay-2025-value serves 15 eager
+  scripts / 727.1 KB, mounts TopNav, the cookie banner and GoogleAnalytics, and
+  pulls the 75 KB brand font — for a card that is static text. app/embed/layout
+  hides the chrome with `html.qx-embed body > *:not(#main){display:none}`, which
+  hides it from the eye and ships every byte of it. Three separate costs: the
+  embedder's own CWV (the thing a blogger notices and removes the widget over),
+  gtag.js firing from inside an iframe on a third party's page, and a consent
+  banner rendered where nobody can answer it. Fix: serve the card from a Route
+  Handler, which is not nested in any layout — a standalone document with inline
+  CSS, a system font stack and zero script tags. next: build lib/qr-stat-embed.ts
+  + app/embed/qr-stat/[id]/route.ts, delete the page + layout + the qx-embed CSS,
+  move the test:qr-stats embed assertions off source-regex onto the rendered HTML.
 
 ## NEXT (2-4 weeks)
 - [ ] Metric-matched @font-face fallback for Bricolage Grotesque
