@@ -182,11 +182,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   Deferring introduced a failure mode a static import cannot have — a chunk
   fetch can fail — so both call sites now take the localStorage path a query
   error already took (f212ba2). Worth remembering on every one of these.
-  next: lib/blog is the last of the three still eager on the homepage, via
-  LatestPosts (app/page.tsx:15, rendered at 810, also below the fold) — but
-  unlike the SDK it feeds what that section PAINTS, so it needs the deferral to
-  be viewport-driven rather than intent-driven, which is a different shape from
-  anything shipped so far. HOME_I18N stays; app/page.tsx genuinely uses it.
+  Seventh tranche (M139, 66400a3) took lib/blog — the last of the three still
+  eager on the homepage, via LatestPosts. The note here used to say it needed a
+  VIEWPORT-driven deferral because it feeds what the section paints. Checked
+  before building it, and that shape was wrong: those three cards are the only
+  /blog/* links in the homepage's server HTML (curl says exactly 3, all from
+  LatestPosts), so keying them on an IntersectionObserver removes the site's only
+  crawlable path from the root into the blog — a crawler does not scroll. Inlined
+  the four painted fields (slug/title/category/readMins × 3) in lib/home-posts.ts
+  instead: ~300 B, links unchanged in the HTML, no skeleton and no chunk that can
+  fail. Generalisable: defer on INTENT, inline on PAINT — if a crawler must see
+  it, a dynamic import is a downgrade however far below the fold it sits.
+  next: awaiting the Vercel deploy of 66400a3 (25-30 min). Verify with
+  `node scripts/measure-eager-bundle.mjs https://qrixtools.com/` — the marker
+  "blog posts (lib/blog)" must flip YES -> no while the 3 /blog/ links stay in
+  the HTML; record the byte delta off the 20 scripts / 1044.7 KB baseline. Then
+  the remaining hydration weight in the ROOT LAYOUT (below). HOME_I18N stays;
+  app/page.tsx genuinely uses it.
   After that, the remaining hydration weight in the ROOT
   LAYOUT, which mounts eleven client components on every page in the site:
   TopNav (400 lines), DotDistortionBackground (393), CommandSearch (234),
