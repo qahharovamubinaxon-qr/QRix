@@ -207,9 +207,19 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   import boundary. 4 mutations verified, incl. appending a newer post to lib/blog.
   RUN test:home-posts WHENEVER A POST IS ADDED — a stale list looks perfectly
   correct on the page, which is the whole reason the guard exists.
-  next: the remaining hydration weight in the ROOT LAYOUT (below) — TopNav's
-  markup split is the biggest separable one, same shape as the M137 ToolPageShell
-  split. HOME_I18N stays; app/page.tsx genuinely uses it.
+  TopNav's markup split was scoped next and is NOT worth taking — recorded here so
+  nobody scopes it twice. The M137 ToolPageShell split worked because that
+  component was client for TWO lines. TopNav is client for essentially all of it:
+  a moving hover pill tracked with refs and measured geometry covers every desktop
+  nav link (so the links cannot be static markup), and every visible label reads
+  from `lang`, which is loaded from localStorage in an effect. Between them the
+  logo is about all that could move to the server. The note below about labels
+  being the constraint was right but understated it — the constraint is the pill
+  as much as the labels.
+  next: the honest next lever is the HOMEPAGE SPLIT (app/page.tsx is one giant
+  "use client" component, ~800 lines of imports at the top), which the note below
+  already calls the biggest single CWV item left and a mission of its own. Take
+  that, not TopNav. HOME_I18N stays; app/page.tsx genuinely uses it.
   After that, the remaining hydration weight in the ROOT
   LAYOUT, which mounts eleven client components on every page in the site:
   TopNav (400 lines), DotDistortionBackground (393), CommandSearch (234),
