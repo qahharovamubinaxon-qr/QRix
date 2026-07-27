@@ -1,6 +1,22 @@
 # Growth backlog — ranked by ROI. Top unblocked item = next action.
 Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 
+> WORKTREE NOTE (Jul 26, M138). The scheduled task file still names
+> `.claude/worktrees/relaxed-turing-bbc58e` as this worker's checkout on
+> design-v2. It is NOT: another Claude session checked it out to branch
+> `claude/relaxed-turing-bbc58e` at 03:49 local on Jul 27, so `growth/` does not
+> exist there and `growth/.lock` reads empty — which looks exactly like "no
+> session is running" whether or not one is. Do NOT switch that worktree's
+> branch back; a second session works in it live (see the standing note about
+> never running `git add -A` there). M138 ran from a fresh worktree instead:
+>
+>     git worktree add .claude/worktrees/growth-v2 design-v2
+>     npm install            # ~1.7 GB, several minutes; copying node_modules is slower
+>     cp <any-other-worktree>/.env.local .env.local
+>
+> `growth-v2` should still exist and be usable as-is. If the owner ever repoints
+> the task file, this note can go.
+
 ## NOW (this week)
 - [B] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
   an unsharp mask (drawImage at high smoothing + a 3x3 unsharp mask; no model,
