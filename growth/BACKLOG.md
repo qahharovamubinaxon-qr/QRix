@@ -299,9 +299,31 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   gtag.js firing from inside an iframe on a third party's page, and a consent
   banner rendered where nobody can answer it. Fix: serve the card from a Route
   Handler, which is not nested in any layout — a standalone document with inline
-  CSS, a system font stack and zero script tags. next: build lib/qr-stat-embed.ts
-  + app/embed/qr-stat/[id]/route.ts, delete the page + layout + the qx-embed CSS,
-  move the test:qr-stats embed assertions off source-regex onto the rendered HTML.
+  CSS, a system font stack and zero script tags.
+  BUILT and pushed (9baa06f), awaiting the Vercel deploy. Verifying it locally
+  found two more defects, both invisible from our own site because they only
+  happen inside an iframe:
+    · every card CLIPPED. embedHeight() was short on all 26 — by 30 to 102 px —
+      so each embed cut off its footer and the longest cut into the caveat. The
+      "real rendered heights were checked in a browser" note on that function
+      was not true. Recalibrated against 26 measured cards; 0/26 clip now,
+      slack 8-64 px.
+    · the card was UNREADABLE on a light site: --surface is 4% white over a dark
+      --bg and the embed body is transparent, so on a white blog the card was
+      white with #ecebe7 text on it. Tokens now resolve to what they composite
+      to, and --success is lightened for 9px badge contrast (3.1:1 → 6.4:1).
+  npm run test:embed (scripts/measure-embed-heights.mjs) is the guard for the
+  half a unit test cannot see — it drives real headless Chrome and takes a base
+  URL. next: verify live on production (0 scripts, 0/26 clipping via
+  `npm run test:embed`), then Done + log.
+- [ ] /embed/downloader has the same disease and is harder: it ships the root
+  layout too (TopNav, consent banner, gtag.js) but it is a real tool and has to
+  hydrate, so it cannot become a Route Handler. Getting it off the root layout
+  means a SECOND ROOT LAYOUT — app/(site)/layout.tsx holding the chrome, with
+  /embed outside it — which is a route-group move of every page in the site,
+  mechanical but wide. Price it before starting; the widget is currently one
+  page, so the win is narrow unless more embeds are planned (/widgets suggests
+  they are).
 
 ## NEXT (2-4 weeks)
 - [ ] Metric-matched @font-face fallback for Bricolage Grotesque
