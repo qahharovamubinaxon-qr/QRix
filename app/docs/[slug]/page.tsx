@@ -46,7 +46,7 @@ export default async function DocPageView({ params }: { params: Promise<{ slug: 
             description: doc.summary,
             mainEntityOfPage: `${SITE_URL}/docs/${doc.slug}`,
             author: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
-            publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/icon` } },
+            publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/icon.png` } },
           },
           breadcrumbLd([
             { name: "Home", path: "/" },

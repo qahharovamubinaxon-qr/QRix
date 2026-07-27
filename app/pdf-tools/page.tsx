@@ -52,7 +52,7 @@ const TOOLS: Tool[] = [
 const SIDE_LINKS = [
   { href: "/dashboard", label: "Dashboard", icon: <FiHome size={15} /> },
   { href: "/qr-tools/url", label: "URL QR", icon: <FiLinkIcon size={15} /> },
-  { href: "/wifi-qr", label: "WiFi QR", icon: <FiWifi size={15} /> },
+  { href: "/qr-tools/wifi", label: "WiFi QR", icon: <FiWifi size={15} /> },
   { href: "/qr-tools/vcard", label: "vCard / NFC", icon: <FiUser size={15} /> },
 ];
 

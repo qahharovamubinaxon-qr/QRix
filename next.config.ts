@@ -51,6 +51,14 @@ const nextConfig: NextConfig = {
     return [
       { source: "/url-qr", destination: "/qr-tools/url", permanent: true },
       { source: "/vcard-qr", destination: "/qr-tools/vcard", permanent: true },
+      // same stub family: heading-only pages with the homepage canonical, and
+      // every /use/* how-to CTA links /wifi-qr — the 308 sends that equity to
+      // the real tool without touching 200+ content pages
+      { source: "/wifi-qr", destination: "/qr-tools/wifi", permanent: true },
+      { source: "/email-qr", destination: "/qr-tools/email", permanent: true },
+      { source: "/sms-qr", destination: "/qr-tools/sms", permanent: true },
+      { source: "/telegram-qr", destination: "/qr-tools/telegram", permanent: true },
+      { source: "/whatsapp-qr", destination: "/qr-tools/whatsapp", permanent: true },
     ];
   },
 };

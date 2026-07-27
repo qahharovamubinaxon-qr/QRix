@@ -55,11 +55,11 @@ export default function Sidebar() {
 
   const qrLinks = [
     { href: "/qr-tools/url", label: "URL QR", icon: <FiLink size={15} /> },
-    { href: "/wifi-qr", label: "WiFi QR", icon: <FiWifi size={15} /> },
-    { href: "/whatsapp-qr", label: "WhatsApp QR", icon: <FiMessageCircle size={15} /> },
-    { href: "/email-qr", label: "Email QR", icon: <FiMail size={15} /> },
-    { href: "/telegram-qr", label: "Telegram QR", icon: <FiSend size={15} /> },
-    { href: "/sms-qr", label: "SMS QR", icon: <FiMessageSquare size={15} /> },
+    { href: "/qr-tools/wifi", label: "WiFi QR", icon: <FiWifi size={15} /> },
+    { href: "/qr-tools/whatsapp", label: "WhatsApp QR", icon: <FiMessageCircle size={15} /> },
+    { href: "/qr-tools/email", label: "Email QR", icon: <FiMail size={15} /> },
+    { href: "/qr-tools/telegram", label: "Telegram QR", icon: <FiSend size={15} /> },
+    { href: "/qr-tools/sms", label: "SMS QR", icon: <FiMessageSquare size={15} /> },
     { href: "/qr-tools/vcard", label: "vCard QR", icon: <FiUser size={15} /> },
   ];
 

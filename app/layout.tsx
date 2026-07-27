@@ -149,7 +149,9 @@ export default function RootLayout({
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={jsonLd([
-            { "@context": "https://schema.org", "@type": "Organization", name: SITE_NAME, url: SITE_URL, logo: `${SITE_URL}/icon` },
+            // /icon (the old dynamic route) 404s since the icon became a static
+            // file — the real asset is /icon.png
+            { "@context": "https://schema.org", "@type": "Organization", name: SITE_NAME, url: SITE_URL, logo: `${SITE_URL}/icon.png` },
             { "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME, url: SITE_URL, potentialAction: { "@type": "SearchAction", target: `${SITE_URL}/qr-tools?q={search_term_string}`, "query-input": "required name=search_term_string" } },
           ])}
         />

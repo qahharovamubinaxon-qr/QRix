@@ -96,7 +96,7 @@ export const USE_CASES_EN: UseCaseSeed[] = [
     },
   },
   {
-    slug: "wifi-qr-code-for-guests", toolHref: "/wifi-qr", toolLabel: "Create a WiFi QR",
+    slug: "wifi-qr-code-for-guests", toolHref: "/qr-tools/wifi", toolLabel: "Create a WiFi QR",
     category: "QR", emoji: "📶", grad: "linear-gradient(135deg,#0891b2,#22d3ee)",
     keywords: ["wifi qr code", "guest wifi qr", "qr code for wifi password", "scan to connect wifi", "wifi qr generator"],
     content: {

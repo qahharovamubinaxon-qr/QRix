@@ -230,11 +230,11 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
   const navMain = [
     { href: "/dashboard", label: "Dashboard", icon: <FiGrid size={16} />, active: true },
     { href: "/qr-tools/url", label: "URL QR", icon: <FiLink size={16} /> },
-    { href: "/wifi-qr", label: "WiFi QR", icon: <FiWifi size={16} /> },
-    { href: "/whatsapp-qr", label: "WhatsApp QR", icon: <FiMessageCircle size={16} /> },
-    { href: "/email-qr", label: "Email QR", icon: <FiMail size={16} /> },
-    { href: "/telegram-qr", label: "Telegram QR", icon: <FiSend size={16} /> },
-    { href: "/sms-qr", label: "SMS QR", icon: <FiMessageSquare size={16} /> },
+    { href: "/qr-tools/wifi", label: "WiFi QR", icon: <FiWifi size={16} /> },
+    { href: "/qr-tools/whatsapp", label: "WhatsApp QR", icon: <FiMessageCircle size={16} /> },
+    { href: "/qr-tools/email", label: "Email QR", icon: <FiMail size={16} /> },
+    { href: "/qr-tools/telegram", label: "Telegram QR", icon: <FiSend size={16} /> },
+    { href: "/qr-tools/sms", label: "SMS QR", icon: <FiMessageSquare size={16} /> },
     { href: "/qr-tools/vcard", label: "vCard / NFC", icon: <FiUser size={16} /> },
     { href: "/pdf-tools", label: "PDF Tools", icon: <FiFileText size={16} /> },
     { href: "/image-tools", label: "Image Tools", icon: <FiImage size={16} /> },
@@ -242,10 +242,10 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
 
   const quickCreate = [
     { href: "/qr-tools/url", label: "URL QR", desc: "Generate QR for any link", icon: <FiLink size={20} />, grad: "linear-gradient(135deg,#4f46e5,#3b82f6)" },
-    { href: "/wifi-qr", label: "WiFi QR", desc: "Share WiFi instantly", icon: <FiWifi size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
+    { href: "/qr-tools/wifi", label: "WiFi QR", desc: "Share WiFi instantly", icon: <FiWifi size={20} />, grad: "linear-gradient(135deg,#16a34a,#4ade80)" },
     { href: "/qr-tools/vcard", label: "vCard / NFC", desc: "Digital business card", icon: <FiUser size={20} />, grad: "linear-gradient(135deg,#d97706,#fbbf24)" },
-    { href: "/email-qr", label: "Email QR", desc: "Pre-filled emails", icon: <FiMail size={20} />, grad: "linear-gradient(135deg,#db2777,#f472b6)" },
-    { href: "/sms-qr", label: "SMS QR", desc: "Instant messages", icon: <FiMessageSquare size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a78bfa)" },
+    { href: "/qr-tools/email", label: "Email QR", desc: "Pre-filled emails", icon: <FiMail size={20} />, grad: "linear-gradient(135deg,#db2777,#f472b6)" },
+    { href: "/qr-tools/sms", label: "SMS QR", desc: "Instant messages", icon: <FiMessageSquare size={20} />, grad: "linear-gradient(135deg,#7c3aed,#a78bfa)" },
     { href: "/pdf-tools", label: "PDF Tools", desc: "Convert & compress", icon: <FiFileText size={20} />, grad: "linear-gradient(135deg,#ea580c,#fb923c)" },
   ];
 

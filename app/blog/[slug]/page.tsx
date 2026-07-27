@@ -67,7 +67,7 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
             dateModified: post.date,
             mainEntityOfPage: url,
             author: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
-            publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/icon` } },
+            publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/icon.png` } },
           },
           breadcrumbLd([
             { name: "Home", path: "/" },
