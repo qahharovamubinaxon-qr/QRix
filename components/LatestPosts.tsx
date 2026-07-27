@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { FiArrowRight, FiClock } from "react-icons/fi";
-import { allPostsSorted } from "@/lib/blog";
+import { HOME_POSTS } from "@/lib/home-posts";
 
-/** Three latest blog cards + link to the blog — internal-linking + freshness signal. */
+/** Three latest blog cards + link to the blog — internal-linking + freshness signal.
+ *  Reads the inlined card list, NOT lib/blog: this renders inside a "use client"
+ *  page, so importing the 88 KB post catalog here put it on every homepage view.
+ *  See lib/home-posts.ts for why the data is inlined rather than deferred. */
 export default function LatestPosts({ heading, cta }: { heading: string; cta: string }) {
-  const posts = allPostsSorted().slice(0, 3);
+  const posts = HOME_POSTS;
   return (
     <section className="max-w-[1400px] mx-auto px-5 lg:px-8 pb-24 lg:pb-32" aria-label={heading}>
       <div className="flex items-end justify-between gap-4 mb-8" data-reveal>

@@ -104,6 +104,18 @@ ok("the reviews section does not statically import the auth SDK", () => {
   assert.ok(/import\("@\/lib\/supabase-browser"\)/.test(reviews), "ReviewsSection no longer loads the SDK at all");
 });
 
+/* The blog cards are the exception to the pattern above: they are NOT deferred,
+ * because they are the only /blog/* links in the homepage's server HTML and a
+ * crawler will not scroll to trigger an intersection. The 88 KB catalog stays out
+ * by inlining the four fields the section paints. npm run test:home-posts is what
+ * keeps that inlined copy honest; this only holds the import boundary. */
+
+ok("the latest-posts section does not statically import the post catalog", () => {
+  const latest = read("components/LatestPosts.tsx");
+  assert.ok(!staticallyImports(latest, "lib/blog"), "the 88 KB post catalog is eager on every homepage view again");
+  assert.ok(staticallyImports(latest, "home-posts"), "LatestPosts does not read the inlined card list");
+});
+
 /* ---- and the layout as a whole -------------------------------------------- */
 
 ok("the layout imports no heavy catalog directly", () => {
