@@ -13,8 +13,15 @@
  */
 
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
+import { register } from "node:module";
 import { STAT_GROUPS, ALL_STATS, REJECTED, FTC_ALERT, KIND_LABEL, KIND_TONE, embedHeight, embedSnippet, EMBED_WIDTH_BASIS } from "../lib/qr-stats.ts";
+
+/* qr-stat-embed resolves the dataset through the "@/" alias, so the hook has to
+   be registered before it loads — hence the dynamic import (same shape as
+   scripts/test-ai-claims.mjs). */
+register("./alias-hooks.mjs", import.meta.url);
+const { renderStatEmbed, esc, toneHex, TOKEN_HEX } = await import("../lib/qr-stat-embed.ts");
 
 let pass = 0;
 const ok = (label, fn) => {
@@ -161,19 +168,86 @@ ok("every tier a stat carries has a label and a colour", () => {
   }
 });
 
-ok("the embeddable card carries the caveat, the source and its date", () => {
+ok("every rendered card carries the caveat, the source and its date", () => {
   /* This page exists because these figures get quoted without their conditions.
-   * An embed that dropped the caveat would industrialise exactly that. */
-  const src = readFileSync(new URL("../app/embed/qr-stat/[id]/page.tsx", import.meta.url), "utf8");
-  /* Both halves: the guard AND the interpolation. Checking only for the string
-   * "s.caveat" passes a card that tests the caveat and then never prints it. */
-  assert.ok(/\{s\.caveat && \(/.test(src), "the embeddable card does not render the caveat");
-  assert.ok(/\{s\.caveat\}/.test(src), "the card guards on the caveat but never prints it");
-  assert.ok(/s\.source\.name/.test(src), "the card does not name its source");
-  assert.ok(/s\.source\.published/.test(src), "the card does not carry the source's publication date");
-  assert.ok(/s\.period/.test(src), "the card does not say what window the figure covers");
+   * An embed that dropped the caveat would industrialise exactly that.
+   *
+   * Asserted against the RENDERED DOCUMENT, one per stat, rather than against
+   * the component source (M141). The old version of this test grepped the JSX
+   * for `{s.caveat}` — which proves the expression is written, not that the
+   * text reaches the page, and it could not see a stat whose caveat is missing
+   * from the dataset at all. */
+  for (const s of ALL_STATS) {
+    const doc = renderStatEmbed(s, "https://qrixtools.com");
+    const has = (needle, what) => assert.ok(doc.includes(needle), s.id + ": card does not carry " + what);
+
+    has(esc(s.value), "its figure");
+    has(esc(s.claim), "what the figure counts");
+    has(esc(s.period), "the window it covers");
+    has(esc(s.source.name), "its source's name");
+    has(esc(s.source.published), "its source's publication date");
+    has(esc(s.source.url), "a link to the source");
+    has(KIND_LABEL[s.source.kind], "its tier label");
+    has(toneHex(s.source.kind), "its tier colour");
+    has("/qr-code-statistics?utm_source=embed", "a link back");
+    has("#" + s.id, "an anchor to its own figure on the page");
+    if (s.caveat) has(esc(s.caveat), "its caveat — the part that must survive being quoted");
+  }
+});
+
+ok("a card is a whole document that ships no script and no CSS token", () => {
+  /* It renders on a stranger's site, outside our stylesheet and outside our
+   * bundle. A var(--x) here would resolve to nothing there, and a <script> is
+   * the entire failure M141 fixed. */
+  for (const s of ALL_STATS) {
+    const doc = renderStatEmbed(s, "https://qrixtools.com");
+    assert.ok(doc.startsWith("<!doctype html>"), s.id + ": card is a fragment, not a document");
+    assert.ok(!/<script/i.test(doc), s.id + ": the card ships script");
+    assert.ok(!doc.includes("var(--"), s.id + ": a CSS token would resolve to nothing off-site");
+    assert.ok(/name="robots" content="noindex/.test(doc), s.id + ": the card is indexable and would compete with the page");
+    assert.ok(doc.length < 12000, s.id + ": " + doc.length + " bytes is not a card any more");
+  }
+});
+
+ok("the card escapes the dataset it interpolates", () => {
+  /* The document is built by concatenation and the copy is hand-written prose
+   * carrying quotes, ampersands and dashes. One unescaped angle bracket in a
+   * source name is markup on someone else's page. */
+  const hostile = {
+    id: "x", value: '5 & "5"', period: "<b>2025</b>", claim: "<script>alert(1)</script>",
+    caveat: "a < b && c > d", source: { name: 'Acme "Labs" & Co', url: "https://e.com/?a=1&b=2", kind: "analyst", published: "1 Jan 2025" },
+  };
+  const doc = renderStatEmbed(hostile, "https://qrixtools.com");
+  assert.ok(!doc.includes("<script>alert(1)</script>"), "a claim can inject markup");
+  assert.ok(!doc.includes("<b>2025</b>"), "a period can inject markup");
+  assert.ok(doc.includes("&lt;script&gt;alert(1)&lt;/script&gt;"), "the claim was dropped rather than escaped");
+  assert.ok(doc.includes("Acme &quot;Labs&quot; &amp; Co"), "a quote in a source name is not escaped");
+  assert.ok(doc.includes("a &lt; b &amp;&amp; c &gt; d"), "the caveat is not escaped");
+  /* &amp; not &amp;amp; — escaping the escape is the classic second bug here */
+  assert.ok(!doc.includes("&amp;amp;"), "text is escaped twice");
+});
+
+ok("every tier resolves to a literal colour", () => {
+  /* toneHex falls back to --text-faint's grey when a token is unmapped, which
+   * renders a plausible-looking badge in the wrong tier colour. Caught here
+   * rather than by eye on someone else's blog. */
+  for (const kind of KINDS) {
+    assert.ok(TOKEN_HEX[KIND_TONE[kind]], "tier " + kind + " uses " + KIND_TONE[kind] + ", which has no literal in TOKEN_HEX");
+    assert.match(toneHex(kind), /^#[0-9a-f]{6}$/, "tier " + kind + " did not resolve to a hex colour");
+  }
+});
+
+ok("the route serves the card itself and 404s on an unknown id", () => {
+  const src = readFileSync(new URL("../app/embed/qr-stat/[id]/route.ts", import.meta.url), "utf8");
   assert.ok(/dynamicParams = false/.test(src), "unknown ids would soft-404 at 200 (M118)");
-  assert.ok(/noindex: true/.test(src), "the embed is indexable and would compete with the real page");
+  assert.ok(/status: 404/.test(src), "the handler has no 404 path of its own");
+  assert.ok(/x-robots-tag/i.test(src), "the card is indexable at the header level");
+  assert.ok(/renderStatEmbed/.test(src), "the route does not render the shared card");
+  /* A page under app/ is what put the whole site in the iframe. Keep it a route. */
+  assert.ok(
+    !existsSync(new URL("../app/embed/qr-stat/[id]/page.tsx", import.meta.url)),
+    "the embed is a page again — it renders inside the root layout and ships the site (M141)",
+  );
 });
 
 /* -------------------------------------------------------------------------- */

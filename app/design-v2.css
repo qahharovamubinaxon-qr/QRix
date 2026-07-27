@@ -1354,7 +1354,15 @@ html.light .qx-dl-glow::before { opacity: 0.5; }
 
 /* ── embed mode: strip all site chrome so /embed/* iframes render clean ──
    #main holds the page (display:contents); hide every other direct body
-   child (nav, background canvas, command palette, toaster, consent…). */
+   child (nav, background canvas, command palette, toaster, consent…).
+
+   /embed/downloader is the only page left that needs this, and it needs it
+   because it is a real tool — DownloaderClient has to hydrate. Note what these
+   rules do NOT do: hiding the chrome is not the same as not shipping it, and
+   that iframe still downloads TopNav, the consent banner and gtag.js. The stat
+   card was the case where none of that was needed at all, so it is a Route
+   Handler now and never reaches this stylesheet (M141). Getting the downloader
+   there too means a second root layout (a route group), which is a mission. */
 html.qx-embed body > *:not(#main) { display: none !important; }
 html.qx-embed, html.qx-embed body { background: transparent !important; min-height: 0 !important; }
 .qx-embed-shell { max-width: 560px; margin: 0 auto; padding: 14px; }

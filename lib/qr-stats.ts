@@ -414,15 +414,36 @@ export const KIND_TONE: Record<SourceKind, string> = {
 export const EMBED_WIDTH_BASIS = 320;
 
 /** Height for a stat's iframe, in px. Deterministic, so the snippet on the page
- *  and any test agree without measuring a browser — but it IS an estimate of
- *  text wrapping, so scripts/test-qr-stats.mjs holds it to the dataset and the
- *  real rendered heights were checked in a browser at this width. Generous by
- *  design: too tall is invisible, too short clips the caveat. */
+ *  and any test agree without measuring a browser.
+ *
+ *  M141 recalibrated this against the real thing, and found the first version
+ *  short on ALL 26 cards — by 30 to 102 px, i.e. every embedded card was cutting
+ *  off its own footer and, on the worst, its caveat. That is the one part of the
+ *  card that must survive, so the numbers below are not guesses any more: each
+ *  term is the CSS in lib/qr-stat-embed.ts, and the constant is what 26 cards
+ *  actually measured at 320px in headless Chrome (model fits every card ±1 px).
+ *
+ *  Only the LINE COUNTS are estimated, and the divisors sit under the TIGHTEST
+ *  packing in the dataset, not the loosest: a 43-character caveat wrapped onto
+ *  two lines (21.5 chars/line) while a 305-character one fitted 50.8, because
+ *  wrapping depends on where the long words fall. Sizing to the loose numbers
+ *  left five cards still clipping. Rounding up costs slack, and slack is
+ *  invisible — the card centres and paints no background of its own. */
 export function embedHeight(s: Stat): number {
   /* chars that fit on one line at EMBED_WIDTH_BASIS, per text style */
-  const lines = (text: string, perLine: number) => Math.ceil(text.length / perLine) || 1;
-  const CHROME = 150;                    // value + badge row + source line + padding + footer
-  return CHROME + lines(s.claim, 42) * 20 + (s.caveat ? 12 + lines(s.caveat, 52) * 15 : 0);
+  const lines = (text: string, perLine: number) => Math.max(1, Math.ceil(text.length / perLine));
+
+  const figure = lines(s.value, 18) * 22.4;                                   // clamp() floor, 1.4rem × 1
+  const claim = lines(s.claim, 36) * 21.125;                                  // 13px × 1.625
+  const caveat = s.caveat ? 6.5 + lines(s.caveat, 40) * 16.25 : 0;            // 10px × 1.625, + flex gap
+  const source = lines(`${s.source.name} · ${s.source.published}`, 36) * 15.125; // 11px × 1.375
+  /* the tier badge and the period share one flex row and wrap onto two at ~40
+     mono chars; assumed above 36, which costs 18 px of invisible slack when wrong */
+  const badgeWrap = KIND_LABEL[s.source.kind].length + s.period.length > 36 ? 18 : 0;
+  /* margins + badge row + footer + card padding + border + body padding */
+  const CHROME = 146.1;
+
+  return Math.ceil(CHROME + figure + claim + caveat + source + badgeWrap) + 8; // 8px deliberate slack
 }
 
 /** The snippet an embedder pastes. Kept here so the page, the widgets directory
