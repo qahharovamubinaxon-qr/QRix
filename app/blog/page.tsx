@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { FiArrowRight, FiClock } from "react-icons/fi";
 import { pageMeta, jsonLd, SITE_URL } from "@/lib/seo";
-import { allPostsSorted } from "@/lib/blog";
+import { allPostsSorted, formatPostDate } from "@/lib/blog";
 import { getAutopilotPosts } from "@/lib/server/autopilot";
 
 // Revalidate hourly so autopilot-published articles appear without a rebuild.
@@ -86,9 +86,23 @@ export default async function BlogIndex() {
                   </span>
                   <h3 className="font-display text-lg font-bold leading-snug" style={{ color: "var(--text)" }}>{p.title}</h3>
                   <p className="text-sm mt-2 flex-1" style={{ color: "var(--text-muted)" }}>{p.description}</p>
-                  <div className="flex items-center justify-between mt-4 text-[12px]" style={{ color: "var(--text-faint)" }}>
-                    <span className="inline-flex items-center gap-1"><FiClock size={12} /> {p.readMins} min read</span>
-                    <span className="inline-flex items-center gap-1 font-bold group-hover:translate-x-0.5 transition-transform" style={{ color: "var(--primary-bright)" }}>
+                  {/* M145: the index showed read time but never a date, so nothing
+                      here told a reader (or a crawler) how current the writing is —
+                      the freshness half of the audit's content finding. */}
+                  <div className="flex items-center justify-between mt-4 text-[12px] gap-2" style={{ color: "var(--text-faint)" }}>
+                    <span className="inline-flex items-center gap-1.5 flex-wrap">
+                      {(() => {
+                        const d = formatPostDate(p.date);
+                        return d ? (
+                          <>
+                            <time dateTime={d.iso}>{d.label}</time>
+                            <span aria-hidden="true">·</span>
+                          </>
+                        ) : null;
+                      })()}
+                      <span className="inline-flex items-center gap-1"><FiClock size={12} /> {p.readMins} min read</span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 font-bold shrink-0 group-hover:translate-x-0.5 transition-transform" style={{ color: "var(--primary-bright)" }}>
                       Read <FiArrowRight size={13} />
                     </span>
                   </div>

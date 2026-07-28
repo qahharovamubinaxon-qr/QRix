@@ -1136,3 +1136,20 @@ export function getPost(slug: string): BlogPost | undefined {
 export function allPostsSorted(): BlogPost[] {
   return [...POSTS].sort((a, b) => (a.date < b.date ? 1 : -1));
 }
+
+/* M145 renders dates on the blog index and in article bylines. Hand-written
+   posts always have one (BlogPost.date is required), but autopilot posts are
+   JSON blobs stored in Supabase and only typed as BlogPost on the way out — a
+   row written by an older generator, or one hand-edited in the dashboard, can
+   arrive without a parseable date. `new Date(undefined)` stringifies to
+   "Invalid Date", which would render as visible text on the most-crawled index
+   on the site. Returning null lets the caller omit the element instead. */
+export function formatPostDate(
+  iso: string | undefined,
+  opts: Intl.DateTimeFormatOptions = { year: "numeric", month: "short", day: "numeric" },
+): { iso: string; label: string } | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return { iso, label: d.toLocaleDateString("en-US", opts) };
+}

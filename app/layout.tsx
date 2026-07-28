@@ -11,6 +11,7 @@ import HtmlLangSync from "@/components/HtmlLangSync";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import ErrorMonitor from "@/components/ErrorMonitor";
 import { SITE_URL, SITE_NAME, SITE_TAGLINE, SITE_DESCRIPTION, jsonLd } from "@/lib/seo";
+import { organizationLd } from "@/lib/operator";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -149,10 +150,13 @@ export default function RootLayout({
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={jsonLd([
-            // /icon (the old dynamic route) 404s since the icon became a static
-            // file — the real asset is /icon.png
-            { "@context": "https://schema.org", "@type": "Organization", name: SITE_NAME, url: SITE_URL, logo: `${SITE_URL}/icon.png` },
-            { "@context": "https://schema.org", "@type": "WebSite", name: SITE_NAME, url: SITE_URL, potentialAction: { "@type": "SearchAction", target: `${SITE_URL}/qr-tools?q={search_term_string}`, "query-input": "required name=search_term_string" } },
+            // Organization now carries founder/sameAs/contactPoint and an @id, so
+            // the Person on /about and every article byline resolve to the same
+            // two entities site-wide instead of anonymous copies (M145).
+            // logo stays /icon.png: /icon (the old dynamic route) 404s since the
+            // icon became a static file.
+            organizationLd(),
+            { "@context": "https://schema.org", "@type": "WebSite", "@id": `${SITE_URL}/#website`, name: SITE_NAME, url: SITE_URL, publisher: { "@id": `${SITE_URL}/#organization` }, potentialAction: { "@type": "SearchAction", target: `${SITE_URL}/qr-tools?q={search_term_string}`, "query-input": "required name=search_term_string" } },
           ])}
         />
       </head>

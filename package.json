@@ -27,7 +27,8 @@
     "test:nav": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-nav-i18n.mjs",
     "test:layout": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-eager-layout.mjs",
     "test:embed": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/measure-embed-heights.mjs",
-  "test:home-posts": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-home-posts.mjs"
+    "test:home-posts": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-home-posts.mjs",
+    "test:eeat": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/resolve-ts-alias.mjs scripts/test-eeat.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { FiArrowRight, FiClock, FiChevronRight } from "react-icons/fi";
-import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME } from "@/lib/seo";
-import { getPost, getPost as _get, POSTS } from "@/lib/blog";
+import { FiArrowRight, FiClock, FiChevronRight, FiUser } from "react-icons/fi";
+import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME, OG_IMAGE } from "@/lib/seo";
+import { articleAuthorLd, articlePublisherLd, BYLINE, OPERATOR } from "@/lib/operator";
+import { getPost, getPost as _get, POSTS, formatPostDate } from "@/lib/blog";
 import { getAutopilotPost } from "@/lib/server/autopilot";
 import BookmarkButton from "@/components/BookmarkButton";
 import ShareButtons from "@/components/ShareButtons";
@@ -60,6 +61,7 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
 
   const related = post.related.map((s) => _get(s)).filter(Boolean);
   const url = `${SITE_URL}/blog/${post.slug}`;
+  const published = formatPostDate(post.date, { year: "numeric", month: "long", day: "numeric" });
 
   return (
     <main className="max-w-3xl mx-auto px-5 py-12">
@@ -72,11 +74,19 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
             "@type": "Article",
             headline: post.title,
             description: post.description,
-            datePublished: post.date,
-            dateModified: post.date,
+            /* Omitted rather than emitted raw: an unparseable stored date would
+               otherwise ship into schema as an invalid value. */
+            ...(published ? { datePublished: published.iso, dateModified: published.iso } : {}),
             mainEntityOfPage: url,
-            author: { "@type": "Organization", name: SITE_NAME, url: SITE_URL },
-            publisher: { "@type": "Organization", name: SITE_NAME, url: SITE_URL, logo: { "@type": "ImageObject", url: `${SITE_URL}/icon.png` } },
+            /* M145: `image` was missing entirely (audit schema F3) — Google lists
+               it as required for Article. There is no per-post artwork, so this
+               is the site OG image, which is a real served 1200x630 PNG.
+               author is now a Person @id-linked to /about#operator rather than an
+               anonymous Organization copy: a named human is the stronger E-E-A-T
+               signal, and the @id makes every article the SAME human. */
+            image: { "@type": "ImageObject", url: OG_IMAGE, width: 1200, height: 630 },
+            author: articleAuthorLd(),
+            publisher: articlePublisherLd(),
           },
           breadcrumbLd([
             { name: "Home", path: "/" },
@@ -98,10 +108,27 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
 
       <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>{post.category}</span>
       <h1 className="font-display text-3xl lg:text-4xl font-extrabold mt-4" style={{ color: "var(--text)" }}>{post.title}</h1>
+      {/* M145: a visible byline. The date and read time were already here, but no
+          article said WHO wrote it — the audit's "Who created it?" failure. The
+          name is a link to /about so the claim is checkable, and it is the same
+          string the Article author schema carries. */}
       <div className="flex items-center gap-3 mt-3 text-[12px] flex-wrap" style={{ color: "var(--text-faint)" }}>
-        <span className="inline-flex items-center gap-1"><FiClock size={12} /> {post.readMins} min read</span>
+        <span className="inline-flex items-center gap-1">
+          <FiUser size={12} />
+          <span>By{" "}
+            <Link href="/about" rel="author" className="font-semibold hover:opacity-80" style={{ color: "var(--text-muted)" }}>
+              {OPERATOR.fullName || OPERATOR.name}
+            </Link>
+          </span>
+        </span>
         <span>·</span>
-        <time dateTime={post.date}>{new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</time>
+        <span className="inline-flex items-center gap-1"><FiClock size={12} /> {post.readMins} min read</span>
+        {published && (
+          <>
+            <span>·</span>
+            <time dateTime={published.iso}>{published.label}</time>
+          </>
+        )}
         <span className="flex-1" />
         <BookmarkButton item={{ href: `/blog/${post.slug}`, title: post.title, group: "Blog" }} />
       </div>
@@ -128,6 +155,29 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
         <ShareButtons url={url} title={post.title} />
       </div>
 
+      {/* About the author (M145). The byline at the top says who; this says why
+          they'd know. Same Person entity as the schema author. */}
+      <aside className="qx-card p-5 mt-8 flex items-start gap-4">
+        <span
+          aria-hidden="true"
+          className="font-display font-extrabold text-lg shrink-0 grid place-items-center rounded-full text-white"
+          style={{ width: 44, height: 44, background: "var(--grad-primary)" }}
+        >
+          {(OPERATOR.fullName || OPERATOR.name).charAt(0)}
+        </span>
+        <div>
+          <p className="text-[13px] font-bold" style={{ color: "var(--text)" }}>{BYLINE}</p>
+          <p className="text-[13px] leading-relaxed mt-1" style={{ color: "var(--text-muted)" }}>
+            {OPERATOR.role} — the {SITE_NAME} tools are built and maintained by one
+            developer, and these guides are written from doing the work.{" "}
+            <Link href="/about" rel="author" className="font-semibold" style={{ color: "var(--primary)" }}>
+              More about who builds this
+            </Link>
+            .
+          </p>
+        </div>
+      </aside>
+
       {/* In-content ad — renders only after AdSense approval (env-gated) */}
       <AdSlot slot="blog-in-article" format="fluid" className="mt-12" />
 
@@ -148,7 +198,7 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
       <div className="qx-card p-7 mt-12 text-center relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(245,143,32,.15), transparent 70%)" }} />
         <h2 className="font-display text-xl font-bold relative" style={{ color: "var(--text)" }}>Ready to try it?</h2>
-        <p className="text-sm mt-2 relative" style={{ color: "var(--text-muted)" }}>It's free, private and works in your browser — no signup needed.</p>
+        <p className="text-sm mt-2 relative" style={{ color: "var(--text-muted)" }}>It&rsquo;s free, private and works in your browser — no signup needed.</p>
         <Link href={post.toolHref} className="qx-btn-hero inline-flex mt-5 relative">{post.toolLabel} <FiArrowRight size={15} /></Link>
       </div>
 
