@@ -18,6 +18,31 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 > the task file, this note can go.
 
 ## NOW (this week)
+- [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
+  that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
+- [ ] Author/entity E-E-A-T (audit P1): one real operator identity — expand
+  /about (who builds QRix, why free, how on-device works), Person+Organization
+  schema with sameAs (Telegram channel/bot), visible bylines + published/updated
+  dates on blog articles, switch contact to a domain address if available.
+  The site currently fails "Who created it?" on every page.
+- [ ] Publish the "we tested 20 free QR generators" methodology page and link
+  it from /free-forever (which cites it unsourced — its boldest claim). Names,
+  what was checked, dates, screenshots where possible. This is both the E-E-A-T
+  fix AND the next linkable asset after /qr-code-statistics.
+- [ ] /convert/* + /resize/* engines: server-render the dropzone SHELL (real
+  input[type=file] + labels) under the dynamic(ssr:false) hydration, so
+  do-it-now pages stop serving "Loading the image workspace…" to crawlers and
+  slow phones (SXO HIGH, audit: BAILOUT template in served HTML).
+- [ ] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
+  textarea; human-readable names for color presets ("Black", not "#000000").
+  Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
+- [ ] Blog Article schema: add image (post OG image); visible date + author
+  line on articles; blog index shows dates (audit schema F3 + content P2).
+- [ ] Verify+fix on-page hreflang for the /convert EN pages — audit found
+  /convert/png-to-jpg emits no link hreflang while barcode/resize families do.
+- [ ] CWV follow-ups from audit: long-cache headers for /scenes/*, trim 6 font
+  families toward 3, dedupe the double Bricolage preload, width/height on the
+  3 hero imgs.
 - [B] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
   an unsharp mask (drawImage at high smoothing + a 3x3 unsharp mask; no model,
   no weights, nothing learned). M120 made the RU/UZ body copy honest; the tool
@@ -365,6 +390,10 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] Premium plan launch after Lemon Squeezy bank connect.
 
 ## OWNER-GATED (needs human)
+- [B] Vercel Domains: set www.qrixtools.com -> qrixtools.com redirect to
+  PERMANENT (currently 307 temporary — weakens host canonicalization).
+- [B] Free Google API key for PageSpeed Insights v5 -> real CrUX field data
+  for the weekly audit (no billing needed).
 - [B] AlternativeTo submit — account age unlocks Jul 27 (reminder set).
 - [B] Product Hunt launch — prep starts Aug 5 (reminder set).
 - [B] Reddit/HN posts — human account required.
