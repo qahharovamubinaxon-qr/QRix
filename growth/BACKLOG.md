@@ -55,9 +55,20 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   inlines the same text inside a <script> — strip script tags first.
   Worth a line in the Monday audit prompt: findings must be verified
   case-insensitively before being written up.
-- [ ] CWV follow-ups from audit: long-cache headers for /scenes/*, trim 6 font
+- [~] CWV follow-ups from audit: long-cache headers for /scenes/*, trim 6 font
   families toward 3, dedupe the double Bricolage preload, width/height on the
-  3 hero imgs.
+  3 hero imgs. TAKEN Jul 28 (M146) as the next tranche of the CWV mission,
+  because the [~] CWV audit item's own remaining lever is owner-gated (the
+  lang-cookie decision) and this one is measurable as HEADERS and BYTES, which
+  the CAUTION note says is the only trustworthy instrument on this machine.
+  Scoped live before starting, and item 1 is much bigger than written:
+  EVERY non-font static asset serves `public, max-age=0, must-revalidate` —
+  /scenes/* (~10 MB incl. bunny-hero.webp 103 KB, the homepage LCP element),
+  /world-dots.svg (206 KB, preloaded as an image on the homepage) and
+  /pdf.worker.min.js (1.2 MB, refetched on every PDF tool visit). Only
+  /fonts/*.woff2 is immutable. next.config.ts:41 is the rule that got it right.
+  next: verify each of the four sub-items live before building — the audit was
+  wrong about hreflang last session.
 - [B] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
   an unsharp mask (drawImage at high smoothing + a 3x3 unsharp mask; no model,
   no weights, nothing learned). M120 made the RU/UZ body copy honest; the tool
