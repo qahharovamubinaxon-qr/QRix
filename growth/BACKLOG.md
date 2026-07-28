@@ -20,11 +20,30 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 ## NOW (this week)
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
-- [ ] Author/entity E-E-A-T (audit P1): one real operator identity — expand
+- [~] Author/entity E-E-A-T (audit P1): one real operator identity — expand
   /about (who builds QRix, why free, how on-device works), Person+Organization
   schema with sameAs (Telegram channel/bot), visible bylines + published/updated
   dates on blog articles, switch contact to a domain address if available.
-  The site currently fails "Who created it?" on every page.
+  The site currently fails "Who created it?" on every page. (M145 — taken
+  Jul 28. Merged with the "Blog Article schema" item below, which is the same
+  audit family: bylines, the missing Article `image`, and dates on the index.)
+  Surveyed first, so the copy is derived and not invented:
+    · The ONLY operator identity already public is what /about carries today —
+      the contact address and the Telegram handle. Everything else (legal name
+      spelling, photo, LinkedIn/GitHub sameAs) is the owner's call to publish,
+      not this worker's to guess, so it goes in one file with a [B] follow-up
+      rather than being fabricated into schema.
+    · What actually leaves the device had to be re-derived before writing any
+      privacy paragraph, and the standing memory was STALE: PDF compress went
+      fully in-browser in M127 (a77cf98), so /api/pdf/compress is orphaned —
+      the only reference left is a comment saying why it left. /api/pdf/merge
+      exists and is unused too (MergePdfClient is pdf-lib in the browser). The
+      real exception is /pdf-tools/pdf-to-word, which GETs /api/pdf-to-word and
+      defaults to mode="cloud" when the provider chain is configured. A route
+      that can take a file proves nothing about whether a tool sends one.
+    · /icon.png (the Organization logo M142 repointed) verified 200 image/png.
+      /icon and /apple-icon both 404 — nothing references them, but do not
+      reintroduce either URL into schema.
 - [ ] Publish the "we tested 20 free QR generators" methodology page and link
   it from /free-forever (which cites it unsourced — its boldest claim). Names,
   what was checked, dates, screenshots where possible. This is both the E-E-A-T
@@ -262,6 +281,31 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   which is the lever that makes this possible at all. Do NOT start by making the
   sections server components: while the page itself is "use client", every one of
   its imports is client no matter what it declares.
+  RESUMED Jul 28 and the blocker is now named precisely, which turns this from
+  "big refactor" into "one decision the owner owes us". The reason `lang` cannot
+  move to the server is not the homepage at all — it is HOW THE LANGUAGE IS
+  PERSISTED. It lives in localStorage (lib/lang.ts readLang) and has four
+  writers, which split into two camps:
+    TopNav:176 and Sidebar:47   setLang() + localStorage + dispatch "qrix-lang"
+                                — an INSTANT in-page switch, no reload.
+    CommandSearch:76            localStorage + location.reload()
+    PrefsClients:136            localStorage + reload after 700 ms
+  So two of the four already pay for a full reload and two do not. A server
+  component cannot read localStorage, so server-rendering any localised section
+  requires the value in a COOKIE — and that is the decision: the primary
+  switcher (TopNav, in the chrome on every page) would go from instant to a
+  server round trip. router.refresh() is the intended tool and keeps client
+  state, so it is ~100-300 ms rather than a white flash, but it is still a
+  visible change to a working feature and CLAUDE.md says only improve. Not a
+  unilateral call — see the OWNER-GATED entry added for it.
+  Worth it because the cookie unblocks TWO rejected missions, not one: the
+  homepage's five lang-prop sections AND the TopNav split, which was rejected
+  partly because "every visible label reads from `lang`". The moving hover pill
+  is a separate reason TopNav stays client, so TopNav would only partly unlock.
+  Until that is answered, this item's remaining CWV work is capped: the homepage
+  can still be split around the HERO (the QR generator is genuinely client and
+  ~20 useStates), which is worth doing on its own, but the five localised
+  sections below the fold stay client either way.
   After that, the remaining hydration weight in the ROOT
   LAYOUT, which mounts eleven client components on every page in the site:
   TopNav (400 lines), DotDistortionBackground (393), CommandSearch (234),
@@ -388,6 +432,28 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [B] Reddit/HN posts — human account required.
 - [B] VK/Reddit/Vimeo unlock — ~$3/mo residential proxy for cobalt
   (API_EXTERNAL_PROXY) — owner decision.
+- [B] Move the UI language from localStorage to a COOKIE, so server components
+  can render localised sections. This is the single blocker on the last big CWV
+  item (the homepage split) and on part of the TopNav split — see the M135 note.
+  The cost is visible: TopNav's language switcher is instant today and would
+  become a router.refresh() round trip (~100-300 ms, client state preserved, no
+  white flash). Two of the four switchers already do a full location.reload(),
+  so this would actually make those two FASTER and the behaviour consistent.
+  Owner decides: (a) ship the cookie and accept the round trip on the switcher,
+  (b) keep the instant switch and accept that below-the-fold localised sections
+  stay client forever. Nothing else is blocked on code — the migration itself is
+  a normal day's work (dual-read localStorage->cookie for back-compat so no
+  returning visitor loses their language).
+- [B] Operator identity for E-E-A-T: M145 shipped the structure and filled it
+  with everything already public (the contact address, the Telegram handle, the
+  channel and the bot). Four fields are the owner's to publish and were
+  deliberately NOT guessed — they sit in one place, lib/operator.ts:
+  legal-name spelling, a real photo/avatar URL, GitHub/LinkedIn/X profiles for
+  `sameAs`, and a domain email (hello@qrixtools.com) to replace the gmail
+  address. Filling any of them is a one-file edit and every consumer follows.
+  Google's "Who created it?" question is answered by the page as it stands; a
+  named human with verifiable profiles elsewhere is what turns it from adequate
+  into strong, and only the owner can supply that.
 
 ## Done
 - [x] Jul 27: the stat card stopped shipping the whole site into someone else's
