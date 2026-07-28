@@ -20,30 +20,10 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 ## NOW (this week)
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
-- [~] Author/entity E-E-A-T (audit P1): one real operator identity — expand
-  /about (who builds QRix, why free, how on-device works), Person+Organization
-  schema with sameAs (Telegram channel/bot), visible bylines + published/updated
-  dates on blog articles, switch contact to a domain address if available.
-  The site currently fails "Who created it?" on every page. (M145 — taken
-  Jul 28. Merged with the "Blog Article schema" item below, which is the same
-  audit family: bylines, the missing Article `image`, and dates on the index.)
-  Surveyed first, so the copy is derived and not invented:
-    · The ONLY operator identity already public is what /about carries today —
-      the contact address and the Telegram handle. Everything else (legal name
-      spelling, photo, LinkedIn/GitHub sameAs) is the owner's call to publish,
-      not this worker's to guess, so it goes in one file with a [B] follow-up
-      rather than being fabricated into schema.
-    · What actually leaves the device had to be re-derived before writing any
-      privacy paragraph, and the standing memory was STALE: PDF compress went
-      fully in-browser in M127 (a77cf98), so /api/pdf/compress is orphaned —
-      the only reference left is a comment saying why it left. /api/pdf/merge
-      exists and is unused too (MergePdfClient is pdf-lib in the browser). The
-      real exception is /pdf-tools/pdf-to-word, which GETs /api/pdf-to-word and
-      defaults to mode="cloud" when the provider chain is configured. A route
-      that can take a file proves nothing about whether a tool sends one.
-    · /icon.png (the Organization logo M142 repointed) verified 200 image/png.
-      /icon and /apple-icon both 404 — nothing references them, but do not
-      reintroduce either URL into schema.
+- [ ] Author/entity E-E-A-T, remaining half: the contact address is still a
+  gmail one and there is still no named human with verifiable profiles
+  elsewhere. Both are owner calls — see the OWNER-GATED identity entry. The
+  structure to hold them shipped in M145 and every field is one edit away.
 - [ ] Publish the "we tested 20 free QR generators" methodology page and link
   it from /free-forever (which cites it unsourced — its boldest claim). Names,
   what was checked, dates, screenshots where possible. This is both the E-E-A-T
@@ -55,8 +35,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
-- [ ] Blog Article schema: add image (post OG image); visible date + author
-  line on articles; blog index shows dates (audit schema F3 + content P2).
+- [x] Blog Article schema — done in M145 (merged into it; same audit family).
 - [ ] Verify+fix on-page hreflang for the /convert EN pages — audit found
   /convert/png-to-jpg emits no link hreflang while barcode/resize families do.
 - [ ] CWV follow-ups from audit: long-cache headers for /scenes/*, trim 6 font
@@ -456,6 +435,59 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   into strong, and only the owner can supply that.
 
 ## Done
+- [x] Jul 28: the site can answer "who created it?" (M145, 1e80496). The M142
+  audit's lowest score was content at 41/100 and the cause was named: every page
+  failed Google's "Who created it?" question. /about was four generic
+  paragraphs, articles had a date but no byline, the index had neither, and the
+  site-wide Organization schema was name+url+logo with no founder, no sameAs and
+  no contactPoint.
+  lib/operator.ts is the one place the identity lives now, and the part that
+  matters is what it does NOT hold. Legal-name spelling, a photo,
+  GitHub/LinkedIn/X, a domain email — all `null`, every consumer omits rather
+  than guesses, and they are a [B] item. Inventing any of them would have been
+  the fabrication rule failing on the one surface built to signal trust.
+  Every /about claim was re-derived from code, and two did not survive:
+    · "nothing watermarks your output" was FALSE — PosterMakerClient's "Made
+      with QRix" credit is useState(true), on by default. The page now says so
+      and points at the switch.
+    · the privacy paragraph would have named PDF COMPRESS as the uploader, on
+      the strength of a standing note. Wrong since M127 moved it in-browser
+      (a77cf98): /api/pdf/compress is orphaned, /api/pdf/merge never used. The
+      one file tool that really sends your file is pdf-to-word, which /about
+      names, links, and tells you to avoid for sensitive documents.
+  So the page gives things up on purpose — the tool that uploads, the watermark
+  default, and that the image upscaler is called AI and is not one. All 6
+  internal links verified 200 (the poster maker is /poster, NOT
+  /qr-tools/poster, which 404s).
+  Same family, also shipped: Article.image (missing entirely — Google lists it
+  required, audit schema F3); Article.author promoted from an anonymous
+  Organization copy per page to a Person @id-linked to /about#operator, so every
+  article resolves to the same human; @ids on Organization and WebSite so they
+  cross-reference; a visible rel=author byline plus an author card per article;
+  dates on the blog index, which had read time but nothing about freshness.
+  formatPostDate() is deliberately defensive: autopilot posts are Supabase JSON
+  blobs only typed as BlogPost on the way out, and new Date(undefined) renders
+  the literal "Invalid Date" — which would have been visible text on the most
+  crawled index on the site. Null means omit, in the markup and in schema.
+  npm run test:eeat is the guard; every failure it covers is silent (a null
+  rendering as "null" in JSON-LD, a placeholder shipping as an identity, byline
+  drifting from schema author, the @id graph breaking, the logo drifting back to
+  /icon which 404s). 17 static assertions + 6 live, 10 mutations verified, 0
+  blind spots. Verified live: 23/23 against production, Organization carries
+  founder+sameAs+contactPoint on every page, an AUTOPILOT article renders the
+  byline and a complete Article node, 72 index dates with zero "Invalid Date".
+  Sitemap unchanged at 809, so no IndexNow.
+  Two things worth carrying forward. scripts/resolve-ts-alias.mjs unblocked
+  testing lib modules that import other lib modules — the scripts import
+  ../lib/*.ts to exercise real production code, but node resolves neither the
+  "@/*" alias nor extensionless specifiers, so the trick only ever worked for
+  LEAF modules; it must be loaded with --import, because a plain import
+  statement is hoisted and registers the hooks after the imports it was meant to
+  fix have already failed. And two of this session's own measurements were wrong
+  before they were right: `grep -c` counts LINES not occurrences (made 144 card
+  matches look like 2), and counting anything in a Next response double-counts
+  because the RSC flight payload inlines the same text in a <script> — strip
+  script tags before counting markup.
 - [x] Jul 27: the stat card stopped shipping the whole site into someone else's
   page (M141, 9baa06f). M140 had shipped /embed/qr-stat/<id> as a PAGE, so it
   rendered inside the root layout: 15 eager scripts / 727.1 KB, TopNav, the

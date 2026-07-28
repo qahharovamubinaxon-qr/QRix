@@ -1339,3 +1339,82 @@ the three links 200, zero page errors.
 
 Files: lib/home-posts.ts, components/LatestPosts.tsx, scripts/test-home-posts.mjs,
 scripts/test-eager-layout.mjs, package.json. Branch design-v2.
+
+## Mission 145 — the site can answer "who created it?"
+
+The M142 audit's lowest category was content, 41/100, and it named the cause
+rather than the symptom: every page on the site failed Google's "Who created
+it?" question. /about was four generic paragraphs with no author. Articles
+carried a date and no byline. The blog index carried neither. The site-wide
+Organization schema was a stub — name, url, logo — with no founder, no sameAs
+and no contact point, so there was no entity for anything to attach to.
+
+`lib/operator.ts` is now the single place the identity lives, and the important
+part is what it deliberately does not hold. Four fields — legal-name spelling, a
+photo, GitHub/LinkedIn/X profiles, a domain email — are the owner's to publish,
+so they are `null`, every consumer omits the property rather than rendering an
+empty label or a `null` into JSON-LD, and they are recorded as an owner-gated
+item. Filling any one is a one-file edit that propagates to /about, the
+site-wide Organization node and every article byline at once. Guessing them
+would have been the no-fabrication rule failing on the one surface whose entire
+purpose is to signal trust.
+
+Every claim on the new /about was re-derived from the code instead of inherited
+from the old copy, and two of them did not survive that:
+
+- "nothing watermarks your output" was **false**. `PosterMakerClient`'s "Made
+  with QRix" credit is `useState(true)` — on by default. The page now says so
+  and points at the switch that turns it off.
+- the privacy paragraph would have named PDF **compression** as the tool that
+  uploads, on the strength of a standing note. That has been wrong since M127
+  (`a77cf98`) moved compression into the browser: `/api/pdf/compress` is
+  orphaned and `/api/pdf/merge` was never used either. The one file tool that
+  genuinely sends your file is pdf-to-word, and /about names it, links it, and
+  says to pick the on-device mode for anything sensitive.
+
+The page therefore gives things up on purpose — the tool that uploads, the
+watermark default, and the fact that the image upscaler is called AI and is not
+one. A trust page that only makes claims is worth nothing as a trust signal. All
+six internal links were verified 200; the poster maker is `/poster`, not
+`/qr-tools/poster`, which 404s.
+
+Same audit family, also shipped: `Article.image`, which was missing entirely and
+which Google lists as required; `Article.author` promoted from an anonymous
+Organization copy per page to a Person `@id`-linked to `/about#operator`, so
+every article resolves to the same human; `@id`s on Organization and WebSite so
+they cross-reference instead of floating; a visible `rel=author` byline and an
+author card per article; and dates on the blog index, which showed read time but
+nothing about how current the writing was.
+
+`formatPostDate()` is defensive on purpose. Autopilot posts are JSON blobs in
+Supabase that are only *typed* as `BlogPost` on the way out, and
+`new Date(undefined)` stringifies to "Invalid Date" — which would have rendered
+as visible text on the most-crawled index on the site. Null means omit, in the
+markup and in the schema both.
+
+`npm run test:eeat` is the guard, and every failure mode it covers is silent: a
+null rendering as the literal "null" in JSON-LD, a placeholder reaching
+production as an identity, the visible byline drifting away from the schema
+author, the `@id` graph breaking so articles credit nobody, the logo drifting
+back to `/icon` (which 404s — the defect M142 fixed here). 17 static assertions
+plus 6 live ones, 10 mutations verified, 0 blind spots. Verified live: 23/23
+against production, an autopilot article rendering the byline and a complete
+Article node, 72 index dates and no "Invalid Date". Sitemap unchanged at 809, so
+no IndexNow submission.
+
+Two things worth carrying forward. `scripts/resolve-ts-alias.mjs` is what made
+testing this module possible: the test scripts import `../lib/*.ts` directly so
+they exercise real production code, but node resolves neither the `@/*` alias
+nor extensionless specifiers, so that only ever worked for leaf modules — and it
+has to be loaded with `--import`, because a plain import statement is hoisted
+and registers the hooks after the imports it was meant to fix have already
+failed. And two of this session's own measurements were wrong before they were
+right: `grep -c` counts matching *lines*, not occurrences (144 card matches
+looked like 2), and counting anything in a Next.js response double-counts,
+because the RSC flight payload inlines the same text inside a `<script>` — strip
+script tags before you count markup.
+
+Files: lib/operator.ts (new), scripts/test-eeat.mjs (new),
+scripts/resolve-ts-alias.mjs (new), app/about/page.tsx, app/layout.tsx,
+app/blog/page.tsx, app/blog/[slug]/page.tsx, lib/blog.ts, package.json.
+Branch design-v2. Commit 1e80496.

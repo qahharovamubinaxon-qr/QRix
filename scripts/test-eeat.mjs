@@ -241,6 +241,27 @@ if (BASE) {
     assert.ok(article.datePublished, "rendered Article has no datePublished");
   });
 
+  await okAsync("live blog index renders a date per card", async () => {
+    const { status, html } = await get("/blog");
+    assert.equal(status, 200);
+    // Note the attribute is emitted as dateTime (camelCase) by this React
+    // version's SSR — pre-existing behaviour, identical on the article page, and
+    // spec-valid since HTML attribute names are ASCII case-insensitive. Match
+    // case-insensitively rather than "fixing" it.
+    // Count in the MARKUP only. Next inlines the RSC flight payload in <script>
+    // tags, so every card's text appears twice in the response and a naive
+    // count silently compares markup against markup+payload.
+    const markup = html.replace(/<script[\s\S]*?<\/script>/g, "");
+    const times = [...markup.matchAll(/<time\s+datetime="([^"]+)"[^>]*>([^<]+)<\/time>/gi)];
+    const cards = [...markup.matchAll(/min read/g)].length;
+    assert.ok(times.length > 0, "no <time> elements on the blog index");
+    assert.equal(times.length, cards, `${cards} cards but ${times.length} dates — some cards lost their date`);
+    for (const [, iso, label] of times) {
+      assert.ok(formatPostDate(iso), `unparseable datetime attribute reached the index: ${iso}`);
+      assert.doesNotMatch(label, /Invalid Date|null|undefined/, `bad visible date text: ${label}`);
+    }
+  });
+
   await okAsync("the Organization logo actually serves an image", async () => {
     const res = await fetch(organizationLd().logo.url);
     assert.equal(res.status, 200, `schema logo ${organizationLd().logo.url} returned ${res.status}`);
