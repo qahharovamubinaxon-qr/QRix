@@ -245,6 +245,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   "use client" component, ~800 lines of imports at the top), which the note below
   already calls the biggest single CWV item left and a mission of its own. Take
   that, not TopNav. HOME_I18N stays; app/page.tsx genuinely uses it.
+  SCOPED during M141's deploy wait (read-only, nothing changed). app/page.tsx is
+  1004 lines with ~74 interactive touchpoints, and the shape of the split is set
+  by ONE fact: `lang` is useState at the top of the page and is threaded down as
+  a PROP into TrustedBy, HomeFaq (lang={lang}), ReviewsSection, PricingTeaser and
+  LatestPosts (ternaries inline at the call site). Those five cannot move to the
+  server while the language is a client state read from localStorage — the same
+  constraint that killed the TopNav split, and it is worth checking BEFORE
+  planning a section-by-section move. CategoryShowcase is the exception: rendered
+  at line 712 with NO props, "use client" with zero hooks, so it is already
+  static markup wearing a client directive, and the same is true of TrustedBy and
+  LatestPosts once their heading strings are handled. Realistic shape: app/page
+  becomes a server component that renders <HomeHero> (the QR generator, 20+
+  useStates, genuinely client) and passes the static sections through as
+  children — server components CAN be passed as children into a client component,
+  which is the lever that makes this possible at all. Do NOT start by making the
+  sections server components: while the page itself is "use client", every one of
+  its imports is client no matter what it declares.
   After that, the remaining hydration weight in the ROOT
   LAYOUT, which mounts eleven client components on every page in the site:
   TopNav (400 lines), DotDistortionBackground (393), CommandSearch (234),
@@ -313,34 +330,6 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   reports that will move (a `published` date older than ~14 months should fail
   test:qr-stats); (3) RU/UZ twins once the EN page shows impressions in GSC —
   not before, the copy is argumentative and expensive to translate well.
-- [~] M141: the embed card must stop shipping the whole site into someone
-  else's page. Measured on production the moment M140 went live: the card is a
-  page under the ROOT layout, so /embed/qr-stat/pay-2025-value serves 15 eager
-  scripts / 727.1 KB, mounts TopNav, the cookie banner and GoogleAnalytics, and
-  pulls the 75 KB brand font — for a card that is static text. app/embed/layout
-  hides the chrome with `html.qx-embed body > *:not(#main){display:none}`, which
-  hides it from the eye and ships every byte of it. Three separate costs: the
-  embedder's own CWV (the thing a blogger notices and removes the widget over),
-  gtag.js firing from inside an iframe on a third party's page, and a consent
-  banner rendered where nobody can answer it. Fix: serve the card from a Route
-  Handler, which is not nested in any layout — a standalone document with inline
-  CSS, a system font stack and zero script tags.
-  BUILT and pushed (9baa06f), awaiting the Vercel deploy. Verifying it locally
-  found two more defects, both invisible from our own site because they only
-  happen inside an iframe:
-    · every card CLIPPED. embedHeight() was short on all 26 — by 30 to 102 px —
-      so each embed cut off its footer and the longest cut into the caveat. The
-      "real rendered heights were checked in a browser" note on that function
-      was not true. Recalibrated against 26 measured cards; 0/26 clip now,
-      slack 8-64 px.
-    · the card was UNREADABLE on a light site: --surface is 4% white over a dark
-      --bg and the embed body is transparent, so on a white blog the card was
-      white with #ecebe7 text on it. Tokens now resolve to what they composite
-      to, and --success is lightened for 9px badge contrast (3.1:1 → 6.4:1).
-  npm run test:embed (scripts/measure-embed-heights.mjs) is the guard for the
-  half a unit test cannot see — it drives real headless Chrome and takes a base
-  URL. next: verify live on production (0 scripts, 0/26 clipping via
-  `npm run test:embed`), then Done + log.
 - [ ] /embed/downloader has the same disease and is harder: it ships the root
   layout too (TopNav, consent banner, gtag.js) but it is a real tool and has to
   hydrate, so it cannot become a Route Handler. Getting it off the root layout
@@ -401,6 +390,48 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   (API_EXTERNAL_PROXY) — owner decision.
 
 ## Done
+- [x] Jul 27: the stat card stopped shipping the whole site into someone else's
+  page (M141, 9baa06f). M140 had shipped /embed/qr-stat/<id> as a PAGE, so it
+  rendered inside the root layout: 15 eager scripts / 727.1 KB, TopNav, the
+  cookie banner and gtag.js, for a card that is static text. app/embed/layout
+  hid all of it with display:none — hidden from the eye, downloaded in full, on
+  a third party's site. A Route Handler is not nested in any layout, so the
+  document is now the whole response. Measured live on production:
+    eager scripts   15 / 727.1 KB  ->  0 / 0.0 KB   (3.3 KB of HTML, total)
+  and the three costs that came with them are gone with them: the embedder's
+  CWV, our analytics firing from inside an iframe on their domain, and a consent
+  banner rendered where nobody could answer it.
+  Verifying it found two defects that only exist inside an iframe, which is why
+  neither was visible from our own site:
+    · every card CLIPPED — embedHeight() was short on all 26, by 30 to 102 px,
+      so each embed cut off its footer and the longest cut into the caveat: the
+      one part of the card that must survive being quoted, and the reason the
+      whole page exists. The function's own note claimed the heights "were
+      checked in a browser at this width"; they had not been. Recalibrated
+      against 26 measured cards — every term is now the CSS it comes from and
+      the constant is measured (the model fits each card to ±1 px). Only line
+      counts are estimated, and from the TIGHTEST packing in the dataset: a
+      43-char caveat wraps onto two lines (21.5 chars/line) while a 305-char one
+      fits 50.8, so sizing to the loose numbers left five still clipping. The
+      last one needed a term for the FIGURE wrapping ("+0.5% codes, +41% scans"
+      is two lines at 320px). Now 0/26 clip, slack 8-64 px, which is invisible.
+    · the card was WHITE ON WHITE on a light blog. --surface is
+      rgba(255,255,255,0.04) over a dark --bg and the embed body is transparent,
+      so it composited to white on a white host with #ecebe7 text on it. The
+      tokens now resolve to what they actually produce (#141b2f), and --success
+      is lightened to #6fae54 because #467434 on that surface is 3.1:1 and the
+      badge is 9px.
+  npm run test:embed (scripts/measure-embed-heights.mjs) is the guard for the
+  half a unit test cannot see: it drives real headless Chrome, takes a base URL,
+  and checks clipping + script tags + caveat presence per card. It FAILED
+  against the card that was live at the time (26 with script, 3 clipping) and
+  passes against production now. test:qr-stats also moved its embed assertions
+  off source-regex onto the rendered HTML — grepping the JSX for {s.caveat}
+  proves the expression is written, not that the text reaches the page, and it
+  could not see a stat whose caveat was missing from the dataset entirely.
+  22 assertions, 7 mutations verified.
+  Generalisable: hiding chrome is not the same as not shipping it, and an
+  iframe is the one surface where nothing on our own site can show you the bug.
 - [x] Jul 22: /qr-code-statistics — 26 stats, every one openable (M134). The
   category is a citation loop: the headline numbers ("over 2 billion scans a
   day", a worldwide scan count given to the single digit) have no study under
