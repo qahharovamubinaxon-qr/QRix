@@ -36,8 +36,25 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
 - [x] Blog Article schema — done in M145 (merged into it; same audit family).
-- [ ] Verify+fix on-page hreflang for the /convert EN pages — audit found
-  /convert/png-to-jpg emits no link hreflang while barcode/resize families do.
+- [x] hreflang on /convert — NOT A DEFECT, closed Jul 28 with evidence. The
+  audit reported /convert/png-to-jpg as emitting no hreflang. It emits four, and
+  so do resize, barcode and downloader (verified live, 4 each), with every
+  declared twin resolving 200: /convert/png-to-jpg, /ru/…, /uz/… all 200, same
+  for /resize/1920x1080 and /barcode.
+  The finding was a MEASUREMENT BUG, and it is one this repo will hit again:
+  React/Next SSR emits these attributes in camelCase — `hrefLang="en"`, and
+  `dateTime="…"` on <time> — so `grep -o 'hreflang='` returns nothing while
+  `grep -oi` returns four. HTML attribute names are ASCII case-insensitive, so
+  every conformant parser (browsers, Googlebot) reads them correctly; only a
+  case-sensitive regex sees a problem. This session independently tripped over
+  the same thing and briefly believed the new blog-index dates had not rendered.
+  ALWAYS grep -i for HTML attributes, and prefer parsing over regex. Two related
+  traps that produced wrong numbers here on the same day: `grep -c` counts
+  matching LINES not occurrences (144 matches read as 2 on minified HTML), and
+  any count over a Next.js response double-counts because the RSC flight payload
+  inlines the same text inside a <script> — strip script tags first.
+  Worth a line in the Monday audit prompt: findings must be verified
+  case-insensitively before being written up.
 - [ ] CWV follow-ups from audit: long-cache headers for /scenes/*, trim 6 font
   families toward 3, dedupe the double Bricolage preload, width/height on the
   3 hero imgs.
