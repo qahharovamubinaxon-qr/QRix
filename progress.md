@@ -1418,3 +1418,64 @@ Files: lib/operator.ts (new), scripts/test-eeat.mjs (new),
 scripts/resolve-ts-alias.mjs (new), app/about/page.tsx, app/layout.tsx,
 app/blog/page.tsx, app/blog/[slug]/page.tsx, lib/blog.ts, package.json.
 Branch design-v2. Commit 1e80496.
+
+## Mission 146 — the repeat visit stopped re-validating everything
+
+Four CWV follow-ups from the M142 audit. Each was scoped against production
+BEFORE being built, because the audit was wrong about hreflang last session —
+and it turned out to be wrong about two of these four as well.
+
+1. CACHE HEADERS (the real win). Every non-font asset in public/ served
+   `public, max-age=0, must-revalidate`: /scenes/bunny-hero.webp — the homepage
+   LCP element, preloaded with fetchPriority=high — plus /world-dots.svg
+   (206 KB, also preloaded), /qrix-logo.png, the brand film, and both 1.2 MB
+   copies of the pdf.js worker. Every repeat visitor paid a revalidation round
+   trip in front of the LCP paint; every PDF tool visit re-validated 1.2 MB it
+   already had. Only /fonts/*.woff2 was cached. Now 30d +
+   stale-while-revalidate. NOT `immutable`: these names are not content-hashed
+   and bunny-hero.webp was re-encoded during M136, so a year of immutable would
+   have stranded returning visitors on stale bytes. /sdk/qrix.js got a separate
+   600s rule — it runs inside third-party pages, so a bad build cannot be
+   pulled by editing our own HTML, and max-age is hard freshness: under the 30d
+   rule a fix would not even be revalidated for a month. sw.js, llms.txt and
+   the IndexNow key are deliberately excluded.
+
+2. FONTS. The audit said "trim 6 families toward 3" and named none. Only one
+   was free: Oswald appeared in exactly three stacks and was the SECOND entry
+   in all three, behind self-hosted "Unbounded" (x2) and "Anton" (x1). The
+   browser only reaches a fallback when the primary fails — and these come from
+   the same origin, so any failure takes both. It could not paint, and never
+   did, while costing 10 @font-face rules in the render-blocking CSS
+   (fonts.css 32,870 -> 28,572 bytes) and 80 KB of woff2. Removed from
+   scripts/fetch-fonts.mjs too, so it cannot return on regeneration. The other
+   five all genuinely paint — going to 3 is a DESIGN decision, left to the
+   owner rather than taken here under a performance pretext.
+
+3. PRELOAD. Genuinely emitted twice, but not from two call sites — there is
+   only one in the repo. Rendering <link rel="preload"> inside an explicit
+   <head> makes React emit both its hoisted copy (byte 186) and the literal
+   JSX (byte 663). ReactDOM.preload() emits only the hoisted one.
+
+4. IMG DIMENSIONS. Honest scope: correctness, not a CWV win, and the audit
+   overstated it. Two of the three are position:absolute at width/height 100%,
+   so the attributes cannot affect layout, and CLS has been 0 since M135. Only
+   .qx-gm-media (height clamp + width:auto) actually needed the ratio. Added to
+   all three so a future CSS change cannot reintroduce a reflow.
+
+Verified on production after deploy: all five listed assets on the new header,
+/sdk on its own, the three exclusions intact; Oswald 0 occurrences in the
+served CSS with @font-face 90 -> 80 and its woff2 404, while Unbounded/Anton
+still ship and still serve 200; preloads 2 -> 1; all three imgs carrying
+dimensions; /, /qr-tools/url, /pdf-tools, /convert/png-to-jpg all 200 with the
+right h1. Sitemap unchanged at 809, so no IndexNow submission.
+
+Files: next.config.ts, app/fonts.css, app/design-v2.css, app/layout.tsx,
+components/EraBunny.tsx, components/WorldMapBackground.tsx,
+scripts/fetch-fonts.mjs, 5 woff2 deleted.
+Branch design-v2. Commits 26ff03b, 1779da6.
+
+Next: /convert + /resize serve crawlers no tool at all — confirmed live this
+session, 0 input[type=file] and 0 <label> on both (the h1 and ~550 words of
+body copy DO render server-side, so it is the tool specifically). The engines
+are dynamic(ssr:false), which emits nothing during SSR — not even the `loading`
+fallback — so the shell has to live in the server page, outside that boundary.
