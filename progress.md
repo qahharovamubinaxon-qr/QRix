@@ -1530,3 +1530,61 @@ Branch design-v2. Commit 3812696.
 Next: BarcodeClient a11y — label[for]+id on the value input, range, checkbox
 and textarea, and human-readable colour preset names ("Black", not "#000000").
 The WiFi page already does this correctly and is the pattern to mirror.
+
+## Mission 147b — the shell speaks the reader's language, and names its own output
+
+M147 made the tool area of 242 programmatic URLs visible to a crawler. Three
+things it left, each verifiable:
+
+The shell was English-only, and 102 of those URLs are the RU/UZ twins of
+/convert and /resize. "Choose an image", the format hint and the noscript line
+all rendered in English on a page written in Russian or Uzbek — the M125 defect
+returning in a new place. `lang` was already in the registry's scope; it is now
+passed through and every string is localized.
+
+All 242 URLs shared one boilerplate. The shell now names what its own engine
+produces, read off the key the page already passes: "Output: JPG" from
+convert:jpeg, "Natija: 1080×1080" from resize:1080x1080. `engineTarget()`
+returns null for anything it cannot name — convert:heic, resize:instagram,
+special:passport — and the line is omitted rather than guessed, because a wrong
+output format is a false claim on the page.
+
+color:gradient was offered a file picker. It generates its image from colour
+stops and has no upload at all; its own copy says "no image upload needed". It
+keeps the dynamic() fallback now.
+
+CORRECTION to M147's central technical claim, since a wrong rule in a comment
+outlives the mission that wrote it. M147 concluded that `ssr:false` renders
+neither the component nor its `loading` fallback server-side, and therefore that
+the audit's suggested fix — enrich the fallback — "would not have worked". The
+fallback IS server-rendered on Next 16.2.7. Measured three times: the string was
+in production's script-stripped HTML before M147 shipped; it is in
+/image-tools/gradient-generator's HTML today, the one engine the registry now
+skips; and an earlier build of this same fix worked precisely by enriching the
+fallback. Nothing was reverted — the hydration-gated shell is the sturdier shape,
+because it does not lean on an undocumented Next rendering detail and because a
+spinner is not content either way — but the stated reason was not the real one.
+The likely cause of the wrong reading is the trap already in this file twice:
+a case-sensitive grep over an unstripped Next response.
+
+The live probe also caught a defect no unit test could see. `{t.out}: {target}`
+is two adjacent JSX expressions, and hydratable SSR separates neighbouring text
+nodes with an HTML comment, so the phrase shipped as
+"Output<!-- -->: <!-- -->JPG". One template literal fixes it, and the guard now
+asserts the phrase against renderToString as well as renderToStaticMarkup —
+only the former reproduces the comment.
+
+`npm run test:shell` is the guard: 33 assertions, 7 mutations verified (English
+fallback on a localized page, a guessed output format, the split text node, a
+drifting label/id pair, a lost plural, a dropzone on gradient, and the registry
+silently dropping `lang`). Verified on a dev server run from this worktree, plus
+M147's own scripts/probe-hydration.mjs on the changed code: 6 URLs across both
+families and all three languages each serve one input[type=file], a label whose
+`for` matches its id, the localized prompt and the right output line; gradient
+serves zero file inputs and keeps its spinner; toolAreaHydrated:true and
+shellStillPresent:false on EN, RU and UZ. Sitemap unchanged, so no IndexNow.
+
+Files: components/image/ImageToolShell.tsx,
+components/image/ImageEngineRegistry.tsx, scripts/test-tool-shell.mjs (new),
+package.json, growth/BACKLOG.md, growth/DAILY_LOG.md.
+Branch claude/qrix-m147-followup, merged to design-v2.

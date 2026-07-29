@@ -37,7 +37,20 @@ export default function ImageEngineRegistry({ engine, lang }: { engine: string; 
      even its `loading` fallback. See ImageToolShell for why that mattered. */
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
-  if (!hydrated) return <ImageToolShell multiple={MULTI.some((p) => engine.startsWith(p))} />;
+  /* color:gradient generates its image from colour stops and has no upload at
+     all — its own page copy says "no image upload needed" — so a file picker
+     there would be markup that promises something the tool cannot do. It keeps
+     the dynamic() fallback, which IS server-rendered (measured: with the shell
+     skipped, "Loading the image workspace…" is in that page's HTML). */
+  if (!hydrated && engine !== "color:gradient") {
+    return (
+      <ImageToolShell
+        engine={engine}
+        lang={lang}
+        multiple={MULTI.some((p) => engine.startsWith(p))}
+      />
+    );
+  }
 
   if (engine.startsWith("fx:")) return <ImageFxClient preset={engine.slice(3) as never} />;
   if (engine.startsWith("tf:")) return <ImageTransformClient preset={engine.slice(3) as never} />;

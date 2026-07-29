@@ -66,6 +66,41 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   is measuring itself. scripts/probe-hydration.mjs now exists for this: real
   headless Chrome over CDP, no new dependency. USE IT, not the preview tab, for
   anything hydration-shaped.
+- [x] M147 FOLLOW-UP (M147b) — three gaps in the shipped shell, plus a
+  correction to the reasoning above.
+  · **The `ssr:false` claim in this entry is wrong**, measured three times: the
+    `loading` fallback IS server-rendered on Next 16.2.7. "Loading the image
+    workspace…" was in production's script-stripped HTML before M147 shipped,
+    and it is still in /image-tools/gradient-generator's HTML today — the one
+    engine the registry now skips. So editing `loading` would have worked. The
+    shell is still the better shape (no dependency on an undocumented Next
+    detail, and a spinner is not content), so nothing was reverted — but the
+    stated reason was not the real one. A `grep` for this string must be
+    case-insensitive AND must strip <script> first; that is how it was missed.
+  · **RU/UZ**: the shell was English-only on the 102 localized twins — "Choose
+    an image", the format hint and the noscript line all — which is the M125
+    defect returning. `lang` was already in the registry's scope and is now
+    passed through; prompt, hint, output line and noscript are localized.
+  · **Per-URL copy**: all 242 URLs shared one boilerplate. The shell now names
+    what its own engine produces, read off the key the page already passes:
+    "Output: JPG" from convert:jpeg, "Natija: 1080×1080" from resize:1080x1080.
+    `engineTarget()` returns null for anything it cannot name (convert:heic,
+    resize:instagram, special:passport) so the line is omitted, never guessed.
+  · **color:gradient** was offered a file picker for a tool with no upload —
+    its own page copy says "no image upload needed". It now keeps the fallback.
+  · **Guard**: `npm run test:shell` — 33 assertions, 7 mutations verified,
+    including one that only hydratable SSR can catch (adjacent JSX text nodes
+    are split by an HTML comment, so `{t.out}: {target}` shipped as
+    "Output<!-- -->: <!-- -->JPG"; found by the live probe, not the unit test).
+  Verified on a worktree dev server (port 3002) + probe-hydration.mjs on the
+  changed code: 6 URLs across both families and all three languages, and
+  toolAreaHydrated:true / shellStillPresent:false / liveDropzone:1 on EN, RU
+  and UZ.
+- [ ] The shell's file input is real and enabled, so a tap before the engine
+  chunk lands opens a picker whose selection is then dropped silently when the
+  live engine replaces the subtree. Small window, but it is exactly the silent
+  failure this repo removes elsewhere. Options: hand the File to the engine on
+  mount, or mark the control busy until hydration. Slow phones only.
 - [ ] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
