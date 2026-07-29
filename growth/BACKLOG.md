@@ -55,7 +55,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   inlines the same text inside a <script> — strip script tags first.
   Worth a line in the Monday audit prompt: findings must be verified
   case-insensitively before being written up.
-- [~] CWV follow-ups from audit: long-cache headers for /scenes/*, trim 6 font
+- [x] CWV follow-ups from audit: long-cache headers for /scenes/*, trim 6 font
   families toward 3, dedupe the double Bricolage preload, width/height on the
   3 hero imgs. TAKEN Jul 28 (M146) as the next tranche of the CWV mission,
   because the [~] CWV audit item's own remaining lever is owner-gated (the
@@ -96,8 +96,27 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
       position:absolute at width/height 100%, so the attributes cannot move
       layout, and CLS has been 0 since M135. Only .qx-gm-media (width:auto)
       needed the ratio.
-  next: awaiting live verification of the deploy (headers + single preload +
-  zero Oswald requests). Then this item closes.
+  CLOSED Jul 29 — all four verified on production after deploy:
+   · headers: /scenes/bunny-hero.webp, /world-dots.svg, /pdf.worker.min.js,
+     /qrix-logo.png, /qrix-brand-film.mp4 all now
+     `public, max-age=2592000, stale-while-revalidate=31536000`; /sdk/qrix.js
+     on its own `max-age=600, swr=604800`; and the three deliberate exclusions
+     held — /fonts/*.woff2 still `immutable`, /sw.js and /llms.txt still
+     `max-age=0, must-revalidate`.
+   · Oswald: 0 occurrences in the served CSS bundle, @font-face 90 -> 80,
+     /fonts/oswald-normal-600-latin.woff2 now 404. The five families that do
+     paint all still ship (Unbounded 17 declarations, Anton 4, Bricolage 19,
+     Inter 35, Space Mono 13) and unbounded/anton woff2 still 200, so the
+     homepage h1 and the category marquee are untouched.
+   · preload: 2 -> 1.
+   · imgs: all three now carry width/height (119x60, 613x1876, 471x1080).
+   · /, /qr-tools/url, /pdf-tools, /convert/png-to-jpg all 200 with correct h1.
+     Sitemap unchanged at 809, so nothing to submit to IndexNow.
+  LESSON for the Monday audit: 2 of these 4 findings were misstated. "Trim 6
+  families toward 3" named no family and only one was actually free; "3 hero
+  imgs missing width/height" was true but inert, since two of the three are
+  position:absolute at 100%/100% and CLS has been 0 since M135. Audit findings
+  are leads, not work orders — scope each against production first.
 - [B] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
   an unsharp mask (drawImage at high smoothing + a 3x3 unsharp mask; no model,
   no weights, nothing learned). M120 made the RU/UZ body copy honest; the tool
@@ -492,6 +511,21 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   into strong, and only the owner can supply that.
 
 ## Done
+- [x] Jul 29: the repeat visit stopped re-validating everything (M146, 26ff03b
+  + 1779da6). Four CWV follow-ups from the M142 audit, all verified on
+  production. The real win is the first: EVERY non-font static asset served
+  `max-age=0, must-revalidate`, including the homepage LCP element
+  (/scenes/bunny-hero.webp, preloaded) and both 1.2 MB copies of the pdf.js
+  worker — so every repeat visitor paid a revalidation round trip in front of
+  the LCP paint. Now 30d + stale-while-revalidate (not `immutable`: the names
+  are not content-hashed and bunny-hero.webp was re-encoded in M136), with
+  /sdk/qrix.js on a 600s rule because it runs inside third-party pages, and
+  sw.js/llms.txt/the IndexNow key deliberately left alone. Also: Oswald removed
+  (it was 2nd in all three of its stacks behind self-hosted primaries, so it
+  could never paint — 4.2 KB of render-blocking CSS and 80 KB of woff2 for a
+  font nobody ever saw), the duplicate Bricolage preload deduped via
+  ReactDOM.preload(), and width/height on the three hero imgs. Two of the four
+  audit findings were misstated — see the NOW entry for what and why.
 - [x] Jul 28: the site can answer "who created it?" (M145, 1e80496). The M142
   audit's lowest score was content at 41/100 and the cause was named: every page
   failed Google's "Who created it?" question. /about was four generic
