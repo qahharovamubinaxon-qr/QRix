@@ -1,9 +1,25 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { createContext, useContext } from "react";
 import { AiProcessing } from "@/components/ai/AiKit";
+import ImageWorkspaceShell from "@/components/image/ImageWorkspaceShell";
 
-const loading = () => <AiProcessing label="Loading the image workspace…" />;
+/* `dynamic()` fixes its `loading` component at module scope, but the shell that
+   stands in for an engine has to know WHICH engine and which language it is
+   standing in for. A context carries that without duplicating these fourteen
+   declarations per language: Next renders `loading` in the child's own slot, so
+   it lands inside the provider the registry wraps around every engine. */
+type ShellInfo = { engine: string; lang?: "ru" | "uz"; multiple?: boolean };
+const ShellCtx = createContext<ShellInfo | null>(null);
+
+const loading = () => {
+  const info = useContext(ShellCtx);
+  /* No provider = an engine that takes no upload (color:gradient generates its
+     image), where a dropzone would be a lie. Those keep the spinner. */
+  if (!info) return <AiProcessing label="Loading the image workspace…" />;
+  return <ImageWorkspaceShell engine={info.engine} lang={info.lang} multiple={info.multiple} />;
+};
 
 const ImageFxClient = dynamic(() => import("@/components/image/ImageFxClient"), { loading, ssr: false });
 const ImageTransformClient = dynamic(() => import("@/components/image/ImageTransformClient"), { loading, ssr: false });
@@ -24,6 +40,17 @@ const PassportClient = dynamic(() => import("@/components/image/ImageSpecialClie
    English buttons there send RU/UZ readers looking for a control that isn't on
    the page. The other engines expose no such named control. */
 export default function ImageEngineRegistry({ engine, lang }: { engine: string; lang?: "ru" | "uz" }) {
+  const el = engineElement(engine, lang);
+  /* color:gradient asks for no file, so it gets no dropzone shell. */
+  if (engine === "color:gradient") return el;
+  return (
+    <ShellCtx.Provider value={{ engine, lang, multiple: engine.startsWith("batch:") }}>
+      {el}
+    </ShellCtx.Provider>
+  );
+}
+
+function engineElement(engine: string, lang?: "ru" | "uz") {
   if (engine.startsWith("fx:")) return <ImageFxClient preset={engine.slice(3) as never} />;
   if (engine.startsWith("tf:")) return <ImageTransformClient preset={engine.slice(3) as never} />;
   if (engine.startsWith("convert:") || engine.startsWith("social:") || engine.startsWith("resize:")) return <ImageConvertClient engine={engine} lang={lang} />;
