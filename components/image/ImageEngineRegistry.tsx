@@ -1,7 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import { AiProcessing } from "@/components/ai/AiKit";
+import ImageToolShell from "@/components/image/ImageToolShell";
 
 const loading = () => <AiProcessing label="Loading the image workspace…" />;
 
@@ -23,7 +25,20 @@ const PassportClient = dynamic(() => import("@/components/image/ImageSpecialClie
    whose controls the localized copy names out loud ("switch to «вписать»"), so
    English buttons there send RU/UZ readers looking for a control that isn't on
    the page. The other engines expose no such named control. */
+/* Which engines take more than one file, so the shell's control matches the
+   tool it stands in for rather than under-promising. */
+const MULTI = ["batch:", "layout:"];
+
 export default function ImageEngineRegistry({ engine, lang }: { engine: string; lang?: "ru" | "uz" }) {
+  /* The shell renders on the server AND on the first client render, so
+     hydration matches exactly; the effect then swaps in the real engine. This
+     is the only way to get markup into the SSR output at all here — every
+     engine below is dynamic(ssr:false), which emits nothing server-side, not
+     even its `loading` fallback. See ImageToolShell for why that mattered. */
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => setHydrated(true), []);
+  if (!hydrated) return <ImageToolShell multiple={MULTI.some((p) => engine.startsWith(p))} />;
+
   if (engine.startsWith("fx:")) return <ImageFxClient preset={engine.slice(3) as never} />;
   if (engine.startsWith("tf:")) return <ImageTransformClient preset={engine.slice(3) as never} />;
   if (engine.startsWith("convert:") || engine.startsWith("social:") || engine.startsWith("resize:")) return <ImageConvertClient engine={engine} lang={lang} />;
