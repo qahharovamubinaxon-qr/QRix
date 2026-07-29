@@ -67,8 +67,37 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   /world-dots.svg (206 KB, preloaded as an image on the homepage) and
   /pdf.worker.min.js (1.2 MB, refetched on every PDF tool visit). Only
   /fonts/*.woff2 is immutable. next.config.ts:41 is the rule that got it right.
-  next: verify each of the four sub-items live before building — the audit was
-  wrong about hreflang last session.
+
+  ALL FOUR BUILT Jul 29, in two commits (26ff03b, 1779da6). Each was
+  re-verified live first, and two of the four were NOT what the audit said:
+   1. Cache headers — confirmed and shipped. 30d + stale-while-revalidate
+      rather than `immutable`, because these names are not content-hashed and
+      bunny-hero.webp was re-encoded in M136. /sdk/qrix.js got a separate
+      600s rule: it runs in third-party pages, so a bad build cannot be pulled
+      by editing our own HTML, and max-age is hard freshness — under the 30d
+      rule a fix would not even be revalidated for a month. sw.js, llms.txt and
+      the IndexNow key are deliberately excluded.
+   2. "Trim 6 families toward 3" — only ONE family was free to remove, and the
+      audit did not name it. Oswald was the 2nd entry in all three stacks it
+      appeared in, behind self-hosted Unbounded (x2) and Anton (x1), so it
+      could only ever be reached by a failure that would take it down too. It
+      never painted. Removed: fonts.css 32,870 -> 28,572 bytes off the
+      render-blocking path, 80 KB of woff2 deleted, and dropped from
+      scripts/fetch-fonts.mjs so it cannot return on regeneration. The other
+      five all genuinely paint (Bricolage/Inter body+display, Space Mono
+      .qx-mono, Unbounded homepage h1, Anton category marquee) — going to 3 is
+      a DESIGN decision and is left to the owner, not taken here.
+   3. Duplicate preload — real, but there is only one call site in the repo.
+      Rendering <link rel="preload"> inside an explicit <head> makes React emit
+      both its hoisted copy (byte 186) and the literal JSX (byte 663).
+      ReactDOM.preload() emits only the hoisted one.
+   4. width/height on the 3 hero imgs — done, but honestly this is correctness,
+      NOT a CWV win, and the audit overstated it: two of the three are
+      position:absolute at width/height 100%, so the attributes cannot move
+      layout, and CLS has been 0 since M135. Only .qx-gm-media (width:auto)
+      needed the ratio.
+  next: awaiting live verification of the deploy (headers + single preload +
+  zero Oswald requests). Then this item closes.
 - [B] "AI Image Upscaler" is not AI — ImageUpscaleClient is canvas bicubic plus
   an unsharp mask (drawImage at high smoothing + a 3x3 unsharp mask; no model,
   no weights, nothing learned). M120 made the RU/UZ body copy honest; the tool
