@@ -1479,3 +1479,54 @@ session, 0 input[type=file] and 0 <label> on both (the h1 and ~550 words of
 body copy DO render server-side, so it is the tool specifically). The engines
 are dynamic(ssr:false), which emits nothing during SSR — not even the `loading`
 fallback — so the shell has to live in the server page, outside that boundary.
+
+## Mission 147 — image tools stopped serving crawlers a page with no tool
+
+/convert/png-to-jpg and /resize/1920x1080 served 0 input[type=file] and 0
+<label>, measured live before any code was written. The h1 and ~550-590 words
+of body copy rendered fine, so a crawler read an article ABOUT converting
+images and never found a converter — the SXO page-type mismatch from M142.
+
+The audit's suggested fix would not have worked, and this is the reusable
+lesson. It described the served HTML as containing "Loading the image
+workspace…" — the dynamic() loading fallback — which makes "enrich that
+fallback" the obvious move. But every engine is dynamic(ssr:false), and
+ssr:false renders NOTHING during SSR: not the component, not the fallback.
+That string was never in the server HTML. Anything intended for crawlers has
+to be emitted outside that boundary.
+
+So ImageEngineRegistry now renders ImageToolShell on the server AND on the
+first client render — hydration matches exactly — then swaps in the live
+engine on effect. The shell is deliberately not a copy of AiDropzone: that is
+a div with role="button" around a hidden input, correct for a pointer user and
+precisely the markup a crawler cannot read. The shell uses a real visible
+input[type=file] with a real <label for>, `multiple` only for the batch:/
+layout: engines, and a <noscript> line saying the tool needs JS — with JS off
+the control genuinely cannot work, since the conversion is canvas-side with no
+endpoint behind it. Fixed at the registry, so it also covers
+/image-tools/[slug], which had the same defect and was not in the item.
+
+VERIFICATION, and the part worth remembering. The in-app Browser pane reported
+this change as a total production regression: shell still in the DOM, no React
+fiber on it, no dropzone, engine never mounted. Every one of those was wrong.
+That tab runs at viewport 0x0 and does not hydrate tool-page main content. A
+revert was one step away. What caught it was a control: running the identical
+probe against /image-tools/compress — a route this mission never touched —
+produced the IDENTICAL failure signature. An instrument that reports the same
+failure for a changed and an unchanged page is measuring itself, not the code.
+
+scripts/probe-hydration.mjs now exists so this is not re-litigated: real
+headless Chrome at a real viewport over CDP, with no new dependency (Chrome
+already has --remote-debugging-port, Node 22+ has a built-in WebSocket). On
+the same pages the pane called broken it reports toolAreaHydrated:true,
+shellStillPresent:false, liveDropzone:1 — verified on /convert/png-to-jpg,
+/resize/1920x1080, /image-tools/crop-image, /image-tools/batch-convert and
+/ru/convert/png-to-jpg. Sitemap unchanged at 809, so no IndexNow.
+
+Files: components/image/ImageToolShell.tsx (new),
+components/image/ImageEngineRegistry.tsx, scripts/probe-hydration.mjs (new).
+Branch design-v2. Commit 3812696.
+
+Next: BarcodeClient a11y — label[for]+id on the value input, range, checkbox
+and textarea, and human-readable colour preset names ("Black", not "#000000").
+The WiFi page already does this correctly and is the pattern to mirror.
