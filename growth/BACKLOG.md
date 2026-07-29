@@ -28,7 +28,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   it from /free-forever (which cites it unsourced — its boldest claim). Names,
   what was checked, dates, screenshots where possible. This is both the E-E-A-T
   fix AND the next linkable asset after /qr-code-statistics.
-- [~] /convert/* + /resize/* engines: server-render the dropzone SHELL (real
+- [x] /convert/* + /resize/* engines: server-render the dropzone SHELL (real
   input[type=file] + labels) under the dynamic(ssr:false) hydration, so
   do-it-now pages stop serving "Loading the image workspace…" to crawlers and
   slow phones (SXO HIGH, audit: BAILOUT template in served HTML).
@@ -44,9 +44,28 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
    · Confirmed live on /convert/png-to-jpg and /resize/1920x1080: 0
      input[type=file], 0 <label>. The h1 and ~550-590 words of body copy DO
      render server-side, so this is the tool specifically, not the page.
-  next: decide the swap mechanism before writing markup — the shell must be a
-  real focusable input[type=file] for crawlers/no-JS, but must not double up
-  with the hydrated dropzone or steal its drop target.
+  SHIPPED + VERIFIED LIVE Jul 30 (3812696). The registry now renders
+  ImageToolShell on the server and on the first client render (so hydration
+  matches), then swaps in the live engine on effect. Fixed at the registry, so
+  it also covers /image-tools/[slug], which had the same defect and was not
+  named in this item.
+  Served HTML now carries 1 input[type=file] + 1 <label for> on
+  /convert/png-to-jpg, /resize/1920x1080, /image-tools/{crop-image,
+  color-picker,batch-convert,collage-maker} and the /ru/ + /uz/ twins, with
+  `multiple` correctly set only for the batch:/layout: engines.
+  Interactivity re-proved in REAL headless Chrome (see below): shell removed,
+  live dropzone mounted, tool subtree hydrated on all of convert, resize,
+  [slug] single, [slug] batch and the RU twin.
+  INSTRUMENT WARNING, and this one nearly caused a bad revert: the in-app
+  Browser pane reported this change as a total regression — shell stuck in the
+  DOM, no React fiber, no dropzone — and it was wrong. It runs at viewport 0x0
+  and does not hydrate tool-page main content. What caught it was running the
+  same probe against a CONTROL page the change never touched
+  (/image-tools/compress), which produced the identical failure signature. Any
+  instrument that reports the same failure for a changed and an unchanged page
+  is measuring itself. scripts/probe-hydration.mjs now exists for this: real
+  headless Chrome over CDP, no new dependency. USE IT, not the preview tab, for
+  anything hydration-shaped.
 - [ ] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
@@ -526,6 +545,17 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   into strong, and only the owner can supply that.
 
 ## Done
+- [x] Jul 30: image tools stopped serving crawlers a page with no tool on it
+  (M147, 3812696 + the probe in a follow-up). /convert/*, /resize/* and
+  /image-tools/[slug] served 0 input[type=file] and 0 <label> — the h1 and
+  ~550 words of copy rendered, so a crawler read an article ABOUT converting
+  images and found no converter. The audit's proposed fix (enrich the
+  dynamic() `loading` fallback) could not have worked: ssr:false renders
+  neither the component nor its fallback during SSR, so that string was never
+  in the server HTML at all. The shell had to come from outside that boundary.
+  Also shipped scripts/probe-hydration.mjs after the in-app Browser pane
+  reported the change as a total regression and was wrong — see the NOW entry,
+  the control-page technique there is the reusable part.
 - [x] Jul 29: the repeat visit stopped re-validating everything (M146, 26ff03b
   + 1779da6). Four CWV follow-ups from the M142 audit, all verified on
   production. The real win is the first: EVERY non-font static asset served
