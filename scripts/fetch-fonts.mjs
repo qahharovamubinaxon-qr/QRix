@@ -25,13 +25,26 @@
 import fs from "node:fs";
 import path from "node:path";
 
+/* Oswald was here and was REMOVED on 2026-07-29 (M146). Do not add it back
+   without checking the same thing first: it appeared in exactly three stacks in
+   app/design-v2.css, and in all three it was the SECOND entry, behind
+   "Unbounded" (twice) and "Anton" (once). Both of those are self-hosted from
+   this same origin, so the only way the browser ever reaches the Oswald entry
+   is a failure that would take Oswald down with it. It could not paint, and it
+   never did — but it still cost 10 @font-face rules (4.2 KB) in the
+   render-blocking CSS and 80 KB of woff2 in public/.
+
+   That is the whole of the audit's "trim 6 font families toward 3" that can be
+   done for free. The other five all genuinely paint: Bricolage Grotesque and
+   Inter are body/display, Space Mono is .qx-mono, and Unbounded and Anton carry
+   the homepage h1 and the category marquee. Dropping any of those is a design
+   decision, not a performance one. */
 const FAMILIES = [
   "Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800",
   "Inter:wght@400;500;600;700;800",
   "Space+Mono:ital,wght@0,400;0,700;1,400",
   "Unbounded:wght@700;800;900",
   "Anton",
-  "Oswald:wght@600;700",
 ];
 const CSS_URL =
   "https://fonts.googleapis.com/css2?" +

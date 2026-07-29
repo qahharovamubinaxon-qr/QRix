@@ -91,7 +91,7 @@ export default function EraBunny() {
               the first viewport. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="qx-hm-img" src="/scenes/bunny-hero.webp" alt="" draggable={false}
-            fetchPriority="high" />
+            width={613} height={1876} fetchPriority="high" />
         </div>
       </div>
     </div>
@@ -136,9 +136,13 @@ export function GenBunny() {
       <div ref={smokeRef} className="qx-smoke">
         <div ref={paraRef}>
           {reduced || !near ? (
+            // width/height matter here in a way they do not for the other two
+            // decorative images: .qx-gm-media is sized `height: min(48vh,440px);
+            // width: auto`, so without the intrinsic ratio the browser cannot
+            // resolve this element's width until the bytes decode.
             // eslint-disable-next-line @next/next/no-img-element
             <img className="qx-gm-media" src="/scenes/bunny-blue.webp" alt="" draggable={false}
-              loading="lazy" decoding="async" />
+              width={471} height={1080} loading="lazy" decoding="async" />
           ) : (
             <video className="qx-gm-media" src="/scenes/bunny-gen-live.webm"
               autoPlay muted loop playsInline preload="none" poster="/scenes/bunny-blue.webp" />

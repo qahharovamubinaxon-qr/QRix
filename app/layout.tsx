@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import ReactDOM from "react-dom";
 import TopNav from "@/components/TopNav";
 import DotDistortionBackground from "@/components/DotDistortionBackground";
 import ReferralCapture from "@/components/ReferralCapture";
@@ -80,6 +81,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  /* Fonts first, and discoverable by the preload scanner. Only the one file
+     that body and display text paint in is preloaded — the rest are declared
+     in app/fonts.css and fetched on demand by unicode-range. */
+  ReactDOM.preload(LCP_FONT, { as: "font", type: "font/woff2", crossOrigin: "anonymous" });
+
   return (
     <html
       lang="en"
@@ -88,10 +94,14 @@ export default function RootLayout({
       className="h-full antialiased"
     >
       <head>
-        {/* Fonts first, and discoverable by the preload scanner. Only the one
-            file that body and display text paint in is preloaded — the rest are
-            declared in app/fonts.css and fetched on demand by unicode-range. */}
-        <link rel="preload" as="font" type="font/woff2" href={LCP_FONT} crossOrigin="anonymous" />
+        {/* The font preload is issued via ReactDOM.preload() just above this
+            <head>, NOT as a <link> element here. Rendering the element inside an
+            explicit <head> emitted it TWICE on production: React hoists its own
+            normalized copy to the very top of <head> (byte 186 of the homepage)
+            and then also prints the literal JSX further down (byte 663). Both
+            named the same file, so the second was a dead ~127-byte duplicate
+            that the preload scanner had to parse. preload() emits only the
+            hoisted one — same request, earlier in the document. */}
         {/* Google Consent Mode v2 — default DENIED until the user opts in.
             Must run before AdSense/GA so no ad/analytics storage is set
             without consent (GDPR / AdSense EEA requirement).

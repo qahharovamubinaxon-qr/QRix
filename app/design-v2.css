@@ -958,7 +958,7 @@ html.light .qx-auth-ov .qx-embers { display: block; }
 
 .qx-era-title {
   position: relative; z-index: 1;
-  font-family: "Unbounded", "Oswald", var(--font-display), sans-serif;
+  font-family: "Unbounded", var(--font-display), sans-serif;
   font-weight: 900; text-transform: uppercase;
   font-size: clamp(30px, 6.6vw, 110px);
   line-height: 1.02; letter-spacing: -0.015em;
@@ -980,7 +980,7 @@ html.light .qx-auth-ov .qx-embers { display: block; }
 .qx-era-ghost {
   position: absolute; left: 50%; top: 30%; transform: translateX(-50%);
   z-index: 0; pointer-events: none; user-select: none;
-  font-family: "Unbounded", "Oswald", sans-serif; line-height: 1;
+  font-family: "Unbounded", sans-serif; line-height: 1;
   font-weight: 900;
   font-size: clamp(100px, 20vw, 330px);
   color: rgba(186, 60, 4, 0.34);
@@ -1034,7 +1034,7 @@ html.light .qx-auth-ov .qx-embers { display: block; }
   gap: clamp(36px, 6vw, 92px); padding-right: clamp(36px, 6vw, 92px);
 }
 .qx-era-cat {
-  font-family: "Anton", "Oswald", sans-serif;
+  font-family: "Anton", sans-serif;
   font-size: clamp(20px, 2.3vw, 30px); letter-spacing: 0.05em;
   color: #fff; opacity: 0.94; text-decoration: none; white-space: nowrap;
   transition: opacity 0.25s, transform 0.25s;

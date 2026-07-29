@@ -129,7 +129,8 @@ export default function WorldMapBackground() {
     <div ref={layerRef} className="qx-wm" aria-hidden style={{ opacity: 0 }}>
       <div className="qx-wm-stage">
         {/* 1 — the land. One node; the 3065 dots are inside the image. */}
-        <img src="/world-dots.svg" alt="" className="qx-wm-land" draggable={false} />
+        <img src="/world-dots.svg" alt="" className="qx-wm-land" draggable={false}
+          width={119} height={60} />
 
         {/* 2 — the field: someone, somewhere, is using this */}
         <svg className="qx-wm-svg" viewBox={VIEW_BOX} preserveAspectRatio="xMidYMid meet">
