@@ -41,6 +41,60 @@ const nextConfig: NextConfig = {
         source: "/fonts/:file*.woff2",
         headers: [{ key: "Cache-Control", value: "public, max-age=31536000, immutable" }],
       },
+      // Everything ELSE in public/ had the same defect and it was never fixed:
+      // measured live on 2026-07-28, /scenes/bunny-hero.webp — the homepage LCP
+      // element, preloaded with fetchPriority=high — served
+      // "public, max-age=0, must-revalidate", and so did /world-dots.svg (206 KB,
+      // also preloaded) and both 1.2 MB copies of the pdf.js worker. So every
+      // repeat visitor paid a revalidation round trip in front of the LCP paint,
+      // and every PDF tool visit re-validated 1.2 MB.
+      //
+      // These names are NOT content-hashed, so `immutable` is wrong here in a way
+      // it is not wrong for the fonts: bunny-hero.webp was re-encoded during M136
+      // and a year-long immutable cache would have stranded returning visitors on
+      // the old bytes with no way to push the new ones. stale-while-revalidate
+      // buys the whole repeat-visit win without that trap — the browser paints
+      // from cache instantly and refreshes in the background — so a re-encode
+      // still reaches everyone, one visit later.
+      //
+      // Listed explicitly rather than by extension glob: a broad "/:file*.png"
+      // would also match /_next/static/*, which the framework already serves
+      // immutable, and weakening that would be a regression.
+      //
+      // Deliberately ABSENT, each for its own reason:
+      //   sw.js  — a long-cached service worker cannot be updated.
+      //   llms.txt, c3bb…txt — content/verification files that must stay live;
+      //     the IndexNow key in particular has to be fetchable on demand.
+      //   /sdk/qrix.js — see the separate, much shorter rule below.
+      ...[
+        "/scenes/:file*",
+        "/world-dots.svg",
+        "/bot-avatar.png",
+        "/qrix-logo.png",
+        "/qrix-brand-film.mp4",
+        "/qrix-brand-film-poster.jpg",
+        "/pdf.worker.min.js",
+        "/pdf.worker.min.mjs",
+      ].map((source) => ({
+        source,
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=2592000, stale-while-revalidate=31536000" },
+        ],
+      })),
+      // The embed SDK is the one asset we do NOT control the refresh of: it runs
+      // inside other people's pages, so a bad build cannot be pulled by editing
+      // our own HTML. Under the 30-day rule above a fix would not even be
+      // REVALIDATED for a month — max-age is hard freshness, and SWR only starts
+      // after it expires. Ten minutes of hard freshness still removes the
+      // round trip from the common case (a visitor loading several pages of the
+      // same embedding site), while a week of SWR keeps it painting instantly
+      // from cache; a fix then lands on the next load rather than in 30 days.
+      {
+        source: "/sdk/:file*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=600, stale-while-revalidate=604800" },
+        ],
+      },
     ];
   },
   // Old stub URLs (a heading, no generator) → the real tools. A config redirect
