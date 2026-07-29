@@ -28,10 +28,25 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   it from /free-forever (which cites it unsourced — its boldest claim). Names,
   what was checked, dates, screenshots where possible. This is both the E-E-A-T
   fix AND the next linkable asset after /qr-code-statistics.
-- [ ] /convert/* + /resize/* engines: server-render the dropzone SHELL (real
+- [~] /convert/* + /resize/* engines: server-render the dropzone SHELL (real
   input[type=file] + labels) under the dynamic(ssr:false) hydration, so
   do-it-now pages stop serving "Loading the image workspace…" to crawlers and
   slow phones (SXO HIGH, audit: BAILOUT template in served HTML).
+  TAKEN Jul 29 (M147). Scoped against production first, and the audit's wording
+  is slightly off in a way that matters for the fix:
+   · The served HTML does NOT contain "Loading the image workspace…". It
+     contains NOTHING for the tool area. components/image/ImageEngineRegistry
+     .tsx is itself "use client" and every engine is dynamic(ssr:false), and
+     ssr:false renders neither the component NOR its `loading` fallback during
+     SSR. So editing `loading` (registry line 6) would fix nothing server-side.
+     The shell has to be emitted from the server page, OUTSIDE that boundary,
+     and hidden/replaced once the client engine mounts.
+   · Confirmed live on /convert/png-to-jpg and /resize/1920x1080: 0
+     input[type=file], 0 <label>. The h1 and ~550-590 words of body copy DO
+     render server-side, so this is the tool specifically, not the page.
+  next: decide the swap mechanism before writing markup — the shell must be a
+  real focusable input[type=file] for crawlers/no-JS, but must not double up
+  with the hydrated dropzone or steal its drop target.
 - [ ] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
