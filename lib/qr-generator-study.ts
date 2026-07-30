@@ -232,7 +232,7 @@ export const VENDORS: Vendor[] = [
       freeDynamic: LIMIT("Two dynamic codes on the free plan. Anything created above that during the trial goes inactive when the trial ends."),
       scanCap: UNK("Not stated for the free plan on the page checked."),
       vector: UNK("Not stated on the page checked."),
-      unbranded: LIMIT("'Watermark-free QR codes' is a paid row in the comparison table, marked with a cross on the free plan and a tick on every paid one."),
+      unbranded: LIMIT("On the $0 Free card, the 'Watermark-free QR codes' row carries the cross icon its own markup labels 'Does not contain Feature'; the paid card carries 'Contains Feature'."),
     },
   },
   {
@@ -322,7 +322,7 @@ export const VENDORS: Vendor[] = [
       freeDynamic: OK("The free plan includes dynamic codes with unlimited creation, per its pricing table."),
       scanCap: OK("Its FAQ answers the scanning-limit question with a flat no."),
       vector: UNK("Not stated on the pages checked."),
-      unbranded: LIMIT("Its FAQ confirms ads are removed on a paid subscription, which is the same as saying the free tier's scans carry them."),
+      unbranded: LIMIT("Its FAQ states outright that the free version differs from a Premium subscription in the presence of ads after scanning."),
     },
   },
   {
