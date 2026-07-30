@@ -137,8 +137,8 @@ export const VENDORS: Vendor[] = [
     checks: {
       permanent: UNK("Expiry is not addressed on the page checked. The codes are static, which is the mechanism that makes expiry impossible."),
       noAccount: OK("The page's own heading is 'Free QR Code Generator No Sign Up'."),
-      freeDynamic: NA("No dynamic code offered."),
-      scanCap: UNK("Not stated on the page checked."),
+      freeDynamic: NA("None offered. There is no account, no dashboard and no redirect domain — the page makes a file and hands it over."),
+      scanCap: UNK("Not stated on the page checked. A static code is decoded by the phone, so there is no counter to cap."),
       vector: OK("Available formats listed as PNG, SVG and PDF, described as free vector formats for print."),
       unbranded: OK("The watermark option applies the user's own image."),
     },
@@ -282,7 +282,7 @@ export const VENDORS: Vendor[] = [
     headline: "Calls the plan 'Free Forever', then pauses your scans for the rest of the month at 1,000.",
     checks: {
       permanent: LIMIT("Its FAQ says the code stays valid, but a dynamic one is paused when its monthly scan limit is reached."),
-      noAccount: LIMIT("The free plan's button is a signup."),
+      noAccount: LIMIT("The free plan's own call to action is a signup, and the scan pool is metered per account."),
       freeDynamic: LIMIT("Dynamic codes are included on the free plan but share one monthly scan pool."),
       scanCap: LIMIT("1,000 scans per month across all dynamic codes combined. Its FAQ states scans are paused on reaching it and reopen next month."),
       vector: UNK("Not stated on the page checked."),
@@ -300,7 +300,7 @@ export const VENDORS: Vendor[] = [
     headline: "Caps the free plan at five static codes — the only tool here that rations the format that costs it nothing to serve.",
     checks: {
       permanent: LIMIT("Its FAQ states static codes remain permanent after cancellation, but dynamic codes follow plan terms — and it answers 'do my QR codes expire if I cancel' with yes for dynamic."),
-      noAccount: LIMIT("Free plan is an account plan."),
+      noAccount: LIMIT("The free plan is an account plan; both the static and dynamic quotas are counted per account."),
       freeDynamic: LIMIT("Ten dynamic codes with limited data types on the free plan."),
       scanCap: LIMIT("The comparison table carries both a 'Monthly Scan Limit' and a 'Time Limit' row across plans."),
       vector: LIMIT("SVG appears as a plan-differentiated row rather than a free-for-all format."),
@@ -390,7 +390,7 @@ export const VENDORS: Vendor[] = [
     headline: "Seven-day trial, and unusually clear about the split: your static codes survive it, your dynamic ones are the product.",
     checks: {
       permanent: LIMIT("Its FAQ states static codes continue to work after the trial expires — which leaves the dynamic ones as the thing that stops."),
-      noAccount: LIMIT("Sign-up required for the trial."),
+      noAccount: LIMIT("Sign-up is required for the trial, which is the only free route into the product."),
       freeDynamic: LIMIT("Dynamic codes are available during the 7-day trial only."),
       scanCap: OK("Unlimited scans stated as a plan feature."),
       vector: OK("PNG and SVG download listed as a plan feature."),
@@ -514,7 +514,7 @@ export const SELF: Vendor = {
     permanent: OK("Static codes hold their data in the graphic, so nothing on our servers can switch them off."),
     noAccount: OK("Every QR tool works signed out; the generator runs in the browser."),
     freeDynamic: LIMIT("Dynamic codes are free but resolve through our redirect. If this site stops running, they stop resolving — that is true of every dynamic code on this page, ours included."),
-    scanCap: OK("No scan cap on the codes."),
+    scanCap: OK("No scan cap. Static codes have no counter to cap, and we do not meter the dynamic ones."),
     vector: OK("SVG export is free and needs no account."),
     unbranded: OK("No watermark on the code and no interstitial on the scan."),
   },

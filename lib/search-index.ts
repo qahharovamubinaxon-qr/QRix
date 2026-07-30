@@ -37,6 +37,7 @@ const IMAGE_TOOLS: [string, string][] = [
 
 const PAGES: SearchItem[] = [
   { title: "QR Code Statistics (sourced)", href: "/qr-code-statistics", group: "Pages", keywords: "qr code statistics data research numbers scans payments adoption 2026 report sourced citation" },
+  { title: "Free QR Generators Compared (20 checked)", href: "/free-qr-code-generator-comparison", group: "Pages", keywords: "free qr code generator comparison best no expiration expire watermark scan limit sign up trial catch tested vs alternatives review" },
   { title: "Video & Audio Downloader", href: "/downloader", group: "Pages", keywords: "tiktok instagram vk downloader video audio mp3 mp4 save reels download skachat yuklab olish" },
   { title: "Embeddable Downloader Widget", href: "/widgets", group: "Pages", keywords: "embed widget iframe downloader website blog wordpress add tool" },
   { title: "TikTok Downloader (No Watermark)", href: "/downloader/tiktok", group: "Pages", keywords: "tiktok no watermark download video mp3 sound skachat" },

@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FiCheck, FiX, FiArrowRight, FiShield, FiSlash, FiZap, FiEye } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL } from "@/lib/seo";
+import { COUNTS, STUDY_DATE } from "@/lib/qr-generator-study";
+
+const STUDY_PATH = "/free-qr-code-generator-comparison";
 
 export const metadata: Metadata = pageMeta({
   title: "Free QR Code Generator — No Expiry, No Signup, No Watermark",
@@ -23,17 +26,19 @@ const PROMISES = [
   { icon: <FiArrowRight size={16} />, t: "Free features others charge for", d: "Vector SVG export, bulk CSV, a design studio and 15 languages — all free." },
 ];
 
+/* Every "others" cell below is a COUNT out of the 20 generators in
+   lib/qr-generator-study.ts, derived from that dataset rather than typed here.
+   Before M148 this table held invented ranges ("~100–500, then the code dies",
+   "1–9 languages") that no one had measured. Rows we did not measure were
+   deleted rather than rewritten — a comparison row with nothing behind it is
+   the exact thing this page accuses other vendors of. */
 const ROWS: { label: string; qrix: string; others: string; othersBad?: boolean }[] = [
-  { label: "Do your codes expire?", qrix: "Never (static codes are permanent)", others: "Often after a 7–14 day trial", othersBad: true },
-  { label: "Scan limits", qrix: "Unlimited", others: "~100–500, then the code dies", othersBad: true },
-  { label: "Watermark on free codes", qrix: "Never", others: "Frequently stamped", othersBad: true },
-  { label: "Credit card to start", qrix: "No", others: "Often required for 'free' trial", othersBad: true },
-  { label: "Account / signup", qrix: "Not required", others: "Usually required", othersBad: true },
-  { label: "Ads in the scan flow", qrix: "Never", others: "Some inject third-party ads", othersBad: true },
-  { label: "Vector SVG / print export", qrix: "Free", others: "Often paywalled", othersBad: true },
-  { label: "Bulk generation (CSV)", qrix: "Free", others: "Usually paid", othersBad: true },
-  { label: "Your files & data", qrix: "Stay on your device", others: "Uploaded & tracked", othersBad: true },
-  { label: "Languages", qrix: "15", others: "1–9", othersBad: true },
+  { label: "Do your codes expire?", qrix: "Never (static codes are permanent)", others: `${COUNTS.limited} of ${COUNTS.total} can switch a free code off`, othersBad: true },
+  { label: "Scan limits", qrix: "Unlimited", others: `${COUNTS.scanCapped} of ${COUNTS.total} cap free-tier scans`, othersBad: true },
+  { label: "Ads or watermark on free codes", qrix: "Never", others: `${COUNTS.branded} of ${COUNTS.total} brand what your scanner sees`, othersBad: true },
+  { label: "Account / signup", qrix: "Not required", others: `${COUNTS.accountRequired} of ${COUNTS.total} require one`, othersBad: true },
+  { label: "Vector SVG / print export", qrix: "Free", others: `${COUNTS.vectorPaywalled} of ${COUNTS.total} paywall it`, othersBad: true },
+  { label: "Your files & data", qrix: "Stay on your device", others: "Varies — check each tool's own page", othersBad: false },
 ];
 
 const FAQS = [
@@ -66,8 +71,13 @@ export default function FreeForeverPage() {
           QR codes that never expire.<br />No tricks.
         </h1>
         <p className="mt-4 text-[16px] max-w-2xl mx-auto leading-relaxed" style={{ color: "var(--text-muted)" }}>
-          A test of 20 &quot;free&quot; QR generators found 14 had hidden limits — codes that deactivate after a trial,
-          scan caps that kill live codes, watermarks, or a credit card demand. QRix is the honest one.
+          We read the pricing and FAQ pages of {COUNTS.total} &quot;free&quot; QR generators on {STUDY_DATE}.{" "}
+          {COUNTS.limited} of them can switch a free code off — a trial that ends, a scan pool that runs out, or the
+          vendor&apos;s own ad in front of your scanner.{" "}
+          <Link href={STUDY_PATH} className="underline underline-offset-4" style={{ color: "var(--primary-bright)" }}>
+            See all {COUNTS.total}, with the source page for every row
+          </Link>
+          .
         </p>
         <div className="flex flex-wrap justify-center gap-3 mt-7">
           <Link href="/qr-tools" className="qx-btn-hero inline-flex">Make a free QR code <FiArrowRight size={15} /></Link>
@@ -126,7 +136,9 @@ export default function FreeForeverPage() {
           </table>
         </div>
         <p className="text-[11.5px] mt-3 text-center" style={{ color: "var(--text-faint)" }}>
-          Based on public pricing pages and independent reviews of popular QR generators, 2026. Individual tools vary.
+          Counts are from our own reading of {COUNTS.total} generators&apos; live pricing and FAQ pages on {STUDY_DATE}.
+          No accounts were created, so each count is what those vendors state about themselves —{" "}
+          <Link href={STUDY_PATH} className="underline underline-offset-4">the working, vendor by vendor</Link>.
         </p>
       </section>
 

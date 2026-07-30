@@ -75,6 +75,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     entry("/promo", 0.6),
     entry("/free-forever", 0.8),
     entry("/qr-code-statistics", 0.8, "monthly"),
+    entry("/free-qr-code-generator-comparison", 0.8, "monthly"),
     entry("/poster", 0.8),
     entry("/link-in-bio", 0.8),
     entry("/qr-tools/decode", 0.8),

@@ -35,6 +35,7 @@ videos in chat; the @QRixtools channel posts a free tool daily.
 - [PDF в Word (RU)](https://qrixtools.com/ru/pdf-to-word)
 
 ## More
+- [Free QR generators compared](https://qrixtools.com/free-qr-code-generator-comparison): 20 QR code generators read against their own live pricing and FAQ pages on 2026-07-30; a per-vendor record of expiry, scan caps, account walls, paywalled vector output and branding in the scan path, with the source page linked on every row and "not stated" wherever the vendor did not answer
 - [QR code statistics](https://qrixtools.com/qr-code-statistics): 26 QR figures, each linked to the report it was read from, each with its limitation stated; includes the widely-repeated numbers we checked and rejected, with the reason
 - [Blog](https://qrixtools.com/blog): guides on QR, PDF, AI and downloads
 - [Embeddable widget](https://qrixtools.com/widgets): add the downloader to any site
