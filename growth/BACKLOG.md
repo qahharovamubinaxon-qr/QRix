@@ -20,6 +20,30 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 ## NOW (this week)
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
+- [ ] The FOURTH English-only client tool, and it is eight tools wide. Found by
+  the post-M149 sweep, evidence recorded before anyone starts:
+  components/LocalizedToolEngine.tsx renders eight clients — PdfToWordClient,
+  MergePdfClient, CompressPdfClient, JpgToPdfClient, PdfToJpgClient,
+  RemoveBgClient, ImageUpscaleClient, ImageToTextClient — and passes `lang` to
+  none of them. None of the eight accepts one. It is reached from
+  LocalizedToolPage, which is every /ru/[tool] and /uz/[tool] route, so this is
+  the main PDF and image tool surface for the RU and UZ audience — the
+  stickiest audience the site has at ~11 pages/visit.
+  The file's own header comment states the assumption that made this invisible:
+  "the tools are language-agnostic, only the surrounding SEO copy is
+  localized". The first half is false — every one of these clients has English
+  button and status text.
+  ONE TRAP RECORDED SO THE NEXT SESSION DOES NOT REPEAT IT: the eight are all
+  dynamic(ssr:false) here, so their UI is NOT in the server HTML and a curl
+  cannot see the defect or the fix. Use scripts/probe-barcode.mjs's harness
+  (real headless Chrome over CDP) — the same instrument M149 used, and the same
+  one M147 proved is necessary. Also: ImageToTextClient already has a `lang`
+  state, but it is Tesseract's OCR recognition language, not a UI locale. Do
+  not mistake it for the prop being wired.
+  Scope honestly before starting: this is 8 clients, not 1, and M149's single
+  component took a full strings block. Consider doing it per-client with a
+  shared strings module rather than as one commit, and count the real string
+  volume first — the quick grep used to find this undercounts badly.
 - [B] Author/entity E-E-A-T, remaining half: the contact address is still a
   gmail one and there is still no named human with verifiable profiles
   elsewhere. Both are owner calls — see the OWNER-GATED identity entry. The
@@ -601,13 +625,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   they are).
 
 ## NEXT (2-4 weeks)
-- [ ] Sweep for the fourth occurrence of the English-only client tool. It has
-  now happened three times (M125 image copy, M147b image shell, M149 barcode)
-  and the shape never varies: a Localized*Page renders an <XClient /> that
-  takes no lang prop, so the chrome is translated and the tool is not. Grep
-  every components/Localized*.tsx for a client render without lang=, and every
-  client tool for hardcoded UI strings. Cheap, and worth doing while the shape
-  is fresh — all three so far were found by accident, not by looking.
+- [x] Sweep for the fourth occurrence of the English-only client tool. DONE
+  Jul 30, immediately after M149, and it found one — see the NOW item it
+  produced. Method, for reuse: `ls components/Localized*.tsx`, then grep each
+  for `<XClient`/`<XTool` renders and check for a `lang=` prop. Six wrappers
+  exist; four render no client at all, LocalizedBarcodePage was fixed by M149,
+  and LocalizedToolEngine is the hit.
 - [ ] Metric-matched @font-face fallback for Bricolage Grotesque
   (size-adjust / ascent-override / descent-override on a `local("Arial")`
   face, the trick next/font's adjustFontFallback does). Every text block on
