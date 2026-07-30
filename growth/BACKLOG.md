@@ -153,9 +153,29 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   live engine replaces the subtree. Small window, but it is exactly the silent
   failure this repo removes elsewhere. Options: hand the File to the engine on
   mount, or mark the control busy until hydration. Slow phones only.
-- [ ] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
+- [~] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
+  TAKEN Jul 30 (M149). Scoped against the file first, and it is confirmed:
+  components/BarcodeClient.tsx has no id/htmlFor pair anywhere. The value input
+  and the checkbox are inside wrapping <label>s (valid, but not what the audit
+  asked for); the range at line 256, the <input type="color"> at 251 and the
+  bulk <textarea> at 282 have NO accessible name at all — their captions are
+  plain <div>/<span>. The six preset swatches carry aria-label={c}, so a screen
+  reader announces "#7c3aed".
+  BIGGER DEFECT FOUND WHILE SCOPING, same lines, so it is being fixed in the
+  same pass rather than logged and left: components/LocalizedBarcodePage.tsx:50
+  renders <BarcodeClient initialFormat={...} /> and never passes `lang`. The
+  component takes no lang prop at all, so every RU and UZ barcode page serves
+  an English tool — "Value to encode", "Bar color", "Show value under bars",
+  "Download PNG", "Bulk generate". lib/barcode-types-i18n.ts's barcodeUI()
+  covers only the page chrome (crumbs, headings, FAQ), not one tool control.
+  This is precisely the M125 defect that M147b had to fix again for the image
+  shell — third occurrence, and the pattern is always the same: a localized
+  page wrapper around a client tool that was written English-only.
+  next: add the lang prop + a control-strings block to barcode-types-i18n.ts,
+  wire LocalizedBarcodePage, and do the label[for]/id + colour-name pass in
+  the same edit since they touch the same JSX.
 - [x] Blog Article schema — done in M145 (merged into it; same audit family).
 - [x] hreflang on /convert — NOT A DEFECT, closed Jul 28 with evidence. The
   audit reported /convert/png-to-jpg as emitting no hreflang. It emits four, and
