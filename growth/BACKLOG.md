@@ -24,10 +24,22 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   gmail one and there is still no named human with verifiable profiles
   elsewhere. Both are owner calls — see the OWNER-GATED identity entry. The
   structure to hold them shipped in M145 and every field is one edit away.
-- [ ] Publish the "we tested 20 free QR generators" methodology page and link
+- [~] Publish the "we tested 20 free QR generators" methodology page and link
   it from /free-forever (which cites it unsourced — its boldest claim). Names,
   what was checked, dates, screenshots where possible. This is both the E-E-A-T
   fix AND the next linkable asset after /qr-code-statistics.
+  TAKEN Jul 30 (M148). The exact unsourced claim is app/free-forever/page.tsx
+  line 69: "A test of 20 'free' QR generators found 14 had hidden limits". No
+  such test exists in this repo — under M143's rule that is a fabrication until
+  it is backed, so the page's number must follow the study, not the reverse.
+  Method constraint decided up front, because it bounds what can honestly be
+  claimed: this worker cannot create accounts (prohibited) and will not drive
+  20 third-party generators through signup, so the study documents what each
+  vendor STATES on its own live pricing/FAQ page on a given date, plus what is
+  observable without an account. Anything needing an account is recorded as
+  "not verified" rather than guessed — same discipline as the 4 rejected
+  numbers on /qr-code-statistics.
+  next: fetch + classify the 20 vendors, then write the page off the result.
 - [x] /convert/* + /resize/* engines: server-render the dropzone SHELL (real
   input[type=file] + labels) under the dynamic(ssr:false) hydration, so
   do-it-now pages stop serving "Loading the image workspace…" to crawlers and
