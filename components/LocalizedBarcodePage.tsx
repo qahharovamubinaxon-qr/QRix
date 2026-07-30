@@ -47,7 +47,7 @@ export default function LocalizedBarcodePage({ type, lang }: { type: BarcodeType
         </header>
 
         <div className="qx-card p-5 lg:p-6">
-          <BarcodeClient initialFormat={type.format} />
+          <BarcodeClient initialFormat={type.format} lang={lang} />
         </div>
 
         <section className="mt-10">

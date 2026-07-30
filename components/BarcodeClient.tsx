@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiDownload, FiCopy, FiCheck, FiAlertCircle } from "react-icons/fi";
 import { trackTool } from "@/lib/track";
+import { barcodeTool, type ToolLang } from "@/lib/barcode-types-i18n";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -35,7 +36,12 @@ const FORMATS: Format[] = [
 
 const PRESET_COLORS = ["#000000", "#1e293b", "#7c3aed", "#0e7490", "#166534", "#F58F20"];
 
-export default function BarcodeClient({ initialFormat }: { initialFormat?: string } = {}) {
+export default function BarcodeClient({ initialFormat, lang = "en" }: { initialFormat?: string; lang?: ToolLang } = {}) {
+  const t = barcodeTool(lang);
+  /* Ids are derived from the language so the RU and UZ twins of a page can
+     never collide if both ever render on one document; more practically, it
+     keeps every id in one place instead of six string literals in the JSX. */
+  const uid = (part: string) => `bc-${lang}-${part}`;
   // /barcode/<type> pages preselect their symbology; the hub starts on the first.
   const start = FORMATS.find((f) => f.id === initialFormat) ?? FORMATS[0];
   const [format, setFormat] = useState<Format>(start);
@@ -52,12 +58,12 @@ export default function BarcodeClient({ initialFormat }: { initialFormat?: strin
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const validationMsg = useMemo(() => {
-    if (!value) return "Enter a value to encode";
+    if (!value) return t.needValue;
     if (format.twoD) return null;   // 2D codes accept arbitrary text
-    if (format.numeric && !/^\d+$/.test(value) && format.id !== "codabar") return "This format accepts digits only";
-    if (format.fixedLen && !format.fixedLen.includes(value.length)) return `Needs ${format.fixedLen.join(" or ")} digits (checksum auto-added)`;
+    if (format.numeric && !/^\d+$/.test(value) && format.id !== "codabar") return t.digitsOnly;
+    if (format.fixedLen && !format.fixedLen.includes(value.length)) return t.fixedLen(format.fixedLen.join(" / "));
     return null;
-  }, [value, format]);
+  }, [value, format, t]);
 
   useEffect(() => {
     if (!value) return;
@@ -209,9 +215,9 @@ export default function BarcodeClient({ initialFormat }: { initialFormat?: strin
       <div className="grid lg:grid-cols-[1fr_420px] gap-8">
         {/* ── controls ── */}
         <div className="space-y-5">
-          <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
-              Barcode type ({FORMATS.length})
+          <div role="group" aria-labelledby={uid("type-label")}>
+            <div id={uid("type-label")} className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
+              {t.typeLabel(FORMATS.length)}
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
               {FORMATS.map((f) => (
@@ -226,74 +232,97 @@ export default function BarcodeClient({ initialFormat }: { initialFormat?: strin
                 </button>
               ))}
             </div>
+            {/* The picker is a button group, so the selected format has to be
+                announced somewhere a screen reader will reach. */}
+            <p className="sr-only" aria-live="polite">{format.name}</p>
             <p className="text-[11.5px] mt-2.5 leading-relaxed" style={{ color: "var(--text-muted)" }}>{format.hint}</p>
           </div>
 
-          <label className="block">
-            <span className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>Value to encode</span>
-            <input value={value} onChange={(e) => setValue(e.target.value.slice(0, 60))} placeholder={format.sample}
-              className="qx-auth-input mt-1 font-mono" />
+          <div className="block">
+            <label htmlFor={uid("value")} className="text-[12px] font-semibold" style={{ color: "var(--text-muted)" }}>
+              {t.value}
+            </label>
+            <input
+              id={uid("value")}
+              value={value}
+              onChange={(e) => setValue(e.target.value.slice(0, 60))}
+              placeholder={format.sample}
+              className="qx-auth-input mt-1 font-mono"
+              aria-invalid={!valid || Boolean(validationMsg)}
+              aria-describedby={validationMsg || !valid ? uid("value-err") : undefined}
+            />
             {(validationMsg || !valid) && (
-              <span className="flex items-center gap-1.5 text-[12px] mt-1.5" style={{ color: "#f59e0b" }}>
-                <FiAlertCircle size={13} /> {validationMsg || "This value is not valid for the selected format"}
+              <span id={uid("value-err")} role="status" className="flex items-center gap-1.5 text-[12px] mt-1.5" style={{ color: "#f59e0b" }}>
+                <FiAlertCircle size={13} /> {validationMsg || t.invalidGeneric}
               </span>
             )}
-          </label>
+          </div>
 
           <div className="flex flex-wrap gap-6">
-            <div>
-              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Bar color</div>
+            <div role="group" aria-labelledby={uid("color-label")}>
+              <div id={uid("color-label")} className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>{t.barColor}</div>
               <div className="flex flex-wrap items-center gap-2">
-                {PRESET_COLORS.map((c) => (
+                {PRESET_COLORS.map((c, i) => (
                   <button key={c} onClick={() => setLineColor(c)} className="w-7 h-7 rounded-lg transition-transform hover:scale-110"
-                    style={{ background: c, border: lineColor === c ? "2px solid var(--primary)" : "1px solid var(--border)" }} aria-label={c} />
+                    style={{ background: c, border: lineColor === c ? "2px solid var(--primary)" : "1px solid var(--border)" }}
+                    aria-label={t.colorNames[i] ?? c} aria-pressed={lineColor === c} />
                 ))}
-                <input type="color" value={lineColor} onChange={(e) => setLineColor(e.target.value)} className="w-7 h-7 rounded-lg cursor-pointer !p-0 !border-0" />
+                <label htmlFor={uid("color")} className="sr-only">{t.customColor}</label>
+                <input id={uid("color")} type="color" value={lineColor} onChange={(e) => setLineColor(e.target.value)}
+                  className="w-7 h-7 rounded-lg cursor-pointer !p-0 !border-0" />
               </div>
             </div>
             <div>
-              <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Height — {height}px</div>
-              <input type="range" min={40} max={160} value={height} onChange={(e) => setHeight(Number(e.target.value))} className="w-44 accent-[#F58F20]" />
+              <label htmlFor={uid("height")} className="block text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>
+                {t.height(height)}
+              </label>
+              <input id={uid("height")} type="range" min={40} max={160} value={height}
+                onChange={(e) => setHeight(Number(e.target.value))} className="w-44 accent-[#F58F20]"
+                aria-valuetext={`${height}px`} />
             </div>
-            <label className="flex items-center gap-2 cursor-pointer self-end pb-1">
-              <input type="checkbox" checked={showText} onChange={(e) => setShowText(e.target.checked)} className="accent-[#F58F20] w-4 h-4" />
-              <span className="text-[12.5px] font-semibold" style={{ color: "var(--text)" }}>Show value under bars</span>
-            </label>
+            <div className="flex items-center gap-2 self-end pb-1">
+              <input id={uid("showtext")} type="checkbox" checked={showText}
+                onChange={(e) => setShowText(e.target.checked)} className="accent-[#F58F20] w-4 h-4 cursor-pointer" />
+              <label htmlFor={uid("showtext")} className="text-[12.5px] font-semibold cursor-pointer" style={{ color: "var(--text)" }}>
+                {t.showText}
+              </label>
+            </div>
           </div>
 
           <div className="flex flex-wrap gap-2 pt-1">
             <button onClick={downloadPng} disabled={!valid || !value} className="qx-btn-hero !py-2.5 !px-5 text-sm disabled:opacity-40">
-              <FiDownload size={14} /> Download PNG
+              <FiDownload size={14} /> {t.downloadPng}
             </button>
             <button onClick={downloadSvg} disabled={!valid || !value} className="qx-btn !py-2.5 text-sm disabled:opacity-40">
-              <FiDownload size={14} /> SVG
+              <FiDownload size={14} /> {t.downloadSvg}
             </button>
             <button onClick={copyValue} className="qx-btn-ghost !py-2.5 text-sm">
-              {copied ? <FiCheck size={14} /> : <FiCopy size={14} />} Copy value
+              {copied ? <FiCheck size={14} /> : <FiCopy size={14} />} {copied ? t.copied : t.copyValue}
             </button>
           </div>
 
           {/* Bulk generation */}
           <div className="rounded-2xl p-4 mt-2" style={{ background: "var(--surface)", border: "1px solid var(--border)" }}>
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-[12px] font-bold" style={{ color: "var(--text)" }}>Bulk generate (up to 200)</span>
+              <label htmlFor={uid("bulk")} className="text-[12px] font-bold" style={{ color: "var(--text)" }}>{t.bulkTitle}</label>
               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full text-white" style={{ background: "var(--grad-primary)" }}>PRO</span>
             </div>
-            <textarea value={bulk} onChange={(e) => setBulk(e.target.value)} rows={3}
-              placeholder={"One value per line:\n590123412345\n590123412346"}
+            <textarea id={uid("bulk")} value={bulk} onChange={(e) => setBulk(e.target.value)} rows={3}
+              placeholder={t.bulkPlaceholder}
+              aria-describedby={uid("bulk-note")}
               className="qx-auth-input !py-2 font-mono !text-[12px] w-full resize-y" />
             <div className="flex items-center gap-3 mt-2.5">
               <button onClick={generateBulk} disabled={bulkBusy || !bulk.trim()} className="qx-btn !py-2 !text-xs disabled:opacity-40">
-                <FiDownload size={13} /> {bulkBusy ? "Generating…" : "Download ZIP"}
+                <FiDownload size={13} /> {bulkBusy ? t.bulkBusy : t.bulkGo}
               </button>
               {bulkDone && (
-                <span className="text-[12px]" style={{ color: "var(--text-muted)" }}>
-                  ✅ {bulkDone.ok} generated{bulkDone.fail > 0 ? ` · ⚠️ ${bulkDone.fail} invalid skipped` : ""}
+                <span role="status" className="text-[12px]" style={{ color: "var(--text-muted)" }}>
+                  {bulkDone.fail > 0 ? "⚠️" : "✅"} {t.bulkResult(bulkDone.ok, bulkDone.fail)}
                 </span>
               )}
             </div>
-            <p className="text-[10.5px] mt-2" style={{ color: "var(--text-faint)" }}>
-              Uses the format, color and size selected above — one PNG per line, zipped.
+            <p id={uid("bulk-note")} className="text-[10.5px] mt-2" style={{ color: "var(--text-faint)" }}>
+              {t.bulkNote}
             </p>
           </div>
         </div>
@@ -307,7 +336,7 @@ export default function BarcodeClient({ initialFormat }: { initialFormat?: strin
             <svg ref={svgRef} className={!format.twoD && value && valid ? "max-w-full h-auto" : "hidden"} />
             {(!value || !valid) && (
               <div className="text-center text-sm px-6" style={{ color: "#94a3b8" }}>
-                {value ? "Invalid value for this format — check the hint above." : "Enter a value to see your barcode."}
+                {value ? t.previewInvalid : t.previewEmpty}
               </div>
             )}
           </div>

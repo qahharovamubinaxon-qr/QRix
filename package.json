@@ -31,7 +31,8 @@
     "test:eeat": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/resolve-ts-alias.mjs scripts/test-eeat.mjs",
     "test:shell": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-tool-shell.mjs",
     "kpi": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gsc-kpi.mjs",
-    "test:study": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-generator-study.mjs"
+    "test:study": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-generator-study.mjs",
+    "test:barcode": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-barcode-i18n.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
