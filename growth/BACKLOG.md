@@ -153,7 +153,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   live engine replaces the subtree. Small window, but it is exactly the silent
   failure this repo removes elsewhere. Options: hand the File to the engine on
   mount, or mark the control busy until hydration. Slow phones only.
-- [~] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
+- [x] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
   TAKEN Jul 30 (M149). Scoped against the file first, and it is confirmed:
@@ -173,9 +173,30 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   This is precisely the M125 defect that M147b had to fix again for the image
   shell — third occurrence, and the pattern is always the same: a localized
   page wrapper around a client tool that was written English-only.
-  next: add the lang prop + a control-strings block to barcode-types-i18n.ts,
-  wire LocalizedBarcodePage, and do the label[for]/id + colour-name pass in
-  the same edit since they touch the same JSX.
+  SHIPPED Jul 30 (34afcfa). barcodeTool(lang) in lib/barcode-types-i18n.ts now
+  holds every control string in en/ru/uz — `en` included explicitly so there is
+  no fallback path that can swallow a missing translation — and BarcodeClient
+  takes `lang`, namespaces its ids per language via uid(), gives every control
+  an htmlFor/id pair, wraps the two button groups in role=group +
+  aria-labelledby, reports aria-invalid on the value input with the error text
+  referenced only while it exists, and names the swatches ("Чёрный", "Qora")
+  with aria-pressed instead of announcing "#7c3aed".
+  VERIFIED in real headless Chrome on EN/RU/UZ (scripts/probe-barcode.mjs, new,
+  sharing the M147 CDP harness): 5/5 controls present and hydrated, the barcode
+  paints (31/31/38 rects), a label click toggles its checkbox so htmlFor/id
+  really pair, every control resolves an accessible name, 0 swatches named by
+  hex, typing re-renders the code, 0 page errors. Server HTML: 7/7 expected
+  strings per language, 5 label[for] with 0 orphans, 8 namespaced ids, no
+  cross-language leakage.
+  GUARD: `npm run test:barcode` — 8 assertions, 4 mutations verified. The
+  load-bearing one asserts RU/UZ do not equal EN: an untranslated string is
+  invisible to review unless something compares the languages to each other,
+  which is precisely how this survived two localization passes.
+  FOLLOW-UP worth doing while the lesson is fresh: this defect has now appeared
+  three times (M125, M147b, M149) and the shape never changes — a localized
+  page wrapper rendering a client tool that takes no lang. A repo-wide sweep
+  for `<XClient` rendered from a Localized* wrapper without a lang prop would
+  find the fourth before a reader does. Added to NEXT.
 - [x] Blog Article schema — done in M145 (merged into it; same audit family).
 - [x] hreflang on /convert — NOT A DEFECT, closed Jul 28 with evidence. The
   audit reported /convert/png-to-jpg as emitting no hreflang. It emits four, and
@@ -580,6 +601,13 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   they are).
 
 ## NEXT (2-4 weeks)
+- [ ] Sweep for the fourth occurrence of the English-only client tool. It has
+  now happened three times (M125 image copy, M147b image shell, M149 barcode)
+  and the shape never varies: a Localized*Page renders an <XClient /> that
+  takes no lang prop, so the chrome is translated and the tool is not. Grep
+  every components/Localized*.tsx for a client render without lang=, and every
+  client tool for hardcoded UI strings. Cheap, and worth doing while the shape
+  is fresh — all three so far were found by accident, not by looking.
 - [ ] Metric-matched @font-face fallback for Bricolage Grotesque
   (size-adjust / ascent-override / descent-override on a `local("Arial")`
   face, the trick next/font's adjustFontFallback does). Every text block on

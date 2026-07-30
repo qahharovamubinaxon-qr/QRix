@@ -1649,3 +1649,58 @@ Files: lib/qr-generator-study.ts (new), app/free-qr-code-generator-comparison/
 page.tsx (new), scripts/test-generator-study.mjs (new), app/free-forever/
 page.tsx, app/sitemap.ts, lib/search-index.ts, public/llms.txt, package.json.
 Commits ac39e0f, c6750cd, fed07d1 on design-v2.
+
+## Mission 149 — the barcode tool nobody could read, in two different senses
+
+Two defects on the same JSX, fixed in one pass because they touch the same
+lines.
+
+The larger one was invisible to review. components/LocalizedBarcodePage.tsx
+rendered <BarcodeClient initialFormat={...} /> and never passed `lang` — the
+component accepted no such prop — so every RU and UZ barcode page wrapped a
+completely English tool: "Value to encode", "Bar color", "Show value under
+bars", "Download PNG", "Bulk generate (up to 200)". barcodeUI() in
+lib/barcode-types-i18n.ts covered the crumbs, the headings and the FAQ, which
+is exactly why it survived two localization passes: open the page and it looks
+translated, because everything around the tool is.
+
+This is the third occurrence of the same defect. M125 hit it in the image tool
+copy, M147b had to fix it again for the image shell, and it is here in the
+barcode tool. The shape never varies — a localized page wrapper around a client
+tool that was written English-only — and all three were found by accident
+rather than by looking, so a sweep for the fourth is now in NEXT.
+
+The a11y half is what the audit actually asked for. The range input, the custom
+colour input and the bulk textarea had no accessible name at all; their
+captions were plain <div>/<span> sitting nearby. The value input and the
+checkbox were inside wrapping <label>s — valid, but it left the validation
+message with nothing to be referenced by, so a screen reader announcing the
+field never announced why it was rejected. And the six colour swatches carried
+aria-label={c}, so they introduced themselves as "#7c3aed".
+
+Now barcodeTool(lang) holds every control string in en/ru/uz, with `en`
+included explicitly rather than left as an implicit fallback — a fallback path
+is precisely what lets a missing translation ship silently. Ids are namespaced
+per language through uid(), every control has an htmlFor/id pair, the two
+button groups are role=group with aria-labelledby, the value input reports
+aria-invalid and points at its error text only while that text exists, and the
+swatches announce real names with aria-pressed.
+
+Verified in real headless Chrome on all three languages, because the in-app
+pane still cannot answer this (M147's instrument warning stands).
+scripts/probe-barcode.mjs is new and shares M147's CDP harness: 5/5 controls
+present and hydrated, the barcode paints (31/31/38 rects), clicking a label
+toggles its checkbox — which is the only way to prove htmlFor/id pair in a
+browser rather than in a regex — every control resolves an accessible name, 0
+swatches named by hex, typing re-renders the code, 0 page errors. Server HTML
+separately: 7/7 expected strings per language, 5 label[for] with 0 orphans, 8
+namespaced ids, no cross-language leakage.
+
+Guard: `npm run test:barcode`, 8 assertions, 4 mutations verified. The
+load-bearing assertion is that RU and UZ must not equal EN. An untranslated
+string is invisible unless something compares the languages to each other,
+which is the whole reason this defect keeps coming back.
+
+Files: lib/barcode-types-i18n.ts, components/BarcodeClient.tsx,
+components/LocalizedBarcodePage.tsx, scripts/test-barcode-i18n.mjs (new),
+scripts/probe-barcode.mjs (new), package.json. Commit 34afcfa on design-v2.
