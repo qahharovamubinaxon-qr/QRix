@@ -55,3 +55,7 @@ growth/.lock
 
 # raw lighthouse runs kept while a CWV mission is open (per-machine, large)
 /.psi/
+
+# service-account keys must never land in the repo (they belong in ~/.qrix/)
+*service-account*.json
+gsc*.json
