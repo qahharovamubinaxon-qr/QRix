@@ -1588,3 +1588,64 @@ Files: components/image/ImageToolShell.tsx,
 components/image/ImageEngineRegistry.tsx, scripts/test-tool-shell.mjs (new),
 package.json, growth/BACKLOG.md, growth/DAILY_LOG.md.
 Branch claude/qrix-m147-followup, merged to design-v2.
+
+## Mission 148 — the study the site was already citing
+
+/free-forever's hero read: "A test of 20 'free' QR generators found 14 had
+hidden limits." No such test existed anywhere in this repo. Under the rule M143
+established — an unsourced number is a fabrication regardless of whether it
+happens to be near the truth — that sentence was the site's own worst E-E-A-T
+liability, sitting on the page whose entire subject is other people's dishonesty.
+
+So the study ran, and the page's number now follows it rather than the reverse.
+Each of 20 vendors' own live pricing and/or FAQ pages was fetched on 2026-07-30
+and read for six fixed questions: do the free codes keep working, is an account
+required, is there a free dynamic code, is there a scan cap, is vector output
+free, and does free output carry the vendor's branding. The method's limits are
+stated on the page and enforced in the dataset: no accounts were created and no
+cards entered, so nothing claims to describe behaviour inside a logged-in
+product, and any question a vendor's page did not answer is recorded as "not
+stated" — never inferred. Every row links the page it was read from; outbound
+vendor links are nofollow.
+
+Measured: 13 of 20, not 14. The count is deliberately narrow. "Needs an
+account" is true of 14 of 20 and "vector costs money" of 5 of 20, but both are
+disclosed at the door — you learn them before printing anything — so they are
+reported separately as friction. The 13 counts only what bites AFTER the code
+is on a menu or a shop window: deactivation, rationed dynamic codes, scan caps
+(6 of 20), and the vendor's own ads reaching whoever scans your code (4 of 20).
+
+The finding is better than the number. Sorted by whether anything can bite
+after printing, the line does not fall between good vendors and bad ones — it
+falls between generators that hand you a file and generators that keep your
+code on their servers. All 5 static-only tools had nothing that could switch a
+printed code off, because they hold nothing of yours to switch off. Every
+generator that hosts the destination had at least one lever, and some say so
+plainly: one vendor's pricing FAQ states that for your QR codes to work, the
+account linked to them has to stay active. Another's feature table marks
+"watermark-free QR codes" with a cross on the free plan — the watermark IS the
+free tier. A third calls its plan "Free Forever" and pauses every scan across
+all your codes once a shared pool of 1,000 a month runs out.
+
+QRix is in the same table, graded on the same six questions, including the row
+it loses: our dynamic codes resolve through our redirect, so if this site stops
+running they stop working. That is the same dependency every hosted generator
+on the page carries, and a comparison page that exempts its author is an advert.
+
+The same pass cleaned /free-forever's comparison table, which held two further
+inventions nobody had measured ("~100–500 scans, then the code dies", "1–9
+languages"). Every "others" cell is now a count derived from the dataset, and
+the two rows with nothing behind them were deleted rather than reworded.
+
+Guard: `npm run test:study`, 18 assertions, 4 mutations verified. Three are
+routine (thin notes, drifting counts, an `unknown` that does not say the vendor
+was silent). The load-bearing one is the JSX scan: it fails if a count is typed
+into the page instead of read from COUNTS, because a number in markup that no
+dataset backs is precisely the failure this mission exists to undo. It also
+fails if the fabricated sentence returns to /free-forever — and it strips
+comments first, so the commit that names the ghost is not mistaken for it.
+
+Files: lib/qr-generator-study.ts (new), app/free-qr-code-generator-comparison/
+page.tsx (new), scripts/test-generator-study.mjs (new), app/free-forever/
+page.tsx, app/sitemap.ts, lib/search-index.ts, public/llms.txt, package.json.
+Commits ac39e0f, c6750cd, fed07d1 on design-v2.

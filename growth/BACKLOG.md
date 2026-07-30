@@ -20,26 +20,66 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 ## NOW (this week)
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
-- [ ] Author/entity E-E-A-T, remaining half: the contact address is still a
+- [B] Author/entity E-E-A-T, remaining half: the contact address is still a
   gmail one and there is still no named human with verifiable profiles
   elsewhere. Both are owner calls — see the OWNER-GATED identity entry. The
   structure to hold them shipped in M145 and every field is one edit away.
-- [~] Publish the "we tested 20 free QR generators" methodology page and link
-  it from /free-forever (which cites it unsourced — its boldest claim). Names,
-  what was checked, dates, screenshots where possible. This is both the E-E-A-T
-  fix AND the next linkable asset after /qr-code-statistics.
-  TAKEN Jul 30 (M148). The exact unsourced claim is app/free-forever/page.tsx
-  line 69: "A test of 20 'free' QR generators found 14 had hidden limits". No
-  such test exists in this repo — under M143's rule that is a fabrication until
-  it is backed, so the page's number must follow the study, not the reverse.
-  Method constraint decided up front, because it bounds what can honestly be
-  claimed: this worker cannot create accounts (prohibited) and will not drive
-  20 third-party generators through signup, so the study documents what each
-  vendor STATES on its own live pricing/FAQ page on a given date, plus what is
-  observable without an account. Anything needing an account is recorded as
-  "not verified" rather than guessed — same discipline as the 4 rejected
-  numbers on /qr-code-statistics.
-  next: fetch + classify the 20 vendors, then write the page off the result.
+  Escalated [ ] -> [B] on Jul 30: it had been sitting at the top of NOW while
+  being unactionable by this worker, which makes every session step over it to
+  reach real work. Nothing here is blocked on code. lib/operator.ts holds the
+  nulls; filling one propagates to /about, the site-wide Organization schema
+  and every byline at once.
+- [ ] Localise the study, or decide not to. /free-qr-code-generator-comparison
+  is EN-only while /free-forever has RU/UZ readers, and the RU/UZ audience is
+  the stickiest we have (11 pages/visit). The dataset is language-independent —
+  only the six question labels, the six notes per vendor and the prose need
+  translating, and the notes are the expensive part (~130 short strings). Worth
+  doing only if the EN page earns impressions first; check GSC before starting.
+- [ ] Re-check date on the study. Every row carries the date its source page
+  was read, which is the honest shape, but nothing re-reads them. Cheapest
+  useful version: a script that re-fetches the 20 source URLs and flags any
+  whose page no longer contains the phrase the verdict rests on — not a
+  re-classification, just "row N's evidence moved, go look". Ties into the
+  daily VERIFY pass.
+- [ ] One unmeasured comparative claim survives on /free-forever. The table
+  rows are now all derived from the dataset, but the PROMISES card at line 26
+  is still headed "Free features others charge for" and lists vector SVG, bulk
+  CSV, a design studio and 15 languages. The study measured only the first of
+  those (5 of 20 paywall vector); the other three assert something about
+  competitors that nobody checked. Either measure them or narrow the card's
+  heading to the one that is backed. Same family as the M148 fix, much smaller.
+- [x] Publish the "we tested 20 free QR generators" methodology page and link
+  it from /free-forever (which cites it unsourced — its boldest claim).
+  TAKEN + SHIPPED Jul 30 (M148, fed07d1) as /free-qr-code-generator-comparison.
+  The unsourced claim was app/free-forever/page.tsx line 69: "A test of 20
+  'free' QR generators found 14 had hidden limits". No such test existed, so
+  the study ran first and the page's number followed it.
+  METHOD, which bounds every claim on the page: each vendor's own live pricing
+  and/or FAQ page fetched 2026-07-30 and read for six fixed questions, source
+  linked per row, outbound nofollow. No accounts created and no cards entered
+  — so nothing claims to describe behaviour inside a logged-in product — and
+  any question a page did not answer is "not stated", never a guess.
+  MEASURED: 13 of 20, not 14. The count is narrow on purpose: "needs an
+  account" (14/20) and "vector costs money" (5/20) are disclosed at the door
+  and are reported separately as friction; the 13 are limits that bite AFTER
+  you print — deactivation, rationed dynamic codes, scan caps (6/20), and the
+  vendor's ads reaching whoever scans your code (4/20).
+  THE FINDING, and it is better than the number: all 5 static-only generators
+  had nothing that could switch a printed code off, and every generator that
+  hosts the destination had at least one lever. The catch arrives with the
+  hosting, not with the company. QRix is graded on the same six questions in
+  the same table including the row it loses (our dynamic codes stop resolving
+  if this site stops running) — a comparison page that exempts itself is an ad.
+  ALSO FIXED: /free-forever's comparison table held two more unmeasured
+  inventions ("~100–500, then the code dies", "1–9 languages"). Every "others"
+  cell is now a count derived from the dataset, and the rows nobody had
+  measured were deleted rather than reworded.
+  GUARD: `npm run test:study` — 18 assertions, 4 mutations verified (a
+  static-only vendor gaining a kill switch, QRix exempting itself, a count
+  hardcoded into JSX instead of read from COUNTS, and the fabricated sentence
+  returning to /free-forever were each caught). The hardcode check is the
+  load-bearing one: the failure this whole mission exists to prevent is a
+  number in JSX that no dataset backs.
 - [x] /convert/* + /resize/* engines: server-render the dropzone SHELL (real
   input[type=file] + labels) under the dynamic(ssr:false) hydration, so
   do-it-now pages stop serving "Loading the image workspace…" to crawlers and
