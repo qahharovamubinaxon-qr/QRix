@@ -5,12 +5,15 @@ import { FiUploadCloud, FiFilePlus, FiImage } from "react-icons/fi";
 import { PDFDocument } from "pdf-lib";
 import ReorderGrid, { type ReorderItem } from "@/components/ReorderGrid";
 import { pickSave, finishSave } from "@/lib/save-file";
+import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
 
 type Img = ReorderItem & { file: File };
 type PageSize = "a4" | "letter" | "fit";
 const SIZES: Record<string, [number, number]> = { a4: [595.28, 841.89], letter: [612, 792] };
+const SIZE_IDS = ["a4", "letter", "fit"] as const;
 
-export default function JpgToPdfClient() {
+export default function JpgToPdfClient({ lang = "en" }: { lang?: ToolLang }) {
+  const t = toolUI(lang);
   const [imgs, setImgs] = useState<Img[]>([]);
   const [size, setSize] = useState<PageSize>("a4");
   const [margin, setMargin] = useState(24);
@@ -67,7 +70,7 @@ export default function JpgToPdfClient() {
       await finishSave(target, new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), "images.pdf");
     } catch (e) {
       setBusy(false);
-      alert("Conversion failed: " + (e as Error).message);
+      alert(t.jpgToPdf.failed + (e as Error).message);
     }
   }
 
@@ -83,42 +86,42 @@ export default function JpgToPdfClient() {
             style={{ border: "2px dashed var(--border-strong)" }}>
             <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
             <span className="w-11 h-11 rounded-xl inline-flex items-center justify-center mb-2" style={{ background: "var(--surface-hover)", color: "var(--primary-bright)" }}><FiUploadCloud size={20} /></span>
-            <p className="text-sm" style={{ color: "var(--text)" }}>Drop images or <span className="font-bold" style={{ color: "var(--primary-bright)" }}>browse</span></p>
-            <p className="text-[11px] mt-1" style={{ color: "var(--text-faint)" }}>JPG, PNG, WEBP, GIF…</p>
+            <p className="text-sm" style={{ color: "var(--text)" }}>{t.jpgToPdf.dropImagesOr} <span className="font-bold" style={{ color: "var(--primary-bright)" }}>{t.common.browse}</span></p>
+            <p className="text-[11px] mt-1" style={{ color: "var(--text-faint)" }}>{t.jpgToPdf.formats}</p>
           </label>
 
           <label className="qx-btn-ghost !text-xs cursor-pointer w-full mt-3 justify-center">
-            <FiFilePlus size={13} /> Add more
+            <FiFilePlus size={13} /> {t.common.addMore}
             <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
           </label>
 
           <div className="mt-4">
-            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Page size</div>
+            <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>{t.jpgToPdf.pageSize}</div>
             <div className="grid grid-cols-3 gap-2">
-              {([["a4", "A4"], ["letter", "Letter"], ["fit", "Fit"]] as const).map(([v, l]) => (
+              {SIZE_IDS.map((v) => (
                 <button key={v} onClick={() => setSize(v)} className="py-2 rounded-lg text-[11px] font-bold transition-all"
-                  style={{ background: size === v ? "#F58F20" : "var(--surface-2)", color: size === v ? "#0c0c0c" : "var(--text-muted)", border: `1px solid ${size === v ? "transparent" : "var(--border)"}` }}>{l}</button>
+                  style={{ background: size === v ? "#F58F20" : "var(--surface-2)", color: size === v ? "#0c0c0c" : "var(--text-muted)", border: `1px solid ${size === v ? "transparent" : "var(--border)"}` }}>{t.jpgToPdf.sizes[v]}</button>
               ))}
             </div>
             <div className="mt-3">
-              <label className="block text-[11px] font-bold mb-1" style={{ color: "var(--text)" }}>Margin: {margin}px</label>
+              <label className="block text-[11px] font-bold mb-1" style={{ color: "var(--text)" }}>{t.jpgToPdf.margin(margin)}</label>
               <input type="range" min={0} max={60} value={margin} onChange={(e) => setMargin(Number(e.target.value))} className="w-full accent-orange-500" disabled={size === "fit"} />
             </div>
           </div>
 
           <button onClick={convert} disabled={!imgs.length || busy} className="qx-btn-hero w-full mt-4 disabled:opacity-50">
-            {busy ? "Creating PDF…" : <><FiImage size={15} /> Convert to PDF</>}
+            {busy ? t.jpgToPdf.creating : <><FiImage size={15} /> {t.jpgToPdf.convertBtn}</>}
           </button>
         </div>
 
         {/* right — selected images, drag to reorder */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[13px] font-bold" style={{ color: "var(--text)" }}>Selected images <span style={{ color: "var(--primary-bright)" }}>({imgs.length})</span></span>
-            {imgs.length > 0 && <span className="text-[11px]" style={{ color: "var(--text-faint)" }}>↔ drag to reorder</span>}
+            <span className="text-[13px] font-bold" style={{ color: "var(--text)" }}>{t.jpgToPdf.selectedImages} <span style={{ color: "var(--primary-bright)" }}>({imgs.length})</span></span>
+            {imgs.length > 0 && <span className="text-[11px]" style={{ color: "var(--text-faint)" }}>{t.jpgToPdf.dragReorder}</span>}
           </div>
           {imgs.length === 0 ? (
-            <div className="rounded-2xl flex items-center justify-center text-sm" style={{ minHeight: 220, border: "1px solid var(--border)", color: "var(--text-faint)" }}>No images yet</div>
+            <div className="rounded-2xl flex items-center justify-center text-sm" style={{ minHeight: 220, border: "1px solid var(--border)", color: "var(--text-faint)" }}>{t.jpgToPdf.noImages}</div>
           ) : (
             <ReorderGrid items={imgs} onChange={(it) => setImgs(it as Img[])} />
           )}

@@ -4,8 +4,10 @@ import { useState } from "react";
 import { FiImage } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { pickSave, finishSave } from "@/lib/save-file";
+import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
 
-export default function PdfToJpgClient() {
+export default function PdfToJpgClient({ lang = "en" }: { lang?: ToolLang }) {
+  const t = toolUI(lang);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -40,17 +42,17 @@ export default function PdfToJpgClient() {
       await finishSave(target, out, outName);
     } catch (e) {
       setLoading(false);
-      alert("Conversion failed: " + (e as Error).message);
+      alert(t.pdfToJpg.failed + (e as Error).message);
     }
   }
 
   return (
     <div className="qx-card p-6 max-w-2xl">
-      <UploadBox file={file} setFile={setFile} accept=".pdf" />
+      <UploadBox file={file} setFile={setFile} accept=".pdf" lang={lang} />
       <button onClick={convertPdf} disabled={!file || loading} className="qx-btn-hero w-full mt-4 disabled:opacity-50">
-        {loading ? `Converting… ${progress}%` : <><FiImage size={15} /> Convert to JPG (ZIP)</>}
+        {loading ? `${t.pdfToJpg.converting} ${progress}%` : <><FiImage size={15} /> {t.pdfToJpg.convertBtn}</>}
       </button>
-      <p className="text-[11px] mt-3" style={{ color: "var(--text-faint)" }}>Each page becomes a high-quality JPG, packed into a ZIP.</p>
+      <p className="text-[11px] mt-3" style={{ color: "var(--text-faint)" }}>{t.pdfToJpg.note}</p>
     </div>
   );
 }

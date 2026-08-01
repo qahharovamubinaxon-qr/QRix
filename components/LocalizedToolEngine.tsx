@@ -1,12 +1,21 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { ToolLang } from "@/lib/tool-ui-i18n";
 
 /* Renders the working tool client for a localized (/ru, /uz) tool page.
-   Reuses the exact same clients the English pages use — the tools are
-   language-agnostic, only the surrounding SEO copy is localized.
+   Reuses the exact same clients the English pages use, and passes each of them
+   the page's language.
    Mirrors AiEngineRegistry's pattern (direct JSX per case) so next/dynamic
-   statically registers every chunk. */
+   statically registers every chunk.
+
+   This header used to read "the tools are language-agnostic, only the
+   surrounding SEO copy is localized". That was false, and it hid the defect
+   through two localization passes: every client below carried English button,
+   status and empty-state text, so a RU or UZ visitor got a localized page
+   wrapping an English tool. Fixed in M150 — strings live in
+   lib/tool-ui-i18n.ts and each client takes an optional `lang` defaulting to
+   "en", which is what the English routes rely on. */
 
 const loading = () => (
   <div className="qx-card p-10 text-center text-sm" style={{ color: "var(--text-muted)" }}>Loading…</div>
@@ -21,13 +30,13 @@ const RemoveBgClient = dynamic(() => import("@/components/RemoveBgClient"), { lo
 const ImageUpscaleClient = dynamic(() => import("@/components/ImageUpscaleClient"), { loading, ssr: false });
 const ImageToTextClient = dynamic(() => import("@/components/ImageToTextClient"), { loading, ssr: false });
 
-export default function LocalizedToolEngine({ slug }: { slug: string }) {
+export default function LocalizedToolEngine({ slug, lang = "en" }: { slug: string; lang?: ToolLang }) {
   switch (slug) {
     case "pdf-to-word": return <PdfToWordClient />;
-    case "merge": return <MergePdfClient />;
-    case "compress": return <CompressPdfClient />;
-    case "jpg-to-pdf": return <JpgToPdfClient />;
-    case "pdf-to-jpg": return <PdfToJpgClient />;
+    case "merge": return <MergePdfClient lang={lang} />;
+    case "compress": return <CompressPdfClient lang={lang} />;
+    case "jpg-to-pdf": return <JpgToPdfClient lang={lang} />;
+    case "pdf-to-jpg": return <PdfToJpgClient lang={lang} />;
     case "background-remover": return <RemoveBgClient />;
     case "image-upscaler": return <ImageUpscaleClient />;
     case "image-to-text": return <ImageToTextClient />;

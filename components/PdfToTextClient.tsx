@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FiUploadCloud, FiFileText, FiDownload, FiCopy, FiCheck } from "react-icons/fi";
 import { saveBlob } from "@/lib/save-file";
+import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
 
 export default function PdfToTextClient() {
   const [file, setFile] = useState<File | null>(null);
@@ -70,8 +71,9 @@ export default function PdfToTextClient() {
   );
 }
 
-export function UploadBox({ file, setFile, accept }: { file: File | null; setFile: (f: File | null) => void; accept: string }) {
+export function UploadBox({ file, setFile, accept, lang = "en" }: { file: File | null; setFile: (f: File | null) => void; accept: string; lang?: ToolLang }) {
   const [drag, setDrag] = useState(false);
+  const t = toolUI(lang).common;
   return (
     <label
       onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
@@ -85,7 +87,7 @@ export function UploadBox({ file, setFile, accept }: { file: File | null; setFil
         <FiUploadCloud size={20} />
       </span>
       <p className="text-sm" style={{ color: "var(--text)" }}>
-        {file ? <><b style={{ color: "var(--primary-bright)" }}>{file.name}</b> selected</> : <>Drop your file here or <span className="font-bold" style={{ color: "var(--primary-bright)" }}>browse</span></>}
+        {file ? <><b style={{ color: "var(--primary-bright)" }}>{file.name}</b> {t.selectedSuffix}</> : <>{t.dropFileOr} <span className="font-bold" style={{ color: "var(--primary-bright)" }}>{t.browse}</span></>}
       </p>
     </label>
   );

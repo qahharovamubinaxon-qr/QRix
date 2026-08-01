@@ -5,12 +5,14 @@ import { FiUploadCloud, FiFilePlus, FiLayers } from "react-icons/fi";
 import { PDFDocument } from "pdf-lib";
 import ReorderGrid, { type ReorderItem } from "@/components/ReorderGrid";
 import { pickSave, finishSave } from "@/lib/save-file";
+import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 type Pdf = ReorderItem & { file: File };
 
-export default function MergePdfClient() {
+export default function MergePdfClient({ lang = "en" }: { lang?: ToolLang }) {
+  const t = toolUI(lang);
   const [pdfs, setPdfs] = useState<Pdf[]>([]);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState("");
@@ -41,11 +43,11 @@ export default function MergePdfClient() {
   }
 
   async function merge() {
-    if (pdfs.length < 2) { alert("Add at least 2 PDFs."); return; }
+    if (pdfs.length < 2) { alert(t.merge.needTwo); return; }
     const target = await pickSave("merged.pdf");
     if (target.kind === "cancelled") return;
     setBusy(true);
-    setProgress("Merging…");
+    setProgress(t.merge.merging);
     try {
       const out = await PDFDocument.create();
       for (const it of pdfs) {
@@ -58,7 +60,7 @@ export default function MergePdfClient() {
       await finishSave(target, new Blob([new Uint8Array(bytes)], { type: "application/pdf" }), "merged.pdf");
     } catch (e) {
       setBusy(false); setProgress("");
-      alert("Merge failed: " + (e as Error).message);
+      alert(t.merge.failed + (e as Error).message);
     }
   }
 
@@ -73,28 +75,28 @@ export default function MergePdfClient() {
             style={{ border: "2px dashed var(--border-strong)" }}>
             <input type="file" accept=".pdf" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
             <span className="w-11 h-11 rounded-xl inline-flex items-center justify-center mb-2" style={{ background: "var(--surface-hover)", color: "var(--primary-bright)" }}><FiUploadCloud size={20} /></span>
-            <p className="text-sm" style={{ color: "var(--text)" }}>Drop PDFs or <span className="font-bold" style={{ color: "var(--primary-bright)" }}>browse</span></p>
-            <p className="text-[11px] mt-1" style={{ color: "var(--text-faint)" }}>2 or more PDF files</p>
+            <p className="text-sm" style={{ color: "var(--text)" }}>{t.merge.dropPdfsOr} <span className="font-bold" style={{ color: "var(--primary-bright)" }}>{t.common.browse}</span></p>
+            <p className="text-[11px] mt-1" style={{ color: "var(--text-faint)" }}>{t.merge.twoOrMore}</p>
           </label>
 
           <label className="qx-btn-ghost !text-xs cursor-pointer w-full mt-3 justify-center">
-            <FiFilePlus size={13} /> Add more
+            <FiFilePlus size={13} /> {t.common.addMore}
             <input type="file" accept=".pdf" multiple className="hidden" onChange={(e) => addFiles(e.target.files)} />
           </label>
 
           <button onClick={merge} disabled={pdfs.length < 2 || busy} className="qx-btn-hero w-full mt-4 disabled:opacity-50">
-            {busy ? "Merging…" : <><FiLayers size={15} /> Merge PDF</>}
+            {busy ? t.merge.merging : <><FiLayers size={15} /> {t.merge.mergeBtn}</>}
           </button>
           {progress && <p className="text-[12px] mt-2 text-center" style={{ color: "var(--primary-bright)" }}>{progress}</p>}
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-3">
-            <span className="text-[13px] font-bold" style={{ color: "var(--text)" }}>Files <span style={{ color: "var(--primary-bright)" }}>({pdfs.length})</span></span>
-            {pdfs.length > 0 && <span className="text-[11px]" style={{ color: "var(--text-faint)" }}>↔ drag to set merge order</span>}
+            <span className="text-[13px] font-bold" style={{ color: "var(--text)" }}>{t.merge.files} <span style={{ color: "var(--primary-bright)" }}>({pdfs.length})</span></span>
+            {pdfs.length > 0 && <span className="text-[11px]" style={{ color: "var(--text-faint)" }}>{t.merge.dragOrder}</span>}
           </div>
           {pdfs.length === 0 ? (
-            <div className="rounded-2xl flex items-center justify-center text-sm" style={{ minHeight: 220, border: "1px solid var(--border)", color: "var(--text-faint)" }}>No PDFs yet</div>
+            <div className="rounded-2xl flex items-center justify-center text-sm" style={{ minHeight: 220, border: "1px solid var(--border)", color: "var(--text-faint)" }}>{t.merge.noPdfs}</div>
           ) : (
             <ReorderGrid items={pdfs} onChange={(it) => setPdfs(it as Pdf[])} />
           )}

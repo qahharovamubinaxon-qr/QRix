@@ -4,12 +4,11 @@ import { useState } from "react";
 import { FiMinimize2, FiCheck } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { pickSave, finishSave } from "@/lib/save-file";
+import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
 
-const LEVELS: { id: "low" | "medium" | "high"; label: string; hint: string }[] = [
-  { id: "low", label: "Low", hint: "Keeps photo detail" },
-  { id: "medium", label: "Medium", hint: "Best balance" },
-  { id: "high", label: "High", hint: "Smallest file" },
-];
+/* The level ids stay the load-bearing values (they are passed to compressPdf);
+   only their labels and hints are localized, out of lib/tool-ui-i18n. */
+const LEVEL_IDS = ["low", "medium", "high"] as const;
 
 type Result = {
   originalSize: number;
@@ -24,7 +23,8 @@ type Result = {
    bigger request bodies at the edge — on a page whose whole promise is getting
    a 25 MB attachment under Gmail's limit. In the browser there is no upload
    limit, and the file genuinely never leaves the device. */
-export default function CompressPdfClient() {
+export default function CompressPdfClient({ lang = "en" }: { lang?: ToolLang }) {
+  const t = toolUI(lang);
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -61,7 +61,7 @@ export default function CompressPdfClient() {
       setResult(out);
     } catch (e) {
       setLoading(false);
-      alert("Compression failed: " + (e as Error).message);
+      alert(t.compress.failed + (e as Error).message);
     }
   }
 
@@ -71,26 +71,26 @@ export default function CompressPdfClient() {
 
   return (
     <div className="qx-card p-6 max-w-2xl">
-      <UploadBox file={file} setFile={(f) => { setFile(f); setResult(null); }} accept=".pdf" />
+      <UploadBox file={file} setFile={(f) => { setFile(f); setResult(null); }} accept=".pdf" lang={lang} />
 
       <div className="mt-4">
-        <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>Compression level</div>
+        <div className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: "var(--text-faint)" }}>{t.compress.levelLabel}</div>
         <div className="grid grid-cols-3 gap-2">
-          {LEVELS.map((l) => (
-            <button key={l.id} onClick={() => setLevel(l.id)} title={l.hint} className="py-2 rounded-lg text-xs font-bold transition-all"
-              style={{ background: level === l.id ? "#F58F20" : "var(--surface-2)", color: level === l.id ? "#0c0c0c" : "var(--text-muted)", border: `1px solid ${level === l.id ? "transparent" : "var(--border)"}` }}>{l.label}</button>
+          {LEVEL_IDS.map((id) => (
+            <button key={id} onClick={() => setLevel(id)} title={t.compress.levels[id].hint} className="py-2 rounded-lg text-xs font-bold transition-all"
+              style={{ background: level === id ? "#F58F20" : "var(--surface-2)", color: level === id ? "#0c0c0c" : "var(--text-muted)", border: `1px solid ${level === id ? "transparent" : "var(--border)"}` }}>{t.compress.levels[id].label}</button>
           ))}
         </div>
       </div>
 
       {file && (
         <div className="mt-3 text-[12px]" style={{ color: "var(--text-muted)" }}>
-          Original size: <b style={{ color: "var(--text)" }}>{toMB(file.size)} MB</b> · compressed on this device, nothing is uploaded
+          {t.compress.originalSize} <b style={{ color: "var(--text)" }}>{toMB(file.size)} MB</b> · {t.compress.onDevice}
         </div>
       )}
 
       <button onClick={runCompress} disabled={!file || loading} className="qx-btn-hero w-full mt-4 disabled:opacity-50">
-        {loading ? `Compressing… ${Math.round(progress * 100)}%` : <><FiMinimize2 size={15} /> Compress PDF</>}
+        {loading ? `${t.compress.compressing} ${Math.round(progress * 100)}%` : <><FiMinimize2 size={15} /> {t.compress.compressBtn}</>}
       </button>
 
       {loading && (
@@ -101,16 +101,15 @@ export default function CompressPdfClient() {
 
       {result && (
         <div className="mt-4 p-4 rounded-xl" style={{ background: "rgba(70,116,52,0.1)", border: "1px solid rgba(70,116,52,0.3)" }}>
-          <div className="text-[13px] font-bold mb-2 flex items-center gap-1.5" style={{ color: "var(--success)" }}><FiCheck size={13} /> Compressed</div>
+          <div className="text-[13px] font-bold mb-2 flex items-center gap-1.5" style={{ color: "var(--success)" }}><FiCheck size={13} /> {t.compress.doneTitle}</div>
           <div className="text-[12px] space-y-1" style={{ color: "var(--text-muted)" }}>
-            <div className="flex justify-between"><span>Original</span><b style={{ color: "var(--text)" }}>{toMB(result.originalSize)} MB</b></div>
-            <div className="flex justify-between"><span>Compressed</span><b style={{ color: "var(--text)" }}>{toMB(result.compressedSize)} MB</b></div>
-            <div className="flex justify-between"><span>Saved</span><b style={{ color: "var(--primary-bright)" }}>{result.savedPercent > 0 ? `${result.savedPercent}% smaller` : "Already optimized"}</b></div>
+            <div className="flex justify-between"><span>{t.compress.rowOriginal}</span><b style={{ color: "var(--text)" }}>{toMB(result.originalSize)} MB</b></div>
+            <div className="flex justify-between"><span>{t.compress.rowCompressed}</span><b style={{ color: "var(--text)" }}>{toMB(result.compressedSize)} MB</b></div>
+            <div className="flex justify-between"><span>{t.compress.rowSaved}</span><b style={{ color: "var(--primary-bright)" }}>{result.savedPercent > 0 ? t.compress.smaller(result.savedPercent) : t.compress.alreadyOptimized}</b></div>
           </div>
           {noImages && (
             <div className="mt-2 text-[11px] leading-relaxed" style={{ color: "var(--text-faint)" }}>
-              This PDF is mostly text or vector graphics — there were no photos to
-              shrink, so it was already close to its smallest lossless size.
+              {t.compress.noImagesNote}
             </div>
           )}
         </div>

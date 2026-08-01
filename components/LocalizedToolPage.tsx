@@ -56,7 +56,7 @@ export default function LocalizedToolPage({ tool, lang, others }: { tool: LocToo
 
         {/* the actual working tool */}
         <div className="qx-card p-5 lg:p-6">
-          <LocalizedToolEngine slug={tool.slug} />
+          <LocalizedToolEngine slug={tool.slug} lang={lang} />
         </div>
 
         {/* how it works */}
