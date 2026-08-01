@@ -1869,3 +1869,46 @@ outright and failed on the sentence saying there is no such cap.
 Files: lib/compare-sources.ts (new), app/compare/[slug]/page.tsx,
 scripts/test-compare.mjs (new), package.json.
 Commits f969aeb, 97f7d2f on design-v2.
+
+## M153 — the cited pages can be re-read, and the first pass found a wrong cell
+
+/free-qr-code-generator-comparison and /compare/[slug] make claims about 23
+named third parties, each read off that party's own page on a stated date.
+Honest shape — a vendor changing its pricing makes the page dated, not wrong —
+but nothing re-read those pages, so "dated" had no way of being noticed.
+
+The blocker was that neither dataset stored anything re-checkable: `note` is
+prose, a paraphrase, so there was no string to search for. Every source now
+carries `evidence`, literal substrings copied out of the live page, and
+scripts/recheck-sources.mjs re-fetches all 24 and reports which vanished. It
+reports and never re-grades: automatic re-classification is how a page starts
+asserting things nobody read. Unreachable is a separate outcome from moved.
+Matching is raw markup, whitespace-normalised, case-insensitive — raw because
+one marker is an alt attribute ("Watermark-free QR codes" sits beside a cross
+on the free card and a tick on the paid one, so the label proves nothing).
+
+The finding: Unitag had three wrong cells. Its "unlimited scans" belongs to a
+EUR 12 paid HD offer, read by us as a property of every plan — the same
+flattened-read cause as M152's ~$6. Its FAQ says free codes "will stop working
+after being scanned a hundred times", so we had recorded no scan cap on the
+vendor with the hardest cap in the study, wrong in its favour; plus an expiry
+question marked unanswered that the FAQ answers outright; plus a headline
+crediting the free tier with the 1200x1200 PNG that is the paid download.
+COUNTS.scanCapped 6 -> 7 and both pages followed without an edit. The 13 held.
+SnapTik's MP3 row was half a sentence — the FAQ declines MP3 and then says
+audio IS downloadable via its Download Audio button; quoting only the refusal
+was wrong against the vendor, the mirror of the error M152 fixed for them.
+
+The checker caught its own author first: the initial Uniqode marker stored that
+vendor's policy in a COMPETITOR's wording ("all dynamic QR Codes" is
+the-qrcode-generator.com describing Uniqode; Uniqode says "any").
+
+Guards: npm run test:recheck (10 assertions, 9 mutations verified) and
+npm run recheck:sources (24 sources, 50 markers, 0 moved). Known limit, stated
+rather than papered over: the guard is structural — it proves every source can
+be re-checked, not that a verdict matches its evidence.
+
+Files: lib/qr-generator-study.ts, lib/compare-sources.ts,
+scripts/recheck-sources.mjs (new), scripts/test-recheck.mjs (new),
+scripts/test-compare.mjs, package.json.
+Commits b1865f7, 675e3b4 on design-v2.

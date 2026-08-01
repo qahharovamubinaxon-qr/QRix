@@ -59,23 +59,53 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   had reached the top of NOW while being unactionable, and an unactionable item
   at the top makes every session step over it to reach real work.
   UNBLOCKS the moment `npm run kpi` returns rows. Nothing here needs code.
-- [~] Re-check date on the study. Every row carries the date its source page
-  was read, which is the honest shape, but nothing re-reads them. Cheapest
-  useful version: a script that re-fetches the 20 source URLs and flags any
-  whose page no longer contains the phrase the verdict rests on — not a
-  re-classification, just "row N's evidence moved, go look". Ties into the
-  daily VERIFY pass.
-  TAKEN Aug 1 (M153). Scope covers BOTH datasets, as M152's follow-up asked:
-  lib/qr-generator-study.ts (20 vendors) and lib/compare-sources.ts (3).
-  The blocker to solve first is that neither dataset stores anything a machine
-  can re-check: `note` is PROSE, a paraphrase of what the page said, so there
-  is no string to search for. So the dataset gains an `evidence` marker per
-  source — a literal substring that must still appear in the vendor's RAW
-  markup for the reading to hold — and the script re-fetches and reports which
-  markers vanished. Markers must be found by actually reading each live page
-  (M148/M152 rule: raw markup, never tag-stripped), never invented, or the
-  checker ships pre-broken.
-  next: fetch all 23 source URLs raw and pick markers.
+- [x] Re-check date on the study — both datasets, and the first pass found a
+  wrong cell.
+  TAKEN + SHIPPED Aug 1 (M153 — b1865f7 datasets + checker, 675e3b4 guard +
+  corrections). Covers lib/qr-generator-study.ts (20 vendors + our own row) and
+  lib/compare-sources.ts (3), as M152's follow-up asked.
+  THE BLOCKER, solved first: neither dataset stored anything a machine could
+  re-check. `note` is PROSE — a paraphrase of what the page said — so there was
+  no string to look for. Every source now carries `evidence`: literal
+  substrings copied out of the live page that must still be there for the
+  reading to hold. 24 sources, 50 markers.
+  `npm run recheck:sources` re-fetches all 24 and reports what vanished. It
+  REPORTS, it never re-grades — a missing marker means "go look", and automatic
+  re-classification is how a page starts asserting things nobody read.
+  Unreachable is a separate outcome from moved, because a blocked fetch and a
+  stale reading are different problems.
+  Matching is RAW markup, whitespace-normalised, case-insensitive. Raw because
+  M148 and M152 both turned on it — one marker here is literally an alt
+  attribute, since "Watermark-free QR codes" sits next to a cross on the free
+  card and a tick on the paid one, so the label alone proves nothing.
+  THE FINDING: UNITAG had three wrong cells. Its "unlimited scans" line belongs
+  to a €12 paid HD offer and we read it as a property of every plan — the same
+  flattened-read cause as M152's ~$6 TinyWow price. Its FAQ, asked directly,
+  says free codes "will stop working after being scanned a hundred times". So
+  we had recorded NO scan cap on the vendor with the hardest cap in the study,
+  wrong in its favour, plus an expiry question marked unanswered that its FAQ
+  answers outright, plus a headline crediting the free tier with the 1200×1200
+  PNG that is actually the paid download (free is 300px).
+  COUNTS.scanCapped 6 -> 7, and /free-forever and the study page both followed
+  with no edit because they read the dataset. The 13 did not move — Unitag was
+  already counted, on its dynamic-code limit.
+  ALSO: SnapTik's MP3 row was half a sentence. Its FAQ declines MP3 AND says
+  audio is still downloadable via its Download Audio button; we quoted only the
+  refusal, which reads as "no audio at all" — wrong AGAINST the vendor, the
+  mirror of the error M152 fixed in their favour.
+  Guard: npm run test:recheck, 10 assertions, 9 mutations verified. Two markers
+  were rejected by its own length rule while being written ("Forever Free",
+  "No Watermark" — marketing fragments that would match boilerplate forever).
+  KNOWN LIMIT, recorded rather than papered over: the guard is STRUCTURAL. It
+  proves every source can be re-checked; it cannot prove a verdict matches its
+  evidence. Reverting Unitag's scanCap to `ok` today would pass every test —
+  only a human re-reading the page catches that, which is what this pass was.
+- [ ] Wire `npm run recheck:sources` into the daily VERIFY pass (the item above
+  always intended it; it is a one-line addition to the verify routine, but the
+  routine lives in the scheduled-task file, which is the owner's). Cheap
+  interim: run it whenever a session touches either dataset, and at minimum
+  weekly — 24 fetches, well under a minute. It exits 1 on any moved marker, so
+  it can be chained directly.
 - [x] One unmeasured comparative claim on /free-forever.
   TAKEN + SHIPPED Aug 1 (M151 — 9ce8018). The PROMISES card was headed "Free
   features others charge for" over vector SVG, bulk CSV, a design studio and 15
