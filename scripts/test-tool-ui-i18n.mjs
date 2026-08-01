@@ -45,6 +45,20 @@ const ok = (label, fn) => {
 };
 
 const read = (p) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
+
+// Strips comments so prose ABOUT a string does not count as that string being
+// hardcoded — but ONLY comments that actually open a line. A naive
+// block-comment regex is wrong on this codebase: the literal in
+// accept="image/[star]" opens a match that runs to the next real
+// close-comment token, deleting all the JSX between.
+// (Written as line comments on purpose — the earlier block-comment version of
+// this note contained a close-comment token inside backticks, which ended the
+// comment early and made the whole file a syntax error.)
+const stripComments = (src) =>
+  src
+    .replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "")   // {/* JSX comment */}
+    .replace(/^[ \t]*\/\*[\s\S]*?\*\//gm, "")     // block comment opening a line
+    .replace(/^\s*\/\/.*$/gm, "");                // line comment
 const LANGS = ["en", "ru", "uz"];
 const T = Object.fromEntries(LANGS.map((l) => [l, toolUI(l)]));
 
@@ -161,8 +175,14 @@ for (const { file, section, ghosts } of CLIENTS) {
   const name = file.split("/").pop();
 
   ok(`${name} carries no hardcoded English UI text`, () => {
-    // Strip comments so prose ABOUT the strings does not count as a literal.
-    const jsx = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    const jsx = stripComments(src);
+    // Guard on the guard. The first version of this stripper used a naive
+    // /\*[\s\S]*?\*\// and `accept="image/*"` opened a comment that ran to the
+    // next real `*/` — it silently ate 2.3 KB of JpgToPdfClient's JSX, which
+    // made a genuinely re-hardcoded "Page size" pass. A ghost check that has
+    // quietly deleted the code it searches reports clean either way.
+    assert.ok(jsx.length > src.length * 0.8,
+      `comment stripping removed ${src.length - jsx.length} of ${src.length} chars of ${name} — the ghost check is searching a gutted file`);
     for (const ghost of ghosts) {
       assert.ok(!jsx.includes(ghost), `${name} still hardcodes "${ghost}" — RU/UZ readers see it`);
     }
