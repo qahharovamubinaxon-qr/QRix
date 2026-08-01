@@ -1704,3 +1704,54 @@ which is the whole reason this defect keeps coming back.
 Files: lib/barcode-types-i18n.ts, components/BarcodeClient.tsx,
 components/LocalizedBarcodePage.tsx, scripts/test-barcode-i18n.mjs (new),
 scripts/probe-barcode.mjs (new), package.json. Commit 34afcfa on design-v2.
+
+## M150 — the fourth English-only tool, closed eight tools wide (2026-08-01)
+
+LocalizedToolEngine renders eight tool clients and passed `lang` to none of
+them, so every /ru/[tool] and /uz/[tool] route — the main PDF and image surface
+for the RU/UZ audience, the stickiest the site has at ~11 pages/visit — wrapped
+a fully English tool. Fourth occurrence of one defect (M125, M147b, M149).
+
+The file's own header carried the assumption that hid it: "the tools are
+language-agnostic, only the surrounding SEO copy is localized". The first half
+was false. It now quotes that line as a retraction, and a test asserts it still
+reads as one.
+
+Shipped in three commits: the PDF cluster (merge, compress, jpg-to-pdf,
+pdf-to-jpg + the shared UploadBox, which was the single biggest source of
+English on those pages), the image cluster (background-remover, image-upscaler,
+image-to-text), and PdfToWordClient. Strings live in lib/tool-ui-i18n.ts; every
+client takes an optional `lang` defaulting to "en", which the untouched English
+routes rely on.
+
+Two sub-defects surfaced while scoping. RemoveBgClient used its English colour
+name as BOTH the accessible name and the download filename suffix — localizing
+that one field would have put Cyrillic into saved filenames, so it split into
+an ASCII key and a localized label, and the swatches gained a real aria-label
+(they had none). ImageToTextClient's `lang` state was Tesseract's OCR
+recognition language, not a UI locale — renamed ocrLang/OCR_LANGS so the two
+cannot be conflated again; its option labels stay untranslated on purpose,
+since "Русский" already names an alphabet rather than the interface.
+PdfToWordClient is the one tool that uploads, so its two privacy notes were
+translated exactly rather than paraphrased.
+
+Guard: `npm run test:tool-i18n` (34 assertions, 14 mutations verified) and
+`npm run probe:tool-i18n` (real headless Chrome over CDP — 13/13 production
+URLs clean, including an English control page). The engine assertion parses
+EVERY case in the switch rather than a hand-listed subset, so a ninth client
+added unwired fails immediately; the subset shape is what let this survive two
+localization passes.
+
+Cost worth recording: four instrument failures in one session — `git checkout`
+on uncommitted work during a mutation test (commit FIRST), a comment-stripper
+that ate 2.3 KB of JSX via accept="image/*", `grep -c FAIL` scoring a crashed
+script as zero failures, and a CDP probe whose selector returned null on the
+English control. Only the last was caught the right way: by running the same
+probe against a page the change never touched.
+
+Files: lib/tool-ui-i18n.ts (new), components/{LocalizedToolEngine,
+LocalizedToolPage,MergePdfClient,CompressPdfClient,JpgToPdfClient,
+PdfToJpgClient,PdfToTextClient,RemoveBgClient,ImageUpscaleClient,
+ImageToTextClient,PdfToWordClient}.tsx, scripts/test-tool-ui-i18n.mjs (new),
+scripts/probe-tool-i18n.mjs (new), package.json.
+Commits 4275c22, 11d1551, d68e76a, c9bba0c on design-v2.
