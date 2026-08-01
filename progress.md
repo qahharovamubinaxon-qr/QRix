@@ -1950,3 +1950,148 @@ lesson from a new direction; it now matches the logic, not the words.
 Files: scripts/daily-verify.mjs (new), scripts/verify-rules.mjs (new),
 scripts/test-verify.mjs (new), growth/verify-baseline.json (new), package.json.
 Commit bf09a43 on design-v2.
+
+## M155 — the Design Studio arrives on intent, and two instruments were lying
+
+Eighth tranche of the CWV mission. The item's own note said the next lever was
+the homepage split; attributing the eager set before starting moved the target
+and found two measurement defects on the way.
+
+ATTRIBUTION FIRST. The homepage's eager script set, chunk by chunk, each one
+identified by a marker taken from the module's own DATA (identifiers are
+mangled and module paths disappear; data survives):
+
+  226.3 KB  Next/React runtime          39.1 KB  react-icons base
+  170.4 KB  home-i18n + nav-i18n +      36.5 KB  QRDesignStudio
+            qr-tools-meta + world-map   31.2 KB  Next internals
+  134.5 KB  react-dom                   22.0 KB  react-icons/si
+  110.0 KB  legacy polyfills (noModule) 13.9 KB  downloader-platforms
+   53.5 KB  Next router                 rest     < 14 KB each
+   53.2 KB  nav + tool labels
+   43.0 KB  Next internals
+
+INSTRUMENT DEFECT 1, and it has been inflating every number this mission
+recorded: measure-eager-bundle.mjs counted the 110.0 KB bundle Next serves with
+`noModule` — the legacy build, which no module-capable browser ever fetches. The
+homepage's real eager set is 859.9 KB, not 969.8; /qr-tools/url is 680.1, not
+790.0. Every DELTA the mission claims still holds, because the polyfill is a
+constant on both sides of any comparison, but the absolute figures were 110 KB
+too high. It hid behind the camelCase-attribute trap for the FOURTH time in this
+repo (hrefLang, dateTime, the blog-index dates, now this): React SSR emits
+`noModule=""`, so a case-sensitive grep for `nomodule` finds nothing. The tag
+match is case-insensitive now and legacy scripts are reported separately.
+
+THE TARGET. QRDesignStudio was eager on the homepage AND on all 40 /qr-tools/*
+routes — app/page.tsx and QRGenerator.tsx both imported it statically — for a
+modal. Both call sites already rendered it as {designOpen && <Studio/>}, so its
+markup was never on the page. Only the bytes were, on the two templates that
+matter most. Its own heavy libraries (qr-code-styling, jsqr, jspdf) were already
+dynamically imported inside it; this was the component itself.
+
+components/QRDesignStudioLoader.tsx fetches it when someone wants it, and two
+things had to be right:
+
+  INTENT, NOT THE CLICK. Deferring a modal behind its own onClick trades bytes
+  for a visible stall and CLAUDE.md says only improve, so the trigger warms on
+  pointerenter/focus — a whole intent ahead of the press, the same trick M138
+  used for the search catalog. The chunk is cached at module scope, so a reopen
+  costs nothing.
+
+  A DYNAMIC IMPORT CAN FAIL where a static one cannot (f212ba2 made the point
+  about ReviewsSection). A dropped chunk is a visible state with a retry, not a
+  dead button, and a rejected load clears `inflight` so the retry can re-fetch.
+
+MEASURED ON PRODUCTION, before and after:
+
+  /              859.9 -> 840.7 KB   18 -> 17 eager scripts
+  /qr-tools/url  680.1 -> 661.0 KB   17 -> 17 eager scripts
+
+and the "Classy R." marker went YES -> no on both. Note the arithmetic, because
+the headline number is NOT the chunk size: the studio's own 36.5 KB chunk left
+the eager set entirely, but Turbopack rebalanced — the downloader-platforms
+chunk went 13.9 -> 31.2 KB, absorbing ~17.3 KB of code the studio had been
+co-located with and which the page genuinely shares (the react-icons subset and
+lib/save-file). Net -19.2 KB per homepage view and -19.1 KB on all 40 QR tool
+routes. Predicting 36.5 and reporting 19.2 is the difference between the chunk
+list and the diff.
+
+THE BUG THE FIRST PROBE COULD NOT SEE. QRDesignStudioLoader initialised its
+state as useState(cached). A component IS a function, and React treats a
+function initial value as a lazy INITIALIZER and calls it — so once the chunk
+was cached at module scope, reopening the studio invoked QRDesignStudio outside
+of rendering and threw. The FIRST open is unaffected, because the cache is still
+empty there. It shipped, it was live, and it was caught on production only after
+the probe was extended to close and reopen: /qr-tools/url reported open ok (3/3
+markers, 12 canvases, 2 colour inputs) and reopen FAILED in the same line.
+The general form is worth keeping: a probe that exercises a cached path once
+exercises only the uncached branch of it.
+
+INSTRUMENT DEFECT 2, in the probe, and it is the same shape as the code it
+measures. Its warm check stopped polling at the FIRST new script and then
+inspected only that one, so a prefetch landing first would report the studio
+chunk as missing on a build warming perfectly. It polls until the studio chunk
+itself appears now, checking each new script exactly once.
+
+A11Y DEFECT found by writing the probe. Its first revision selected the modal as
+querySelector('[role="dialog"]') and got the COOKIE BANNER, which carries that
+role on every page in the site — so it reported the studio as opening-but-empty
+on a build where the studio was a plain static import that worked fine. A
+generic role selector on a page with more than one dialog is not a selector for
+anything. Chasing it turned up why there was no studio dialog to find:
+QRDesignStudio is a full-screen modal with no role, no aria-modal and no
+accessible name, so a screen reader was never told it opened. Three attributes
+fix the announcement, taken here rather than deferred because M155 introduced
+the inconsistency — the loader placeholder announces itself as a dialog. The
+rest (focus trap, Escape, focus restoration) is a real gap, logged as its own
+backlog item across every modal in the site rather than smuggled in here.
+
+Guards: npm run test:layout, 17 assertions, 7 mutations verified. Two of the new
+assertions were written too loose and BOTH survived their first mutation, in the
+two classic shapes — `/\.catch\(/` matched warmDesignStudio's own swallow-catch
+on a file whose load path had lost its rejection handler (a marker that is not
+unique to the thing asserted, the M138 "onAuthStateChange" error), and
+`/setAttempt/` matched `setAttemptX`, the substring trap, in a guard whose whole
+job is to notice a rename. They assert the state a failure must produce now,
+with word boundaries.
+
+npm run probe:studio is the other half, and it cost four wrong instruments to
+get right — worth recording because each one reported a WORKING build as broken,
+which is the expensive direction for a guard to fail in. The deferral itself was
+verified and unchanged the whole time.
+
+  1. It dispatched new PointerEvent("pointerenter") on the button. React derives
+     onPointerEnter from the BUBBLING pointerover/pointerout pair at the root and
+     never listens for pointerenter, so the handler was never called. Dispatching
+     the event a component "has" is not the same as producing the event a browser
+     produces. It is a real CDP mouse move now.
+  2. It diffed loaded scripts against a pre-hover snapshot. Next prefetches ~25
+     route chunks while you hover the homepage and the studio's chunk kept
+     falling outside whatever window the diff caught. The question that matters
+     has no race in it — is the chunk loaded BEFORE the click? — and needs no
+     baseline, since measure-eager-bundle separately proves it is not eager.
+  3. It read the chunks with in-page fetch(), which competed with the page for
+     connections and ran out of budget after 13 of 25. Node fetches them in
+     parallel now, with a verdict cache that outlives the page.
+  4. Even fixed, the homepage passed one run in three while /qr-tools/url passed
+     every time. The homepage's QR card LEVITATES (.qx-float-stage is a
+     continuous transform), so a centre measured at one instant has drifted by
+     the time CDP dispatches the move milliseconds later: the pointer landed
+     beside the button, no crossing occurred, no warm. It asks the browser's own
+     question now — trigger.matches(":hover") — and re-aims until the pointer is
+     really on it.
+
+Three consecutive runs green on both URLs after that: warm 500 ms, open 250 ms,
+reopen ok, zero page errors, 3/3 studio markers, live canvas and colour inputs.
+The general lesson, which is the same one three tranches of this mission have
+now paid for: wait for the condition, not the clock, and prefer the question
+that has no race in it over the one that needs a baseline.
+
+Live verification: / and /qr-tools/url and /qr-tools/wifi all 200,
+/qr-tools/url self-canonical, homepage title intact, sitemap unchanged at 814 so
+no IndexNow submission.
+
+Files: components/QRDesignStudioLoader.tsx (new),
+scripts/probe-design-studio.mjs (new), app/page.tsx, components/QRGenerator.tsx,
+components/QRDesignStudio.tsx, scripts/test-eager-layout.mjs,
+scripts/measure-eager-bundle.mjs, package.json.
+Commits 2be221f, bedf9da, 0e59099, 5e60a2e on design-v2.

@@ -679,7 +679,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   defer-on-intent, the M138/M139 shape. Its own heavy libs (qr-code-styling,
   jsqr, jspdf) are already dynamically imported inside it; the 36.5 KB is the
   component itself.
-  SHIPPED (2be221f loader + guard + instrument, bedf9da probe + a11y). The
+  SHIPPED AND VERIFIED LIVE. Measured on production, before and after:
+    /              859.9 -> 840.7 KB   18 -> 17 eager scripts
+    /qr-tools/url  680.1 -> 661.0 KB   17 -> 17 eager scripts
+  and the "Classy R." marker went YES -> no on both. Note the arithmetic,
+  because the headline is NOT the chunk size: the studio's own 36.5 KB chunk
+  left the eager set entirely, but Turbopack rebalanced — the
+  downloader-platforms chunk went 13.9 -> 31.2 KB, absorbing ~17.3 KB of code
+  the studio had been co-located with and which the page genuinely shares (the
+  react-icons subset, lib/save-file). Net -19.2 KB per homepage view and
+  -19.1 KB on all 40 QR tool routes. Predicting 36.5 and reporting 19.2 is the
+  difference between reading the chunk list and reading the diff.
+  Live probe, three consecutive green runs on both URLs: warm 500 ms, open
+  250 ms, reopen ok, 3/3 studio markers, live canvas + colour inputs, zero page
+  errors. / + /qr-tools/url + /qr-tools/wifi all 200, self-canonical, titles
+  intact. Sitemap unchanged at 814, so nothing submitted to IndexNow.
+  (2be221f loader + guard + instrument, bedf9da probe + a11y, 0e59099 the
+  reopen fix, 5e60a2e the probe hardening). The
   studio now arrives through components/QRDesignStudioLoader.tsx, warmed on
   pointerenter/focus of the "Customize Design" button so the click does not
   stall — deferring a modal behind its own onClick would trade bytes for a
@@ -696,6 +712,15 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   `/setAttempt/` matched `setAttemptX`, the substring trap, in a guard whose
   entire job is to notice a rename. Assert the STATE a failure must produce,
   and use word boundaries.
+  THE BUG THE FIRST PROBE COULD NOT SEE, and it shipped: the loader initialised
+  its state as useState(cached). A component IS a function, and React treats a
+  function initial value as a lazy INITIALIZER and calls it — so once the chunk
+  was cached at module scope, REOPENING the studio invoked QRDesignStudio
+  outside of rendering and threw. The first open is unaffected, because the
+  cache is still empty there. It was live for one deploy and was caught on
+  production only after the probe was extended to close and reopen. Keep the
+  general form: a probe that exercises a cached path once exercises only its
+  uncached branch.
   Probe: npm run probe:studio, real headless Chrome on production, because the
   byte measurement cannot tell a working deferral from a dead button — the
   studio's markup was never in the server HTML even before the split, so curl
