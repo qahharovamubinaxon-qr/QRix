@@ -317,11 +317,30 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   changed code: 6 URLs across both families and all three languages, and
   toolAreaHydrated:true / shellStillPresent:false / liveDropzone:1 on EN, RU
   and UZ.
-- [ ] The shell's file input is real and enabled, so a tap before the engine
+- [~] The shell's file input is real and enabled, so a tap before the engine
   chunk lands opens a picker whose selection is then dropped silently when the
   live engine replaces the subtree. Small window, but it is exactly the silent
   failure this repo removes elsewhere. Options: hand the File to the engine on
   mount, or mark the control busy until hydration. Slow phones only.
+  TAKEN Aug 1 (M156). Confirmed against the file first:
+  components/image/ImageToolShell.tsx:107 renders the input with no onChange and
+  no disabled, and ImageEngineRegistry:45 renders that shell for every engine
+  except color:gradient while `!hydrated`. So the window is real and it is
+  exactly one thing wide: the shell is on screen from first paint until the
+  registry's mount effect fires, and during ALL of that time nothing is
+  listening to the control.
+  OPTION (a) — hand the File to the engine on mount — is REJECTED, priced first.
+  The shell's DOM node is discarded when the engine replaces the subtree, so the
+  FileList would have to be captured at hydration into module scope and then
+  read by each engine; there are 15+ engines behind the registry with different
+  props and none takes a File. Until every one of them read it the file would
+  still be dropped, so it is a wide refactor that is not complete until the last
+  engine lands. Not worth it for a window this narrow.
+  OPTION (b) — mark the control busy — is complete on its own and is what the
+  file ALREADY does one layer over: its <noscript> block exists because with JS
+  off "this control genuinely cannot do anything", and its comment says to say
+  so "rather than leaving a file picker that silently swallows a selection".
+  Pre-hydration is the same defect with a shorter clock. Same answer.
 - [x] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
