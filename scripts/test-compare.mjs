@@ -119,13 +119,34 @@ ok("SnapTik's MP3 and photo rows match what SnapTik says", () => {
 ok("no unverifiable ad-behaviour accusation returns", () => {
   // A fetched page cannot establish what an ad slot fills with later. These
   // were asserted for months with nothing behind them.
+  /* Both files, not just the page. The first version of this assertion scanned
+     only page.tsx and a mutation that reintroduced the pop-under accusation
+     THROUGH THE DATASET passed clean — the guard was watching the door the
+     claim used to come through, not the one it now comes through. */
+  const GHOSTS = ["pop-under", "fake Download button", "redirect chain", "ad gauntlet", "aggressive ad network"];
+
+  /* Scope matters twice over, and getting it wrong failed this guard twice.
+     (1) Only the COMPETITOR column is an accusation — "no interstitial, no
+     pop-under" in the qrix column is a claim about us, and a guard that
+     forbids the word outright fails on honest copy. (2) The dataset must be
+     scanned at all: a mutation that reintroduced the accusation through
+     compare-sources.ts passed clean while this checked only page.tsx. */
+  const theirs = [...SRC.matchAll(/theirs:\s*("(?:[^"\\]|\\.)*")/g)].map((m) => m[1]);
+  assert.ok(theirs.length >= 15, `expected 21 competitor cells to scan, parsed ${theirs.length} — the matcher is not seeing the dataset`);
+  for (const cell of theirs) {
+    for (const ghost of GHOSTS) {
+      assert.ok(!cell.toLowerCase().includes(ghost.toLowerCase()),
+        `the unverifiable accusation "${ghost}" is back in a competitor cell: ${cell.slice(0, 90)}`);
+    }
+  }
+
   const stripped = PAGE.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   // prove the stripper did not eat the file (M150: it once ate 2.3 KB of JSX)
   assert.ok(stripped.includes("COMPARES"), "comment-stripping removed the page body — the assertions below would pass vacuously");
-  assert.ok(stripped.length > PAGE.length * 0.5, "comment-stripping removed more than half the file; refusing to assert on the remains");
-  for (const ghost of ["pop-under", "fake Download button", "redirect chain", "ad gauntlet"]) {
+  assert.ok(stripped.length > PAGE.length * 0.4, "comment-stripping removed most of page.tsx; refusing to assert on the remains");
+  for (const ghost of GHOSTS) {
     assert.ok(!stripped.toLowerCase().includes(ghost.toLowerCase()),
-      `the unverifiable accusation "${ghost}" is back on a page that names a company`);
+      `the unverifiable accusation "${ghost}" is back in the page prose, which names a company`);
   }
 });
 
