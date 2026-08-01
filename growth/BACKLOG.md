@@ -20,7 +20,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 ## NOW (this week)
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
-- [ ] The FOURTH English-only client tool, and it is eight tools wide. Found by
+- [~] The FOURTH English-only client tool, and it is eight tools wide. Found by
   the post-M149 sweep, evidence recorded before anyone starts:
   components/LocalizedToolEngine.tsx renders eight clients — PdfToWordClient,
   MergePdfClient, CompressPdfClient, JpgToPdfClient, PdfToJpgClient,
