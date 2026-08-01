@@ -679,6 +679,38 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   defer-on-intent, the M138/M139 shape. Its own heavy libs (qr-code-styling,
   jsqr, jspdf) are already dynamically imported inside it; the 36.5 KB is the
   component itself.
+  SHIPPED (2be221f loader + guard + instrument, bedf9da probe + a11y). The
+  studio now arrives through components/QRDesignStudioLoader.tsx, warmed on
+  pointerenter/focus of the "Customize Design" button so the click does not
+  stall — deferring a modal behind its own onClick would trade bytes for a
+  visible pause, and CLAUDE.md says only improve. The chunk is cached at module
+  scope, so reopening is free, and a rejected fetch is a visible state with a
+  retry rather than a dead button (f212ba2's point: a dynamic import can fail
+  where a static one cannot).
+  Guard: npm run test:layout, now 17 assertions, 7 mutations verified. TWO of
+  the new assertions were written too loose and BOTH survived their first
+  mutation, which is worth recording because they are the two classic shapes:
+  `/\.catch\(/` matched warmDesignStudio's own swallow-catch on a file whose
+  load path had lost its rejection handler (the marker was not unique to the
+  thing being asserted — the same error as M138's "onAuthStateChange"), and
+  `/setAttempt/` matched `setAttemptX`, the substring trap, in a guard whose
+  entire job is to notice a rename. Assert the STATE a failure must produce,
+  and use word boundaries.
+  Probe: npm run probe:studio, real headless Chrome on production, because the
+  byte measurement cannot tell a working deferral from a dead button — the
+  studio's markup was never in the server HTML even before the split, so curl
+  sees a byte-identical page. It asserts the chunk is absent on load, that
+  hovering fetches it, that the chunk which arrives really is the studio (it is
+  re-fetched and checked for the studio's own data markers), and that the modal
+  then renders a live canvas and a colour input with zero page errors.
+  A11Y DEFECT found by writing that probe, and fixed in the same pass because
+  M155 introduced the inconsistency: QRDesignStudio is a full-screen modal that
+  carried NO role, NO aria-modal and NO accessible name, so a screen reader was
+  never told it opened — while the new loader placeholder announces itself as a
+  dialog. Three attributes on the studio root close that. Found because the
+  probe's first `[role="dialog"]` selector matched the COOKIE BANNER, which
+  carries the role on every page: a generic role selector on a page with more
+  than one dialog is not a selector for anything.
   next after this: the honest next lever is the HOMEPAGE SPLIT (app/page.tsx is one giant
   "use client" component, ~800 lines of imports at the top), which the note below
   already calls the biggest single CWV item left and a mission of its own. Take
@@ -784,6 +816,26 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   <sha>/status` answers it, and the Vercel MCP works with projectId "q-rix" +
   teamId team_Ymbc9KJNvDDWkr2X0FzvzoSE (list_projects returns empty; go
   straight to list_deployments).
+- [ ] Modal a11y beyond the announcement, and QRDesignStudio is only the case
+  that surfaced. M155 gave it role/aria-modal/aria-label because it introduced
+  the inconsistency, and deliberately stopped there rather than widen a CWV
+  mission: the studio still has NO focus trap, NO Escape-to-close and does not
+  restore focus to the "Customize Design" button when it closes, so a keyboard
+  user who opens it is left tabbing through the page behind it. Check the other
+  modals in the same pass before writing anything — CommandSearch (has the role,
+  unknown on the rest), the DashboardClient menu, and any dialog CookieConsent
+  siblings — because a shared useModal hook is almost certainly the right answer
+  and three one-off fixes is the wrong one. Cheap, no measurement needed, and it
+  serves P0's "everything honest" as much as E-E-A-T does.
+- [ ] Re-audit which OTHER click-gated components ship eagerly. M155's finding
+  was not that QRDesignStudio is special — it is that a modal rendered as
+  {open && <X/>} looks perfectly deferred and is not, and nothing in the type
+  system or a Lighthouse score says so. The attribution method is now cheap
+  (scripts/measure-eager-bundle.mjs + a marker out of the module's own data),
+  so sweep the tool templates for the same shape: anything behind a boolean that
+  only a click can flip. Start from the PDF/image tool clients, which are the
+  other 46 routes. Do NOT defer anything a crawler must see — M139's rule holds:
+  defer on INTENT, inline on PAINT.
 - [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
