@@ -59,12 +59,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   had reached the top of NOW while being unactionable, and an unactionable item
   at the top makes every session step over it to reach real work.
   UNBLOCKS the moment `npm run kpi` returns rows. Nothing here needs code.
-- [ ] Re-check date on the study. Every row carries the date its source page
+- [~] Re-check date on the study. Every row carries the date its source page
   was read, which is the honest shape, but nothing re-reads them. Cheapest
   useful version: a script that re-fetches the 20 source URLs and flags any
   whose page no longer contains the phrase the verdict rests on — not a
   re-classification, just "row N's evidence moved, go look". Ties into the
   daily VERIFY pass.
+  TAKEN Aug 1 (M153). Scope covers BOTH datasets, as M152's follow-up asked:
+  lib/qr-generator-study.ts (20 vendors) and lib/compare-sources.ts (3).
+  The blocker to solve first is that neither dataset stores anything a machine
+  can re-check: `note` is PROSE, a paraphrase of what the page said, so there
+  is no string to search for. So the dataset gains an `evidence` marker per
+  source — a literal substring that must still appear in the vendor's RAW
+  markup for the reading to hold — and the script re-fetches and reports which
+  markers vanished. Markers must be found by actually reading each live page
+  (M148/M152 rule: raw markup, never tag-stripped), never invented, or the
+  checker ships pre-broken.
+  next: fetch all 23 source URLs raw and pick markers.
 - [x] One unmeasured comparative claim on /free-forever.
   TAKEN + SHIPPED Aug 1 (M151 — 9ce8018). The PROMISES card was headed "Free
   features others charge for" over vector SVG, bulk CSV, a design studio and 15
