@@ -100,12 +100,29 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   proves every source can be re-checked; it cannot prove a verdict matches its
   evidence. Reverting Unitag's scanCap to `ok` today would pass every test —
   only a human re-reading the page catches that, which is what this pass was.
-- [ ] Wire `npm run recheck:sources` into the daily VERIFY pass (the item above
+- [~] Wire `npm run recheck:sources` into the daily VERIFY pass (the item above
   always intended it; it is a one-line addition to the verify routine, but the
   routine lives in the scheduled-task file, which is the owner's). Cheap
   interim: run it whenever a session touches either dataset, and at minimum
   weekly — 24 fetches, well under a minute. It exits 1 on any moved marker, so
   it can be chained directly.
+  TAKEN Aug 1 (M154). Scoped first, and the finding reframes the item: there is
+  NO in-repo verify routine to wire into. `ls scripts/ | grep verify` returns
+  nothing — the daily pass is a hand-run checklist in the owner's task file,
+  re-executed from prose by each session. That is why its rigour visibly varies
+  across DAILY_LOG entries, and it is the shape of the `/p` vs `/p$` trap that
+  once blocked 27 pages: a check nobody can run identically twice.
+  So the actionable half is `npm run verify:daily` — one command doing the four
+  documented checks (10 newest URLs 200 + self-canonical + own non-homepage
+  title, robots.txt serving `Disallow: /p$` and NOT bare `/p`, sitemap count
+  against a stored baseline, IndexNow any delta) and chaining recheck:sources.
+  The owner's file then only has to say "run it", which is a one-line change
+  they can make whenever.
+  Two scoping decisions made up front: the "10 newest URLs" come from sitemap
+  lastmod, not a hand-kept list, because a hand-kept list is the thing that
+  goes stale; and the sitemap baseline lives in a committed JSON file so
+  "sane vs yesterday" is machine-checkable rather than a session's memory.
+  next: build scripts/daily-verify.mjs.
 - [x] One unmeasured comparative claim on /free-forever.
   TAKEN + SHIPPED Aug 1 (M151 — 9ce8018). The PROMISES card was headed "Free
   features others charge for" over vector SVG, bulk CSV, a design studio and 15
