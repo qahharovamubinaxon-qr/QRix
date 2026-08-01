@@ -57,13 +57,48 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   whose page no longer contains the phrase the verdict rests on — not a
   re-classification, just "row N's evidence moved, go look". Ties into the
   daily VERIFY pass.
-- [~] TAKEN Aug 1 (M151). One unmeasured comparative claim survives on /free-forever. The table
-  rows are now all derived from the dataset, but the PROMISES card at line 26
-  is still headed "Free features others charge for" and lists vector SVG, bulk
-  CSV, a design studio and 15 languages. The study measured only the first of
-  those (5 of 20 paywall vector); the other three assert something about
-  competitors that nobody checked. Either measure them or narrow the card's
-  heading to the one that is backed. Same family as the M148 fix, much smaller.
+- [x] One unmeasured comparative claim on /free-forever.
+  TAKEN + SHIPPED Aug 1 (M151 — 9ce8018). The PROMISES card was headed "Free
+  features others charge for" over vector SVG, bulk CSV, a design studio and 15
+  languages; the study measured exactly ONE of those four against other vendors.
+  Narrowed rather than measured: the three unmeasured questions are much fuzzier
+  than the study's six ("a design studio" has no yes/no reading), so a 20-vendor
+  re-sweep would have produced softer claims than the ones it replaced.
+  The comparative clause now reads COUNTS; the rest are stated as claims about
+  QRix alone, each verified in the repo first — SVG export exists in
+  QRGenerator + QRDesignStudio, /bulk-qr takes CSV/TXT with no auth gate,
+  QRDesignStudio.tsx is the studio.
+  FOUND WHILE SCOPING, and it is the sharper half: "15 languages" was also
+  overstated. SITE_LANGS is exactly 15 and TopNav + the homepage really render
+  all 15 (NAV_I18N 12 + en/ru/uz base), but tool UI copy is EN/RU/UZ only
+  (M149/M150) — so the claim is now read from SITE_LANGS.length AND scoped to
+  "navigation". A reader in Japanese gets Japanese nav and an English tool.
+  Guard: npm run test:study, 19 assertions, 5 mutations verified. It asserts on
+  the CARDS specifically, because the table was cleaned by M148 while the same
+  defect sat one screen higher — and it proves the comment-stripper did not eat
+  the array before asserting anything, since M150 shipped a stripper that did.
+- [ ] /compare/[slug] is the same defect on a bigger surface, and it names
+  companies. Found while scoping M151. app/compare/[slug]/page.tsx holds THREE
+  pages — qrix-vs-ilovepdf, qrix-vs-tinywow, qrix-vs-snaptik — each with a
+  7-row head-to-head table, a verdict and FAQs, all typed by hand and none
+  citing a source page. 21 comparative cells in total. The unsourced ones that
+  matter: competitor PRICES ("Premium from ~$4/month", "~$6/month", each a
+  number that dates the moment the vendor changes it), quality verdicts about
+  their products ("Basic generator", "Limited", "Excellent — the industry
+  benchmark"), and behaviour claims ("Server-side processing", "Yes on free
+  tier"). Same shape as the /free-forever table before M148.
+  CHECKED BEFORE WRITING THIS, because three audit findings were misstated in
+  recent sessions: the iLovePDF FAQ line "verified side-by-side against
+  iLovePDF output on real documents" is NOT a fabrication — progress.md M96
+  records exactly that comparison, dissecting both DOCX outputs and rendering
+  them through Word. It is backed but uncited, which is a citation job, not a
+  retraction. Do not delete it.
+  Scope options, cheapest first: (a) add the vendor's own pricing/FAQ page as a
+  per-row source with a `checked` date, the shape lib/qr-generator-study.ts
+  already proves; (b) narrow each row to what the vendor states about itself and
+  drop the adjectives; (c) fold these three vendors into the study dataset.
+  The M148 method note applies in full — a claim about a named third party may
+  not rest on flattened HTML; parse it, or read the raw node.
 - [x] Publish the "we tested 20 free QR generators" methodology page and link
   it from /free-forever (which cites it unsourced — its boldest claim).
   TAKEN + SHIPPED Jul 30 (M148, fed07d1) as /free-qr-code-generator-comparison.

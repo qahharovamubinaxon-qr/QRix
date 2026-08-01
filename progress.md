@@ -1755,3 +1755,50 @@ PdfToJpgClient,PdfToTextClient,RemoveBgClient,ImageUpscaleClient,
 ImageToTextClient,PdfToWordClient}.tsx, scripts/test-tool-ui-i18n.mjs (new),
 scripts/probe-tool-i18n.mjs (new), package.json.
 Commits 4275c22, 11d1551, d68e76a, c9bba0c on design-v2.
+
+## M151 — the last unmeasured comparative claim on /free-forever (2026-08-01)
+
+M148 rebuilt the /free-forever comparison table so every "others" cell is a
+count derived from lib/qr-generator-study.ts. It missed the PROMISES card one
+screen higher, which was headed "Free features others charge for" over vector
+SVG, bulk CSV, a design studio and 15 languages. The study measured exactly ONE
+of those four against other vendors. The other three asserted something about
+competitors that nobody had checked — the same defect, in the same page, in a
+component the earlier pass did not look at.
+
+Narrowed rather than measured, deliberately. Re-sweeping 20 vendors for three
+more questions would have produced softer claims than the ones it replaced:
+"has a design studio" has no yes/no reading the way "is vector free?" does, and
+a comparison page that grades competitors on a fuzzy question is worth less
+than one that declines to. So the comparative clause is now the measured one
+and reads COUNTS.vectorPaywalled/COUNTS.total, and everything else on the card
+is stated as a claim about QRix alone.
+
+Each self-claim was verified in the repo before being kept: SVG export exists
+in both QRGenerator (XMLSerializer over a hidden QRCodeSVG) and QRDesignStudio
+(getRawData("svg")), /bulk-qr accepts CSV/TXT and returns a ZIP with no auth
+gate, and QRDesignStudio.tsx is the studio.
+
+THE SHARPER HALF was found while checking the easy part. "15 languages" was
+also overstated. SITE_LANGS has exactly 15 entries and TopNav plus the homepage
+really do render all 15 (NAV_I18N covers 12, en/ru/uz are the base), but tool
+UI copy is EN/RU/UZ only — which is precisely what M149 and M150 spent two
+missions establishing. A reader who switches to Japanese gets Japanese
+navigation and an English tool. The claim is now read from SITE_LANGS.length,
+so JSX and data cannot drift apart, and scoped to "navigation in N languages".
+
+Guard: npm run test:study, 19 assertions, 5 mutations verified. It asserts on
+the CARDS specifically — a card may make a comparative claim only if it reads
+COUNTS, the old heading cannot return, and the language count may not be typed.
+Before any of that it counts the cards, because M150 shipped a comment-stripper
+that ate 2.3 KB of JSX and every assertion behind it passed vacuously.
+
+Follow-up written into BACKLOG, larger than this was: /compare/[slug] holds
+three head-to-head pages against named vendors (iLovePDF, TinyWow, SnapTik),
+21 hand-typed comparative cells including competitor prices, with no source
+cited anywhere. Checked before filing it — the "verified side-by-side against
+iLovePDF output" FAQ line is NOT a fabrication, M96 records that exact
+comparison. It needs a citation, not a retraction.
+
+Files: app/free-forever/page.tsx, scripts/test-generator-study.mjs.
+Commit 9ce8018 on design-v2.
