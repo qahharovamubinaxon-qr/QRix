@@ -1912,3 +1912,41 @@ Files: lib/qr-generator-study.ts, lib/compare-sources.ts,
 scripts/recheck-sources.mjs (new), scripts/test-recheck.mjs (new),
 scripts/test-compare.mjs, package.json.
 Commits b1865f7, 675e3b4 on design-v2.
+
+## M154 — the daily verify pass is a command now, not a checklist
+
+The pass was prose in the growth routine, re-executed from memory by every
+session, which is why its rigour visibly varies across DAILY_LOG. It is also
+the shape of the defect it exists to catch: robots.txt once served a bare
+`Disallow: /p` instead of `/p$` and blocked 27 pages, because "check robots is
+still right" is an intention, not a check.
+
+npm run verify:daily does the four documented checks — recently-shipped URLs
+200 + self-canonical + their own non-homepage title, the anchored robots rule,
+the sitemap against a committed snapshot (growth/verify-baseline.json), and the
+24 cited vendor pages via recheck:sources — and submits any sitemap delta to
+IndexNow. First run green: 814 URLs, 76 dated, 10 spot-checked, 50 markers.
+
+Correction to the plan, found while building: only 76 of 814 URLs carry a
+lastmod, and undefined sorts first under localeCompare, so newest-by-lastmod
+alone would have spot-checked twelve arbitrary /use/* pages. The target set is
+newest-by-lastmod UNION everything new since the snapshot.
+
+The design point worth reusing: two rules live in scripts/verify-rules.mjs,
+pure and separately tested, BECAUSE PRODUCTION IS HEALTHY — running the real
+pass only ever exercises the happy path and cannot distinguish a working rule
+from a broken one. The robots rule proves it: the bad value is a strict prefix
+of the good one, so `body.includes("Disallow: /p")` is true on both files and
+would have called the outage healthy. test:verify feeds it that exact file.
+
+The baseline updates only on a clean run — one that advances through a
+regression reports a lost page once and then calls it normal.
+
+Guard: npm run test:verify, 14 assertions, 8 mutations verified. One assertion
+was over-strict on its first run and failed on the runner's own success
+message — a guard tripping over prose about itself, the M150 comment-stripper
+lesson from a new direction; it now matches the logic, not the words.
+
+Files: scripts/daily-verify.mjs (new), scripts/verify-rules.mjs (new),
+scripts/test-verify.mjs (new), growth/verify-baseline.json (new), package.json.
+Commit bf09a43 on design-v2.

@@ -100,7 +100,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   proves every source can be re-checked; it cannot prove a verdict matches its
   evidence. Reverting Unitag's scanCap to `ok` today would pass every test —
   only a human re-reading the page catches that, which is what this pass was.
-- [~] Wire `npm run recheck:sources` into the daily VERIFY pass (the item above
+- [x] Wire `npm run recheck:sources` into the daily VERIFY pass (the item above
   always intended it; it is a one-line addition to the verify routine, but the
   routine lives in the scheduled-task file, which is the owner's). Cheap
   interim: run it whenever a session touches either dataset, and at minimum
@@ -122,7 +122,39 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   lastmod, not a hand-kept list, because a hand-kept list is the thing that
   goes stale; and the sitemap baseline lives in a committed JSON file so
   "sane vs yesterday" is machine-checkable rather than a session's memory.
-  next: build scripts/daily-verify.mjs.
+  SHIPPED Aug 1 (bf09a43). `npm run verify:daily` — first run green: 814 URLs,
+  76 dated, robots anchored, 10 newest URLs 200 + self-canonical + own title,
+  24 cited vendor sources / 50 markers / 0 moved. growth/verify-baseline.json
+  is the committed snapshot.
+  CORRECTION to the lastmod plan above, found while building: only 76 of 814
+  URLs carry a lastmod (in practice the autopilot blog posts), so newest-by-
+  lastmod ALONE cannot answer "recently shipped" — and `undefined` sorts first
+  under localeCompare, which would have silently spot-checked twelve arbitrary
+  /use/* pages. The target set is now newest-by-lastmod UNION everything new
+  since the snapshot; the second half needs no lastmod and is the honest half.
+  THE DESIGN POINT worth reusing: two rules live in scripts/verify-rules.mjs,
+  pure and separately tested, BECAUSE PRODUCTION IS HEALTHY. Running the real
+  pass only ever exercises the happy path and can never distinguish a working
+  rule from a broken one. The robots rule proves it — the bad value is a strict
+  prefix of the good one, so the obvious `body.includes("Disallow: /p")` is
+  true on BOTH files and would have reported the 27-page outage as healthy.
+  test:verify feeds it that exact file, plus the subtler shape where both lines
+  are present.
+  Guard: npm run test:verify, 14 assertions, 8 mutations verified. One of its
+  own assertions was over-strict on the first run and failed on the runner's
+  SUCCESS MESSAGE — a guard tripping over prose about itself, which is the M150
+  comment-stripper lesson from a new direction; it now matches the logic
+  (`.includes("Disallow:`) rather than the words.
+  REMAINING, and it is the owner's: the routine in the scheduled-task file
+  still describes the pass in prose. One line — "run npm run verify:daily and
+  log its VERIFY line" — replaces the whole checklist. Left as [B] below.
+- [B] OWNER, one line: point the daily VERIFY step in the scheduled-task file
+  at `npm run verify:daily` instead of the prose checklist, and the weekly /
+  dataset-touch source re-read at `npm run recheck:sources` (verify:daily
+  already chains it). Nothing in the repo blocks this — the task file lives
+  outside the repo, which is the only reason this is not already done. Until
+  then sessions should run verify:daily by hand as the first act of each UTC
+  day; it prints the exact "VERIFY: ok|issues" line the log wants.
 - [x] One unmeasured comparative claim on /free-forever.
   TAKEN + SHIPPED Aug 1 (M151 — 9ce8018). The PROMISES card was headed "Free
   features others charge for" over vector SVG, bulk CSV, a design studio and 15
