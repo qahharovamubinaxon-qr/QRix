@@ -20,30 +20,22 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 ## NOW (this week)
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
-- [~] The FOURTH English-only client tool, and it is eight tools wide. Found by
-  the post-M149 sweep, evidence recorded before anyone starts:
-  components/LocalizedToolEngine.tsx renders eight clients — PdfToWordClient,
-  MergePdfClient, CompressPdfClient, JpgToPdfClient, PdfToJpgClient,
-  RemoveBgClient, ImageUpscaleClient, ImageToTextClient — and passes `lang` to
-  none of them. None of the eight accepts one. It is reached from
-  LocalizedToolPage, which is every /ru/[tool] and /uz/[tool] route, so this is
-  the main PDF and image tool surface for the RU and UZ audience — the
-  stickiest audience the site has at ~11 pages/visit.
-  The file's own header comment states the assumption that made this invisible:
-  "the tools are language-agnostic, only the surrounding SEO copy is
-  localized". The first half is false — every one of these clients has English
-  button and status text.
-  ONE TRAP RECORDED SO THE NEXT SESSION DOES NOT REPEAT IT: the eight are all
-  dynamic(ssr:false) here, so their UI is NOT in the server HTML and a curl
-  cannot see the defect or the fix. Use scripts/probe-barcode.mjs's harness
-  (real headless Chrome over CDP) — the same instrument M149 used, and the same
-  one M147 proved is necessary. Also: ImageToTextClient already has a `lang`
-  state, but it is Tesseract's OCR recognition language, not a UI locale. Do
-  not mistake it for the prop being wired.
-  Scope honestly before starting: this is 8 clients, not 1, and M149's single
-  component took a full strings block. Consider doing it per-client with a
-  shared strings module rather than as one commit, and count the real string
-  volume first — the quick grep used to find this undercounts badly.
+- [x] The FOURTH English-only client tool, and it was eight tools wide.
+  TAKEN + SHIPPED Aug 1 (M150 — 4275c22, d68e76a, c9bba0c). All eight clients
+  behind LocalizedToolEngine now take `lang`; strings live in
+  lib/tool-ui-i18n.ts. Verified live: 13/13 URLs via npm run probe:tool-i18n
+  (real headless Chrome over CDP), including an English control page that the
+  change never touched.
+  Guard: npm run test:tool-i18n, 34 assertions. The engine assertion now parses
+  EVERY case in the switch instead of a hand-listed subset, so a ninth client
+  added unwired fails immediately — the subset version is what let this sit
+  through two localization passes.
+  Two sub-defects found while scoping, both fixed: RemoveBgClient used its
+  English colour name as BOTH the accessible name and the download filename
+  suffix (split into an ASCII key + localized label, and the swatches gained a
+  real aria-label); ImageToTextClient's `lang` state was Tesseract's OCR
+  language, renamed ocrLang so it cannot be mistaken for the UI locale again.
+
 - [B] Author/entity E-E-A-T, remaining half: the contact address is still a
   gmail one and there is still no named human with verifiable profiles
   elsewhere. Both are owner calls — see the OWNER-GATED identity entry. The
