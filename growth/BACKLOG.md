@@ -85,28 +85,48 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the CARDS specifically, because the table was cleaned by M148 while the same
   defect sat one screen higher — and it proves the comment-stripper did not eat
   the array before asserting anything, since M150 shipped a stripper that did.
-- [~] TAKEN Aug 1 (M152). /compare/[slug] is the same defect on a bigger
-  surface, and it names companies. Found while scoping M151. app/compare/[slug]/page.tsx holds THREE
-  pages — qrix-vs-ilovepdf, qrix-vs-tinywow, qrix-vs-snaptik — each with a
-  7-row head-to-head table, a verdict and FAQs, all typed by hand and none
-  citing a source page. 21 comparative cells in total. The unsourced ones that
-  matter: competitor PRICES ("Premium from ~$4/month", "~$6/month", each a
-  number that dates the moment the vendor changes it), quality verdicts about
-  their products ("Basic generator", "Limited", "Excellent — the industry
-  benchmark"), and behaviour claims ("Server-side processing", "Yes on free
-  tier"). Same shape as the /free-forever table before M148.
-  CHECKED BEFORE WRITING THIS, because three audit findings were misstated in
-  recent sessions: the iLovePDF FAQ line "verified side-by-side against
-  iLovePDF output on real documents" is NOT a fabrication — progress.md M96
-  records exactly that comparison, dissecting both DOCX outputs and rendering
-  them through Word. It is backed but uncited, which is a citation job, not a
-  retraction. Do not delete it.
-  Scope options, cheapest first: (a) add the vendor's own pricing/FAQ page as a
-  per-row source with a `checked` date, the shape lib/qr-generator-study.ts
-  already proves; (b) narrow each row to what the vendor states about itself and
-  drop the adjectives; (c) fold these three vendors into the study dataset.
-  The M148 method note applies in full — a claim about a named third party may
-  not rest on flattened HTML; parse it, or read the raw node.
+- [x] /compare/[slug] — the competitor column is sourced now.
+  TAKEN + SHIPPED Aug 1 (M152 — f969aeb dataset, 97f7d2f pages, plus a guard
+  fix). Three pages held 21 head-to-head cells about NAMED products with no
+  source and no date. Reading the three vendors' own pages found THREE of them
+  factually wrong — which is the whole argument for sourcing: nobody could tell.
+    iLovePDF  we claimed "Limited tasks/day on free tier". Its pricing page
+              states no daily task cap at all; the limit it does state is file
+              size per task (Merge/Split 100 MB, Compress 200 MB vs 4 GB) and
+              its own Batch processing row reads Unlimited for free and paid
+              alike. The $4-7/month price we quoted was the one thing correct
+              (4 US$/mo annual, 7 US$/mo monthly).
+    TinyWow   we priced ad-free at "~$6/month"; its page lists 20 US$/mo, or
+              15 US$/mo billed yearly. The ~$6 looks like its GBP category
+              plan (£5.99) read as the USD ad-free one. Its page DOES back our
+              ads row — "No advertisements" is the first Premium benefit it
+              sells, next to "Skip all CAPTCHAs".
+    SnapTik   we credited it with MP3 support and downgraded its photo support
+              to "Partial". Its FAQ says the opposite on both: it declines MP3
+              because it "respects the intellectual property rights of the
+              tracks", and it merges photo slideshows into MP4 automatically.
+              Wrong in its favour on one and against it on the other — the
+              signature of cells nobody checked.
+  Also removed: the pop-under / fake-Download-button / ad-gauntlet language.
+  A fetched page cannot establish what an ad slot fills with later, so the page
+  now reports what the markup DOES show (3 script tags, one external host, an
+  ad slot) and says the rest was not measured.
+  Cells the vendor's page does not answer render a "not stated" marker instead
+  of a guess — 8 of the 21. Every vendor carries a source link + read-date.
+  KEPT, after checking: the PDF-to-Word FAQ's side-by-side-against-iLovePDF
+  claim is real (progress.md M96). It was reworded to say it was OUR testing,
+  not an independent benchmark, rather than retracted.
+  Guard: npm run test:compare, 10 assertions, 8 mutations verified. The rule is
+  structural — no hand-typed rows array, dataset coverage per rendered slug,
+  source URL + date per vendor, nofollow outbound. Two holes that mutation
+  testing found and closed: it scanned only page.tsx (so the accusation could
+  return through the dataset), and once it scanned both it failed on honest
+  copy, because "no interstitial, no pop-under" is OUR column saying we have
+  none. Scoped to competitor cells, with a parsed-15+ check so a broken matcher
+  cannot pass by seeing nothing.
+  FOLLOW-UP worth doing: nothing re-reads these vendor pages. Same gap as the
+  study's, and the "Re-check date" item above should cover BOTH datasets when
+  it is taken — lib/qr-generator-study.ts and lib/compare-sources.ts.
 - [x] Publish the "we tested 20 free QR generators" methodology page and link
   it from /free-forever (which cites it unsourced — its boldest claim).
   TAKEN + SHIPPED Jul 30 (M148, fed07d1) as /free-qr-code-generator-comparison.

@@ -1802,3 +1802,70 @@ comparison. It needs a citation, not a retraction.
 
 Files: app/free-forever/page.tsx, scripts/test-generator-study.mjs.
 Commit 9ce8018 on design-v2.
+
+## M152 — the competitor column gets a source, and three cells were wrong (2026-08-01)
+
+/compare/[slug] held three pages — qrix-vs-ilovepdf, qrix-vs-tinywow,
+qrix-vs-snaptik — with 21 head-to-head cells about NAMED products, typed by
+hand, citing nothing and dated nowhere. Same defect M148 removed from
+/free-forever's table and M151 from its promise cards, on the largest surface
+left and the one with the highest stakes, because these are specific
+assertions about identifiable companies.
+
+Reading the three vendors' own pages found three cells factually wrong, which
+is the entire argument for sourcing: with no citation, nobody could tell.
+
+  iLovePDF — we asserted "Limited tasks/day on free tier". Its pricing page
+  states no daily task cap. The free limit it does state is file size per task
+  (Merge/Split 100 MB, Compress 200 MB, against 4 GB on Premium), and its own
+  Batch processing row reads Unlimited for free and paid alike. The $4–7/month
+  price we quoted was the one thing that held: 4 US$/mo billed annually,
+  7 US$/mo monthly.
+
+  TinyWow — we priced ad-free at "~$6/month". Its page lists 20 US$/month, or
+  15 US$/month billed yearly. The ~$6 looks like its GBP category plan (£5.99)
+  read as the USD ad-free one. Its page does back our ads row, in its own
+  words: "No advertisements" is the first Premium benefit it sells, alongside
+  "Skip all CAPTCHAs" — a sharper fact than the one we had.
+
+  SnapTik — we credited it with "Sound as MP3: Yes" and downgraded its photo
+  support to "Partial". Its FAQ says the opposite on both: it declines MP3
+  because it "respects the intellectual property rights of the tracks", and it
+  merges photo slideshows into MP4 automatically. Wrong in the competitor's
+  favour on one cell and against them on the other — the signature of cells
+  nobody ever checked.
+
+Also removed: "pop-unders, redirect chains and fake Download buttons", asserted
+for months about a named site. A fetched page cannot establish what an ad slot
+fills with later. The page now reports what the markup does show — 3 script
+tags, one external host (Google Tag Manager), an ad slot — and states plainly
+that the rest was not measured. Eight of the 21 cells now render a "not stated"
+marker rather than a guess.
+
+Kept after checking, and it nearly went the other way: the PDF-to-Word FAQ's
+claim of a side-by-side against iLovePDF output is real — M96 records that
+comparison in detail. It was reworded to say it was our own testing rather than
+an independent benchmark, not retracted. After three misstated audit findings
+in recent sessions the reflex had become "assume the unsourced claim is
+invented"; that reflex is itself an instrument and it fails in both directions.
+
+Method: raw markup, not tag-stripped text, per the M148 note. iLovePDF's prices
+only exist in data-pricing attributes and TinyWow's plan list is embedded JSON —
+neither survives flattening, and the ~$6 error is what reading flattened text
+produces.
+
+Guard: npm run test:compare, 10 assertions, 8 mutations verified. Structural
+rather than textual — no hand-typed rows array, dataset coverage for every
+rendered slug, a source URL and read-date per vendor, nofollow outbound. Two
+holes appeared during mutation testing and both were scope errors in the same
+assertion, in opposite directions: it scanned only page.tsx, so reintroducing
+the pop-under claim through the dataset passed clean; and once it scanned both,
+it failed on honest copy, because "no interstitial, no pop-under" is our own
+column saying we have none. Now scoped to competitor cells, asserting it parsed
+15+ of them first so a broken matcher cannot pass by seeing nothing. The
+iLovePDF assertion hit the same shape earlier — it forbade "daily task cap"
+outright and failed on the sentence saying there is no such cap.
+
+Files: lib/compare-sources.ts (new), app/compare/[slug]/page.tsx,
+scripts/test-compare.mjs (new), package.json.
+Commits f969aeb, 97f7d2f on design-v2.
