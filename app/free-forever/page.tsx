@@ -3,6 +3,7 @@ import Link from "next/link";
 import { FiCheck, FiX, FiArrowRight, FiShield, FiSlash, FiZap, FiEye } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL } from "@/lib/seo";
 import { COUNTS, STUDY_DATE } from "@/lib/qr-generator-study";
+import { SITE_LANGS } from "@/lib/lang";
 
 const STUDY_PATH = "/free-qr-code-generator-comparison";
 
@@ -23,7 +24,17 @@ const PROMISES = [
   { icon: <FiShield size={16} />, t: "No watermark, no ads", d: "Clean codes you fully own. We never stamp a logo or inject ads into your scan flow." },
   { icon: <FiCheck size={16} />, t: "No signup, no credit card", d: "Open the tool and go. We never ask for a card 'to start a free trial.'" },
   { icon: <FiEye size={16} />, t: "Private by design", d: "QR and most PDF/image tools run entirely in your browser. The few that use a server — like PDF compress — say so right on their page." },
-  { icon: <FiArrowRight size={16} />, t: "Free features others charge for", d: "Vector SVG export, bulk CSV, a design studio and 15 languages — all free." },
+  /* M151. This card used to be headed "Free features others charge for" and
+     listed vector SVG, bulk CSV, a design studio and 15 languages. The study
+     measured exactly ONE of those against other vendors (vector); the other
+     three asserted something about competitors that nobody had checked — the
+     same defect M148 removed from the table, surviving one card higher up.
+     The comparative clause is now the measured one and reads COUNTS; the rest
+     are stated as what QRix includes, which is a claim about us alone.
+     The language count is deliberately "navigation": SITE_LANGS is 15 and
+     TopNav + the homepage really do render all 15, but tool UI copy is only
+     EN/RU/UZ (M149/M150), so an unqualified "15 languages" would overstate it. */
+  { icon: <FiArrowRight size={16} />, t: "Vector, bulk and studio — free", d: `Print-ready SVG export, bulk CSV generation and the QR design studio cost nothing here, with navigation in ${SITE_LANGS.length} languages. Vector is the one we measured against others: ${COUNTS.vectorPaywalled} of ${COUNTS.total} paywall it.` },
 ];
 
 /* Every "others" cell below is a COUNT out of the 20 generators in

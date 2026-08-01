@@ -194,6 +194,47 @@ ok("/free-forever no longer carries the invented figure, and reads the dataset",
   }
 });
 
+/* M151. The table rows were made COUNTS-derived by M148, but the PROMISES card
+   one screen higher still read "Free features others charge for" over vector
+   SVG, bulk CSV, a design studio and 15 languages — and the study measured
+   exactly ONE of those four against other vendors. So the same defect the
+   table was cleaned of survived in the cards, which is why this asserts on the
+   CARDS specifically rather than on the file as a whole. */
+ok("no PROMISES card claims something about competitors that nothing measured", () => {
+  const stripped = FREE_FOREVER.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  const block = stripped.slice(stripped.indexOf("const PROMISES = ["));
+  const cards = block.slice(0, block.indexOf("\n];"));
+
+  // The stripper ate the array once before (M150: accept="image/*" opened a
+  // block-comment match that ran 2.3 KB). If the cards are gone, every
+  // assertion below passes vacuously, so prove they are still here first.
+  const cardCount = (cards.match(/icon: <Fi/g) || []).length;
+  assert.equal(cardCount, 6, `expected 6 PROMISES cards after comment-stripping, saw ${cardCount} — the stripper ate the array`);
+
+  assert.ok(!/features others charge for/i.test(cards),
+    "the unmeasured 'Free features others charge for' heading is back on the PROMISES card");
+
+  // A card may say what OTHER vendors do only if it reads the dataset.
+  const COMPARATIVE = /\bothers?\b|competitor|\belsewhere\b|paywall|than other|everyone else/i;
+  for (const card of cards.split(/\},\s*\n/)) {
+    if (!card.includes("icon:")) continue;
+    if (!COMPARATIVE.test(card)) continue;
+    assert.ok(card.includes("COUNTS."),
+      `a PROMISES card makes a comparative claim without reading COUNTS: ${card.trim().slice(0, 120)}`);
+  }
+
+  // The language count must come from SITE_LANGS, not be typed — the exact
+  // failure shape M148 removed from the table (a number JSX and the data can
+  // disagree on). It is also scoped to "navigation" on purpose: SITE_LANGS is
+  // 15 and TopNav renders all 15, but tool UI copy is EN/RU/UZ only.
+  assert.ok(!/\b15 languages\b/.test(cards), "the language count is hardcoded instead of read from SITE_LANGS");
+  if (/languages/i.test(cards)) {
+    assert.ok(cards.includes("SITE_LANGS.length"), "a language count on the cards must read SITE_LANGS.length");
+    assert.ok(/navigation in \$\{SITE_LANGS\.length\} languages/.test(cards),
+      "the language claim must stay scoped to navigation — tool UI copy is EN/RU/UZ only");
+  }
+});
+
 ok("the page ships schema, a real tool and the method, not just a table", () => {
   assert.ok(PAGE.includes("breadcrumbLd") && PAGE.includes("faqLd"), "breadcrumb + FAQ schema required");
   assert.ok(PAGE.includes('"@type": "Article"'), "Article schema required");
