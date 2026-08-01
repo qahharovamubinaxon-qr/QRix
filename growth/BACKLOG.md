@@ -646,7 +646,40 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   logo is about all that could move to the server. The note below about labels
   being the constraint was right but understated it — the constraint is the pill
   as much as the labels.
-  next: the honest next lever is the HOMEPAGE SPLIT (app/page.tsx is one giant
+  EIGHTH TRANCHE TAKEN Aug 1 (M155), and it is NOT the homepage split — the
+  split stays next, but attributing the eager set before starting found a
+  cheaper target and an instrument bug, and both are worth taking first.
+  ATTRIBUTION of the homepage's 969.8 KB eager set (chunk by chunk, markers out
+  of each module's own data):
+    226.3 KB  Next/React framework runtime
+    170.4 KB  the site's data modules (home-i18n + nav-i18n + qr-tools-meta +
+              world-map) — HOME_I18N stays, app/page.tsx genuinely uses it
+    134.5 KB  react-dom
+    110.0 KB  legacy polyfills — served `noModule`, SO NO MODERN BROWSER
+              FETCHES IT (see the instrument note below)
+     53.5 KB  Next router · 53.2 nav+tool labels · 43.0 Next internals
+     39.1 KB  react-icons base · 36.5 QRDesignStudio · 31.2 Next internals
+     22.0 KB  react-icons/si · 13.9 downloader-platforms · rest <14 KB
+  THE INSTRUMENT BUG, and it has been inflating every number this item records:
+  scripts/measure-eager-bundle.mjs counted `0cz1d0mv5g_q7.js` (110.0 KB), which
+  the HTML serves with `noModule` — the legacy bundle, which every browser that
+  supports modules skips. So the homepage's real eager set for a real visitor
+  is 859.8 KB, not 969.8, and /qr-tools/url is 680.0, not 790.0. The deltas
+  this item claims are all still correct (the polyfill is a constant on both
+  sides of every comparison); the absolute figures were 110 KB too high.
+  Note HOW it hid: React SSR emits the attribute as `noModule=""`, camelCase,
+  so a case-sensitive grep for `nomodule` finds nothing. That is the FOURTH
+  appearance of the camelCase-attribute trap (hrefLang, dateTime, the blog
+  index dates, now this) — grep -i for HTML attributes, always.
+  THE TARGET: QRDesignStudio is 36.5 KB raw and it is eager on the homepage AND
+  on all 40 /qr-tools/* routes (app/page.tsx:16 and QRGenerator.tsx:6 both
+  import it statically), i.e. on the two templates that matter most. It is a
+  MODAL — `{designOpen && <QRDesignStudio/>}` at both call sites — so the only
+  thing that can ever reach it is a click on "Customize Design". Textbook
+  defer-on-intent, the M138/M139 shape. Its own heavy libs (qr-code-styling,
+  jsqr, jspdf) are already dynamically imported inside it; the 36.5 KB is the
+  component itself.
+  next after this: the honest next lever is the HOMEPAGE SPLIT (app/page.tsx is one giant
   "use client" component, ~800 lines of imports at the top), which the note below
   already calls the biggest single CWV item left and a mission of its own. Take
   that, not TopNav. HOME_I18N stays; app/page.tsx genuinely uses it.
