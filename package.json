@@ -37,7 +37,9 @@
     "probe:tool-i18n": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-tool-i18n.mjs",
     "test:compare": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-compare.mjs",
     "recheck:sources": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/recheck-sources.mjs",
-    "test:recheck": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-recheck.mjs"
+    "test:recheck": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-recheck.mjs",
+    "verify:daily": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/daily-verify.mjs",
+    "test:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-verify.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
