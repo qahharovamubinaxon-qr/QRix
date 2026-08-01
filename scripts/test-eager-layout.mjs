@@ -116,6 +116,59 @@ ok("the latest-posts section does not statically import the post catalog", () =>
   assert.ok(staticallyImports(latest, "home-posts"), "LatestPosts does not read the inlined card list");
 });
 
+/* ---- the QR design studio -------------------------------------------------- */
+/* 36.5 KB raw, and it was eager on the homepage AND on all 40 /qr-tools/* routes,
+ * because app/page.tsx and QRGenerator.tsx both imported it statically. It is a
+ * modal: both call sites already rendered it as {designOpen && <Studio/>}, so the
+ * markup was never on the page and only the bytes were. Nothing about the page
+ * looks wrong when the static import comes back — which is why it is asserted. */
+
+const studioLoader = read("components/QRDesignStudioLoader.tsx");
+
+for (const [label, path] of [["the homepage", "app/page.tsx"], ["the QR tool template", "components/QRGenerator.tsx"]]) {
+  ok(`${label} reaches the design studio through the loader`, () => {
+    const src = read(path);
+    assert.ok(
+      !staticallyImports(src, "components/QRDesignStudio\""),
+      `${path} imports QRDesignStudio directly — 36.5 KB is eager again`,
+    );
+    assert.ok(/QRDesignStudioLoader/.test(src), `${path} does not go through QRDesignStudioLoader`);
+  });
+
+  /* Deferring a modal behind its own onClick trades bytes for a visible stall,
+   * and CLAUDE.md says only improve. The trigger warms on pointerenter/focus. */
+  ok(`${label} warms the studio chunk on intent`, () => {
+    const src = read(path);
+    assert.ok(
+      /\{\.\.\.designStudioTriggerProps\}/.test(src),
+      `the "Customize Design" button in ${path} does not warm the chunk — the click would stall`,
+    );
+  });
+}
+
+ok("the studio loader reaches the studio only through a dynamic import", () => {
+  assert.ok(!staticallyImports(studioLoader, "./QRDesignStudio"), "the loader statically imports the studio — the split does nothing");
+  assert.ok(/import\("\.\/QRDesignStudio"\)/.test(studioLoader), "the loader never loads the studio");
+});
+
+ok("the studio loader stays small enough to be worth it", () => {
+  const bytes = Buffer.byteLength(studioLoader);
+  assert.ok(bytes < 6000, `QRDesignStudioLoader is ${bytes} B — it is becoming the thing it replaced`);
+});
+
+/* A static import cannot fail; a dynamic one can. Deferring introduces a failure
+ * mode that did not exist before, and a dropped chunk must not be a dead button. */
+/* Both of these were written looser on the first pass and BOTH survived their
+ * mutation. `/\.catch\(/` matched warmDesignStudio's own swallow-catch on a file
+ * whose load path had lost its rejection handler, and `/setAttempt/` matched
+ * `setAttemptX` — the substring trap, in a guard whose whole job is to notice a
+ * rename. Assert the state the failure has to produce, and use word boundaries. */
+ok("a failed studio chunk is a visible state, not a dead button", () => {
+  assert.ok(/setFailed\(true\)/.test(studioLoader), "a rejected chunk fetch never becomes state — the modal would hang on 'Opening…'");
+  assert.ok(/inflight = null/.test(studioLoader), "a failed load is cached as in-flight, so retry can never re-fetch");
+  assert.ok(/\bsetAttempt\b/.test(studioLoader), "the failure state offers no retry");
+});
+
 /* ---- and the layout as a whole -------------------------------------------- */
 
 ok("the layout imports no heavy catalog directly", () => {

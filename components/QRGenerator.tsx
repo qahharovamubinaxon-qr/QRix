@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { QRCodeCanvas, QRCodeSVG } from "qrcode.react";
 import { FiDownload, FiChevronDown, FiSliders } from "react-icons/fi";
-import QRDesignStudio from "@/components/QRDesignStudio";
+import QRDesignStudio, { designStudioTriggerProps } from "@/components/QRDesignStudioLoader";
 
 /* ============ Field definitions ============ */
 export type FieldType = "text" | "url" | "tel" | "email" | "number" | "textarea" | "password" | "date" | "datetime-local" | "select";
@@ -102,7 +102,7 @@ export default function QRGenerator({ type }: { type: QrType }) {
             ))}
           </div>
 
-          <button onClick={() => setDesignOpen(true)} className="qx-btn-ghost w-full mt-5">
+          <button onClick={() => setDesignOpen(true)} {...designStudioTriggerProps} className="qx-btn-ghost w-full mt-5">
             <FiSliders size={14} /> Customize Design
           </button>
         </div>

@@ -13,7 +13,7 @@ import CategoryShowcase from "@/components/CategoryShowcase";
 import TrustedBy from "@/components/TrustedBy";
 import HomeFaq from "@/components/HomeFaq";
 import LatestPosts from "@/components/LatestPosts";
-import QRDesignStudio from "@/components/QRDesignStudio";
+import QRDesignStudio, { designStudioTriggerProps } from "@/components/QRDesignStudioLoader";
 import { OrbitIcons } from "@/components/HeroMotion";
 import HeroSearch from "@/components/HeroSearch";
 import EraBunny, { GenBunny } from "@/components/EraBunny";
@@ -641,7 +641,7 @@ export default function HomePage() {
                   </div>
                 )}
               </div>
-              <button onClick={()=>setDesignOpen(true)} className="qx-btn-ghost w-full !py-2.5 text-sm">
+              <button onClick={()=>setDesignOpen(true)} {...designStudioTriggerProps} className="qx-btn-ghost w-full !py-2.5 text-sm">
                 <FiSliders size={13}/> {t.customize}
               </button>
             </div>
