@@ -341,6 +341,18 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   off "this control genuinely cannot do anything", and its comment says to say
   so "rather than leaving a file picker that silently swallows a selection".
   Pre-hydration is the same defect with a shorter clock. Same answer.
+  SHIPPED f5b61d7, pushed to both branches, awaiting the production deploy.
+  The input is disabled with an aria-describedby status line saying why,
+  localized en/ru/uz. Crawler-facing markup unchanged: still input[type=file]
+  with a matching label[for], and `disabled` is not something a crawler weighs.
+  Guard: npm run test:shell, 39 assertions (was 33), 6 mutations verified.
+  next: verify live once the deploy lands — `curl -s https://qrixtools.com/
+  convert/png-to-jpg | grep -o 'id="image-tool-file"[^>]*'` must now contain
+  `disabled`, the same on /ru/convert/png-to-jpg and /uz/resize/1920x1080, and
+  each localized twin must carry its own status string ("Инструмент готовится",
+  "Asbob tayyorlanmoqda") with no English "Preparing the tool" leaking onto
+  them. Pre-deploy baseline, captured for the diff: all three URLs served the
+  input with NO disabled attribute. Then mark [x] and log the DAILY_LOG line.
 - [x] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
