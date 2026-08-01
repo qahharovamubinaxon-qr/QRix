@@ -13,8 +13,9 @@
        content, so it cannot click anything.
 
    So this drives the real button in real headless Chrome and asserts the whole
-   chain: the chunk is NOT fetched on load, hovering the trigger fetches it,
-   clicking opens a studio with its real controls, and nothing throws.
+   chain: a real mouse move onto the trigger loads the studio's chunk BEFORE any
+   click, clicking opens a studio with its real controls, closing and reopening
+   works (a different code path, and the one that broke), and nothing throws.
 
      node scripts/probe-design-studio.mjs                    (default URLs)
      node scripts/probe-design-studio.mjs <url> [<url> ...]  */
@@ -83,6 +84,86 @@ function connect(url) {
 const browser = connect(wsUrl);
 await browser.ready;
 
+/* Phase 1: find the trigger and hand its screen position back, so the hover can
+   be a REAL mouse move driven over CDP rather than a synthetic event.
+   That distinction is the whole reason this is split in two. The first version
+   dispatched `new PointerEvent("pointerenter")` on the element and reported the
+   warm path as dead on a build where it works: React derives onPointerEnter from
+   the BUBBLING pointerover/pointerout pair at the root and never listens for
+   pointerenter itself, so the handler was never called. Dispatching the event a
+   component "has" is not the same as producing the event a browser produces —
+   and only the second one tests what a visitor gets. */
+const findProbe = `(async () => {
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const fiberKey = n => n && Object.keys(n).find(k => k.startsWith("__reactFiber"));
+  const fold = s => (s || "").replace(/\\s+/g, " ").trim().toLowerCase();
+
+  for (let i = 0; i < 60 && (document.readyState === "loading" || !document.body); i++) await sleep(250);
+
+  const findTrigger = () => [...document.querySelectorAll("button")]
+    .find(b => fold(b.innerText).includes("customize design"));
+
+  let trigger = null, waited = 0;
+  for (;;) {
+    trigger = findTrigger();
+    if ((trigger && fiberKey(trigger)) || waited >= 25000) break;
+    await sleep(500); waited += 500;
+  }
+  if (!trigger) return JSON.stringify({ error: "no 'Customize Design' button found" });
+  if (!fiberKey(trigger)) return JSON.stringify({ error: "the trigger never hydrated" });
+
+  /* If anything covers the button, a real pointer never reaches it and the warm
+     dies silently — the probe would report "the warm path is dead" and be right
+     without saying why. Hit-test so the report names the cause. The homepage
+     runs a full-screen cursor-glow canvas and a dot background, either of which
+     could grow a pointer-events:auto by accident.
+
+     POLL it, and re-scroll each round. A single scrollIntoView + fixed settle
+     read elementFromPoint as null on the homepage roughly one run in three: the
+     page keeps animating after the scroll (MotionLayer, the scroll-scrubbed
+     scenes), the rect drifts back out of the viewport, and elementFromPoint
+     returns null for a point outside it — which is indistinguishable from
+     "covered" unless you look. Waiting for the condition instead of the clock
+     is the same fix probe-tool-i18n needed for its own fixed settle. */
+  let r = null, hit = null, covered = true, settle = 0;
+  for (;;) {
+    trigger.scrollIntoView({ block: "center" });
+    await sleep(400);
+    r = trigger.getBoundingClientRect();
+    hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+    covered = !(hit && (hit === trigger || trigger.contains(hit)));
+    if (!covered || settle >= 6000) break;
+    settle += 400;
+  }
+  return JSON.stringify({
+    x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height,
+    covered,
+    coveredBy: !covered ? null
+      : hit ? (hit.tagName + "." + String(hit.className || "").split(" ")[0])
+      : "nothing — the point is outside the viewport, so the button never settled in view",
+  });
+})()`;
+
+/* Between the hover and the warm check: is the pointer REALLY on the button, and
+   where is it now? The homepage's QR card levitates (.qx-float-stage is a
+   continuous transform), so a centre measured at one instant has drifted by the
+   time CDP dispatches the move a few milliseconds later — the pointer lands
+   beside the button, no pointerover fires, and the warm silently never happens.
+   That is what made the homepage pass one run in three while /qr-tools/url,
+   whose card does not move, passed every time. :hover is the browser's own
+   answer to "is the pointer on this element", so ask it and re-aim. */
+const aimProbe = `(() => {
+  const fold = s => (s || "").replace(/\\s+/g, " ").trim().toLowerCase();
+  const t = [...document.querySelectorAll("button")]
+    .find(b => fold(b.innerText).includes("customize design"));
+  if (!t) return JSON.stringify({ error: "the trigger vanished" });
+  const r = t.getBoundingClientRect();
+  return JSON.stringify({
+    hovering: t.matches(":hover"),
+    x: r.left + r.width / 2, y: r.top + r.height / 2,
+  });
+})()`;
+
 const probe = `(async () => {
   const sleep = ms => new Promise(r => setTimeout(r, ms));
   const fiberKey = n => n && Object.keys(n).find(k => k.startsWith("__reactFiber"));
@@ -98,47 +179,35 @@ const probe = `(async () => {
   const findTrigger = () => [...document.querySelectorAll("button")]
     .find(b => fold(b.innerText).includes("customize design"));
 
-  let trigger = null, waited = 0;
-  for (;;) {
-    trigger = findTrigger();
-    if ((trigger && fiberKey(trigger)) || waited >= 25000) break;
-    await sleep(500); waited += 500;
-  }
-  if (!trigger) return JSON.stringify({ error: "no 'Customize Design' button found" });
-  if (!fiberKey(trigger)) return JSON.stringify({ error: "the trigger never hydrated" });
+  const trigger = findTrigger();
+  if (!trigger) return JSON.stringify({ error: "the trigger vanished between phases" });
 
-  const before = scripts();
+  /* The real mouse is already over the button — CDP moved it before this ran.
+     Report EVERY loaded script, not the ones new since a snapshot.
 
-  /* WARM on intent, exactly as a pointer would. The React handler is
-     onPointerEnter, so a pointerenter event is the honest simulation of a hover
-     — dispatching mouseover would test a listener the component does not have
-     and would report a working warm path as broken. */
-  trigger.dispatchEvent(new PointerEvent("pointerenter", { bubbles: false }));
+     Diffing against a pre-hover snapshot is what the previous two revisions did
+     and it races Next's prefetcher, which pulls ~25 route chunks while you hover
+     the homepage: the studio's chunk kept falling outside whatever window the
+     diff happened to catch, so the probe called the warm path dead on a build
+     where a standalone diagnostic proved it fires. The question that actually
+     matters has no race in it — is the studio's chunk loaded BEFORE the click? —
+     and it needs no baseline, because two other instruments already establish
+     the chunk is not there to begin with: measure-eager-bundle shows the marker
+     is absent from the eager set, and the reopen leg here would be meaningless
+     if it were eager. Ask the question that is decidable. */
+  return JSON.stringify({ phase: "warm", warmed: scripts() });
+})()`;
 
-  /* Did the chunk that arrived actually contain the studio? Re-fetch each new
-     script from the page (same-origin, already in the HTTP cache) and look for
-     the markers — that is what separates "some chunk loaded" from "the studio
-     loaded", which the byte measurement cannot answer on its own.
+/* Phase 3: the click, the open, and the reopen. */
+const openProbe = `(async () => {
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const fold = s => (s || "").replace(/\\s+/g, " ").trim().toLowerCase();
+  const MARKERS = ${JSON.stringify(STUDIO_MARKERS)};
 
-     Poll until the STUDIO chunk shows up, not until the first new script does.
-     The first version stopped at the first arrival and then checked only that
-     one, so on a page where a prefetch happened to land first it reported the
-     studio chunk as missing on a build that was warming perfectly. */
-  const checked = new Set();
-  let warmWaited = 0, warmed = [], markersInWarmedChunk = false;
-  for (;;) {
-    warmed = scripts().filter(s => !before.includes(s));
-    for (const s of warmed) {
-      if (checked.has(s)) continue;
-      checked.add(s);
-      try {
-        const body = (await (await fetch(s)).text()).toLowerCase();
-        if (MARKERS.every(m => body.includes(m))) markersInWarmedChunk = true;
-      } catch {}
-    }
-    if (markersInWarmedChunk || warmWaited >= 12000) break;
-    await sleep(250); warmWaited += 250;
-  }
+  const findTrigger = () => [...document.querySelectorAll("button")]
+    .find(b => fold(b.innerText).includes("customize design"));
+  const trigger = findTrigger();
+  if (!trigger) return JSON.stringify({ error: "the trigger vanished between phases" });
 
   trigger.click();
 
@@ -198,10 +267,6 @@ const probe = `(async () => {
     reopened,
     reopenErr,
     viewport: [innerWidth, innerHeight],
-    triggerHydrated: true,
-    warmedScripts: warmed.length,
-    warmMs: warmWaited,
-    markersInWarmedChunk,
     opened: !!dialog,
     /* "Opening the Design Studio…" is the loader's own placeholder. Finding it
        still on screen after the poll means the chunk never resolved. */
@@ -217,6 +282,25 @@ const probe = `(async () => {
   });
 })()`;
 
+/* Does any of these chunks hold the studio? Fetched from Node, in parallel, with
+   a cache that outlives the page — the same chunk is warmed on every URL, so the
+   second page decides for free. */
+const chunkCache = new Map();
+async function holdsStudio(src) {
+  if (chunkCache.has(src)) return chunkCache.get(src);
+  let verdict = false;
+  try {
+    const body = (await (await fetch(src, { headers: { "user-agent": "Mozilla/5.0 QRix-studio-probe" } })).text()).toLowerCase();
+    verdict = STUDIO_MARKERS.every((m) => body.includes(m));
+  } catch { verdict = false; }
+  chunkCache.set(src, verdict);
+  return verdict;
+}
+async function checkWarm(warmed) {
+  const verdicts = await Promise.all(warmed.map(holdsStudio));
+  return verdicts.some(Boolean);
+}
+
 let failures = 0;
 for (const url of urls) {
   const { targetId } = await browser.send("Target.createTarget", { url: "about:blank" });
@@ -228,15 +312,67 @@ for (const url of urls) {
   }, sessionId);
   await browser.send("Page.navigate", { url }, sessionId);
 
-  let out;
-  try {
+  const evaluate = async (expression) => {
     const res = await browser.send("Runtime.evaluate", {
-      expression: probe, awaitPromise: true, returnByValue: true,
+      expression, awaitPromise: true, returnByValue: true,
     }, sessionId);
     if (res.exceptionDetails) {
       throw new Error("page threw: " + (res.exceptionDetails.exception?.description || res.exceptionDetails.text));
     }
-    out = JSON.parse(res.result.value);
+    return JSON.parse(res.result.value);
+  };
+
+  let out;
+  try {
+    const at = await evaluate(findProbe);
+    if (at.error) throw new Error(at.error);
+    if (at.covered) throw new Error(`the trigger is covered by ${at.coveredBy} — a real pointer never reaches it`);
+
+    /* A REAL mouse move, and it has to CROSS the boundary AFTER hydration has
+       attached the handler. A browser only produces pointerover on a crossing,
+       so a pointer parked on the button before React was ready never produces
+       another one and the warm silently never fires. That is not hypothetical:
+       it is what made the homepage — 1880 elements in one "use client" tree, so
+       far slower to hydrate than /qr-tools/url — report a dead warm path while
+       the tool template passed. Approach, leave, settle, approach again.
+       A user hovering a button they can already click is doing the same thing. */
+    const move = (x, y) => browser.send("Input.dispatchMouseEvent", { type: "mouseMoved", x, y, buttons: 0 }, sessionId);
+    const pause = (ms) => new Promise((r) => setTimeout(r, ms));
+    await move(1, 1);
+    await move(at.x, at.y);
+
+    /* Confirm the pointer landed, and chase the button if it moved. Each retry
+       leaves and re-enters so a crossing is actually produced. */
+    let aim = await evaluate(aimProbe);
+    for (let i = 0; i < 12 && !aim.hovering; i++) {
+      await move(1, 1);
+      await pause(120);
+      await move(aim.x, aim.y);
+      await pause(120);
+      aim = await evaluate(aimProbe);
+    }
+    if (!aim.hovering) throw new Error("could not park the pointer on the trigger — it keeps moving");
+
+    /* Poll until the studio's chunk is loaded, up to 15 s, BEFORE any click. A
+       fixed settle is not enough on the homepage: ~1880 elements in one "use
+       client" tree keep the main thread busy for seconds after hydration, so the
+       dynamic import's fetch is queued behind that work. It lands within ~250 ms
+       on /qr-tools/url and takes seconds on the homepage, and a settle tuned on
+       the fast page reported the slow one as dead. Wait for the condition, not
+       the clock — the third time this probe has needed that lesson. */
+    let warm = { warmed: [] }, markersInWarmedChunk = false, warmMs = 0;
+    for (;;) {
+      warm = await evaluate(probe);
+      if (warm.error) throw new Error(warm.error);
+      markersInWarmedChunk = await checkWarm(warm.warmed);
+      if (markersInWarmedChunk || warmMs >= 15000) break;
+      await pause(500); warmMs += 500;
+    }
+
+    const opened = await evaluate(openProbe);
+    if (opened.error) throw new Error(opened.error);
+
+    out = { ...opened, warmedScripts: warm.warmed.length, warmMs, markersInWarmedChunk };
   } catch (e) {
     out = { error: String(e) };
   }
@@ -245,8 +381,8 @@ for (const url of urls) {
   const bad = [];
   if (out.error) bad.push(out.error);
   else {
-    if (!out.warmedScripts) bad.push("hovering the trigger fetched nothing — the warm path is dead");
-    if (!out.markersInWarmedChunk) bad.push("the chunk that arrived on hover is not the studio");
+    if (!out.warmedScripts) bad.push("the page loaded no scripts at all");
+    if (!out.markersInWarmedChunk) bad.push(`the studio chunk was not loaded before the click — the hover did not warm it (${out.warmedScripts} scripts loaded)`);
     if (!out.opened) bad.push("no dialog after the click");
     if (out.stuckOnPlaceholder) bad.push("stuck on the loader placeholder — the chunk never resolved");
     if (out.failedState) bad.push("the loader reported a failed chunk fetch");
