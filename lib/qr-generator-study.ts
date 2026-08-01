@@ -20,6 +20,26 @@
  *
  * A vendor changing its pricing does not make this page wrong — it makes it
  * dated. That is why `checked` is per-vendor and rendered next to every row.
+ *
+ * WHAT THE FIRST RE-CHECK PASS FOUND (M153, 2026-08-01). Every vendor now
+ * carries `evidence`, and picking those markers meant re-opening all twenty
+ * pages. Unitag came back with three wrong cells, all from the same cause: its
+ * "unlimited scans" line belongs to a €12 paid HD offer, and reading it as a
+ * property of every plan is the same flattened-text error that priced TinyWow
+ * at a third of its real cost in M152. Its own FAQ, asked directly, says:
+ *
+ *   "Free QR codes created through the generator will stop working after being
+ *    scanned a hundred times. HD QR codes are valid forever…"
+ *
+ * So we had recorded no scan cap on the vendor with the hardest cap in the
+ * study — wrong in its favour — plus an unanswered expiry question its FAQ
+ * answers outright, and a headline crediting the free tier with the 1200×1200
+ * PNG that is actually the paid download (free is 300 pixels).
+ *
+ * The headline count did not move: Unitag was already among the 13, on its
+ * dynamic-code limit. COUNTS.scanCapped went 6 -> 7, and both pages that quote
+ * it followed, because they read the dataset rather than a typed number — which
+ * is the whole reason M148 built it that way.
  */
 
 export type Verdict = "ok" | "limit" | "na" | "unknown";
@@ -419,7 +439,11 @@ export const VENDORS: Vendor[] = [
     host: "unitag.io",
     sourceUrl: "https://www.unitag.io/qrcode",
     sourceLabel: "QR page FAQ + pricing",
-    checked: D,
+    /* Re-read in full on 2026-08-01, after the first re-check pass; three of
+       its cells were wrong. Deliberately NOT bumped to D — the rest of the
+       sweep is still a 2026-07-30 reading, and a per-row date that quietly
+       tracks the newest edit is worth nothing. */
+    checked: "2026-08-01",
     shape: "platform",
     headline: "The hardest stop in this study, and it is stated plainly: a free Unitag code stops working after a hundred scans.",
     evidence: [
@@ -491,7 +515,10 @@ export const VENDORS: Vendor[] = [
     headline: "Has both a 'Forever Free' plan and a 15-day trial that deactivates your account if you do not add payment details.",
     evidence: [
       "your account will be set inactive after the trial has ended",
-      "Forever Free",
+      /* "Forever Free" alone is two words of marketing that any pricing page
+         could grow; the plan label is only evidence attached to its own card. */
+      'mobile-hide">Forever Free',
+      "Unlimited scans, no expiration date",
     ],
     checks: {
       permanent: LIMIT("Its FAQ states that if payment data is not entered during the trial, the account is set inactive when the trial ends."),
@@ -511,7 +538,7 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "States no scan limit and that static codes do not expire — but every path on the page runs through a signup.",
-    evidence: ["No scan limit", "your QR code will not expire"],
+    evidence: ["<div>No scan limit</div>", "your QR code will not expire"],
     checks: {
       permanent: OK("States a static code will not expire as long as its information is unchanged, and that dynamic codes stay valid when updated."),
       noAccount: LIMIT("Sign in / sign up are the page's primary actions and the generator is presented as an account product."),

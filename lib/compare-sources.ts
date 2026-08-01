@@ -216,7 +216,10 @@ export const COMPARE_SOURCES: Record<string, VendorCompare> = {
         evidence: [
           "respects the intellectual property rights of the tracks",
           "you can download the audio from videos using the Download Audio button",
-          "No Watermark",
+          /* The exact sentence the watermark row quotes back at the reader. A
+             marker that IS the quote is the strongest kind: if it goes, the
+             quotation marks on our page are the thing that broke. */
+          "No watermark, HD quality, works on all devices",
         ],
       },
     ],

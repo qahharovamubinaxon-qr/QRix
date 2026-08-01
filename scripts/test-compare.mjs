@@ -110,9 +110,15 @@ ok("TinyWow's ad-free price is the one its page lists", () => {
 
 ok("SnapTik's MP3 and photo rows match what SnapTik says", () => {
   const b = blockFor("qrix-vs-snaptik");
-  assert.ok(/will not provide MP3|not provide MP3/i.test(b),
+  assert.ok(/No MP3|will not provide/i.test(b),
     "SnapTik's own FAQ declines MP3 — the table must not credit it with MP3 support again");
   assert.ok(/intellectual property rights of the tracks/.test(b), "the MP3 row must carry the vendor's own reason, which is what makes it citable");
+  /* The other half of the same FAQ answer, added in M153. The cell used to stop
+     at the refusal and read as "no audio at all", which is wrong AGAINST the
+     vendor — the mirror of the MP3 error this assertion was written for. The
+     sentence has two clauses and the cell has to carry both. */
+  assert.ok(/Download Audio button/.test(b),
+    "SnapTik's FAQ declines MP3 and then says audio IS downloadable from a video — quoting only the refusal understates what the vendor offers");
   assert.ok(!/"Partial"/.test(b), "the unsourced 'Partial' downgrade of SnapTik's photo support is back");
 });
 
