@@ -2,11 +2,13 @@
 
 import { useState, useRef } from "react";
 import { FiUpload, FiDownload, FiImage, FiZap, FiLoader } from "react-icons/fi";
+import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
 
 const SCALES = [2, 3, 4] as const;
 type Scale = (typeof SCALES)[number];
 
-export default function ImageUpscaleClient() {
+export default function ImageUpscaleClient({ lang = "en" }: { lang?: ToolLang }) {
+  const t = toolUI(lang);
   const [original, setOriginal] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [origDims, setOrigDims] = useState({ w: 0, h: 0 });
@@ -131,8 +133,8 @@ export default function ImageUpscaleClient() {
           ) : (
             <>
               <FiUpload size={28} style={{ color: "var(--primary-bright)" }} />
-              <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>Choose a blurry / small image</span>
-              <span className="text-xs" style={{ color: "var(--text-faint)" }}>JPG, PNG, WebP</span>
+              <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>{t.upscale.chooseBlurry}</span>
+              <span className="text-xs" style={{ color: "var(--text-faint)" }}>{t.common.imgFormats}</span>
             </>
           )}
           <input type="file" accept="image/*" onChange={(e) => handleFile(e.target.files?.[0])} className="hidden" />
@@ -142,12 +144,12 @@ export default function ImageUpscaleClient() {
           <div className="mt-5 space-y-4">
             {origDims.w > 0 && (
               <p className="text-xs" style={{ color: "var(--text-muted)" }}>
-                Original: {origDims.w}×{origDims.h}px → New: {origDims.w * scale}×{origDims.h * scale}px
+                {t.upscale.dims(origDims.w, origDims.h, origDims.w * scale, origDims.h * scale)}
               </p>
             )}
 
             <div>
-              <label className="block text-xs font-bold mb-2" style={{ color: "var(--text)" }}>Upscale factor</label>
+              <label className="block text-xs font-bold mb-2" style={{ color: "var(--text)" }}>{t.upscale.factor}</label>
               <div className="grid grid-cols-3 gap-2">
                 {SCALES.map((s) => (
                   <button key={s} onClick={() => setScale(s)}
@@ -165,20 +167,20 @@ export default function ImageUpscaleClient() {
 
             <label className="flex items-center gap-2 text-xs cursor-pointer" style={{ color: "var(--text-muted)" }}>
               <input type="checkbox" checked={sharpen} onChange={(e) => setSharpen(e.target.checked)} className="accent-violet-500" />
-              Sharpen details (recommended for blurry photos)
+              {t.upscale.sharpen}
             </label>
 
             {sharpen && (
               <div>
                 <label className="block text-xs font-bold mb-2" style={{ color: "var(--text)" }}>
-                  Sharpen strength: {strength}%
+                  {t.upscale.strength(strength)}
                 </label>
                 <input type="range" min={10} max={100} value={strength} onChange={(e) => setStrength(Number(e.target.value))} className="w-full accent-violet-500" />
               </div>
             )}
 
             <button onClick={upscale} disabled={busy} className="qx-btn w-full !py-3.5 disabled:opacity-50">
-              {busy ? <><FiLoader size={15} className="animate-spin" /> Enhancing...</> : <><FiZap size={15} /> Enhance Image</>}
+              {busy ? <><FiLoader size={15} className="animate-spin" /> {t.upscale.enhancing}</> : <><FiZap size={15} /> {t.upscale.enhanceBtn}</>}
             </button>
           </div>
         )}
@@ -187,9 +189,9 @@ export default function ImageUpscaleClient() {
       {/* Ўнг — натижа */}
       <div className="qx-card p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display text-sm font-bold" style={{ color: "var(--text)" }}>Enhanced Result</h3>
+          <h3 className="font-display text-sm font-bold" style={{ color: "var(--text)" }}>{t.upscale.enhancedResult}</h3>
           {result && (
-            <button onClick={download} className="qx-btn-ghost !text-xs !py-1.5"><FiDownload size={12} /> Download</button>
+            <button onClick={download} className="qx-btn-ghost !text-xs !py-1.5"><FiDownload size={12} /> {t.common.download}</button>
           )}
         </div>
         <div className="rounded-2xl min-h-[260px] flex items-center justify-center p-4 overflow-auto"
@@ -199,7 +201,7 @@ export default function ImageUpscaleClient() {
           ) : (
             <div className="text-center" style={{ color: "var(--text-faint)" }}>
               <FiImage size={28} className="mx-auto mb-2" />
-              <p className="text-xs">Enhanced image will appear here</p>
+              <p className="text-xs">{t.upscale.enhancedHere}</p>
             </div>
           )}
         </div>
@@ -207,7 +209,7 @@ export default function ImageUpscaleClient() {
           <div className="mt-4 p-3 rounded-xl text-xs"
             style={{ background: "rgba(52,211,153,.08)", border: "1px solid rgba(52,211,153,.3)" }}>
             <span style={{ color: "var(--success)" }}>
-              ✓ Enhanced to {outDims.w}×{outDims.h}px ({scale}× larger{sharpen ? ", sharpened" : ""})
+              {t.upscale.enhancedTo(outDims.w, outDims.h, scale, sharpen)}
             </span>
           </div>
         )}

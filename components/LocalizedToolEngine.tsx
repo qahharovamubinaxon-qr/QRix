@@ -37,9 +37,9 @@ export default function LocalizedToolEngine({ slug, lang = "en" }: { slug: strin
     case "compress": return <CompressPdfClient lang={lang} />;
     case "jpg-to-pdf": return <JpgToPdfClient lang={lang} />;
     case "pdf-to-jpg": return <PdfToJpgClient lang={lang} />;
-    case "background-remover": return <RemoveBgClient />;
-    case "image-upscaler": return <ImageUpscaleClient />;
-    case "image-to-text": return <ImageToTextClient />;
+    case "background-remover": return <RemoveBgClient lang={lang} />;
+    case "image-upscaler": return <ImageUpscaleClient lang={lang} />;
+    case "image-to-text": return <ImageToTextClient lang={lang} />;
     default: return null;
   }
 }

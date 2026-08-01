@@ -97,6 +97,21 @@ const CLIENTS = [
     section: "pdfToJpg",
     ghosts: ["Convert to JPG (ZIP)", "Converting…", "Each page becomes a high-quality JPG", "Conversion failed: "],
   },
+  {
+    file: "components/RemoveBgClient.tsx",
+    section: "removeBg",
+    ghosts: ["Remove Background", "Background color", "Result will appear here", "Runs locally in your browser", "Loading AI model", "Pick a color, then download", "Choose an image"],
+  },
+  {
+    file: "components/ImageUpscaleClient.tsx",
+    section: "upscale",
+    ghosts: ["Upscale factor", "Enhance Image", "Enhancing", "Enhanced Result", "Enhanced image will appear here", "Sharpen details", "Sharpen strength", "Choose a blurry"],
+  },
+  {
+    file: "components/ImageToTextClient.tsx",
+    section: "imageToText",
+    ghosts: ["Recognition language", "Extract Text", "Extracted Text", "(No text detected)", "Extracted text will appear here", "text will be extracted"],
+  },
 ];
 
 /* Walks the dict so a nested section (compress.levels.low.label) is compared
@@ -201,6 +216,38 @@ for (const { file, section, ghosts } of CLIENTS) {
       `LocalizedToolEngine renders ${comp} without lang — the exact bug M150 fixes`);
   });
 }
+
+ok("the background swatches keep an ASCII key for the filename, and a name in every language", () => {
+  const src = read("components/RemoveBgClient.tsx");
+  const keys = [...src.matchAll(/\{\s*key:\s*"([a-z-]+)"/g)].map((m) => m[1]);
+  assert.ok(keys.length >= 10, `found ${keys.length} swatch keys, expected 10`);
+  // The key is also the download filename suffix — localizing it would put
+  // Cyrillic into a saved file's name, which is why label and key are split.
+  assert.match(src, /"bg-" \+ BG_COLORS\.find\(\(c\) => c\.value === bgColor\)\?\.key/,
+    "the download suffix must come from the ASCII key, never from the localized label");
+  for (const l of LANGS) {
+    for (const k of keys) {
+      const name = T[l].removeBg.colors[k];
+      assert.ok(name, `${l} has no name for swatch "${k}" — it would announce nothing`);
+      assert.ok(!/^#/.test(name), `${l} swatch name "${name}" is a hex value, which is not a name`);
+    }
+  }
+  assert.match(src, /aria-label=\{name\}/, "a swatch button with only a colour has no accessible name without aria-label");
+});
+
+ok("the OCR recognition languages are NOT treated as UI locale", () => {
+  // The trap recorded before this mission started: ImageToTextClient already
+  // had a `lang` state, but it was Tesseract's recognition language. Mistaking
+  // it for the prop is how this tool could look wired while staying English.
+  const src = read("components/ImageToTextClient.tsx");
+  assert.match(src, /const OCR_LANGS/, "the recognition list must be named for what it is, not `LANGS`");
+  assert.match(src, /Tesseract\.recognize\(file, ocrLang/, "recognition must still use the OCR language, not the UI locale");
+  assert.match(src, /const \[ocrLang, setOcrLang\]/, "the OCR state must not be called `lang` — that is the prop's name");
+  // The option labels are endonyms and must stay untranslated.
+  for (const endonym of ['label: "English"', 'label: "Русский"', "label: \"O'zbek\""]) {
+    assert.ok(src.includes(endonym), `the OCR option ${endonym} should stay as written — it names an alphabet, not the UI`);
+  }
+});
 
 ok("the localized page threads lang into the engine", () => {
   assert.match(PAGE, /<LocalizedToolEngine[^>]*lang=\{lang\}/,

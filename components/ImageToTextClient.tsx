@@ -2,18 +2,25 @@
 
 import { useState, useRef } from "react";
 import { FiUpload, FiCopy, FiDownload, FiImage, FiCheck, FiLoader } from "react-icons/fi";
+import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
 
-const LANGS = [
+/* Tesseract's recognition languages. These are endonyms — "Русский" is already
+   Russian — so they are NOT translated; they name the alphabet being read, not
+   the interface. Deliberately kept separate from the `lang` PROP, which is the
+   UI locale: the two were easy to conflate, and the pre-M150 code had only
+   this one, which is why the tool looked localized while its chrome was not. */
+const OCR_LANGS = [
   { code: "eng", label: "English" },
   { code: "rus", label: "Русский" },
   { code: "uzb", label: "O'zbek" },
   { code: "eng+rus", label: "English + Русский" },
 ];
 
-export default function ImageToTextClient() {
+export default function ImageToTextClient({ lang = "en" }: { lang?: ToolLang }) {
+  const t = toolUI(lang);
   const [preview, setPreview] = useState<string | null>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [lang, setLang] = useState("eng+rus");
+  const [ocrLang, setOcrLang] = useState("eng+rus");
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -36,15 +43,15 @@ export default function ImageToTextClient() {
     try {
       // Tesseract.js'ни динамик юклаймиз (фақат керак бўлганда)
       const Tesseract = (await import("tesseract.js")).default;
-      const result = await Tesseract.recognize(file, lang, {
+      const result = await Tesseract.recognize(file, ocrLang, {
         logger: (m: { status: string; progress: number }) => {
           if (m.status === "recognizing text") setProgress(Math.round(m.progress * 100));
         },
       });
-      setText(result.data.text.trim() || "(No text detected)");
+      setText(result.data.text.trim() || t.imageToText.noText);
     } catch (err) {
       console.error(err);
-      setText("Error: could not extract text. Try another image.");
+      setText(t.imageToText.error);
     } finally {
       setBusy(false);
       setProgress(100);
@@ -80,10 +87,10 @@ export default function ImageToTextClient() {
             <>
               <FiUpload size={28} style={{ color: "var(--primary-bright)" }} />
               <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                Choose an image
+                {t.common.chooseImage}
               </span>
               <span className="text-xs" style={{ color: "var(--text-faint)" }}>
-                JPG, PNG, WebP — text will be extracted
+                {t.imageToText.hint}
               </span>
             </>
           )}
@@ -91,11 +98,11 @@ export default function ImageToTextClient() {
         </label>
 
         <div className="mt-5">
-          <label className="block text-xs font-bold mb-2" style={{ color: "var(--text)" }}>
-            Recognition language
+          <label className="block text-xs font-bold mb-2" style={{ color: "var(--text)" }} htmlFor="qx-ocr-lang">
+            {t.imageToText.recogLang}
           </label>
-          <select value={lang} onChange={(e) => setLang(e.target.value)} className="w-full px-4 py-3 text-sm" style={{ color: "var(--text)" }}>
-            {LANGS.map((l) => (
+          <select id="qx-ocr-lang" value={ocrLang} onChange={(e) => setOcrLang(e.target.value)} className="w-full px-4 py-3 text-sm" style={{ color: "var(--text)" }}>
+            {OCR_LANGS.map((l) => (
               <option key={l.code} value={l.code}>{l.label}</option>
             ))}
           </select>
@@ -103,9 +110,9 @@ export default function ImageToTextClient() {
 
         <button onClick={extract} disabled={!file || busy} className="qx-btn w-full mt-5 !py-3.5 disabled:opacity-50">
           {busy ? (
-            <><FiLoader size={15} className="animate-spin" /> Extracting... {progress}%</>
+            <><FiLoader size={15} className="animate-spin" /> {t.imageToText.extracting} {progress}%</>
           ) : (
-            <><FiImage size={15} /> Extract Text</>
+            <><FiImage size={15} /> {t.imageToText.extractBtn}</>
           )}
         </button>
 
@@ -119,11 +126,11 @@ export default function ImageToTextClient() {
       {/* Ўнг — текст */}
       <div className="qx-card p-6 flex flex-col">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-display text-sm font-bold" style={{ color: "var(--text)" }}>Extracted Text</h3>
+          <h3 className="font-display text-sm font-bold" style={{ color: "var(--text)" }}>{t.imageToText.extractedText}</h3>
           {text && (
             <div className="flex gap-2">
               <button onClick={copy} className="qx-btn-ghost !text-xs !py-1.5">
-                {copied ? <><FiCheck size={12} /> Copied</> : <><FiCopy size={12} /> Copy</>}
+                {copied ? <><FiCheck size={12} /> {t.common.copied}</> : <><FiCopy size={12} /> {t.common.copy}</>}
               </button>
               <button onClick={downloadTxt} className="qx-btn-ghost !text-xs !py-1.5">
                 <FiDownload size={12} /> .txt
@@ -134,7 +141,8 @@ export default function ImageToTextClient() {
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Extracted text will appear here. You can edit it before copying."
+          placeholder={t.imageToText.placeholder}
+          aria-label={t.imageToText.extractedText}
           className="flex-1 min-h-[300px] w-full px-4 py-3 text-sm resize-none font-mono"
           style={{ color: "var(--text)" }}
         />
