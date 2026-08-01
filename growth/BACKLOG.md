@@ -45,12 +45,20 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   reach real work. Nothing here is blocked on code. lib/operator.ts holds the
   nulls; filling one propagates to /about, the site-wide Organization schema
   and every byline at once.
-- [ ] Localise the study, or decide not to. /free-qr-code-generator-comparison
+- [B] Localise the study, or decide not to. /free-qr-code-generator-comparison
   is EN-only while /free-forever has RU/UZ readers, and the RU/UZ audience is
   the stickiest we have (11 pages/visit). The dataset is language-independent —
   only the six question labels, the six notes per vendor and the prose need
   translating, and the notes are the expensive part (~130 short strings). Worth
   doing only if the EN page earns impressions first; check GSC before starting.
+  BLOCKED Aug 1 (M151) on the data it asks for. Ran `npm run kpi`: "no
+  service-account key found" — the owner has not yet added the GSC service
+  account as a user on the property, so there is no way to tell whether the EN
+  page earns impressions, and the item's own precondition cannot be evaluated.
+  Escalated [ ] -> [B] for the same reason the E-E-A-T item was on Jul 30: it
+  had reached the top of NOW while being unactionable, and an unactionable item
+  at the top makes every session step over it to reach real work.
+  UNBLOCKS the moment `npm run kpi` returns rows. Nothing here needs code.
 - [ ] Re-check date on the study. Every row carries the date its source page
   was read, which is the honest shape, but nothing re-reads them. Cheapest
   useful version: a script that re-fetches the 20 source URLs and flags any
@@ -77,8 +85,8 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   the CARDS specifically, because the table was cleaned by M148 while the same
   defect sat one screen higher — and it proves the comment-stripper did not eat
   the array before asserting anything, since M150 shipped a stripper that did.
-- [ ] /compare/[slug] is the same defect on a bigger surface, and it names
-  companies. Found while scoping M151. app/compare/[slug]/page.tsx holds THREE
+- [~] TAKEN Aug 1 (M152). /compare/[slug] is the same defect on a bigger
+  surface, and it names companies. Found while scoping M151. app/compare/[slug]/page.tsx holds THREE
   pages — qrix-vs-ilovepdf, qrix-vs-tinywow, qrix-vs-snaptik — each with a
   7-row head-to-head table, a verdict and FAQs, all typed by hand and none
   citing a source page. 21 comparative cells in total. The unsourced ones that
