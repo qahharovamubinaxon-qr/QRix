@@ -112,6 +112,18 @@ const CLIENTS = [
     section: "imageToText",
     ghosts: ["Recognition language", "Extract Text", "Extracted Text", "(No text detected)", "Extracted text will appear here", "text will be extracted"],
   },
+  {
+    file: "components/PdfToWordClient.tsx",
+    section: "pdfToWord",
+    // The header comment legitimately names the two modes in prose, so the
+    // ghosts here are the JSX-only forms, not the bare words.
+    ghosts: [
+      "Convert to Word", "★ Best quality (cloud)", "Exact layout (1:1)",
+      "Reading PDF…", "Building Word document…", "Server unavailable —",
+      "Converting on the server", "Your file is sent to a secure conversion server",
+      "Runs privately in your browser", "Conversion failed: ",
+    ],
+  },
 ];
 
 /* Walks the dict so a nested section (compress.levels.low.label) is compared
@@ -192,12 +204,20 @@ for (const { file, section, ghosts } of CLIENTS) {
   ok(`${name} carries no hardcoded English UI text`, () => {
     const jsx = stripComments(src);
     // Guard on the guard. The first version of this stripper used a naive
-    // /\*[\s\S]*?\*\// and `accept="image/*"` opened a comment that ran to the
-    // next real `*/` — it silently ate 2.3 KB of JpgToPdfClient's JSX, which
-    // made a genuinely re-hardcoded "Page size" pass. A ghost check that has
-    // quietly deleted the code it searches reports clean either way.
-    assert.ok(jsx.length > src.length * 0.8,
-      `comment stripping removed ${src.length - jsx.length} of ${src.length} chars of ${name} — the ghost check is searching a gutted file`);
+    // block-comment regex, and the literal in accept="image/[star]" opened a
+    // match that ran to the next real close-comment token — it silently ate
+    // 2.3 KB of JpgToPdfClient's JSX, so a genuinely re-hardcoded "Page size"
+    // passed clean. A ghost check that has quietly deleted the code it
+    // searches reports clean either way.
+    //
+    // Checked by counting dictionary references rather than by a size ratio:
+    // PdfToWordClient is legitimately 22% comments, so a percentage bound is
+    // either too loose to catch gutting or too tight to allow prose. Every
+    // t.<section>. reference lives in the code, never in a comment, so losing
+    // one to stripping means real code was eaten.
+    const refs = (s) => (s.match(/\bt\.[a-zA-Z]+\./g) || []).length;
+    assert.equal(refs(jsx), refs(src),
+      `comment stripping ate ${refs(src) - refs(jsx)} dictionary references in ${name} — the ghost check is searching a gutted file`);
     for (const ghost of ghosts) {
       assert.ok(!jsx.includes(ghost), `${name} still hardcodes "${ghost}" — RU/UZ readers see it`);
     }
@@ -247,6 +267,17 @@ ok("the OCR recognition languages are NOT treated as UI locale", () => {
   for (const endonym of ['label: "English"', 'label: "Русский"', "label: \"O'zbek\""]) {
     assert.ok(src.includes(endonym), `the OCR option ${endonym} should stay as written — it names an alphabet, not the UI`);
   }
+});
+
+ok("EVERY client the engine renders gets lang — none left behind", () => {
+  // The completeness check, and the one that actually encodes the defect: the
+  // sweep found eight clients and zero threaded props. Asserting only the ones
+  // this mission happened to touch would let a ninth be added unwired.
+  const cases = [...ENGINE.matchAll(/case\s+"[^"]+":\s*return\s*<(\w+)([^>]*)\/>/g)];
+  assert.ok(cases.length >= 8, `expected at least 8 engine cases, found ${cases.length}`);
+  const unwired = cases.filter(([, , props]) => !/lang=\{lang\}/.test(props)).map(([, comp]) => comp);
+  assert.deepEqual(unwired, [], `these clients are rendered without lang: ${unwired.join(", ")}`);
+  assert.equal(cases.length, CLIENTS.length, `${cases.length} clients in the engine but ${CLIENTS.length} covered by this test`);
 });
 
 ok("the localized page threads lang into the engine", () => {

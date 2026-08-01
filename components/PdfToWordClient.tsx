@@ -23,12 +23,14 @@ import { useEffect, useState } from "react";
 import { FiFileText } from "react-icons/fi";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { saveBlob } from "@/lib/save-file";
+import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 type Mode = "cloud" | "exact" | "flow";
 
-export default function PdfToWordClient() {
+export default function PdfToWordClient({ lang = "en" }: { lang?: ToolLang }) {
+  const t = toolUI(lang);
   const [file, setFile] = useState<File | null>(null);
   const [mode, setMode] = useState<Mode>("exact");
   const [cloudReady, setCloudReady] = useState(false);
@@ -59,7 +61,7 @@ export default function PdfToWordClient() {
   /** High-fidelity cloud path: upload the PDF to the provider chain. Falls back
       to on-device exact mode if the server has no providers or errors. */
   async function convertCloud(f: File): Promise<boolean> {
-    setProgress("Converting on the server (best quality)…");
+    setProgress(t.pdfToWord.onServer);
     try {
       const res = await fetch("/api/pdf-to-word", {
         method: "POST",
@@ -84,7 +86,7 @@ export default function PdfToWordClient() {
       setLoading(true);
       const ok = await convertCloud(file);
       if (ok) { setLoading(false); return; }
-      setProgress("Server unavailable — converting on your device instead…");
+      setProgress(t.pdfToWord.serverUnavailable);
       // fall through to the on-device path below (exact layout)
     }
     const outName = file.name.replace(/\.pdf$/i, "") + ".docx";
@@ -93,7 +95,7 @@ export default function PdfToWordClient() {
     // conversion left the user with a 0-byte Word file. Now the file is only
     // written once the bytes exist; a failure downloads nothing.
     setLoading(true);
-    setProgress("Reading PDF…");
+    setProgress(t.pdfToWord.readingPdf);
     // when cloud fell through, the on-device fallback uses the exact layout
     const onDevice: "exact" | "flow" = mode === "flow" ? "flow" : "exact";
     try {
@@ -183,7 +185,7 @@ export default function PdfToWordClient() {
         }));
       }
 
-      setProgress("Building Word document…");
+      setProgress(t.pdfToWord.buildingDoc);
       const doc = onDevice === "exact" ? buildExactDoc(docx, pageData) : buildFlowDoc(docx, pageData);
       const blob = await docx.Packer.toBlob(doc);
       if (!blob || blob.size < 1000) throw new Error("empty document");
@@ -192,7 +194,7 @@ export default function PdfToWordClient() {
       await saveBlob(blob, outName);
     } catch (e) {
       setProgress("");
-      alert("Conversion failed: " + (e as Error).message);
+      alert(t.pdfToWord.failed + (e as Error).message);
     } finally {
       setLoading(false);
     }
@@ -200,15 +202,13 @@ export default function PdfToWordClient() {
 
   return (
     <div className="qx-card p-6 max-w-2xl">
-      <UploadBox file={file} setFile={setFile} accept=".pdf" />
+      <UploadBox file={file} setFile={setFile} accept=".pdf" lang={lang} />
 
       {/* conversion mode */}
       <div className={`grid gap-2 mt-4 ${cloudReady ? "sm:grid-cols-3 grid-cols-1" : "grid-cols-2"}`}>
-        {([
-          ...(cloudReady ? [["cloud", "★ Best quality (cloud)", "Real Word tables & text like the pros — processed on a secure server"] as [Mode, string, string]] : []),
-          ["exact", "Exact layout (1:1)", "Looks identical to the PDF — on your device, nothing uploaded"],
-          ["flow", "Flowing text", "Clean paragraphs that reflow as you edit — on your device"],
-        ] as [Mode, string, string][]).map(([id, label, hint]) => (
+        {((cloudReady ? (["cloud", "exact", "flow"] as const) : (["exact", "flow"] as const))
+          .map((id) => [id, t.pdfToWord.modes[id].label, t.pdfToWord.modes[id].hint] as [Mode, string, string])
+        ).map(([id, label, hint]) => (
           <button key={id} type="button" onClick={() => setMode(id)}
             className="rounded-xl px-3 py-2.5 text-left transition-all"
             style={{
@@ -222,13 +222,11 @@ export default function PdfToWordClient() {
       </div>
 
       <button onClick={convert} disabled={!file || loading} className="qx-btn-hero w-full mt-4 disabled:opacity-50">
-        {loading ? "Converting…" : <><FiFileText size={15} /> Convert to Word</>}
+        {loading ? t.pdfToWord.converting : <><FiFileText size={15} /> {t.pdfToWord.convertBtn}</>}
       </button>
       {progress && <p className="text-[12px] mt-2 text-center" style={{ color: "var(--primary-bright)" }}>⏳ {progress}</p>}
       <p className="text-[11px] mt-3" style={{ color: "var(--text-faint)" }}>
-        {mode === "cloud"
-          ? "Best quality rebuilds real editable Word tables and text. Your file is sent to a secure conversion server and not stored. If it's ever unavailable, we convert on your device instead."
-          : "Exact layout keeps the page size, positions, fonts and images 1:1 with the PDF while the text stays editable. Scanned pages are embedded as images automatically. Runs privately in your browser — nothing uploaded."}
+        {mode === "cloud" ? t.pdfToWord.noteCloud : t.pdfToWord.noteDevice}
       </p>
     </div>
   );

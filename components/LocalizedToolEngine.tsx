@@ -32,7 +32,7 @@ const ImageToTextClient = dynamic(() => import("@/components/ImageToTextClient")
 
 export default function LocalizedToolEngine({ slug, lang = "en" }: { slug: string; lang?: ToolLang }) {
   switch (slug) {
-    case "pdf-to-word": return <PdfToWordClient />;
+    case "pdf-to-word": return <PdfToWordClient lang={lang} />;
     case "merge": return <MergePdfClient lang={lang} />;
     case "compress": return <CompressPdfClient lang={lang} />;
     case "jpg-to-pdf": return <JpgToPdfClient lang={lang} />;

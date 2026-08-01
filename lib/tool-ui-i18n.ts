@@ -110,6 +110,18 @@ export type ToolStrings = {
     noText: string;
     error: string;
   };
+  pdfToWord: {
+    modes: Record<"cloud" | "exact" | "flow", { label: string; hint: string }>;
+    convertBtn: string;
+    converting: string;
+    onServer: string;
+    serverUnavailable: string;
+    readingPdf: string;
+    buildingDoc: string;
+    noteCloud: string;
+    noteDevice: string;
+    failed: string;
+  };
 };
 
 const EN: ToolStrings = {
@@ -223,6 +235,24 @@ const EN: ToolStrings = {
     placeholder: "Extracted text will appear here. You can edit it before copying.",
     noText: "(No text detected)",
     error: "Error: could not extract text. Try another image.",
+  },
+  pdfToWord: {
+    modes: {
+      cloud: { label: "★ Best quality (cloud)", hint: "Real Word tables & text like the pros — processed on a secure server" },
+      exact: { label: "Exact layout (1:1)", hint: "Looks identical to the PDF — on your device, nothing uploaded" },
+      flow: { label: "Flowing text", hint: "Clean paragraphs that reflow as you edit — on your device" },
+    },
+    convertBtn: "Convert to Word",
+    converting: "Converting…",
+    onServer: "Converting on the server (best quality)…",
+    serverUnavailable: "Server unavailable — converting on your device instead…",
+    readingPdf: "Reading PDF…",
+    buildingDoc: "Building Word document…",
+    noteCloud:
+      "Best quality rebuilds real editable Word tables and text. Your file is sent to a secure conversion server and not stored. If it's ever unavailable, we convert on your device instead.",
+    noteDevice:
+      "Exact layout keeps the page size, positions, fonts and images 1:1 with the PDF while the text stays editable. Scanned pages are embedded as images automatically. Runs privately in your browser — nothing uploaded.",
+    failed: "Conversion failed: ",
   },
 };
 
@@ -338,6 +368,24 @@ const RU: ToolStrings = {
     noText: "(Текст не найден)",
     error: "Ошибка: не удалось распознать текст. Попробуйте другое изображение.",
   },
+  pdfToWord: {
+    modes: {
+      cloud: { label: "★ Лучшее качество (облако)", hint: "Настоящие таблицы и текст Word — обработка на защищённом сервере" },
+      exact: { label: "Точная вёрстка (1:1)", hint: "Выглядит как исходный PDF — на вашем устройстве, без загрузки" },
+      flow: { label: "Свободный текст", hint: "Чистые абзацы, которые перетекают при правке — на вашем устройстве" },
+    },
+    convertBtn: "Конвертировать в Word",
+    converting: "Конвертация…",
+    onServer: "Конвертация на сервере (лучшее качество)…",
+    serverUnavailable: "Сервер недоступен — конвертируем на вашем устройстве…",
+    readingPdf: "Чтение PDF…",
+    buildingDoc: "Сборка документа Word…",
+    noteCloud:
+      "Режим «лучшее качество» собирает настоящие редактируемые таблицы и текст Word. Ваш файл отправляется на защищённый сервер конвертации и не сохраняется. Если сервер недоступен, конвертация выполняется на вашем устройстве.",
+    noteDevice:
+      "Точная вёрстка сохраняет размер страницы, положение элементов, шрифты и изображения 1:1 с PDF, а текст остаётся редактируемым. Отсканированные страницы автоматически встраиваются как изображения. Работает прямо в браузере — ничего не загружается.",
+    failed: "Не удалось конвертировать: ",
+  },
 };
 
 const UZ: ToolStrings = {
@@ -451,6 +499,24 @@ const UZ: ToolStrings = {
     placeholder: "Ajratilgan matn shu yerda paydo bo‘ladi. Nusxalashdan oldin tahrirlashingiz mumkin.",
     noText: "(Matn topilmadi)",
     error: "Xatolik: matnni ajratib bo‘lmadi. Boshqa rasmni sinab ko‘ring.",
+  },
+  pdfToWord: {
+    modes: {
+      cloud: { label: "★ Eng yaxshi sifat (bulut)", hint: "Haqiqiy Word jadvallari va matni — himoyalangan serverda qayta ishlanadi" },
+      exact: { label: "Aniq joylashuv (1:1)", hint: "PDF bilan bir xil ko‘rinadi — qurilmangizda, hech narsa yuklanmaydi" },
+      flow: { label: "Erkin matn", hint: "Tahrirlaganda qayta oqadigan toza xatboshilar — qurilmangizda" },
+    },
+    convertBtn: "Word ga aylantirish",
+    converting: "Aylantirilmoqda…",
+    onServer: "Serverda aylantirilmoqda (eng yaxshi sifat)…",
+    serverUnavailable: "Server mavjud emas — qurilmangizda aylantirilmoqda…",
+    readingPdf: "PDF o‘qilmoqda…",
+    buildingDoc: "Word hujjati yig‘ilmoqda…",
+    noteCloud:
+      "«Eng yaxshi sifat» rejimi haqiqiy tahrirlanadigan Word jadvallari va matnini qayta quradi. Faylingiz himoyalangan aylantirish serveriga yuboriladi va saqlanmaydi. Agar server mavjud bo‘lmasa, aylantirish qurilmangizda bajariladi.",
+    noteDevice:
+      "Aniq joylashuv sahifa o‘lchami, elementlar o‘rni, shriftlar va rasmlarni PDF bilan 1:1 saqlaydi, matn esa tahrirlanadigan bo‘lib qoladi. Skanerlangan sahifalar avtomatik ravishda rasm sifatida joylashtiriladi. Brauzeringizda ishlaydi — hech narsa yuklanmaydi.",
+    failed: "Aylantirib bo‘lmadi: ",
   },
 };
 
