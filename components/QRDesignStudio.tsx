@@ -338,6 +338,7 @@ export default function QRDesignStudio({
        scrolls one element. The card centers when short (m-auto) and starts
        at the top when taller than the screen. */
     <div className="fixed inset-0 z-[100] overflow-y-auto p-4"
+      role="dialog" aria-modal="true" aria-label="QR Design Studio"
       style={{ background: "rgba(0,0,0,.65)", backdropFilter: "blur(8px)", overscrollBehavior: "contain", WebkitOverflowScrolling: "touch" }}
       onClick={onClose}>
       <div className="flex min-h-full">
