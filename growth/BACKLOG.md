@@ -57,7 +57,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   whose page no longer contains the phrase the verdict rests on — not a
   re-classification, just "row N's evidence moved, go look". Ties into the
   daily VERIFY pass.
-- [ ] One unmeasured comparative claim survives on /free-forever. The table
+- [~] TAKEN Aug 1 (M151). One unmeasured comparative claim survives on /free-forever. The table
   rows are now all derived from the dataset, but the PROMISES card at line 26
   is still headed "Free features others charge for" and lists vector SVG, bulk
   CSV, a design studio and 15 languages. The study measured only the first of
