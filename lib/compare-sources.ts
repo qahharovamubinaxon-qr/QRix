@@ -45,6 +45,13 @@ export type Source = {
   label: string;
   /** ISO date the page was fetched and read. */
   checked: string;
+  /* Literal strings that must STILL appear in this page's raw markup for the
+   * rows below to hold. `npm run recheck:sources` re-fetches and reports the
+   * ones that vanished, so a price or a policy moving is noticed here rather
+   * than by a reader. Copied out of the live page, never invented — see the
+   * longer note on the same field in lib/qr-generator-study.ts. Prices are the
+   * most perishable thing on this page, so each vendor carries a price marker. */
+  evidence: string[];
 };
 
 export type SourcedRow = {
@@ -70,7 +77,19 @@ const D = "2026-08-01";
 export const COMPARE_SOURCES: Record<string, VendorCompare> = {
   "qrix-vs-ilovepdf": {
     sources: [
-      { url: "https://www.ilovepdf.com/pricing", label: "iLovePDF pricing page", checked: D },
+      {
+        url: "https://www.ilovepdf.com/pricing",
+        label: "iLovePDF pricing page",
+        checked: D,
+        evidence: [
+          /* The row label alone is not the evidence — "Limited" next to it is,
+             and that is the cell we got wrong by reading a daily task cap into
+             a file-size one. */
+          "Filesize per task",
+          "Batch processing",
+          "var monthPrice = 7",
+        ],
+      },
     ],
     rows: [
       {
@@ -124,7 +143,19 @@ export const COMPARE_SOURCES: Record<string, VendorCompare> = {
 
   "qrix-vs-tinywow": {
     sources: [
-      { url: "https://tinywow.com/pricing", label: "TinyWow pricing page", checked: D },
+      {
+        url: "https://tinywow.com/pricing",
+        label: "TinyWow pricing page",
+        checked: D,
+        evidence: [
+          "No advertisements",
+          "Skip all CAPTCHAs",
+          /* The price attribute, not the rendered "$20": its plan data carries
+             GBP rows beside the USD ones, and reading the nearest number off
+             flattened text is exactly how this cell became ~$6. */
+          'data-price="20" data-type-subscription="1"',
+        ],
+      },
     ],
     rows: [
       {
@@ -178,7 +209,16 @@ export const COMPARE_SOURCES: Record<string, VendorCompare> = {
 
   "qrix-vs-snaptik": {
     sources: [
-      { url: "https://snaptik.app/", label: "SnapTik home page and FAQ", checked: D },
+      {
+        url: "https://snaptik.app/",
+        label: "SnapTik home page and FAQ",
+        checked: D,
+        evidence: [
+          "respects the intellectual property rights of the tracks",
+          "you can download the audio from videos using the Download Audio button",
+          "No Watermark",
+        ],
+      },
     ],
     rows: [
       {
@@ -190,7 +230,8 @@ export const COMPARE_SOURCES: Record<string, VendorCompare> = {
       {
         feature: "Audio as MP3",
         qrix: "Yes",
-        theirs: "No — its FAQ says it will not provide MP3 download, because it “respects the intellectual property rights of the tracks”",
+        theirs:
+          "No MP3 — its FAQ says it will not provide that solution, because it “respects the intellectual property rights of the tracks”. The same answer adds that audio can still be downloaded from a video using its Download Audio button.",
         stated: true,
       },
       {

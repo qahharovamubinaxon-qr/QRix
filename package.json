@@ -35,7 +35,8 @@
     "test:barcode": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-barcode-i18n.mjs",
     "test:tool-i18n": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-tool-ui-i18n.mjs",
     "probe:tool-i18n": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-tool-i18n.mjs",
-    "test:compare": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-compare.mjs"
+    "test:compare": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-compare.mjs",
+    "recheck:sources": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/recheck-sources.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

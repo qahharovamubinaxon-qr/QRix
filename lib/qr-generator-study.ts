@@ -60,6 +60,20 @@ export type Vendor = {
   checks: Checks;
   /** The single sentence that decides the verdict. */
   headline: string;
+  /* Literal strings that must STILL appear in the source page's raw markup for
+   * the reading above to hold. `npm run recheck:sources` re-fetches every page
+   * and reports the ones that vanished — not a re-classification, just "this
+   * row's evidence moved, go look".
+   *
+   * Every marker below was copied out of the live page. Never invent one: a
+   * guessed marker either fails forever (noise nobody reads) or, worse, matches
+   * boilerplate and reports fresh on a page that changed underneath it. Prefer
+   * the vendor's own sentence over a UI label, and avoid apostrophes and
+   * quotes, which pages serve as entities about half the time. Matching is
+   * whitespace-normalised and case-insensitive against the RAW markup — tags
+   * are never stripped, which is the M148/M152 rule that caught three wrong
+   * cells and the ~$6 price error. */
+  evidence: string[];
 };
 
 const OK = (note: string): Check => ({ v: "ok", note });
@@ -80,6 +94,9 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "static-only",
     headline: "Says its static codes never expire and have no scan limit, and gives away the vector formats most tools charge for.",
+    evidence: [
+      "All generated QR codes will work forever, do not expire and have no scanning limits",
+    ],
     checks: {
       permanent: OK("Its FAQ states the codes do not expire and will work forever, because they are static."),
       noAccount: OK("The generator runs on the homepage. The sign-up links go to a separate paid PRO product, not to the free generator."),
@@ -98,6 +115,9 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "static-only",
     headline: "Static only, and honest about why: the data lives in the graphic, so there is nothing on a server to switch off.",
+    evidence: [
+      "From a technical perspective QR codes do not expire or get invalid",
+    ],
     checks: {
       permanent: OK("Its FAQ explains that technically the codes cannot expire, because the information is stored in the graphic itself."),
       noAccount: OK("Downloads are offered directly from the generator page."),
@@ -116,6 +136,9 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "static-only",
     headline: "Free vector output and no scan limit, stated on the page — a straightforward static generator.",
+    evidence: [
+      "our QR codes are not limited to the number of scans",
+    ],
     checks: {
       permanent: OK("The page's own summary line says the codes never expire."),
       noAccount: OK("Generation and download happen on the page; no account is asked for."),
@@ -134,6 +157,7 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "static-only",
     headline: "Puts 'No Sign Up' in its own heading and offers free vector formats.",
+    evidence: ["Free QR Code Generator No Sign Up"],
     checks: {
       permanent: UNK("Expiry is not addressed on the page checked. The codes are static, which is the mechanism that makes expiry impossible."),
       noAccount: OK("The page's own heading is 'Free QR Code Generator No Sign Up'."),
@@ -152,6 +176,11 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "static-only",
     headline: "Answers the signup question with a flat no, and states unlimited usage with no expiry.",
+    evidence: [
+      "Do I need to sign up for Shopify to use it?",
+      "Static QR codes are permanent",
+      "Our free QR code generator allows unlimited usage",
+    ],
     checks: {
       permanent: OK("Its FAQ answers 'Do QR codes expire?' with no, and states every code stays active unless deleted."),
       noAccount: OK("Asked directly whether a Shopify account is needed, the FAQ says no — the tool is for anyone, not only merchants."),
@@ -170,6 +199,10 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "Explicitly markets the absence of a time limit — but the listed download formats stop short of vector SVG.",
+    evidence: [
+      "QR codes created with Adobe Express never expire",
+      "download as PNG, JPEG, or PDF",
+    ],
     checks: {
       permanent: OK("States codes made in Express never expire and contrasts itself with free tools that put a time limit on generated codes."),
       noAccount: UNK("Not stated on the page checked. Express is an account product, so this is the one to test yourself."),
@@ -190,6 +223,10 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "Free dynamic codes exist but carry a 500-scan ceiling each, and the vendor's own ads appear to the people who scan them.",
+    evidence: [
+      "three free dynamic QRs with a 500 scan limit each",
+      "QR TIGER ads display when users scan QR codes generated from the free trial version",
+    ],
     checks: {
       permanent: OK("Free static codes are unlimited in number and never expire, per its FAQ."),
       noAccount: LIMIT("Dynamic codes require an account; the FAQ routes every dynamic action through a dashboard login."),
@@ -208,6 +245,14 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "The clearest statement of the trap on any page in this study: the account has to stay active for the codes to work.",
+    evidence: [
+      /* Uniqode's own wording is "any"; the-qrcode-generator.com's comparison
+         page says "all" about Uniqode. Two vendors describing the same policy
+         is not the same as the vendor stating it, and the first draft of this
+         marker took the wrong one. */
+      "any dynamic QR Codes you created will become inactive",
+      "the scan limits are reset annually",
+    ],
     checks: {
       permanent: LIMIT("Static codes survive, but only in the sense that the graphic still decodes — its FAQ says once the trial ends you can no longer access the account."),
       noAccount: LIMIT("Account required; the free entry point is a trial, not a free plan."),
@@ -226,6 +271,13 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "Its own feature table marks 'watermark-free QR codes' with a cross on the free plan — the watermark is the free tier.",
+    evidence: [
+      /* The alt text IS the evidence: the same row label sits next to a
+         check-icon on the paid card, so the label alone proves nothing. This
+         marker is the reason the matcher may not strip tags. */
+      'alt="Does not contain Feature"/>Watermark-free QR codes',
+      "two dynamic QR Codes will remain active",
+    ],
     checks: {
       permanent: LIMIT("Static codes are unlimited, but its FAQ states that once the trial expires all dynamic codes created become inactive apart from two."),
       noAccount: LIMIT("The free plan is an account plan; the page's primary call to action is 'Sign up free'."),
@@ -244,6 +296,10 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "The 'free' entry point is a 14-day trial that you continue by supplying payment details.",
+    evidence: [
+      "Your first 14 days are on us",
+      "you can continue using QR Code Generator Pro by providing us with your payment details",
+    ],
     checks: {
       permanent: LIMIT("What survives is what the trial leaves behind; the pricing FAQ frames continuation as providing payment details."),
       noAccount: LIMIT("A free account must be created to start."),
@@ -262,6 +318,7 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "The free plan is real and open-ended — it is just two QR codes per month.",
+    evidence: ["2 QR Codes/month", "unlimited clicks and scans"],
     checks: {
       permanent: UNK("Not stated for the free plan on the page checked."),
       noAccount: LIMIT("Account required; the free plan is a signed-up plan."),
@@ -280,6 +337,10 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "Calls the plan 'Free Forever', then pauses your scans for the rest of the month at 1,000.",
+    evidence: [
+      "we provide 1000 scans per month free for all the dynamic codes combined",
+      "scans are paused, but they reopen next month",
+    ],
     checks: {
       permanent: LIMIT("Its FAQ says the code stays valid, but a dynamic one is paused when its monthly scan limit is reached."),
       noAccount: LIMIT("The free plan's own call to action is a signup, and the scan pool is metered per account."),
@@ -298,6 +359,10 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "Caps the free plan at five static codes — the only tool here that rations the format that costs it nothing to serve.",
+    evidence: [
+      "5 Static QR codes",
+      "The Free Suite includes 50 scans per month",
+    ],
     checks: {
       permanent: LIMIT("Its FAQ states static codes remain permanent after cancellation, but dynamic codes follow plan terms — and it answers 'do my QR codes expire if I cancel' with yes for dynamic."),
       noAccount: LIMIT("The free plan is an account plan; both the static and dynamic quotas are counted per account."),
@@ -316,6 +381,10 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "Genuinely uncapped on scans and lifetime — and it puts its own ads in front of the people who scan your code.",
+    evidence: [
+      "differs from a Premium subscription in the presence of ads after scanning",
+      "our QR codes do not have a time limit",
+    ],
     checks: {
       permanent: OK("Its FAQ states the codes have no time limit and can be used for as long as needed."),
       noAccount: LIMIT("Its FAQ repeatedly requires the code to be 'in the account' for it to be managed or de-branded."),
@@ -334,6 +403,7 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "The code is not capped, the measurement is: free analytics stop at 500 scans.",
+    evidence: ["Analytics for up to 500 scans"],
     checks: {
       permanent: OK("Its generator page states the codes never expire and scans are unlimited."),
       noAccount: LIMIT("The free tier's call to action is 'Sign up for free'."),
@@ -351,13 +421,18 @@ export const VENDORS: Vendor[] = [
     sourceLabel: "QR page FAQ + pricing",
     checked: D,
     shape: "platform",
-    headline: "Free gets you a 1200×1200 PNG. Vector for print starts two tiers up.",
+    headline: "The hardest stop in this study, and it is stated plainly: a free Unitag code stops working after a hundred scans.",
+    evidence: [
+      "Free QR codes created through the generator will stop working after being scanned a hundred times",
+      "With our free generator, you can download the QR Code in PNG at a size of 300 pixels",
+      "starting with the Silver plan",
+    ],
     checks: {
-      permanent: UNK("Not answered directly; its FAQ redirects the expiry question to how dynamic codes are edited."),
+      permanent: LIMIT("Its FAQ answers the expiry question directly: free codes created through the generator stop working after a hundred scans. Only the paid HD code is described as valid forever."),
       noAccount: LIMIT("The page's call to action is 'Start free trial'."),
       freeDynamic: LIMIT("Editing a dynamic code requires a Live subscription, per its FAQ."),
-      scanCap: OK("Its pricing page states unlimited scans with no per-scan fees on every plan."),
-      vector: LIMIT("Free output is an HD PNG. Its FAQ states SVG, PDF and JPEG start with the Silver plan."),
+      scanCap: LIMIT("A hundred scans, and the code stops — the strictest cap on this page. Its FAQ reserves 'no scan limit' for HD codes and subscriptions."),
+      vector: LIMIT("Free output is a 300-pixel PNG. The 1200×1200 PNG is the paid HD option, and its FAQ states SVG, PDF and JPEG start with the Silver plan."),
       unbranded: UNK("Not stated on the pages checked."),
     },
   },
@@ -370,6 +445,10 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "No permanent free plan at all — the free thing is a 14-day trial, which is a different product.",
+    evidence: [
+      "After the 14-day free trial ends, Static QR Codes will continue to work but Dynamic QR Codes will be deactivated",
+      "Powered by Scanova",
+    ],
     checks: {
       permanent: LIMIT("No free plan for codes to be permanent on."),
       noAccount: LIMIT("Trial requires signing up, though the page states no credit card is needed to start."),
@@ -388,6 +467,10 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "Seven-day trial, and unusually clear about the split: your static codes survive it, your dynamic ones are the product.",
+    evidence: [
+      "the free trial lasts 7 days",
+      "Static QR Codes will continue to work after the free trial expires",
+    ],
     checks: {
       permanent: LIMIT("Its FAQ states static codes continue to work after the trial expires — which leaves the dynamic ones as the thing that stops."),
       noAccount: LIMIT("Sign-up is required for the trial, which is the only free route into the product."),
@@ -406,6 +489,10 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "Has both a 'Forever Free' plan and a 15-day trial that deactivates your account if you do not add payment details.",
+    evidence: [
+      "your account will be set inactive after the trial has ended",
+      "Forever Free",
+    ],
     checks: {
       permanent: LIMIT("Its FAQ states that if payment data is not entered during the trial, the account is set inactive when the trial ends."),
       noAccount: LIMIT("Registration required, though the trial states no credit card up front."),
@@ -424,6 +511,7 @@ export const VENDORS: Vendor[] = [
     checked: D,
     shape: "platform",
     headline: "States no scan limit and that static codes do not expire — but every path on the page runs through a signup.",
+    evidence: ["No scan limit", "your QR code will not expire"],
     checks: {
       permanent: OK("States a static code will not expire as long as its information is unchanged, and that dynamic codes stay valid when updated."),
       noAccount: LIMIT("Sign in / sign up are the page's primary actions and the generator is presented as an account product."),
@@ -510,6 +598,14 @@ export const SELF: Vendor = {
   checked: D,
   shape: "platform",
   headline: "Static codes are permanent, unbranded and need no account. Our dynamic codes have the same dependency every platform here has — if this site goes away, they stop.",
+  /* Our own row is re-checked against our own live page for the same reason the
+     vendors' are: this column is a claim about a product, and the product ships
+     twice a week. `/free-forever` is fetched from production. */
+  evidence: [
+    "There are no scan limits on your codes",
+    "Never (static codes are permanent)",
+    "Print-ready SVG export",
+  ],
   checks: {
     permanent: OK("Static codes hold their data in the graphic, so nothing on our servers can switch them off."),
     noAccount: OK("Every QR tool works signed out; the generator runs in the browser."),
