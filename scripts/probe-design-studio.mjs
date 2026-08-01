@@ -115,23 +115,29 @@ const probe = `(async () => {
      and would report a working warm path as broken. */
   trigger.dispatchEvent(new PointerEvent("pointerenter", { bubbles: false }));
 
-  let warmWaited = 0, warmed = [];
+  /* Did the chunk that arrived actually contain the studio? Re-fetch each new
+     script from the page (same-origin, already in the HTTP cache) and look for
+     the markers — that is what separates "some chunk loaded" from "the studio
+     loaded", which the byte measurement cannot answer on its own.
+
+     Poll until the STUDIO chunk shows up, not until the first new script does.
+     The first version stopped at the first arrival and then checked only that
+     one, so on a page where a prefetch happened to land first it reported the
+     studio chunk as missing on a build that was warming perfectly. */
+  const checked = new Set();
+  let warmWaited = 0, warmed = [], markersInWarmedChunk = false;
   for (;;) {
     warmed = scripts().filter(s => !before.includes(s));
-    if (warmed.length || warmWaited >= 12000) break;
+    for (const s of warmed) {
+      if (checked.has(s)) continue;
+      checked.add(s);
+      try {
+        const body = (await (await fetch(s)).text()).toLowerCase();
+        if (MARKERS.every(m => body.includes(m))) markersInWarmedChunk = true;
+      } catch {}
+    }
+    if (markersInWarmedChunk || warmWaited >= 12000) break;
     await sleep(250); warmWaited += 250;
-  }
-
-  /* Did the chunk that arrived actually contain the studio? Re-fetch it from
-     the page (it is same-origin and already in the HTTP cache) and look for the
-     markers. This is what separates "some chunk loaded" from "the studio
-     loaded" — the check the byte measurement cannot make on its own. */
-  let markersInWarmedChunk = false;
-  for (const s of warmed) {
-    try {
-      const body = (await (await fetch(s)).text()).toLowerCase();
-      if (MARKERS.every(m => body.includes(m))) { markersInWarmedChunk = true; break; }
-    } catch {}
   }
 
   trigger.click();
@@ -154,7 +160,43 @@ const probe = `(async () => {
   }
 
   const dlgText = fold(dialog && dialog.innerText);
+  const canvases = dialog ? dialog.querySelectorAll("canvas").length : 0;
+  const colorInputs = dialog ? dialog.querySelectorAll('input[type=color]').length : 0;
+
+  /* CLOSE AND REOPEN, because the reopen is a different code path and it is the
+     one that breaks. The chunk is cached at module scope by then, so the loader
+     initialises its state FROM that cache — and useState(cached) passes React a
+     function, which React calls as an initializer. The first open never touches
+     it (the cache is empty), so a probe that opens once reports a green run on a
+     build whose second open throws. */
+  let reopened = null, reopenErr = null;
+  if (dialog && !fold(dialog.innerText).includes("opening the design studio")) {
+    const closeBtn = [...dialog.querySelectorAll("button")]
+      .find(b => fold(b.getAttribute("aria-label")) === "close");
+    if (!closeBtn) reopenErr = "no close button in the studio";
+    else {
+      const errBefore = window.__err || 0;
+      closeBtn.click();
+      let gone = false;
+      for (let i = 0; i < 40 && !gone; i++) { await sleep(100); gone = !findStudio(); }
+      if (!gone) reopenErr = "the studio did not close";
+      else {
+        (findTrigger() || trigger).click();
+        let d2 = null;
+        for (let i = 0; i < 60 && !d2; i++) {
+          await sleep(100);
+          const c = findStudio();
+          if (c && MARKERS.some(m => fold(c.innerText).includes(m))) d2 = c;
+        }
+        reopened = !!d2;
+        if ((window.__err || 0) > errBefore) reopenErr = "reopening threw " + ((window.__err || 0) - errBefore) + " error(s)";
+      }
+    }
+  }
+
   return JSON.stringify({
+    reopened,
+    reopenErr,
     viewport: [innerWidth, innerHeight],
     triggerHydrated: true,
     warmedScripts: warmed.length,
@@ -168,8 +210,8 @@ const probe = `(async () => {
     markersOnScreen: MARKERS.filter(m => dlgText.includes(m)),
     /* The studio really rendered its UI, not just a shell: it mounts a canvas
        for the live QR preview and a colour input for the palette. */
-    canvases: dialog ? dialog.querySelectorAll("canvas").length : 0,
-    colorInputs: dialog ? dialog.querySelectorAll('input[type=color]').length : 0,
+    canvases,
+    colorInputs,
     openMs: openWaited,
     pageErrors: window.__err || 0,
   });
@@ -211,6 +253,8 @@ for (const url of urls) {
     if ((out.markersOnScreen || []).length < 2) bad.push(`studio controls missing: only ${JSON.stringify(out.markersOnScreen)}`);
     if (!out.canvases) bad.push("the studio rendered no canvas — the live preview is missing");
     if (!out.colorInputs) bad.push("the studio rendered no colour input");
+    if (out.reopenErr) bad.push(out.reopenErr);
+    if (out.reopened === false) bad.push("the studio did not come back on a second open — the cached path is broken");
     if (out.pageErrors) bad.push(`${out.pageErrors} page errors`);
   }
   if (bad.length) failures++;
@@ -219,7 +263,8 @@ for (const url of urls) {
     (out.error ? "" : `  warm:${out.warmedScripts} chunk(s) in ${out.warmMs}ms` +
       `  studio-chunk:${out.markersInWarmedChunk ? "yes" : "NO"}` +
       `  open:${out.openMs}ms  markers:${(out.markersOnScreen || []).length}/${STUDIO_MARKERS.length}` +
-      `  canvas:${out.canvases}  color:${out.colorInputs}  errors:${out.pageErrors}`));
+      `  canvas:${out.canvases}  color:${out.colorInputs}` +
+      `  reopen:${out.reopened === null ? "skipped" : out.reopened ? "ok" : "FAILED"}  errors:${out.pageErrors}`));
   for (const b of bad) console.log(`        ${b}`);
 }
 

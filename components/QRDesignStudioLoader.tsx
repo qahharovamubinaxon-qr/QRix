@@ -68,7 +68,13 @@ export const designStudioTriggerProps = {
 } as const;
 
 export default function QRDesignStudioLoader(props: DesignStudioProps) {
-  const [Studio, setStudio] = useState<Studio | null>(cached);
+  /* MUST be the lazy form. useState(cached) passes a FUNCTION — a component is
+   * one — and React treats a function initial value as an initializer and calls
+   * it, so a reopen (when `cached` is populated) would invoke QRDesignStudio
+   * outside of rendering and throw. The first open is unaffected, because
+   * `cached` is still null there, which is exactly why this ships silently.
+   * Same reason every setStudio below is written setStudio(() => C). */
+  const [Studio, setStudio] = useState<Studio | null>(() => cached);
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
