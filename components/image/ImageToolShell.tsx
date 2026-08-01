@@ -38,18 +38,21 @@ const T = {
     one: "Choose an image", many: "Choose images",
     hint: "JPG, PNG or WebP · processed on your device",
     out: "Output",
+    preparing: "Preparing the tool — one moment.",
     noscript: "This tool runs entirely in your browser, so it needs JavaScript enabled. Nothing is uploaded either way.",
   },
   ru: {
     one: "Выберите изображение", many: "Выберите изображения",
     hint: "JPG, PNG или WebP · обрабатывается на вашем устройстве",
     out: "Результат",
+    preparing: "Инструмент готовится — одну секунду.",
     noscript: "Инструмент работает полностью в вашем браузере, поэтому нужен включённый JavaScript. Ничего никуда не загружается в любом случае.",
   },
   uz: {
     one: "Rasm tanlang", many: "Rasmlarni tanlang",
     hint: "JPG, PNG yoki WebP · qurilmangizda ishlanadi",
     out: "Natija",
+    preparing: "Asbob tayyorlanmoqda — bir lahza.",
     noscript: "Bu asbob to'liq brauzeringizda ishlaydi, shuning uchun JavaScript yoqilgan bo'lishi kerak. Har holda hech narsa hech qayerga yuklanmaydi.",
   },
 } as const;
@@ -104,15 +107,40 @@ export default function ImageToolShell({
         {label || (multiple ? t.many : t.one)}
       </label>
 
+      {/* DISABLED on purpose, and it is the same honesty the <noscript> below
+          argues for. This shell is on screen from first paint until the
+          registry's mount effect swaps in the real engine, and for that whole
+          time nothing is listening to this control: it had no onChange, so a
+          tap on a slow phone opened a picker and the chosen file was dropped
+          without a word when the subtree was replaced.
+
+          The alternative — capture the FileList at hydration and hand it to the
+          engine — was priced and rejected: the node is discarded on swap, so it
+          needs a module-scope stash plus a read in each of 15+ engines, none of
+          which takes a File, and it drops the file until the last of them lands.
+          A control that cannot accept input should say so, which is exactly what
+          this file already decided for the JS-off case.
+
+          It stays a real, visible, labelled input, so the crawler-facing job of
+          this shell (see the header) is untouched — `disabled` is not something
+          a crawler weighs when deciding whether the page has a tool on it. */}
       <input
         id="image-tool-file"
         name="image-tool-file"
         type="file"
         accept={accept}
         multiple={multiple}
+        disabled
+        aria-describedby="image-tool-status"
         className="mx-auto mt-3 block text-[12px]"
         style={{ color: "var(--text-faint)", maxWidth: "100%" }}
       />
+
+      {/* Why it is disabled, for anyone who reaches it before the engine does.
+          <noscript> below covers the case where that never happens. */}
+      <p id="image-tool-status" className="text-[12px] mt-2" style={{ color: "var(--text-muted)" }}>
+        {t.preparing}
+      </p>
 
       <p className="text-[12px] mt-3" style={{ color: "var(--text-faint)" }}>
         {hint || t.hint}

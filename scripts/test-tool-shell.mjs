@@ -59,6 +59,20 @@ try {
   ok("en: prompt text present", /Choose an image/.test(en));
   ok("en: noscript states the JS requirement", /<noscript>[\s\S]*needs JavaScript enabled/.test(en));
 
+  /* 1b. the control cannot silently swallow a selection (M156).
+     The shell is on screen from first paint until the registry's mount effect
+     swaps in the real engine, and nothing listens to this input for that whole
+     time — it has no onChange and its node is discarded on the swap, so a tap
+     on a slow phone opened a picker and lost the file without a word. Enabling
+     it again would look completely correct on every fast device, which is
+     exactly why it is asserted rather than trusted. */
+  ok("en: the pre-hydration input is disabled", /<input[^>]*\bdisabled\b/.test(en));
+  const describedBy = /<input[^>]*aria-describedby="([^"]+)"/.exec(en)?.[1];
+  ok("en: the input points at a status message", !!describedBy);
+  ok("en: that status message exists", !!describedBy && new RegExp(`id="${describedBy}"`).test(en),
+    `aria-describedby=${describedBy} resolves to nothing`);
+  ok("en: the status says why it is disabled", /Preparing the tool/.test(en));
+
   /* 2. the engine names its own output, so the copy differs per URL */
   ok("en: convert:jpeg says Output: JPG", /Output: JPG/.test(en));
   ok("resize: prints the real size", /Output: 1920×1080/.test(html({ engine: "resize:1920x1080" })));
@@ -71,12 +85,14 @@ try {
   ok("ru: localized hint", /обрабатывается на вашем устройстве/.test(ru));
   ok("ru: localized noscript", /нужен включённый JavaScript/.test(ru));
   ok("ru: localized output label", /Результат: WebP/.test(ru));
-  ok("ru: no English leak", !/Choose an image|Output:|JPG, PNG or WebP|needs JavaScript/.test(ru));
+  ok("ru: localized busy status", /Инструмент готовится/.test(ru));
+  ok("ru: no English leak", !/Choose an image|Output:|JPG, PNG or WebP|needs JavaScript|Preparing the tool/.test(ru));
   const uz = html({ engine: "resize:800x600", lang: "uz", multiple: true });
   ok("uz: localized plural prompt", /Rasmlarni tanlang/.test(uz));
   ok("uz: localized hint", /qurilmangizda ishlanadi/.test(uz));
   ok("uz: localized output label", /Natija: 800×600/.test(uz));
-  ok("uz: no English leak", !/Choose image|Output:|JPG, PNG or WebP|needs JavaScript/.test(uz));
+  ok("uz: localized busy status", /Asbob tayyorlanmoqda/.test(uz));
+  ok("uz: no English leak", !/Choose image|Output:|JPG, PNG or WebP|needs JavaScript|Preparing the tool/.test(uz));
 
   /* 4. a caller with something more specific to say still wins */
   ok("explicit label overrides the localized default", /Drop your receipts/.test(html({ label: "Drop your receipts", lang: "ru" })));
