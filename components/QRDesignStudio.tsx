@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FiX, FiDownload, FiUpload, FiTrash2, FiChevronDown, FiCheck } from "react-icons/fi";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 /* ============================================================
    QRix Design Studio — advanced QR customization
@@ -77,6 +78,9 @@ export default function QRDesignStudio({
   /** Optional: reports the basic design back to the host page's own preview. */
   onApply?: (basics: { fg: string; bg: string; level: "L" | "M" | "Q" | "H"; logo: string | null }) => void;
 }) {
+  /* The studio only ever renders while open (both call sites gate it behind
+     `designOpen &&`), so `open` is a constant true here. */
+  const dialogRef = useModalA11y<HTMLDivElement>(true, onClose);
   const mountRef = useRef<HTMLDivElement>(null);
   const compositeRef = useRef<HTMLCanvasElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -337,7 +341,7 @@ export default function QRDesignStudio({
        works anywhere over the modal — card, backdrop, gaps — because it all
        scrolls one element. The card centers when short (m-auto) and starts
        at the top when taller than the screen. */
-    <div className="fixed inset-0 z-[100] overflow-y-auto p-4"
+    <div ref={dialogRef} className="fixed inset-0 z-[100] overflow-y-auto p-4"
       role="dialog" aria-modal="true" aria-label="QR Design Studio"
       style={{ background: "rgba(0,0,0,.65)", backdropFilter: "blur(8px)", overscrollBehavior: "contain", WebkitOverflowScrolling: "touch" }}
       onClick={onClose}>

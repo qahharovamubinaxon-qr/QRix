@@ -6,6 +6,7 @@ import DashboardLinks from "@/components/DashboardLinks";
 import LogoutButton from "@/components/LogoutButton";
 import InviteCard from "@/components/InviteCard";
 import DashboardExtras from "@/components/DashboardExtras";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
   ResponsiveContainer, PieChart, Pie, Cell,
@@ -77,6 +78,8 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
     document.body.style.overflow = mobileNavOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [mobileNavOpen]);
+
+  const drawerRef = useModalA11y<HTMLDivElement>(mobileNavOpen, () => setMobileNavOpen(false));
 
   const nowMs = useMemo(() => new Date(now).getTime(), [now]);
   const userName = email.split("@")[0] || "User";
@@ -307,7 +310,7 @@ export default function DashboardClient({ links, scans, email, now }: Props) {
 
       {/* ================= MOBILE DRAWER ================= */}
       {mobileNavOpen && (
-        <div className="fixed inset-0 z-[70] lg:hidden" role="dialog" aria-modal="true" aria-label="Dashboard menu">
+        <div ref={drawerRef} className="fixed inset-0 z-[70] lg:hidden" role="dialog" aria-modal="true" aria-label="Dashboard menu">
           <div className="absolute inset-0" style={{ background: "rgba(0,0,0,.6)", backdropFilter: "blur(4px)" }}
             onClick={() => setMobileNavOpen(false)} />
           <aside

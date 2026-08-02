@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FiUploadCloud, FiDownload, FiCopy, FiCheck, FiShare2, FiRefreshCw, FiMaximize2, FiX, FiZap } from "react-icons/fi";
 import { cloudRoute, isAiEngineLive } from "@/lib/ai-connector";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 /* ── Dropzone ─────────────────────────────────────────────── */
 export function AiDropzone({ onFile, onFiles, multiple = false, accept = "image/*", hint }: {
@@ -78,6 +79,7 @@ export function BeforeAfter({ before, after, alt = "" }: { before: string; after
   const [pos, setPos] = useState(50);
   const [full, setFull] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
+  const fullRef = useModalA11y<HTMLDivElement>(full, () => setFull(false));
 
   const move = useCallback((clientX: number) => {
     const r = wrapRef.current?.getBoundingClientRect();
@@ -116,8 +118,14 @@ export function BeforeAfter({ before, after, alt = "" }: { before: string; after
     <>
       {body}
       {full && (
-        <div className="fixed inset-0 z-[300] flex items-center justify-center p-6" style={{ background: "rgba(4,4,8,.92)" }} onClick={() => setFull(false)}>
-          <button className="absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,.1)", color: "#fff" }} aria-label="Close">
+        <div ref={fullRef} className="fixed inset-0 z-[300] flex items-center justify-center p-6"
+          role="dialog" aria-modal="true" aria-label={alt ? `${alt} — fullscreen comparison` : "Fullscreen comparison"}
+          style={{ background: "rgba(4,4,8,.92)" }} onClick={() => setFull(false)}>
+          {/* Explicit onClick as well as the overlay's: this button used to
+              close only by bubbling, which a future stopPropagation would
+              silently break. */}
+          <button onClick={() => setFull(false)}
+            className="absolute top-5 right-5 w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,.1)", color: "#fff" }} aria-label="Close">
             <FiX size={18} />
           </button>
           <div className="w-full max-w-5xl" onClick={(e) => e.stopPropagation()}>{body}</div>

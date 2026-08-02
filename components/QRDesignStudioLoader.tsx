@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ComponentType } from "react";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 /* QRDesignStudio is 36.5 KB raw and it was eager on the homepage AND on all 40
  * /qr-tools/* routes — the two templates that matter most — for a modal that
@@ -78,6 +79,11 @@ export default function QRDesignStudioLoader(props: DesignStudioProps) {
   const [failed, setFailed] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
+  /* The waiting state has NO focusable control in it — it is one <p> — so
+     Escape is the only way out of it, and there was none. When the studio
+     itself arrives it takes over the screen and runs its own hook. */
+  const placeholderRef = useModalA11y<HTMLDivElement>(!Studio, props.onClose);
+
   useEffect(() => {
     if (cached) {
       setStudio(() => cached);
@@ -96,6 +102,7 @@ export default function QRDesignStudioLoader(props: DesignStudioProps) {
 
   return (
     <div
+      ref={placeholderRef}
       role="dialog"
       aria-modal="true"
       aria-label="QR Design Studio"

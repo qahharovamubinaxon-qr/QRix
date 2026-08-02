@@ -10,6 +10,7 @@ import {
 import { searchIndex, suggestFor, type SearchGroup } from "@/lib/search-index";
 import { trackTool } from "@/lib/track";
 import { useFavorites, useRecents, useRecentSearches, recordSearch } from "@/lib/user-prefs";
+import { useModalA11y } from "@/lib/use-modal-a11y";
 
 type Row = { key: string; group: string; label: string; sub?: string; icon?: React.ReactNode; href?: string; run: () => void };
 
@@ -75,14 +76,20 @@ export default function CommandSearch({ defaultOpen = false }: { defaultOpen?: b
 
   const setLang = useCallback((code: string) => { localStorage.setItem("language", code); close(); location.reload(); }, [close]);
 
+  /* Escape lives in useModalA11y now, which only lets the TOPMOST dialog
+     answer it; the shortcut that opens the palette has to stay here, because
+     it must listen while the palette is closed. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); setOpen((v) => !v); }
-      else if (e.key === "Escape") close();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [close]);
+  }, []);
+
+  /* autoFocus:false — the input below is focused deliberately, and letting the
+     hook focus the first control first would be a visible jump. */
+  const dialogRef = useModalA11y<HTMLDivElement>(open, close, { autoFocus: false });
 
   useEffect(() => {
     if (!open) return;
@@ -160,7 +167,7 @@ export default function CommandSearch({ defaultOpen = false }: { defaultOpen?: b
   let lastGroup = "";
 
   return (
-    <div className="fixed inset-0 z-[200] flex items-start justify-center px-4 pt-[12vh]"
+    <div ref={dialogRef} className="fixed inset-0 z-[200] flex items-start justify-center px-4 pt-[12vh]"
       style={{ background: "rgba(5,5,10,0.55)", backdropFilter: "blur(6px)" }}
       onClick={close} role="dialog" aria-modal="true" aria-label="Command palette">
       <div className="w-full max-w-xl rounded-2xl overflow-hidden qx-page-in"

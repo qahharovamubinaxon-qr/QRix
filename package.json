@@ -40,7 +40,8 @@
     "recheck:sources": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/recheck-sources.mjs",
     "test:recheck": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-recheck.mjs",
     "verify:daily": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/daily-verify.mjs",
-    "test:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-verify.mjs"
+    "test:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-verify.mjs",
+    "test:modal-a11y": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-modal-a11y.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
