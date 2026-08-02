@@ -1094,6 +1094,21 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   now the same ~630 KB baseline every template carries (framework + react-dom +
   nav/tool labels + react-icons), which is the homepage-split item's territory,
   not this one's.
+- [~] Attribute the eager set of every template type that has never been
+  measured. Filed straight out of M159, which is the whole argument for it: the
+  source sweep that preceded M159 concluded the public tool routes had nothing
+  to win, and it was wrong by ~413 KB on twenty routes, because pdf-lib was
+  click-gated with no boolean anywhere for a grep to find. measure-eager-bundle
+  is one command per template and now fails loudly instead of lying, so the
+  honest version of "what else is eager" is to run it everywhere rather than to
+  reason about it. Measured so far: / 840.7 · /qr-tools/url 662.3 ·
+  /image-tools/compress 634.2 · /convert/png-to-jpg 644.9 · all /pdf-tools/* now
+  ~634-652. NEVER MEASURED: /pdf-tools/ocr (tesseract), /pdf-tools/pdf-to-word,
+  /image-tools/{remove-bg,upscale,image-to-text}, /bulk-qr, /downloader,
+  /barcode, /link-in-bio, a /blog/<post>, /qr-code-statistics. Rank by delta
+  against the ~630 KB baseline every template carries; anything materially above
+  it is a candidate, anything at it is the homepage-split item's territory.
+  Serves P0 (CWV green on the template types).
 - [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
