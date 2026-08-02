@@ -2144,3 +2144,6 @@ the sweep every run rather than asserting over a hand-listed set, and it earned
 that on its first run by failing against QRDesignStudioLoader, which I had not
 wired: a dialog with no focusable control in it at all, where Escape is the only
 exit and there was none.
+
+## M159 — pdf-lib on intent (Aug 2)
+Byte attribution on production found ~413 KB of eager pdf-lib on ~20 /pdf-tools/* routes; thirteen clients now reach it through lib/pdf-lib-loader (module-scope cache, rejected promise NOT cached, warm on file select where the first use is behind a later button). merge 1065.0 -> 651.6 KB, split 1064.8 -> 651.5, rotate 1047.0 -> 633.6; controls unmoved. Guards: test:layout 22 -> 33 assertions, and probe:pdf-defer — real headless Chrome driving a 3-page fixture through the real file input on production, baselined red against the pre-split build first, 6/6 green after. measure-eager-bundle hardened to fail loudly instead of reporting 0.0 KB. Lesson: a grep finds only gates visible as markup; pdf-lib was click-gated with no boolean anywhere. Attribute first, grep second.

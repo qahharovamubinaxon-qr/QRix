@@ -1015,7 +1015,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   here are not per-build hashed, so it could not distinguish the builds at all;
   it is the same class of error as every instrument note in this log. The
   deployment API's readyState is the honest signal.
-- [~] Re-audit which OTHER click-gated components ship eagerly. M155's finding
+- [x] Re-audit which OTHER click-gated components ship eagerly. M155's finding
   was not that QRDesignStudio is special — it is that a modal rendered as
   {open && <X/>} looks perfectly deferred and is not, and nothing in the type
   system or a Lighthouse score says so. The attribution method is now cheap
@@ -1053,11 +1053,47 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   fail loudly on a non-200 or a zero-script page instead of reporting 0.0 KB,
   because "measured nothing" and "there is nothing" print identically today.
   RESUME when the challenge header is gone.
-  RETAKEN Aug 2 12:30 UTC (M159) — the challenge is gone (/robots.txt 200, no
-  x-vercel-mitigated on /pdf-tools/merge). next: harden measure-eager-bundle to
-  fail loudly on non-200 / zero scripts / a missing must-be-present marker, THEN
-  run the byte attribution on the three templates the source sweep could not
-  answer for (a PDF tool client, an image tool client, a convert page).
+  RETAKEN AND CLOSED Aug 2 (M159), and the CAVEAT above was right: the source
+  sweep missed the biggest instance on the site, because it looked for the wrong
+  shape. `{open && <Heavy/>}` is only ONE way to be click-gated. pdf-lib was
+  gated behind a click with no boolean anywhere — the gate is that the FUNCTION
+  cannot run until a file exists — so no grep for a render condition could find
+  it. Byte attribution found it in one command:
+    /pdf-tools/merge  1065.0 KB   /pdf-tools/split      1064.8 KB
+    /pdf-tools/rotate 1047.0 KB   /pdf-tools/compress    652.6 KB
+    /image-tools/compress 634.2   /convert/png-to-jpg    644.9 KB
+  compress is the tell. It is the ONE PDF client that already loaded pdf-lib
+  through import(), and it sat with the image and convert templates while its
+  eleven siblings carried ~400 KB more: pdf-lib itself (219.0 KB) plus
+  @pdf-lib/standard-fonts (151.9 KB of base64 AFM metrics it drags behind it).
+  GENERALISE THIS, it is the durable half: the M155 rule was "a statically
+  imported module is eager no matter how it is RENDERED". The rule is bigger —
+  eager no matter how it is REACHED. A grep can only find gates that are visible
+  as markup; measure-eager-bundle finds them all, and it is one command per
+  template. Attribute first, grep second.
+  SHIPPED: thirteen clients now go through lib/pdf-lib-loader (eleven pdf-lib,
+  two the @cantoo fork for encrypted PDFs). Measured on production after deploy:
+    merge 1065.0 -> 651.6 KB   split 1064.8 -> 651.5   rotate 1047.0 -> 633.6
+    watermark 634.1   protect 634.2   (every PDF route now sits with the image
+    and convert templates, which is where compress already was)
+  ~413 KB off each of ~20 PDF tool routes. Controls unmoved: /qr-tools/url
+  662.3, /image-tools/compress 634.2.
+  Guards: test:layout 22 -> 33 assertions (one of the new ones SURVIVED its
+  first mutation — `/pdfLib = null;/` matches `// pdfLib = null;`, the same
+  substring trap as M155's setAttemptX; anchored and re-mutated three ways).
+  probe:pdf-defer is the one that matters: real headless Chrome drives a 3-page
+  fixture through the real file input on production and asserts pdf-lib is
+  absent from the loaded scripts BEFORE the file and present after, that the
+  tool renders "3 pages", and 0 page errors. Its BASELINE run against the
+  pre-split build failed exactly where it should, naming both chunks — an
+  instrument that cannot fail proves nothing. 6/6 routes green after deploy
+  (watermark, rotate, protect, split, page-numbers, delete-pages), and protect
+  pulled a DIFFERENT chunk, which is how the @cantoo path proved separately
+  wired.
+  Follow-up recorded, not taken: the remaining eager weight on a PDF route is
+  now the same ~630 KB baseline every template carries (framework + react-dom +
+  nav/tool labels + react-icons), which is the homepage-split item's territory,
+  not this one's.
 - [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
