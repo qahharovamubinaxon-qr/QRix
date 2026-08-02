@@ -901,8 +901,47 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   itself calls "a mission of its own" and whose localized half waits on the
   owner's cookie-vs-localStorage decision. Resuming it would mean opening that
   mission, not finishing this one.
-  next: enumerate every dialog in the repo before writing anything (the item's
-  own instruction), then decide shared-hook vs one-offs from what it finds.
+  THE SWEEP, done first as the item asked, and it found a SIXTH modal plus a
+  trap that would have broken a working feature.
+  Grepping for role="dialog" finds only the dialogs that already know they are
+  dialogs — the exact blind spot that let this item exist. Swept for the
+  OVERLAY SHAPE instead (`fixed inset-0` on a non-decorative element), which
+  found two more nobody had marked up at all:
+    QRDesignStudio         role/aria-modal/name (M155) · no Escape/trap/restore
+    QRDesignStudioLoader   role/aria-modal/name        · no Escape/trap/restore
+    CommandSearch          role + Escape + autofocus   · no trap/restore
+    DashboardClient drawer role/aria-modal/name        · no Escape/trap/restore
+    AiKit BeforeAfter      NO ROLE AT ALL              · nothing
+    DesignPanel            NO ROLE AT ALL              · nothing — DEAD CODE
+    CookieConsent          role, deliberately NOT modal — left alone on purpose;
+                           a focus trap on a banner that appears at page load
+                           would be hostile, and it is not a modal.
+  DesignPanel has ZERO importers anywhere in app/ or components/. Not deleted
+  (CLAUDE.md), not fixed either — the guard allowlists it WITH a re-check that
+  it is still unimported, so the exemption dies the moment anything uses it.
+  THE TRAP, found by reading before writing, which is why the item said to:
+  CommandSearch's input binds Tab to CYCLE ITS FILTERS and calls preventDefault.
+  A focus trap that moves focus on every Tab would have silently taken that
+  feature away. The hook ignores `e.defaultPrevented` for exactly this — if a
+  component already handled the key, the trap does not second-guess it.
+  SHIPPED c7ef0d0 (hook + 6 wirings + guard) and 8a1ca38 (probe).
+  lib/use-modal-a11y.ts is the single implementation; the four things that are
+  easy to get wrong are all in it: capture the trigger BEFORE focus moves
+  inside, survive the trigger unmounting (isConnected), let only the TOPMOST
+  dialog answer Escape (a module-level stack), and stand down on defaultPrevented.
+  Guard: npm run test:modal-a11y, 46 assertions, 11 mutations verified. It
+  REDOES THE SWEEP on every run rather than asserting over a hand-listed set,
+  so a seventh modal added without a11y fails on the day it lands — the M150
+  lesson. It earned that immediately: it FAILED on first run and the failure was
+  real, QRDesignStudioLoader, which I had not wired. That dialog has no
+  focusable control in it at all (it is one <p>), so Escape is the only way out
+  of it and there was none.
+  next: production is still BUILDING (the GitHub "success" status was the
+  design-v2 PREVIEW; the preview is behind Vercel SSO and 302s, so it cannot be
+  probed). Re-run `npm run probe:modal-a11y` once production serves c7ef0d0.
+  BASELINE captured on the pre-M157 production build, both URLs, so the diff is
+  readable: opens from the keyboard, focusMovedIn FALSE, focus left the dialog
+  on Tab #1, escapeClosed FALSE, focusRestored FALSE.
 - [ ] Re-audit which OTHER click-gated components ship eagerly. M155's finding
   was not that QRDesignStudio is special — it is that a modal rendered as
   {open && <X/>} looks perfectly deferred and is not, and nothing in the type
