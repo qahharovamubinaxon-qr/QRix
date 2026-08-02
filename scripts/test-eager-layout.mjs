@@ -232,6 +232,29 @@ ok("the compress route still reaches its engine dynamically", () => {
   assert.ok(/import\("@\/lib\/pdf-compress"\)/.test(compress), "CompressPdfClient never loads the compression engine");
 });
 
+/* ---- the barcode tool's labels --------------------------------------------- */
+/* The nav-i18n extraction, one template over. BarcodeClient is a client
+ * component, so its import of barcodeTool() pulled lib/barcode-types-i18n — the
+ * per-symbology copy, caveats and FAQs written for the SERVER pages, in three
+ * languages, plus the type registry it filters — into the eager bundle of
+ * /barcode and every /barcode/<type> route, EN, RU and UZ alike. Measured on
+ * production: a 94.5 KB chunk no other template carries. The tool's controls
+ * reach none of it. */
+
+ok("the barcode tool reads its labels from the tool slice, not the page registry", () => {
+  const client = read("components/BarcodeClient.tsx");
+  assert.ok(!staticallyImports(client, "barcode-types-i18n"), "BarcodeClient pulls the localized page registry — ~94 KB is eager on every barcode route again");
+  assert.ok(!staticallyImports(client, "barcode-types"), "BarcodeClient pulls the symbology registry directly");
+  assert.ok(staticallyImports(client, "barcode-tool-i18n"), "BarcodeClient does not read the extracted tool slice");
+});
+
+ok("the tool slice stays free of the registries it was split from", () => {
+  const slice = read("lib/barcode-tool-i18n.ts");
+  for (const spec of ["barcode-types-i18n", "barcode-types"]) {
+    assert.ok(!staticallyImports(slice, spec), `lib/barcode-tool-i18n imports ${spec} — the split does nothing, and the page still looks correct`);
+  }
+});
+
 /* ---- and the layout as a whole -------------------------------------------- */
 
 ok("the layout imports no heavy catalog directly", () => {

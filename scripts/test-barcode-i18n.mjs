@@ -23,11 +23,15 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { register } from "node:module";
 
-/* barcode-types-i18n imports lib/barcode-types through the "@/" alias, so the
-   hook has to be registered before it loads — hence the dynamic import (same
-   shape as scripts/test-qr-stats.mjs). */
+/* The alias hook has to be registered before any "@/"-importing module loads —
+   hence the dynamic import (same shape as scripts/test-qr-stats.mjs). The tool
+   strings moved to their own module in M159: BarcodeClient is a client
+   component, so importing them out of the localized page registry put that whole
+   registry in the eager bundle of every barcode route. This file keeps pointing
+   at wherever barcodeTool() actually lives, and test:layout holds the boundary
+   that keeps the two apart. */
 register("./alias-hooks.mjs", import.meta.url);
-const { barcodeTool } = await import("../lib/barcode-types-i18n.ts");
+const { barcodeTool } = await import("../lib/barcode-tool-i18n.ts");
 
 let pass = 0;
 const ok = (label, fn) => {

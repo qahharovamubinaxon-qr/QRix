@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiDownload, FiCopy, FiCheck, FiAlertCircle } from "react-icons/fi";
 import { trackTool } from "@/lib/track";
-import { barcodeTool, type ToolLang } from "@/lib/barcode-types-i18n";
+import { barcodeTool, type ToolLang } from "@/lib/barcode-tool-i18n";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
