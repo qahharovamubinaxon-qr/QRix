@@ -883,7 +883,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   <sha>/status` answers it, and the Vercel MCP works with projectId "q-rix" +
   teamId team_Ymbc9KJNvDDWkr2X0FzvzoSE (list_projects returns empty; go
   straight to list_deployments).
-- [~] Modal a11y beyond the announcement, and QRDesignStudio is only the case
+- [x] Modal a11y beyond the announcement, and QRDesignStudio is only the case
   that surfaced. M155 gave it role/aria-modal/aria-label because it introduced
   the inconsistency, and deliberately stopped there rather than widen a CWV
   mission: the studio still has NO focus trap, NO Escape-to-close and does not
@@ -936,12 +936,28 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   real, QRDesignStudioLoader, which I had not wired. That dialog has no
   focusable control in it at all (it is one <p>), so Escape is the only way out
   of it and there was none.
-  next: production is still BUILDING (the GitHub "success" status was the
-  design-v2 PREVIEW; the preview is behind Vercel SSO and 302s, so it cannot be
-  probed). Re-run `npm run probe:modal-a11y` once production serves c7ef0d0.
-  BASELINE captured on the pre-M157 production build, both URLs, so the diff is
-  readable: opens from the keyboard, focusMovedIn FALSE, focus left the dialog
-  on Tab #1, escapeClosed FALSE, focusRestored FALSE.
+  VERIFIED LIVE Aug 2, and every field of the probe flipped. Same instrument,
+  same two URLs, before and after the production deploy:
+    before  focusMovedIn FALSE · tabsHeldInside 0 (focus left on Tab #1) ·
+            escapeClosed FALSE · focusRestored FALSE
+    after   focusMovedIn TRUE  · tabsHeldInside 10 · escapeClosed TRUE ·
+            focusRestored TRUE · 0 page errors
+  Green on / and /qr-tools/{url,wifi,vcard} — the homepage included, which
+  matters because its QR card levitates and M155's mouse-driven probe was
+  flaky there; this one drives the keyboard, so the drift is irrelevant.
+  REGRESSION CHECK, because this mission edited both studio files: npm run
+  probe:studio still 2/2 — warm path, studio chunk, 3/3 markers, 12 canvases,
+  2 colour inputs, REOPEN OK, 0 errors. M155's deferral is untouched.
+  A NOTE ON WAITING FOR THE DEPLOY, since it cost time twice: the GitHub commit
+  status reads "Deployment has completed" for the design-v2 PREVIEW, minutes
+  after the push, while production is still BUILDING — and the preview is
+  behind Vercel SSO (302), so it cannot be probed. Use the Vercel deployment
+  list and look at `target: "production"`, not the GitHub status.
+  And the fingerprint I picked to watch for the new build — the md5 of the page's
+  chunk filename set — NEVER CHANGED ACROSS THE DEPLOY. Turbopack chunk names
+  here are not per-build hashed, so it could not distinguish the builds at all;
+  it is the same class of error as every instrument note in this log. The
+  deployment API's readyState is the honest signal.
 - [ ] Re-audit which OTHER click-gated components ship eagerly. M155's finding
   was not that QRDesignStudio is special — it is that a modal rendered as
   {open && <X/>} looks perfectly deferred and is not, and nothing in the type

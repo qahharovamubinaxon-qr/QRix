@@ -2115,3 +2115,32 @@ so the disabled state cannot outlive its window. Guard: test:shell 39/39.
 
 Also this session: `npm run verify:daily` ran as the first act of the UTC day —
 its first use as a command rather than a prose checklist. Green throughout.
+
+## M157 — every dialog got Escape, a focus trap and focus restoration (2026-08-02)
+
+Six live modals, five different answers between them. The sweep is the reusable
+part: grepping `role="dialog"` only finds dialogs that already know they are
+dialogs, which is exactly the blind spot that let this exist. Sweeping the
+overlay SHAPE (`fixed inset-0`, non-decorative) found two more with no role at
+all — AiKit's fullscreen viewer and DesignPanel.
+
+lib/use-modal-a11y.ts is the single implementation. The four things that are
+easy to get wrong are all in it: capture the trigger before focus moves inside,
+survive the trigger unmounting, let only the topmost dialog answer Escape, and
+stand down on `defaultPrevented` — CommandSearch binds Tab to cycle its filters,
+so an unconditional trap would have deleted a working feature.
+
+CookieConsent was deliberately not touched: it is a banner, not a modal.
+DesignPanel is unimported dead code — allowlisted in the guard WITH a re-check
+that it is still unimported, so the exemption expires the day anything uses it.
+
+Verified on production with the same instrument before and after: focusMovedIn
+false→true, tabsHeldInside 0→10, escapeClosed false→true, focusRestored
+false→true, on / and /qr-tools/{url,wifi,vcard}. probe:studio still 2/2, so
+M155's deferral and reopen are untouched.
+
+Guard: npm run test:modal-a11y — 46 assertions, 11 mutations verified. It redoes
+the sweep every run rather than asserting over a hand-listed set, and it earned
+that on its first run by failing against QRDesignStudioLoader, which I had not
+wired: a dialog with no focusable control in it at all, where Escape is the only
+exit and there was none.
