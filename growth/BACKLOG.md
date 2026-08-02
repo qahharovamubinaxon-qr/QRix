@@ -21,9 +21,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
 
-- [B] PRODUCTION IS SERVING A VERCEL SECURITY CHALLENGE TO NON-BROWSER CLIENTS,
-  AND I PROBABLY CAUSED IT. Found Aug 2 ~03:00 UTC (M158). Read this before
-  trusting any curl-based check, including npm run verify:daily.
+- [x] RESOLVED, self-cleared, NO OWNER ACTION NEEDED — kept in full because the
+  cause is a standing hazard for this worker's own habits, not because anything
+  is outstanding. Production served a Vercel security challenge to non-browser
+  clients for roughly 20 minutes on Aug 2 (M158).
+  IT CLEARED BY ITSELF at 03:35 UTC after ~8 minutes with no traffic from this
+  machine: /robots.txt and /sitemap.xml both 200 with no `x-vercel-mitigated`
+  header. THAT IS THE DIAGNOSIS. Attack Challenge Mode is a manual toggle and
+  does not expire on its own, so this was Vercel's AUTOMATIC, rate-triggered
+  mitigation — which also settles the open question below in my favour: the
+  owner did not enable anything at 02:41, this session's traffic tripped it.
+  The `updatedAt: 02:41:13` on the project is consistent with Vercel writing
+  the mitigation state itself.
+  SO: nothing to change in the dashboard, and the push notification sent at
+  03:26 asking the owner to check Attack Challenge Mode was premature — I
+  should have waited for one quiet re-test before escalating, since a
+  self-clearing condition is exactly what a 20-minute mitigation looks like.
+  The original write-up follows, because the traffic lesson is the durable part.
   WHAT IT IS: every path — including /robots.txt and /sitemap.xml — answers
   403 with `X-Vercel-Mitigated: challenge`, `X-Vercel-Challenge-Token: …` and a
   "Vercel Security Checkpoint" body. It is UA-independent: plain curl, a Chrome
@@ -46,11 +60,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   NOT ACTED ON DELIBERATELY: this is a security setting on the owner's Vercel
   project. Turning it off is the owner's call, not a growth worker's, and it is
   exactly the class of change this worker must not make unilaterally.
-  OWNER, please check: Vercel → q-rix → Settings → Security → Attack Challenge
-  Mode. If it is ON, decide whether to turn it off. Vercel documents that
-  verified crawlers are exempt, so indexing is probably safe either way — but
-  "probably" is not good enough for a site whose entire strategy is organic
-  search, and GSC Coverage is the place it would show up first.
+  OWNER ACTION WITHDRAWN (it self-cleared — see the resolution at the top of
+  this item). What this said, and why it was wrong to send: "check Vercel →
+  q-rix → Settings → Security → Attack Challenge Mode". There was nothing set
+  there to find. Worth one GSC Coverage glance at the next KPI pass in case a
+  crawl happened to land inside the ~20-minute window, but a gap that short is
+  a retry for Googlebot, not a deindexing event.
   UNTIL IT CLEARS: verify:daily, recheck:sources, measure-eager-bundle and
   every other curl-based instrument report failures that are NOT real defects.
   Do not "fix" what they report. Re-test with
