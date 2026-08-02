@@ -212,11 +212,14 @@ ok("the pdf-lib loader reaches the library only through a dynamic import", () =>
 /* A static import cannot fail; a dynamic one can. One dropped request must not
  * turn every PDF tool into a permanently dead button for the rest of the visit,
  * which is exactly what caching the rejected promise would do. */
+/* Anchored to the start of a line, because the first version of this assertion
+ * was `/pdfLib = null;/` and it SURVIVED its mutation: commenting the line out
+ * leaves `// pdfLib = null;`, which still contains the substring. Same family as
+ * the `setAttemptX` trap above — assert the statement, not the characters. */
 ok("a failed pdf-lib chunk is not cached as the answer", () => {
-  assert.ok(
-    /pdfLib = null;/.test(pdfLoader) && /cantoo = null;/.test(pdfLoader),
-    "a rejected import stays in the module-scope cache — a single dropped chunk kills the tool until reload",
-  );
+  assert.ok(/^\s*pdfLib = null;\s*$/m.test(pdfLoader), "a rejected pdf-lib import stays in the module-scope cache — one dropped chunk kills the tool until reload");
+  assert.ok(/^\s*cantoo = null;\s*$/m.test(pdfLoader), "a rejected @cantoo import stays in the module-scope cache");
+  assert.ok(/throw err;/.test(pdfLoader), "the loader swallows the failure, so callers destructure undefined and get a TypeError instead of the real error");
 });
 
 /* lib/pdf-compress.ts is deliberately NOT in the list above: it imports pdf-lib
