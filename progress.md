@@ -2095,3 +2095,23 @@ scripts/probe-design-studio.mjs (new), app/page.tsx, components/QRGenerator.tsx,
 components/QRDesignStudio.tsx, scripts/test-eager-layout.mjs,
 scripts/measure-eager-bundle.mjs, package.json.
 Commits 2be221f, bedf9da, 0e59099, 5e60a2e on design-v2.
+
+## M156b — the pre-hydration file picker, verified live (2026-08-02)
+
+M156 shipped the fix (f5b61d7); this closes it. The three URLs the item named
+now serve `input#image-tool-file` with `disabled=""` + `aria-describedby=
+"image-tool-status"` where the recorded pre-deploy baseline had no `disabled`
+attribute at all, each localized twin carrying its own status copy (EN/RU/UZ)
+with zero English leakage, and `label[for]` still pairing so nothing a crawler
+reads has moved.
+
+The verification worth reusing: the item's own recorded check was curl-only,
+and curl can see the PRE-hydration state exclusively — a control mistakenly
+left disabled after the engine mounts would satisfy every assertion in it while
+being a worse defect than the one being repaired. probe-hydration.mjs on the
+deployed pages answers the other half: shellStillPresent false, liveDropzone 1,
+toolAreaHydrated true. The busy shell is discarded when the engine takes over,
+so the disabled state cannot outlive its window. Guard: test:shell 39/39.
+
+Also this session: `npm run verify:daily` ran as the first act of the UTC day —
+its first use as a command rather than a prose checklist. Green throughout.

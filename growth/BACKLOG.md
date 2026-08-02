@@ -317,7 +317,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   changed code: 6 URLs across both families and all three languages, and
   toolAreaHydrated:true / shellStillPresent:false / liveDropzone:1 on EN, RU
   and UZ.
-- [~] The shell's file input is real and enabled, so a tap before the engine
+- [x] The shell's file input is real and enabled, so a tap before the engine
   chunk lands opens a picker whose selection is then dropped silently when the
   live engine replaces the subtree. Small window, but it is exactly the silent
   failure this repo removes elsewhere. Options: hand the File to the engine on
@@ -346,13 +346,24 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   localized en/ru/uz. Crawler-facing markup unchanged: still input[type=file]
   with a matching label[for], and `disabled` is not something a crawler weighs.
   Guard: npm run test:shell, 39 assertions (was 33), 6 mutations verified.
-  next: verify live once the deploy lands — `curl -s https://qrixtools.com/
-  convert/png-to-jpg | grep -o 'id="image-tool-file"[^>]*'` must now contain
-  `disabled`, the same on /ru/convert/png-to-jpg and /uz/resize/1920x1080, and
-  each localized twin must carry its own status string ("Инструмент готовится",
-  "Asbob tayyorlanmoqda") with no English "Preparing the tool" leaking onto
-  them. Pre-deploy baseline, captured for the diff: all three URLs served the
-  input with NO disabled attribute. Then mark [x] and log the DAILY_LOG line.
+  VERIFIED LIVE Aug 2 (M156b), against the exact check written above. All three
+  URLs 200 and now serve `<input id="image-tool-file" type="file" accept=
+  "image/*" disabled="" aria-describedby="image-tool-status" ...>` — the
+  pre-deploy baseline recorded here was NO disabled attribute on any of them,
+  so the diff is the fix and nothing else. Each twin carries its own status
+  node: EN "Preparing the tool — one moment.", RU "Инструмент готовится — одну
+  секунду.", UZ "Asbob tayyorlanmoqda — bir lahza."; the English string returns
+  0 occurrences on both localized pages. label[for="image-tool-file"] still
+  pairs on all three, so the crawler-facing shape is unchanged as intended.
+  THE CHECK THE ITEM DID NOT ASK FOR, and it is the one that could have failed:
+  curl can only ever see the PRE-hydration state, so a control left disabled
+  after the engine mounts would look identical to a correct fix in every
+  assertion above. Ran scripts/probe-hydration.mjs (real headless Chrome, CDP)
+  against the same three URLs post-deploy: toolAreaHydrated true, liveDropzone
+  1, hiddenFileInputs 1, loadingFallbackVisible false, and shellStillPresent
+  FALSE on all three — the disabled shell is discarded entirely when the engine
+  takes over, so the busy state cannot outlive the window it describes.
+  Guard re-run on the deployed tree: npm run test:shell 39/39.
 - [x] BarcodeClient a11y: label[for]+id on value input, range, checkbox,
   textarea; human-readable names for color presets ("Black", not "#000000").
   Mirror the WiFi page pattern, which does this correctly (audit MEDIUM).
