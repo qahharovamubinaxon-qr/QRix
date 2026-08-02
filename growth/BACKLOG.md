@@ -20,6 +20,48 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 ## NOW (this week)
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
+
+- [B] PRODUCTION IS SERVING A VERCEL SECURITY CHALLENGE TO NON-BROWSER CLIENTS,
+  AND I PROBABLY CAUSED IT. Found Aug 2 ~03:00 UTC (M158). Read this before
+  trusting any curl-based check, including npm run verify:daily.
+  WHAT IT IS: every path — including /robots.txt and /sitemap.xml — answers
+  403 with `X-Vercel-Mitigated: challenge`, `X-Vercel-Challenge-Token: …` and a
+  "Vercel Security Checkpoint" body. It is UA-independent: plain curl, a Chrome
+  UA and a spoofed Googlebot UA all get 403. (A spoofed Googlebot getting 403
+  proves nothing about the real one — Vercel verifies crawlers by IP/rDNS, not
+  by UA, so a fake Googlebot from a random IP SHOULD be challenged.)
+  NOT just my IP: WebFetch, on a different network, is also 403.
+  REAL BROWSERS ARE FINE. probe:modal-a11y and probe:studio both drove real
+  headless Chrome through these same URLs at ~02:50 and got the real pages —
+  Chrome solves the JS challenge transparently. So this is not an outage, and
+  M157's live verification is unaffected and stands.
+  TIMELINE, and it points at me: verify:daily curled 10 URLs successfully at
+  01:54 UTC. The Vercel project's `updatedAt` is 02:41:13 UTC. First observed
+  403 is 02:59. Between 02:40 and 02:55 this session ran three headless-Chrome
+  probe sessions plus dozens of curls against the same handful of URLs. The
+  most likely reading is that Vercel's automatic attack mitigation tripped on
+  that burst and enabled the challenge project-wide. I cannot prove it from
+  here, and the alternative (the owner toggled Attack Challenge Mode by hand at
+  02:41) is not excluded.
+  NOT ACTED ON DELIBERATELY: this is a security setting on the owner's Vercel
+  project. Turning it off is the owner's call, not a growth worker's, and it is
+  exactly the class of change this worker must not make unilaterally.
+  OWNER, please check: Vercel → q-rix → Settings → Security → Attack Challenge
+  Mode. If it is ON, decide whether to turn it off. Vercel documents that
+  verified crawlers are exempt, so indexing is probably safe either way — but
+  "probably" is not good enough for a site whose entire strategy is organic
+  search, and GSC Coverage is the place it would show up first.
+  UNTIL IT CLEARS: verify:daily, recheck:sources, measure-eager-bundle and
+  every other curl-based instrument report failures that are NOT real defects.
+  Do not "fix" what they report. Re-test with
+  `curl -sI https://qrixtools.com/robots.txt | grep -i x-vercel-mitigated`;
+  no such header means it has cleared.
+  LESSON FOR THIS WORKER, independent of who caused it: the verification habit
+  this repo has built — probe production repeatedly, curl a dozen URLs per
+  check, re-run three times for confidence — is itself a traffic pattern.
+  Space the runs out, prefer one probe run over three where the question does
+  not need three, and never point a poll loop at production at 30s intervals
+  (which is what M157's deploy watcher did for 38 minutes).
 - [x] The FOURTH English-only client tool, and it was eight tools wide.
   TAKEN + SHIPPED Aug 1 (M150 — 4275c22, d68e76a, c9bba0c). All eight clients
   behind LocalizedToolEngine now take `lang`; strings live in
@@ -958,7 +1000,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   here are not per-build hashed, so it could not distinguish the builds at all;
   it is the same class of error as every instrument note in this log. The
   deployment API's readyState is the honest signal.
-- [~] Re-audit which OTHER click-gated components ship eagerly. M155's finding
+- [ ] Re-audit which OTHER click-gated components ship eagerly. M155's finding
   was not that QRDesignStudio is special — it is that a modal rendered as
   {open && <X/>} looks perfectly deferred and is not, and nothing in the type
   system or a Lighthouse score says so. The attribution method is now cheap
@@ -985,6 +1027,17 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   item is measure-eager-bundle attribution per template, not a grep. What the
   grep does establish is that the obvious `{open && <Heavy/>}` shape is not
   sitting unnoticed on the public tool routes.
+  TAKEN then PUT BACK Aug 2 (M158), unstarted — no code touched, marker reverted
+  [~] -> [ ]. The byte-attribution half cannot run: measure-eager-bundle fetches
+  the page with plain HTTP and production is answering 403 to every non-browser
+  client (see the challenge item at the top of NOW). It reported "0 eager
+  scripts, 0.0 KB" on all three templates with every marker absent — INCLUDING
+  the nav-label marker its own comment says must always be present, which is
+  what gave the instrument away rather than three templates appearing to ship
+  no JavaScript. Worth hardening whenever this is next taken: the script should
+  fail loudly on a non-200 or a zero-script page instead of reporting 0.0 KB,
+  because "measured nothing" and "there is nothing" print identically today.
+  RESUME when the challenge header is gone.
 - [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
