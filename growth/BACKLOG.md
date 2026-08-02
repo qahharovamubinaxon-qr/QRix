@@ -951,6 +951,24 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   only a click can flip. Start from the PDF/image tool clients, which are the
   other 46 routes. Do NOT defer anything a crawler must see — M139's rule holds:
   defer on INTENT, inline on PAINT.
+  SCOPED Aug 2 during M157's deploy wait (read-only, nothing changed), and the
+  item looks SMALLER than it was filed as. Swept components/ for the
+  `{flag && <Component/>}` shape. On the PUBLIC tool routes every hit is a
+  PAINT gate, not an intent gate — `{!img && <AiDropzone/>}`, `{!beforeUrl &&
+  <AiDropzone/>}`, `{!live && <CloudNotice>}` — i.e. the thing renders on
+  arrival and disappears once you act. M139's rule says inline those, so they
+  are correctly NOT deferred and there is nothing to win there.
+  The one genuine intent-gate found is `{tab === "analytics" && <AnalyticsBoard
+  />}` in components/admin/AdminPanel.tsx. Deprioritised, not taken: /admin is
+  owner-only and noindex, so it serves no P0 KPI. (AnalyticsBoard itself does
+  NOT import recharts — the three recharts importers are AnalyticsChart,
+  DashboardChart and DashboardClient, all behind auth.)
+  CAVEAT, and the item should not be closed on this alone: a source sweep is
+  not a byte measurement. The M155 finding was that a statically imported
+  module is eager no matter how it is RENDERED, so the honest version of this
+  item is measure-eager-bundle attribution per template, not a grep. What the
+  grep does establish is that the obvious `{open && <Heavy/>}` shape is not
+  sitting unnoticed on the public tool routes.
 - [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
