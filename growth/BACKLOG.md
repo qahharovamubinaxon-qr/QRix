@@ -1015,7 +1015,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   here are not per-build hashed, so it could not distinguish the builds at all;
   it is the same class of error as every instrument note in this log. The
   deployment API's readyState is the honest signal.
-- [ ] Re-audit which OTHER click-gated components ship eagerly. M155's finding
+- [~] Re-audit which OTHER click-gated components ship eagerly. M155's finding
   was not that QRDesignStudio is special — it is that a modal rendered as
   {open && <X/>} looks perfectly deferred and is not, and nothing in the type
   system or a Lighthouse score says so. The attribution method is now cheap
@@ -1053,6 +1053,11 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   fail loudly on a non-200 or a zero-script page instead of reporting 0.0 KB,
   because "measured nothing" and "there is nothing" print identically today.
   RESUME when the challenge header is gone.
+  RETAKEN Aug 2 12:30 UTC (M159) — the challenge is gone (/robots.txt 200, no
+  x-vercel-mitigated on /pdf-tools/merge). next: harden measure-eager-bundle to
+  fail loudly on non-200 / zero scripts / a missing must-be-present marker, THEN
+  run the byte attribution on the three templates the source sweep could not
+  answer for (a PDF tool client, an image tool client, a convert page).
 - [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
