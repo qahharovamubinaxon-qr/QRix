@@ -42,7 +42,8 @@
     "verify:daily": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/daily-verify.mjs",
     "test:verify": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-verify.mjs",
     "test:modal-a11y": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-modal-a11y.mjs",
-    "probe:modal-a11y": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-modal-a11y.mjs"
+    "probe:modal-a11y": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-modal-a11y.mjs",
+    "probe:pdf-defer": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-pdf-defer.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
