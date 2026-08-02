@@ -1094,7 +1094,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   now the same ~630 KB baseline every template carries (framework + react-dom +
   nav/tool labels + react-icons), which is the homepage-split item's territory,
   not this one's.
-- [~] Attribute the eager set of every template type that has never been
+- [x] Attribute the eager set of every template type that has never been
   measured. Filed straight out of M159, which is the whole argument for it: the
   source sweep that preceded M159 concluded the public tool routes had nothing
   to win, and it was wrong by ~413 KB on twenty routes, because pdf-lib was
@@ -1109,6 +1109,45 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   against the ~630 KB baseline every template carries; anything materially above
   it is a candidate, anything at it is the homepage-split item's territory.
   Serves P0 (CWV green on the template types).
+  SWEPT Aug 2, seventeen templates, every figure measured on production. Raw
+  eager KB, excluding the noModule legacy bundle no module-capable browser
+  fetches:
+      840.7  /                      724.7  /barcode         <- the only outlier
+      680.9  /link-in-bio           662.3  /qr-tools/url
+      661.7  /pdf-tools/pdf-to-word 658.0  /image-tools
+      652.0  /pdf-tools/ocr         651.6  /pdf-tools/merge
+      651.5  /qr-code-statistics    649.3  /image-tools/remove-bg
+      649.1  /image-tools/upscale   644.9  /convert/png-to-jpg
+      644.9  /resize/1920x1080      638.3  /downloader
+      634.2  /image-tools/compress  633.6  /pdf-tools/rotate
+      626.3  /blog/<post>           624.4  /bulk-qr
+      617.1  /free-forever          617.1  /about
+  THE RESULT IS MOSTLY A NEGATIVE ONE, and that is worth as much as a finding:
+  fifteen of seventeen sit in a 617-662 KB band, i.e. on the shared floor
+  (framework + react-dom + nav/tool labels + react-icons) with only their own
+  page's code on top. tesseract (/pdf-tools/ocr), the AI image tools and the
+  downloader are all already dynamic — there is no second pdf-lib hiding.
+  /barcode was the one real outlier and it is fixed, see the item below.
+  /link-in-bio at 680.9 is the only other page above the band; its extra is one
+  28.9 KB chunk, too small for a mission of its own but worth a look for anyone
+  already in that file. The homepage's 840.7 is the homepage-split item.
+  CLOSED — the sweep answered its question. Re-run it after any mission that
+  adds a template, not on a schedule.
+- [x] /barcode's tool labels dragged the whole localized page registry (M159b,
+  found by the sweep above and fixed the same session). BarcodeClient is a
+  CLIENT component, so importing barcodeTool() out of lib/barcode-types-i18n put
+  that entire registry — per-symbology copy, caveats and two FAQs per format in
+  three languages, plus lib/barcode-types which it filters — into the eager
+  bundle of /barcode AND every /barcode/<type> route in EN, RU and UZ. The
+  tool's controls reach none of it: the extracted block has zero references to
+  the registry, which is why it could move whole into lib/barcode-tool-i18n.ts
+  (7.2 KB; the registry keeps 50.7 KB for the server pages). Exactly the
+  nav-i18n extraction one template over — the third time this shape has cost
+  real bytes, and the pattern is now worth stating outright: A CLIENT COMPONENT
+  READING ONE SLICE OF A CONTENT REGISTRY SHIPS THE WHOLE REGISTRY. Guard:
+  test:layout 33 -> 35. The assertion that matters is the second one — the slice
+  must not re-import what it was split from — because that failure renders
+  identically and only the bytes come back.
 - [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
