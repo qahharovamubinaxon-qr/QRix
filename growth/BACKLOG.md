@@ -883,7 +883,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   <sha>/status` answers it, and the Vercel MCP works with projectId "q-rix" +
   teamId team_Ymbc9KJNvDDWkr2X0FzvzoSE (list_projects returns empty; go
   straight to list_deployments).
-- [ ] Modal a11y beyond the announcement, and QRDesignStudio is only the case
+- [~] Modal a11y beyond the announcement, and QRDesignStudio is only the case
   that surfaced. M155 gave it role/aria-modal/aria-label because it introduced
   the inconsistency, and deliberately stopped there rather than widen a CWV
   mission: the studio still has NO focus trap, NO Escape-to-close and does not
@@ -894,6 +894,15 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   siblings — because a shared useModal hook is almost certainly the right answer
   and three one-off fixes is the wrong one. Cheap, no measurement needed, and it
   serves P0's "everything honest" as much as E-E-A-T does.
+  TAKEN Aug 2 (M157). Taken ahead of the CWV [~] epic deliberately, and the
+  reason is recorded so nobody re-litigates it: that item has been [~] across
+  eight tranches by design — it is a standing epic, not a half-finished change
+  — and its one unblocked lever left is the homepage split, which the item
+  itself calls "a mission of its own" and whose localized half waits on the
+  owner's cookie-vs-localStorage decision. Resuming it would mean opening that
+  mission, not finishing this one.
+  next: enumerate every dialog in the repo before writing anything (the item's
+  own instruction), then decide shared-hook vs one-offs from what it finds.
 - [ ] Re-audit which OTHER click-gated components ship eagerly. M155's finding
   was not that QRDesignStudio is special — it is that a modal rendered as
   {open && <X/>} looks perfectly deferred and is not, and nothing in the type
