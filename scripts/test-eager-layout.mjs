@@ -169,6 +169,66 @@ ok("a failed studio chunk is a visible state, not a dead button", () => {
   assert.ok(/\bsetAttempt\b/.test(studioLoader), "the failure state offers no retry");
 });
 
+/* ---- pdf-lib on the PDF tool routes ---------------------------------------- */
+/* The same shape as the design studio, one template over and four times the
+ * weight: pdf-lib is ~219 KB and drags @pdf-lib/standard-fonts (~152 KB of
+ * base64 font metrics) behind it, and thirteen tool clients imported it for a
+ * function that cannot run until the visitor has chosen a file. Measured on
+ * production before the split: /pdf-tools/{merge,split,rotate} ~1050 KB eager,
+ * /pdf-tools/compress (which already loaded it on demand) 652 KB, the image and
+ * convert templates 634-645 KB. Nothing on the page looks wrong when the static
+ * import comes back — the tool still works, it just costs 400 KB again. */
+
+const PDF_LIB_CLIENTS = [
+  "CropPdfClient", "JpgToPdfClient", "MergePdfClient", "PageNumbersClient",
+  "PageSelectClient", "RedactPdfClient", "ReorderPdfClient", "RotatePdfClient",
+  "SignPdfClient", "SplitPdfClient", "WatermarkClient",
+  /* the encrypted-PDF fork, its own package and its own chunk */
+  "ProtectPdfClient", "UnlockPdfClient",
+];
+
+for (const name of PDF_LIB_CLIENTS) {
+  ok(`${name} reaches pdf-lib through the loader`, () => {
+    const src = read(`components/${name}.tsx`);
+    assert.ok(
+      !staticallyImports(src, "pdf-lib"),
+      `${name} imports pdf-lib for value — ~400 KB is eager on its route again`,
+    );
+    assert.ok(
+      /from "@\/lib\/pdf-lib-loader"/.test(src),
+      `${name} does not go through lib/pdf-lib-loader`,
+    );
+  });
+}
+
+const pdfLoader = read("lib/pdf-lib-loader.ts");
+
+ok("the pdf-lib loader reaches the library only through a dynamic import", () => {
+  assert.ok(!staticallyImports(pdfLoader, "pdf-lib"), "the loader statically imports pdf-lib — the split does nothing");
+  assert.ok(/import\("pdf-lib"\)/.test(pdfLoader), "the loader never loads pdf-lib");
+  assert.ok(/import\("@cantoo\/pdf-lib"\)/.test(pdfLoader), "the loader never loads the encrypted-PDF fork");
+});
+
+/* A static import cannot fail; a dynamic one can. One dropped request must not
+ * turn every PDF tool into a permanently dead button for the rest of the visit,
+ * which is exactly what caching the rejected promise would do. */
+ok("a failed pdf-lib chunk is not cached as the answer", () => {
+  assert.ok(
+    /pdfLib = null;/.test(pdfLoader) && /cantoo = null;/.test(pdfLoader),
+    "a rejected import stays in the module-scope cache — a single dropped chunk kills the tool until reload",
+  );
+});
+
+/* lib/pdf-compress.ts is deliberately NOT in the list above: it imports pdf-lib
+ * statically and that is correct, because CompressPdfClient only ever reaches it
+ * through import("@/lib/pdf-compress"). Asserting it here would forbid the very
+ * pattern this whole section exists to enforce. */
+ok("the compress route still reaches its engine dynamically", () => {
+  const compress = read("components/CompressPdfClient.tsx");
+  assert.ok(!staticallyImports(compress, "lib/pdf-compress"), "CompressPdfClient pulls the compression engine — and pdf-lib with it — eagerly");
+  assert.ok(/import\("@\/lib\/pdf-compress"\)/.test(compress), "CompressPdfClient never loads the compression engine");
+});
+
 /* ---- and the layout as a whole -------------------------------------------- */
 
 ok("the layout imports no heavy catalog directly", () => {

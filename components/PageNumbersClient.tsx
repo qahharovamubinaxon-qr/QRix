@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { loadPdfLib } from "@/lib/pdf-lib-loader";
 import { addRecentFile, bumpPdfStats } from "@/lib/pdf-stats";
 import { FiUpload, FiDownload, FiFile, FiHash } from "react-icons/fi";
 
@@ -26,8 +26,13 @@ export default function PageNumbersClient() {
     if (!f) return;
     setFile(f);
     setDone(false);
-    const pdf = await PDFDocument.load(await f.arrayBuffer());
-    setPageCount(pdf.getPageCount());
+    /* The count is a preview, not the job — a corrupt file or a dropped chunk
+       must not throw here, run() reports failures. */
+    try {
+      const { PDFDocument } = await loadPdfLib();
+      const pdf = await PDFDocument.load(await f.arrayBuffer());
+      setPageCount(pdf.getPageCount());
+    } catch { setPageCount(null); }
   }
 
   async function run() {
@@ -36,6 +41,7 @@ export default function PageNumbersClient() {
     setDone(false);
     const start = Date.now();
     try {
+      const { PDFDocument, StandardFonts, rgb } = await loadPdfLib();
       const pdf = await PDFDocument.load(await file.arrayBuffer());
       const font = await pdf.embedFont(StandardFonts.Helvetica);
       const pages = pdf.getPages();

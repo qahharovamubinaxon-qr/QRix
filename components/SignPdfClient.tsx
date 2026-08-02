@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { FiEdit3, FiUpload, FiTrash2, FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { PDFDocument } from "pdf-lib";
+import { loadPdfLib, warmPdfLib } from "@/lib/pdf-lib-loader";
 import { UploadBox } from "@/components/PdfToTextClient";
 
 /* eslint-disable @typescript-eslint/no-explicit-any, @next/next/no-img-element */
@@ -30,6 +30,7 @@ export default function SignPdfClient() {
   useEffect(() => {
     if (!file) { pdfRef.current = null; setNumPages(0); setPlace(null); return; }
     let cancelled = false;
+    warmPdfLib(); // signing needs it; fetch it while they draw the signature
     (async () => {
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
@@ -84,6 +85,7 @@ export default function SignPdfClient() {
     if (target.kind === "cancelled") return;
     setBusy(true);
     try {
+      const { PDFDocument } = await loadPdfLib();
       const doc = await PDFDocument.load(await file.arrayBuffer());
       const png = await doc.embedPng(sig);
       const pages = doc.getPages();

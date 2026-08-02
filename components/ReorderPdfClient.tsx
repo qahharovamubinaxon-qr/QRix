@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PDFDocument } from "pdf-lib";
+import { loadPdfLib } from "@/lib/pdf-lib-loader";
 import { addRecentFile, bumpPdfStats } from "@/lib/pdf-stats";
 import { FiUpload, FiDownload, FiArrowUp, FiArrowDown, FiFile } from "react-icons/fi";
 
@@ -16,9 +16,13 @@ export default function ReorderPdfClient() {
     if (!f) return;
     setFile(f);
     setDone(false);
-    const bytes = await f.arrayBuffer();
-    const pdf = await PDFDocument.load(bytes);
-    setOrder(Array.from({ length: pdf.getPageCount() }, (_, i) => i));
+    /* The page list is a preview — savePdf() is where a failure is reported. */
+    try {
+      const bytes = await f.arrayBuffer();
+      const { PDFDocument } = await loadPdfLib();
+      const pdf = await PDFDocument.load(bytes);
+      setOrder(Array.from({ length: pdf.getPageCount() }, (_, i) => i));
+    } catch { setOrder([]); }
   }
 
   function move(idx: number, dir: -1 | 1) {
@@ -38,6 +42,7 @@ export default function ReorderPdfClient() {
     const start = Date.now();
     try {
       const bytes = await file.arrayBuffer();
+      const { PDFDocument } = await loadPdfLib();
       const src = await PDFDocument.load(bytes);
       const out = await PDFDocument.create();
       const copied = await out.copyPages(src, order);

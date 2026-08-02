@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FiScissors } from "react-icons/fi";
-import { PDFDocument } from "pdf-lib";
+import { loadPdfLib } from "@/lib/pdf-lib-loader";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { pickSave, finishSave } from "@/lib/save-file";
 
@@ -17,6 +17,7 @@ export default function SplitPdfClient() {
     setPageCount(null);
     if (!f) return;
     try {
+      const { PDFDocument } = await loadPdfLib();
       const pdf = await PDFDocument.load(await f.arrayBuffer());
       setPageCount(pdf.getPageCount());
     } catch { setPageCount(null); }
@@ -24,7 +25,12 @@ export default function SplitPdfClient() {
 
   async function splitPdf() {
     if (!file) return;
-    const src = await PDFDocument.load(await file.arrayBuffer());
+    /* This load runs before the save picker, outside the try below, so the
+       loader gets its own guard — a dropped chunk must not be an unhandled
+       rejection on a button press. */
+    const lib = await loadPdfLib().catch(() => null);
+    if (!lib) { alert("Split failed: the PDF engine could not be loaded. Check your connection and try again."); return; }
+    const src = await lib.PDFDocument.load(await file.arrayBuffer());
     const nums = pages.split(",").map((p) => parseInt(p.trim())).filter((p) => !isNaN(p) && p > 0 && p <= src.getPageCount());
     if (!nums.length) { alert("Enter valid page numbers, e.g. 1,3,5"); return; }
     const outName = file.name.replace(/\.pdf$/i, "") + "-pages.pdf";
@@ -32,7 +38,7 @@ export default function SplitPdfClient() {
     if (target.kind === "cancelled") return;
     setLoading(true);
     try {
-      const out = await PDFDocument.create();
+      const out = await lib.PDFDocument.create();
       const copied = await out.copyPages(src, nums.map((p) => p - 1));
       copied.forEach((p) => out.addPage(p));
       const bytes = await out.save();

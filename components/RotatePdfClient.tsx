@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PDFDocument, degrees } from "pdf-lib";
+import { loadPdfLib } from "@/lib/pdf-lib-loader";
 import { addRecentFile, bumpPdfStats } from "@/lib/pdf-stats";
 import { FiUpload, FiRotateCw, FiDownload, FiFile } from "react-icons/fi";
 
@@ -18,9 +18,13 @@ export default function RotatePdfClient() {
     if (!f) return;
     setFile(f);
     setDone(false);
-    const bytes = await f.arrayBuffer();
-    const pdf = await PDFDocument.load(bytes);
-    setPageCount(pdf.getPageCount());
+    /* Preview count only — rotatePdf() is where a failure is reported. */
+    try {
+      const bytes = await f.arrayBuffer();
+      const { PDFDocument } = await loadPdfLib();
+      const pdf = await PDFDocument.load(bytes);
+      setPageCount(pdf.getPageCount());
+    } catch { setPageCount(null); }
   }
 
   async function rotatePdf() {
@@ -30,6 +34,7 @@ export default function RotatePdfClient() {
     const start = Date.now();
     try {
       const bytes = await file.arrayBuffer();
+      const { PDFDocument, degrees } = await loadPdfLib();
       const pdf = await PDFDocument.load(bytes);
       const total = pdf.getPageCount();
 

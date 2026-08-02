@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PDFDocument } from "pdf-lib";
+import { loadPdfLib } from "@/lib/pdf-lib-loader";
 import { addRecentFile, bumpPdfStats } from "@/lib/pdf-stats";
 import { FiUpload, FiDownload, FiFile } from "react-icons/fi";
 
@@ -34,8 +34,12 @@ export default function PageSelectClient({ mode }: { mode: "delete" | "extract" 
     if (!f) return;
     setFile(f);
     setDone(false);
-    const pdf = await PDFDocument.load(await f.arrayBuffer());
-    setTotal(pdf.getPageCount());
+    /* Preview count only — run() is where a failure has to be reported. */
+    try {
+      const { PDFDocument } = await loadPdfLib();
+      const pdf = await PDFDocument.load(await f.arrayBuffer());
+      setTotal(pdf.getPageCount());
+    } catch { setTotal(null); }
   }
 
   async function run() {
@@ -47,6 +51,7 @@ export default function PageSelectClient({ mode }: { mode: "delete" | "extract" 
     setDone(false);
     const start = Date.now();
     try {
+      const { PDFDocument } = await loadPdfLib();
       const src = await PDFDocument.load(await file.arrayBuffer());
       const out = await PDFDocument.create();
 

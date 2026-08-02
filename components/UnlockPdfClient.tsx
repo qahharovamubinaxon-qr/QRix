@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PDFDocument } from "@cantoo/pdf-lib";
+import { loadCantooPdfLib } from "@/lib/pdf-lib-loader";
 import { addRecentFile, bumpPdfStats } from "@/lib/pdf-stats";
 import { FiUpload, FiUnlock, FiFile, FiEye, FiEyeOff } from "react-icons/fi";
 
@@ -27,9 +27,17 @@ export default function UnlockPdfClient() {
     setDone(false);
     setWrong(false);
     const start = Date.now();
+    /* Loaded before the try below on purpose: that catch means "wrong
+       password", and a dropped chunk must not be reported as one. */
+    const lib = await loadCantooPdfLib().catch(() => null);
+    if (!lib) {
+      setLoading(false);
+      alert("The PDF engine could not be loaded. Check your connection and try again.");
+      return;
+    }
     try {
       // Паролни бериб очамиз, кейин паролсиз сақлаймиз
-      const pdf = await PDFDocument.load(await file.arrayBuffer(), { password });
+      const pdf = await lib.PDFDocument.load(await file.arrayBuffer(), { password });
       const out = await pdf.save();
       const ab = new ArrayBuffer(out.byteLength);
       new Uint8Array(ab).set(out);

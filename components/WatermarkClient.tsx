@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PDFDocument, rgb, StandardFonts, degrees } from "pdf-lib";
+import { loadPdfLib } from "@/lib/pdf-lib-loader";
 import { addRecentFile, bumpPdfStats } from "@/lib/pdf-stats";
 import { FiUpload, FiDownload, FiFile, FiDroplet } from "react-icons/fi";
 
@@ -19,8 +19,12 @@ export default function WatermarkClient() {
     if (!f) return;
     setFile(f);
     setDone(false);
-    const pdf = await PDFDocument.load(await f.arrayBuffer());
-    setPageCount(pdf.getPageCount());
+    /* Preview count only — run() is where a failure is reported. */
+    try {
+      const { PDFDocument } = await loadPdfLib();
+      const pdf = await PDFDocument.load(await f.arrayBuffer());
+      setPageCount(pdf.getPageCount());
+    } catch { setPageCount(null); }
   }
 
   async function run() {
@@ -34,6 +38,7 @@ export default function WatermarkClient() {
     setDone(false);
     const start = Date.now();
     try {
+      const { PDFDocument, StandardFonts, rgb, degrees } = await loadPdfLib();
       const pdf = await PDFDocument.load(await file.arrayBuffer());
       const font = await pdf.embedFont(StandardFonts.HelveticaBold);
       const op = opacity / 100;

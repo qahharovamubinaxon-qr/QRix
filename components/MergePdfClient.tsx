@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FiUploadCloud, FiFilePlus, FiLayers } from "react-icons/fi";
-import { PDFDocument } from "pdf-lib";
+import { loadPdfLib, warmPdfLib } from "@/lib/pdf-lib-loader";
 import ReorderGrid, { type ReorderItem } from "@/components/ReorderGrid";
 import { pickSave, finishSave } from "@/lib/save-file";
 import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
@@ -34,6 +34,7 @@ export default function MergePdfClient({ lang = "en" }: { lang?: ToolLang }) {
   async function addFiles(files: FileList | null) {
     if (!files) return;
     const list = Array.from(files).filter((f) => f.name.toLowerCase().endsWith(".pdf"));
+    if (list.length) warmPdfLib();
     const next: Pdf[] = [];
     for (const f of list) {
       const thumb = await firstPageThumb(f);
@@ -49,6 +50,7 @@ export default function MergePdfClient({ lang = "en" }: { lang?: ToolLang }) {
     setBusy(true);
     setProgress(t.merge.merging);
     try {
+      const { PDFDocument } = await loadPdfLib();
       const out = await PDFDocument.create();
       for (const it of pdfs) {
         const src = await PDFDocument.load(await it.file.arrayBuffer());

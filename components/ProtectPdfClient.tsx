@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PDFDocument } from "@cantoo/pdf-lib";
+import { loadCantooPdfLib } from "@/lib/pdf-lib-loader";
 import { addRecentFile, bumpPdfStats } from "@/lib/pdf-stats";
 import { FiUpload, FiDownload, FiFile, FiLock, FiEye, FiEyeOff } from "react-icons/fi";
 
@@ -20,6 +20,7 @@ export default function ProtectPdfClient() {
     setFile(f);
     setDone(false);
     try {
+      const { PDFDocument } = await loadCantooPdfLib();
       const pdf = await PDFDocument.load(await f.arrayBuffer());
       setPageCount(pdf.getPageCount());
     } catch {
@@ -37,6 +38,7 @@ export default function ProtectPdfClient() {
     setDone(false);
     const start = Date.now();
     try {
+      const { PDFDocument } = await loadCantooPdfLib();
       const pdf = await PDFDocument.load(await file.arrayBuffer());
       await pdf.encrypt({ userPassword: password, ownerPassword: password });
       const out = await pdf.save();

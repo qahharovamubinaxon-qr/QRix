@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight, FiRotateCcw, FiTrash2, FiShield } from "react-icons/fi";
-import { PDFDocument } from "pdf-lib";
+import { loadPdfLib, warmPdfLib } from "@/lib/pdf-lib-loader";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { pickSave, finishSave } from "@/lib/save-file";
 import { trackTool } from "@/lib/track";
@@ -30,6 +30,7 @@ export default function RedactPdfClient() {
   useEffect(() => {
     if (!file) { pdfRef.current = null; setNumPages(0); setRects({}); return; }
     let cancelled = false;
+    warmPdfLib(); // the export button needs it; fetch it while they draw boxes
     (async () => {
       const pdfjsLib = await import("pdfjs-dist");
       pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
@@ -109,6 +110,7 @@ export default function RedactPdfClient() {
     trackTool("redact-pdf", { rects: totalRects });
     try {
       const src = pdfRef.current;
+      const { PDFDocument } = await loadPdfLib();
       const out = await PDFDocument.create();
       for (let i = 0; i < src.numPages; i++) {
         setProgress(`Securing page ${i + 1} of ${src.numPages}…`);

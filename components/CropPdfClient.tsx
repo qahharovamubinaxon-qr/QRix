@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { FiCrop } from "react-icons/fi";
-import { PDFDocument } from "pdf-lib";
+import { loadPdfLib, warmPdfLib } from "@/lib/pdf-lib-loader";
 import { UploadBox } from "@/components/PdfToTextClient";
 import { pickSave, finishSave } from "@/lib/save-file";
 
@@ -18,6 +18,7 @@ export default function CropPdfClient() {
     if (target.kind === "cancelled") return;
     setBusy(true);
     try {
+      const { PDFDocument } = await loadPdfLib();
       const src = await PDFDocument.load(await file.arrayBuffer());
       const f = Math.min(40, Math.max(0, pct)) / 100;
       for (const p of src.getPages()) {
@@ -38,7 +39,7 @@ export default function CropPdfClient() {
 
   return (
     <div className="qx-card p-6 max-w-2xl">
-      <UploadBox file={file} setFile={setFile} accept=".pdf" />
+      <UploadBox file={file} setFile={(f: File | null) => { if (f) warmPdfLib(); setFile(f); }} accept=".pdf" />
 
       <div className="mt-5">
         <label className="block text-xs font-bold mb-2" style={{ color: "var(--text)" }}>
