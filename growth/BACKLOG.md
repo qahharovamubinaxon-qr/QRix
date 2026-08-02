@@ -958,7 +958,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   here are not per-build hashed, so it could not distinguish the builds at all;
   it is the same class of error as every instrument note in this log. The
   deployment API's readyState is the honest signal.
-- [ ] Re-audit which OTHER click-gated components ship eagerly. M155's finding
+- [~] Re-audit which OTHER click-gated components ship eagerly. M155's finding
   was not that QRDesignStudio is special — it is that a modal rendered as
   {open && <X/>} looks perfectly deferred and is not, and nothing in the type
   system or a Lighthouse score says so. The attribution method is now cheap
