@@ -1148,6 +1148,13 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   test:layout 33 -> 35. The assertion that matters is the second one — the slice
   must not re-import what it was split from — because that failure renders
   identically and only the bytes come back.
+  VERIFIED LIVE after deploy: /barcode 724.7 -> 645.6 KB, /barcode/code-128
+  645.6, /ru/barcode/code-128 634.1 — inside the 617-662 band with every other
+  template. probe-barcode green in all three languages (hydrated, every control
+  present AND named, bars painted, re-render on typing, 0 page errors) — "named"
+  is the assertion that would have caught a lost string, and it is why the probe
+  was run rather than only the byte measurement. All four routes 200,
+  self-canonical, own localized titles. Sitemap unchanged at 815.
 - [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
