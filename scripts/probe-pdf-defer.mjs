@@ -40,10 +40,14 @@ import path from "node:path";
 import { PDFDocument } from "pdf-lib";
 
 const ORIGIN = process.env.QRIX_ORIGIN || "https://qrixtools.com";
-/* Both of these render a page count from pdf-lib on file select, which is the
-   assertion that needs a working library. watermark and rotate are two separate
-   clients, so a per-file mistake cannot pass by luck. */
-const DEFAULT_URLS = ["/pdf-tools/watermark", "/pdf-tools/rotate"].map((p) => ORIGIN + p);
+/* Each of these renders a page count from pdf-lib on file select, which is the
+   assertion that needs a working library, and each is a SEPARATE client, so a
+   per-file mistake cannot pass by luck. protect earns its place by using the
+   other package — @cantoo/pdf-lib, its own loader and its own chunk — which a
+   pdf-lib-only run would leave completely untested.
+   split, page-numbers and delete-pages were green on the same build; they are
+   left off the default list only to keep a routine run cheap. */
+const DEFAULT_URLS = ["/pdf-tools/watermark", "/pdf-tools/rotate", "/pdf-tools/protect"].map((p) => ORIGIN + p);
 const urls = process.argv.slice(2).length ? process.argv.slice(2) : DEFAULT_URLS;
 
 /* Literals out of pdf-lib's own DATA — the standard-font names. Identifiers get
