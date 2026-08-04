@@ -155,6 +155,20 @@ const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
 type BaseLang = "en" | "ru" | "uz";
 const isBaseLang = (l: string): l is BaseLang => l === "en" || l === "ru" || l === "uz";
 
+/* The hero card's heading (M162). This used to be an inline ternary covering
+ * uz/ru/else, so the twelve generated languages got an ENGLISH heading sitting
+ * directly above a localized subtitle — while their own translated `cardTitle`,
+ * which exists in every language, was rendered nowhere on the site.
+ * These three short forms stay because they are what ships today: .qx-fcard-title
+ * already uppercases in CSS, and the full cardTitle is much longer in the
+ * authored languages ("СОЗДАЙТЕ ВАШ QR КОД" vs "СОЗДАТЬ QR") — long enough to
+ * wrap this narrow card on a phone. Every other language now gets its own. */
+const CARD_TITLE_SHORT: Record<BaseLang, string> = {
+  en: "CREATE QR CODE",
+  ru: "СОЗДАТЬ QR",
+  uz: "QR ЯРАТИШ",
+};
+
 const COLOR_PRESETS = ["#000000", "#bba9ff", "#2563eb", "#0891b2", "#16a34a", "#dc2626", "#db2777", "#d97706"];
 const BG_PRESETS = ["#ffffff", "#f4f4f8", "#fef9c3", "#e0f2fe", "#f3e8ff", "#dcfce7", "#ffe4e6", "#0a0a14"];
 
@@ -500,7 +514,7 @@ export default function HomePage() {
           <div data-mascot-anchor="generator" className="qx-fcard flex flex-col" style={{ ["--fc" as string]:"#ffffff" } as React.CSSProperties}>
             <div className="px-2 pt-1 pb-3">
               <div className="qx-fcard-title text-[21px]">
-                {lang==="uz"?"QR ЯРАТИШ" : lang==="ru"?"СОЗДАТЬ QR" : "CREATE QR CODE"}
+                {isBaseLang(lang) ? CARD_TITLE_SHORT[lang] : (t.cardTitle || CARD_TITLE_SHORT.en)}
               </div>
               <div className="qx-fcard-sub text-[12.5px] mt-0.5">{t.cardSub}</div>
             </div>

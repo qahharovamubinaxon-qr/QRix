@@ -211,6 +211,19 @@ ok("the deleted registries have not come back", () => {
   }
 });
 
+ok("the hero card heading is not hard-coded to three languages (M162)", () => {
+  /* It was: an inline `lang==="uz" ? … : lang==="ru" ? … : "CREATE QR CODE"`,
+   * so the twelve generated languages rendered an English heading directly
+   * above a localized subtitle while their own translated cardTitle went
+   * unused. The shape is what to catch — a ternary on `lang` in the markup is
+   * a language list that nobody remembers to extend. */
+  const src = read("app/page.tsx");
+  assert.ok(/t\.cardTitle/.test(src), "app/page.tsx no longer reads t.cardTitle — the heading is back to a hard-coded list");
+  const heading = src.match(/qx-fcard-title[\s\S]{0,220}/);
+  assert.ok(heading, "the hero card heading is gone from app/page.tsx");
+  assert.ok(!/lang\s*===\s*["']ru["']/.test(heading[0]), "the hero card heading tests `lang` inline again — twelve languages will silently render English");
+});
+
 ok("every call site actually CALLS the loader", () => {
   /* Match the call, not the identifier. Matching `loadHomeUi` anywhere passes on
    * a file that imports it and never calls it — which is exactly what a broken

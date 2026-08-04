@@ -33,22 +33,28 @@ const langs = process.argv.slice(2).length ? process.argv.slice(2) : ["en", "de"
    assertion agree with itself. */
 const EN = {
   hero: "Create Your First QR Code",
-  /* cardSub, not cardTitle: `cardTitle` is defined in all fifteen languages and
-     RENDERED IN NONE — app/page.tsx uses only t.cardSub (line 505). The first
-     draft of this probe asserted it and reported the English control as broken,
-     which is how the dead key was found. */
   card: "It's fast, easy and free to get started.",
+  /* The hero card's heading. English keeps a short authored form; every
+     generated language renders its own pageT.cardTitle (M162).
+     HOW THIS ASSERTION WAS EARNED: the first draft asserted pageT.cardTitle for
+     ALL languages and reported the ENGLISH CONTROL as broken. English never
+     goes through the loader, so a control failing means the instrument is
+     accusing itself — and the key really was rendered nowhere, because the
+     heading was an inline uz/ru/else ternary. So twelve languages had an
+     English heading over a localized subtitle. Asserting a string the page
+     ought to render is how that surfaced. */
+  cardTitle: "CREATE QR CODE",
   faqTitle: "Frequently asked questions",
   faq2q: "Are my files uploaded to a server?",
   faq2a: "Mostly no.",
 };
 
 function expected(lang) {
-  if (lang === "en") return { want: [EN.hero, EN.card, EN.faqTitle, EN.faq2q], answer: EN.faq2a };
+  if (lang === "en") return { want: [EN.hero, EN.card, EN.cardTitle, EN.faqTitle, EN.faq2q], answer: EN.faq2a };
   const ui = HOME_I18N[lang];
   if (!ui) throw new Error(`no lib/home-i18n/${lang}.ts`);
   return {
-    want: [ui.pageT.cta, ui.pageT.cardSub, ui.homeFaq.t, ui.faq[1].q],
+    want: [ui.pageT.cta, ui.pageT.cardSub, ui.pageT.cardTitle, ui.homeFaq.t, ui.faq[1].q],
     answer: ui.faq[1].a,
   };
 }
