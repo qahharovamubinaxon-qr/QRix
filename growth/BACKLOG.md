@@ -1356,7 +1356,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   is the assertion that would have caught a lost string, and it is why the probe
   was run rather than only the byte measurement. All four routes 200,
   self-canonical, own localized titles. Sitemap unchanged at 815.
-- [ ] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
+- [~] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
   /embed/* only and X-Frame-Options is dropped there, and all 26 snippets are in
