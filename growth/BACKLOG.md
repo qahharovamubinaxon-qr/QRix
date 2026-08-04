@@ -21,6 +21,36 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
 
+- [~] The homepage ships its copy in twelve languages nobody it serves can read
+  (M160). TAKEN Aug 4, filed out of the capped CWV item the same way M155/M159b
+  were: attributing the eager set before starting the homepage split found a
+  cheaper target that does NOT need the owner-gated lang-cookie decision.
+  THE FACT: lib/home-i18n.ts is a 56.2 KB registry holding zh hi es ar fr pt id
+  de ja tr ur bn — 44.4 KB of JSON across twelve languages. NOT ONE OF THEM IS
+  en, ru OR uz: those three are authored inline in app/page.tsx's T_BASE. So
+  every visitor this site actually has (Yandex is 70% of referral, UZ users are
+  the stickiest) downloads twelve languages of homepage copy, FAQ titles and
+  newsletter strings, and uses exactly none of it. A single visitor needs
+  2.8-5.7 KB of it at most.
+  This is the M159 rule for the fourth time, and it is now the most reliable
+  finding shape this worker has: A CLIENT COMPONENT READING ONE SLICE OF A
+  CONTENT REGISTRY SHIPS THE WHOLE REGISTRY. Three client call sites each read
+  one slice: app/page.tsx:153 (pageT), HomeFaq:52 (homeFaq),
+  NewsletterSection:15 (newsletter).
+  SHAPE: split into lib/home-i18n/<code>.ts, one per language, behind an
+  async loadHomeUi(lang) that returns null for en/ru/uz — so the common case
+  fetches NOTHING and an exotic-language visitor fetches only their own file.
+  Deferring is safe here in a way it usually is not: `lang` is useState("en")
+  read from localStorage in an effect, so EVERY non-English visitor already
+  renders English first. The chunk fetch extends a flash that exists today; it
+  does not introduce one. Crawlers see English, which is what they see now.
+  KEEP the nav slice in the per-language files even though no client reads it —
+  npm run test:nav asserts nav-i18n.ts equals it in both directions, and that
+  guard is the only thing standing between the header and silent translation
+  drift. The Node-side aggregate it needs must NOT be reachable from client
+  code; that boundary needs its own assertion or this regresses in one import.
+  next: generate the split, then wire the three call sites.
+
 - [x] RESOLVED, self-cleared, NO OWNER ACTION NEEDED — kept in full because the
   cause is a standing hazard for this worker's own habits, not because anything
   is outstanding. Production served a Vercel security challenge to non-browser
