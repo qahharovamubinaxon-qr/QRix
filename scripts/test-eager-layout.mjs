@@ -108,6 +108,24 @@ ok("every panel is warmed on the gesture before the one that opens it", () => {
     "the burger does not warm on pointerdown — the mobile sheet's account grid would pop in late");
 });
 
+/* The hover warm alone left the homepage's first mega-menu open ~1000 ms late
+   (probe:nav-panels measured it): the chunk's fetch queues behind that page's
+   hydration, which is seconds of main thread in one "use client" tree. An idle
+   warm removes it — but only where a mega-menu can be opened at all, so a phone
+   does not download a panel it can never hover. Both halves are asserted: drop
+   the media gate and this becomes a background fetch on every phone. */
+ok("the panels are also warmed on idle, and only where they can be hovered", () => {
+  /* \b, not a bare substring: the first draft of this check matched
+     `requestIdleCallbackX` and survived its own mutation. Same trap the studio
+     loader's `setAttempt` check hit — a guard whose job is to notice a rename
+     must not match the rename. */
+  assert.ok(/\brequestIdleCallback\b/.test(topnav), "nothing warms the panels on idle — the homepage's first hover opens late");
+  assert.ok(/\bwarmPanels\b[\s\S]{0,80}timeout|timeout[\s\S]{0,80}\bwarmPanels\b/.test(topnav)
+    || /ric\(\s*warmPanels/.test(topnav), "the idle callback does not warm the panels — it fires and does nothing");
+  assert.ok(/\(min-width: 1280px\)/.test(topnav), "the idle warm is not gated to xl — phones would fetch the desktop mega-menu");
+  assert.ok(/\(pointer: fine\)/.test(topnav), "the idle warm is not gated to a fine pointer — a touch device would fetch a hover-only panel");
+});
+
 /* THE SAFETY PROPERTY, and the reason the split stops where it does. A dynamic
  * import can fail; the ten primary links are the only navigation a phone has, so
  * they stay in TopNav where a dropped chunk cannot reach them. If someone later

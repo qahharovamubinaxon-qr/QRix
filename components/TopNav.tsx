@@ -132,6 +132,24 @@ export default function TopNav() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, lang]);
 
+  /* The hover warm is not enough on the homepage, and the probe measured it:
+     the panel took ~1000 ms to appear there against ~500 ms on a tool route,
+     because app/page.tsx is one giant "use client" tree and the chunk's fetch
+     queues behind its hydration. Deferring bytes is not worth a menu that opens
+     a second late, so warm again when the main thread goes idle.
+     Gated to devices that can actually open a mega-menu — a fine pointer at xl
+     and up. A phone would be paying for a panel it can never hover, which is
+     the same rule 7a073dd settled for the cursor canvas. The burger keeps its
+     own pointerdown warm, so touch is covered without this. */
+  useEffect(() => {
+    if (!window.matchMedia("(min-width: 1280px)").matches) return;
+    if (!window.matchMedia("(pointer: fine)").matches) return;
+    const ric = window.requestIdleCallback;
+    if (ric) { const h = ric(warmPanels, { timeout: 3000 }); return () => window.cancelIdleCallback?.(h); }
+    const t = setTimeout(warmPanels, 2000);
+    return () => clearTimeout(t);
+  }, []);
+
   // Transparent at top → floating glass after scroll (Design V2).
   useEffect(() => {
     const onScroll = () => document.documentElement.setAttribute("data-scrolled", window.scrollY > 24 ? "1" : "0");

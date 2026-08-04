@@ -2159,3 +2159,38 @@ M143 corrected the English answer to homepage FAQ 2 on Jul 28; the twelve transl
 
 ## M162 — twelve languages had an English heading (Aug 4)
 The homepage hero card's heading was an inline ternary (`lang==="uz" ? … : lang==="ru" ? … : "CREATE QR CODE"`), so every language outside those three fell through to English directly above a subtitle that WAS localized — on the most-crawled page on the site — while `cardTitle` sat translated in all fifteen languages and rendered in none. en/ru/uz keep their short authored forms (the CSS uppercases already, and the full string wraps the narrow card on a phone), so nothing changes visually for the current audience; the other twelve now render their own. Found by asserting a string the page ought to render: the probe's first draft checked cardTitle for every language and reported the ENGLISH CONTROL as broken, and a failing control means the instrument is accusing itself. Guard: test:home-i18n asserts the heading reads t.cardTitle and that no `lang === "ru"` test survives in that markup — the shape is the defect. Verified live 8/8 languages including RTL. Instrument note: the probe had to be fixed first — Runtime.evaluate issued straight after Page.navigate was binding to the outgoing /robots.txt document and grading THAT, which is what "de and zh are broken" looked like while the page was correct.
+
+## M163 — TopNav's gesture-gated panels leave the eager set of every page
+
+M138 took TopNav's imports and left its markup, and the markup was where the
+rest of the weight sat: a 50-entry DROPDOWNS mega-menu building a react-icons
+element per entry at module scope, the account menu body, and the mobile
+sheet's account grid — 24 of the component's 29 icons, not one of them
+reachable without a deliberate hover or tap, all of them in the eager script
+set of ~800 pages because TopNav is mounted by the root layout. Moved verbatim
+to components/nav/NavPanels.tsx behind three dynamic imports that share one
+chunk. Measured on production, canary intact on every read: / 776.4 -> 766.4
+KB, /qr-tools/url 662.3 -> 652.3 KB, 17 eager scripts either side. -10.0 KB on
+every page, identical on both templates — and far less than 50 entries and 24
+icons suggest, because icon components are small SVG path functions and the
+registry is mostly short strings. Counting entries is not counting bytes.
+
+The deferral cost an interaction and it had to be bought back. probe:nav-panels
+timed the first homepage mega-menu at ~1000 ms after hover against ~500 ms on a
+tool route, because the chunk's fetch queues behind that page's hydration. The
+panels are now warmed on requestIdleCallback too, gated to a fine pointer at xl
+and up so no phone downloads a panel it can never hover.
+
+The split deliberately stops at the ten primary nav links, on both breakpoints:
+a dynamic import can fail, and on a phone the mobile sheet is the only
+navigation there is. Everything deferred degrades to "a menu did not open",
+never to "the visitor is stuck", and test:layout asserts that boundary.
+
+Guards: test:layout 35 -> 41 assertions; new probe:nav-panels drives real
+headless Chrome over three legs (desktop hover, desktop click, mobile tap).
+Nine mutations run and two survived their first draft — `requestIdleCallback`
+matched `requestIdleCallbackX` (the substring trap, third time in this repo),
+and the probe sampled hydration instead of polling it, so it reported the
+homepage's burger as dead on a build where it works. Both fixed; all nine
+caught now. Files: components/TopNav.tsx, components/nav/NavPanels.tsx,
+scripts/test-eager-layout.mjs, scripts/probe-nav-panels.mjs, package.json.

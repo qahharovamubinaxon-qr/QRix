@@ -1048,8 +1048,18 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   all of them in the eager set of ~800 pages. Now components/nav/NavPanels.tsx
   behind three dynamic imports sharing one chunk, warmed by the gesture BEFORE
   the opening one (entering the nav bar / approaching the account button /
-  pressing the burger), the M155 shape. Measured on production, raw eager bytes
-  and 17 scripts on both sides — see the DAILY_LOG line for the after figures.
+  pressing the burger), the M155 shape. Measured on production, canary intact
+  on every read: / 776.4 -> 766.4 KB, /qr-tools/url 662.3 -> 652.3 KB, 17 eager
+  scripts either side. -10.0 KB on every page on the site, identical on both
+  templates, which is what a root-layout component should look like — and much
+  less than the entry count suggests, because icon components are small SVG path
+  functions and the registry is mostly short strings. Counting entries is not
+  counting bytes.
+  IT COST AN INTERACTION AND THAT HAD TO BE BOUGHT BACK: probe:nav-panels timed
+  the first homepage mega-menu at ~1000 ms after hover against ~500 ms on a tool
+  route, because the chunk queues behind that page hydrating. The panels are now
+  warmed on requestIdleCallback as well, gated to a fine pointer at xl and up so
+  no phone fetches a hover-only panel (the 7a073dd rule). Verified live.
   Where the split deliberately STOPS: the ten primary nav links, on both
   breakpoints. A dynamic import can fail and on a phone the mobile sheet is the
   only navigation there is, so everything deferred degrades to "a menu did not
