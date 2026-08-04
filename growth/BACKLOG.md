@@ -1067,7 +1067,18 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   that wrote it down: single-run comparisons on this machine are worthless, and
   that applies to interaction timings and not just Lighthouse scores. Measure
   twice per side BEFORE shipping the fix, not after.
-  WHAT REMAINS TRUE AND UNFIXED: the homepage first hover really is ~1.4 s
+  AND THE RE-MEASUREMENT AFTER THE REVERT UNDERCUT EVEN THAT: post-revert the
+  homepage read 4000/500/500/750/500/1750 ms, median ~625, against ~1375 for the
+  idle-warm sample. Read literally that makes the idle warm 2x WORSE, which is
+  as unbelievable as the original claim. The instrument spans 500-4000 ms and
+  its median moves 2x between sampling sessions, so it CANNOT RESOLVE the effect
+  at all — the variance is this machine, not the build. The revert therefore
+  rests on mechanism (an idle callback cannot fire under saturation) and cost
+  (every desktop visitor fetches a chunk they may never open), both of which
+  hold with no measurement. Anyone revisiting this needs a better instrument,
+  not more runs of this one.
+  WHAT REMAINS TRUE AND UNFIXED: the homepage first hover is ~0.6-1.4 s median
+  depending on when you sample and spikes to 4 s
   (tool routes are a steady 500 ms, the account menu 500 ms, mobile 250 ms).
   Its cause is app/page.tsx being one giant "use client" tree, so it belongs to
   the homepage-hydration item below, which is already the biggest open CWV item
