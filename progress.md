@@ -2207,3 +2207,44 @@ and the probe sampled hydration instead of polling it, so it reported the
 homepage's burger as dead on a build where it works. Both fixed; all nine
 caught now. Files: components/TopNav.tsx, components/nav/NavPanels.tsx,
 scripts/test-eager-layout.mjs, scripts/probe-nav-panels.mjs, package.json.
+
+## M164 — the flagship citable page was the one dataset nothing re-read (82868f9)
+
+recheck:sources has re-read lib/qr-generator-study.ts and lib/compare-sources.ts
+for months. It never opened lib/qr-stats.ts, so the 26 figures on
+/qr-code-statistics — the page whose entire pitch is that every number links to
+the page it was read off — could go stale in silence. Five sources now carry
+`checked` + `evidence`, 23 markers read off the live pages on 2026-08-04.
+Totals 24 -> 29 sources, 50 -> 73 markers; 0 moved, 0 unreachable.
+
+THE MARKER RULE, verified rather than asserted: a marker must not survive the
+deletion of its own claim. On the Bitly scans page a bare "40%" matches a CSS
+gradient stop (`rgb(207,42,186) 40%`); deleting the real sentence from the
+fetched page and re-testing showed "40%", "21%", "8%" and "+41%" ALL still
+matching, while the long sentence-shaped markers correctly went false. Four
+markers that would have reported fresh forever over a rotting claim.
+
+The scans-vs-codes table is stored as RAW MARKUP because "+7% +53%" only means
+"codes vs scans" while the two sit in one row. That marker has no whitespace, so
+the suite's single-token rule now exempts markup — and only markup, never the
+length rule. Both directions mutation-tested.
+
+PER-DATASET FLOORS replaced the single total floor, and that was the real
+vacuous-pass risk rather than a tidy-up: study+compare alone clear a floor of
+20, so statsSources() returning zero would have printed a clean run over a
+dataset it had silently stopped reading. Mutation-confirmed — renaming the
+`Source` type broke the parser and ONLY the per-dataset floor caught it.
+
+The backlog asked for a 14-month rule on the `published` date; it shipped as an
+ADVISORY that never touches the exit code. A February 2025 press release that
+still says exactly what we quote is dated, not wrong, and the page already
+prints that date beside the figure — a guard that fails on correct data is one
+people learn to skip, and that would have cost us the 120-day `checked` signal
+that can actually fail. It flags juniper (~17mo) and ftc-alert (~18mo), exactly
+the two the backlog predicted would move.
+
+Guards: test:recheck 9 -> 12 assertions over 29 sources; 8 mutations verified.
+Production rendering is unchanged by design (this is tooling plus two data
+fields) — /qr-code-statistics re-checked live: 200, self-canonical, correct
+title, all five spot-checked figures still in the HTML.
+Files: lib/qr-stats.ts, scripts/recheck-sources.mjs, scripts/test-recheck.mjs.
