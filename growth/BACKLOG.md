@@ -38,7 +38,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   only thing worth grepping for. Re-run this after adding a client component
   that renders localized content, not on a schedule.
 
-- [ ] `cardTitle` is dead copy in fifteen languages. FOUND Aug 4 by M160's live
+- [x] RESOLVED BY M162 (below) — `cardTitle` was not merely dead copy, the heading was hard-coded to three languages. FOUND Aug 4 by M160's live
   probe, which asserted it and reported the ENGLISH CONTROL as broken — English
   never goes through the new loader, so a control failing is the instrument
   accusing itself, and the key turned out to be rendered nowhere.
@@ -52,7 +52,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   Small, but it is the kind of thing the copy registries are full of and the
   probe is now the way to find more: assert a string, see the control fail.
 
-- [~] M143's honesty pass never reached the translations, and twelve languages
+- [x] M143's honesty pass never reached the translations, and twelve languages
   still tell visitors their files never leave the device. FOUND Aug 4 while
   splitting the copy registries (M160), filed rather than folded in because it
   is a CONTENT defect, not a bundle one — take it as the next item.
@@ -76,6 +76,49 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   silently skip the other twelve — that missing link is the actual bug.
   Note M160 moves this data into lib/home-i18n/<code>.ts, so the fix lands in
   the per-language files, one sentence each.
+  SHIPPED Aug 4 (7e4bec2), VERIFIED LIVE — the corrected answer is in the DOM in
+  every language probed (8/8, including the RTL pair ar/ur).
+  The three AUTHORED languages were stale too, in the opposite direction: they
+  still named PDF compress as server-side, which M127 ended when compression
+  moved fully into the browser (CompressPdfClient does it on-device; the file
+  genuinely never leaves). So the English that M143 "corrected" was itself
+  wrong by the time it shipped. Check the claim against the code, not against
+  the last version of the sentence.
+  The new copy names no tool list beyond one example, deliberately: enumerating
+  which tools upload is what went stale BOTH times.
+  Guard: two assertions in test:home-i18n, both baselined against the real
+  defect. (1) a fingerprint of the authored English FAQ — change it and the
+  test goes red until the twelve have been revisited, which is the link that
+  was missing and therefore the actual bug. (2) every translated answer must
+  MENTION A SERVER. The first draft of (2) banned the old sentence per language
+  and FAILED ON THE CORRECTED COPY: several correct answers still contain that
+  clause, now qualified ("most tools run in the browser, SO files do not leave
+  — however some use a server"). A substring cannot tell a false claim from a
+  qualified one; the presence of the exception can. Worth remembering the next
+  time a content guard is written as a blocklist.
+  next: nothing — closed.
+
+- [x] Twelve languages had an English heading over a localized subtitle (M162,
+  3101c94). SHIPPED + VERIFIED LIVE Aug 4, 8/8 languages.
+  The hero card's heading was an inline ternary — `lang==="uz" ? … :
+  lang==="ru" ? … : "CREATE QR CODE"` — so everything outside those three fell
+  through to English, directly above a subtitle that WAS localized, on the
+  most-crawled page on the site. `cardTitle` was translated in all fifteen
+  languages and rendered in none of them.
+  The three authored short forms stay: .qx-fcard-title uppercases in CSS
+  already, and the full cardTitle is far longer in those languages
+  ("СОЗДАЙТЕ ВАШ QR КОД" vs "СОЗДАТЬ QR") — long enough to wrap the narrow card
+  on a phone. Nothing changes visually for en/ru/uz.
+  HOW IT WAS FOUND, because the method generalises: probe:home-i18n's first
+  draft asserted pageT.cardTitle for every language and reported the ENGLISH
+  CONTROL as broken. English does not go through the copy loader, so a control
+  failing means the instrument is accusing itself — and chasing that turned up
+  a key translated fifteen times and rendered zero times. ASSERT WHAT SHOULD BE
+  ON SCREEN, THEN READ THE CONTROL. Worth pointing at the other registries.
+  Guard: test:home-i18n asserts the heading reads t.cardTitle AND that no
+  `lang === "ru"` test survives in the heading markup — the SHAPE is the defect,
+  since a ternary over `lang` is a language list nobody remembers to extend.
+  Mutation verified by restoring the original ternary verbatim.
 
 - [x] The homepage ships its copy in twelve languages nobody it serves can read
   (M160). TAKEN Aug 4, filed out of the capped CWV item the same way M155/M159b
