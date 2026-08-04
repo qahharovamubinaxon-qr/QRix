@@ -21,7 +21,46 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
 
-- [~] The homepage ships its copy in twelve languages nobody it serves can read
+- [ ] `cardTitle` is dead copy in fifteen languages. FOUND Aug 4 by M160's live
+  probe, which asserted it and reported the ENGLISH CONTROL as broken — English
+  never goes through the new loader, so a control failing is the instrument
+  accusing itself, and the key turned out to be rendered nowhere.
+  app/page.tsx defines cardTitle at lines 43/80/117 (en/ru/uz) and every
+  lib/home-i18n/<code>.ts carries a translation of it; the only thing the hero
+  card renders is t.cardSub (app/page.tsx:505). So fifteen translations are
+  maintained for a string no visitor has ever seen.
+  Cheap either way — render it as the card's heading (it reads like one, and
+  the card currently has a subtitle with nothing above it, which is probably
+  the actual bug) or delete the key from all fifteen. Look at the card first.
+  Small, but it is the kind of thing the copy registries are full of and the
+  probe is now the way to find more: assert a string, see the control fail.
+
+- [~] M143's honesty pass never reached the translations, and twelve languages
+  still tell visitors their files never leave the device. FOUND Aug 4 while
+  splitting the copy registries (M160), filed rather than folded in because it
+  is a CONTENT defect, not a bundle one — take it as the next item.
+  THE CLAIM: lib/home-faq-i18n.ts, FAQ item 2. French reads "Non. Les outils
+  PDF, image et QR fonctionnent entièrement dans votre navigateur — vos
+  fichiers ne quittent jamais votre appareil." The authored English in
+  HomeFaq.tsx reads "Mostly no. … The few that need a server — PDF compress and
+  the best-quality PDF-to-Word mode — say so right on their page."
+  THE DATES SETTLE IT: lib/home-faq-i18n.ts last changed 2026-07-14 (a6507ea);
+  the English was corrected 2026-07-28 in 933fbc2, THE M143 HONESTY PASS
+  ITSELF. So the twelve translations are pre-correction copies of the exact
+  sentence M143 existed to delete, and they have been live for a week since.
+  WHY IT MATTERS beyond tidiness: this is a PRIVACY claim, it is false for
+  /pdf-to-word's cloud mode (which uploads the file) and for PDF compress, and
+  it is the single claim most likely to decide whether someone uploads a
+  sensitive document. "Never fake claims" covers translated claims too.
+  NOT FIXED IN M160 ON PURPOSE: the fix is twelve translated sentences, and
+  writing copy nobody here can proofread is how the fabrication got in. Shape
+  it as: correct the sentence per language, and add an assertion that pins the
+  translated item to the authored English one so the next correction cannot
+  silently skip the other twelve — that missing link is the actual bug.
+  Note M160 moves this data into lib/home-i18n/<code>.ts, so the fix lands in
+  the per-language files, one sentence each.
+
+- [x] The homepage ships its copy in twelve languages nobody it serves can read
   (M160). TAKEN Aug 4, filed out of the capped CWV item the same way M155/M159b
   were: attributing the eager set before starting the homepage split found a
   cheaper target that does NOT need the owner-gated lang-cookie decision.
@@ -49,7 +88,31 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   guard is the only thing standing between the header and silent translation
   drift. The Node-side aggregate it needs must NOT be reachable from client
   code; that boundary needs its own assertion or this regresses in one import.
-  next: generate the split, then wire the three call sites.
+  SHIPPED Aug 4 (36b9f9c), VERIFIED LIVE. Homepage eager set 842.0 -> 776.1 KB
+  (-65.9 KB, -7.8%), and the marker flipped YES -> no: the 170.4 KB data chunk
+  is now 103.3 KB. The gap between 85.8 KB of source and 65.9 KB served is
+  formatting the minifier was already removing — quote the served number.
+  A SECOND registry turned up mid-scope and doubled the mission: HomeFaq
+  imported lib/home-faq-i18n.ts (29.6 KB, the same twelve languages) as well.
+  Both merged into one file per language, so a language is ONE request, not two
+  registries. Look for the sibling registry before quoting a saving.
+  THE AGGREGATE WAS DESIGNED OUT, not asserted away. The first cut emitted
+  lib/home-i18n/all.ts for the Node-side tests; Node ESM then refused its
+  extensionless sibling imports, and the fix — moving the reader to
+  scripts/home-i18n-aggregate.mjs — turned out to be the better design anyway.
+  No module a browser can reach exposes all twelve, so the boundary holds by
+  construction and needs no guard. Prefer that to a guarded aggregate.
+  Guard: npm run test:home-i18n (13 assertions after M161, 7 mutations). The
+  switch assertion parses EVERY case, so a thirteenth language added without
+  one fails instead of silently serving English. One mutation escaped the first
+  draft and is recorded in the test: the call-site check matched the identifier
+  `loadHomeUi`, which a file that imports it and never calls it still satisfies.
+  Live proof: npm run probe:home-i18n drives production per language in real
+  headless Chrome — en/de/ja/zh all render their own copy, header hydrated,
+  0 page errors. curl cannot see any of this: the language is in localStorage
+  and the copy arrives through import(), so every request looks English.
+  next: nothing — closed. Follow-up filed: `cardTitle` is defined in all fifteen
+  languages and rendered in none (app/page.tsx uses only cardSub).
 
 - [x] RESOLVED, self-cleared, NO OWNER ACTION NEEDED — kept in full because the
   cause is a standing hazard for this worker's own habits, not because anything
