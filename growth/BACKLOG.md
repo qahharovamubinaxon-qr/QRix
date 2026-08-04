@@ -1040,14 +1040,28 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   MotionLayer (196), CookieConsent (80), ErrorMonitor (59), Toaster (49),
   PwaVitals (43), HtmlLangSync (34), GoogleAnalytics (26), ReferralCapture
   (23). CommandSearch is off that list as of M138 (it is CommandSearchLoader
-  now, and only arrives on ⌘K). TopNav is still the one worth taking first for
-  HYDRATION — M138 only took its imports, not its markup: it is mostly static
-  nav links and its interactive parts (mobile menu, dropdowns, language and
-  account menus) are separable islands, same shape as the ToolPageShell split
-  that worked in M137. Note the constraint before starting: the labels come from
-  localStorage via setLang, so the server cannot know the language and a naive
-  "make it a server component" will not work — the label-bearing parts have to
-  stay client, and what moves is the static link markup around them.
+  now, and only arrives on ⌘K).
+  Sixth tranche (M163, a2c0849) took TopNav's MARKUP, which is what M138 left
+  behind: the 50-entry DROPDOWNS mega-menu (a react-icons element per entry,
+  built at module scope), the account menu body and the mobile sheet's account
+  grid — 24 of its 29 icons, none of them reachable without a hover or a tap,
+  all of them in the eager set of ~800 pages. Now components/nav/NavPanels.tsx
+  behind three dynamic imports sharing one chunk, warmed by the gesture BEFORE
+  the opening one (entering the nav bar / approaching the account button /
+  pressing the burger), the M155 shape. Measured on production, raw eager bytes
+  and 17 scripts on both sides — see the DAILY_LOG line for the after figures.
+  Where the split deliberately STOPS: the ten primary nav links, on both
+  breakpoints. A dynamic import can fail and on a phone the mobile sheet is the
+  only navigation there is, so everything deferred degrades to "a menu did not
+  open", never "the visitor is stuck". test:layout asserts that boundary (five
+  new checks, 40/40, all six mutations caught) — do not "finish the job" by
+  moving the link list too.
+  STILL OPEN on TopNav, and it is the harder half: the component still hydrates,
+  because the header markup itself is client. The constraint that blocks the
+  obvious fix is unchanged — labels come from localStorage via setLang, so the
+  server cannot know the language and a naive "make it a server component" will
+  not work. The label-bearing parts have to stay client; what could still move
+  is the static link markup around them (the ToolPageShell split of M137).
   gtag.js is the other 695 ms / 581 ms in 3 long tasks at 5.5-6.4 s; it is
   already lazyOnload, so the only lever left is first-interaction loading with
   a timeout fallback, which trades away page_views for bounced sessions —
