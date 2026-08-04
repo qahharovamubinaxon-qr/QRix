@@ -2175,11 +2175,24 @@ every page, identical on both templates — and far less than 50 entries and 24
 icons suggest, because icon components are small SVG path functions and the
 registry is mostly short strings. Counting entries is not counting bytes.
 
-The deferral cost an interaction and it had to be bought back. probe:nav-panels
-timed the first homepage mega-menu at ~1000 ms after hover against ~500 ms on a
-tool route, because the chunk's fetch queues behind that page's hydration. The
-panels are now warmed on requestIdleCallback too, gated to a fine pointer at xl
-and up so no phone downloads a panel it can never hover.
+The deferral cost an interaction, and the first attempt to buy it back was a
+mistake worth recording. probe:nav-panels timed the first homepage mega-menu at
+~1000 ms after hover against ~500 ms on a tool route, and an idle warm shipped
+on that single reading. Replicated against the same build, the homepage read
+500/1000/1250/1500/1500/1750 ms — median ~1375, so the 1000 ms it was meant to
+beat was just a low sample of the spread. The idle warm was reverted: it bought
+nothing measurable and cost every desktop visitor a chunk fetch, and the
+mechanism says it never could help, since requestIdleCallback cannot fire while
+the main thread is saturated and this page hydrating IS the saturation. The
+backlog has carried a CAUTION for months that single-run comparisons on this
+machine are worthless; it took applying it to an interaction timing rather than
+a Lighthouse score to notice it applies there too. test:layout now asserts
+AGAINST an idle warm, with the numbers, so undoing that needs evidence.
+
+The homepage first hover really is ~1.4 s and stays that way — tool routes are a
+steady 500 ms, the account menu 500 ms, mobile 250 ms. The cause is app/page.tsx
+being one giant "use client" tree, so it belongs to the homepage-hydration item,
+not to a second warm in the header.
 
 The split deliberately stops at the ten primary nav links, on both breakpoints:
 a dynamic import can fail, and on a phone the mobile sheet is the only

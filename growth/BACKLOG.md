@@ -1055,11 +1055,24 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   less than the entry count suggests, because icon components are small SVG path
   functions and the registry is mostly short strings. Counting entries is not
   counting bytes.
-  IT COST AN INTERACTION AND THAT HAD TO BE BOUGHT BACK: probe:nav-panels timed
-  the first homepage mega-menu at ~1000 ms after hover against ~500 ms on a tool
-  route, because the chunk queues behind that page hydrating. The panels are now
-  warmed on requestIdleCallback as well, gated to a fine pointer at xl and up so
-  no phone fetches a hover-only panel (the 7a073dd rule). Verified live.
+  IT COST AN INTERACTION AND THE FIRST FIX WAS WRONG: probe:nav-panels timed the
+  first homepage mega-menu at ~1000 ms after hover against ~500 ms on a tool
+  route, so an idle warm was added and shipped on that ONE reading. Replicated
+  against the same build, the homepage read 500/1000/1250/1500/1500/1750 ms —
+  median ~1375, and the 1000 ms it was meant to beat was simply a low sample of
+  that spread. The idle warm bought nothing and was reverted; the mechanism says
+  it never could, because requestIdleCallback cannot fire while the main thread
+  is saturated and this page hydrating IS the saturation.
+  This is the CAUTION note two hundred lines below, disregarded by the session
+  that wrote it down: single-run comparisons on this machine are worthless, and
+  that applies to interaction timings and not just Lighthouse scores. Measure
+  twice per side BEFORE shipping the fix, not after.
+  WHAT REMAINS TRUE AND UNFIXED: the homepage first hover really is ~1.4 s
+  (tool routes are a steady 500 ms, the account menu 500 ms, mobile 250 ms).
+  Its cause is app/page.tsx being one giant "use client" tree, so it belongs to
+  the homepage-hydration item below, which is already the biggest open CWV item
+  — not to a second warm in TopNav. test:layout now asserts AGAINST re-adding
+  one, with the numbers, so the next session has to bring evidence to undo it.
   Where the split deliberately STOPS: the ten primary nav links, on both
   breakpoints. A dynamic import can fail and on a phone the mobile sheet is the
   only navigation there is, so everything deferred degrades to "a menu did not

@@ -36,6 +36,13 @@ const ok = (label, fn) => {
 };
 
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
+/** Source with comments removed. Needed by any check asserting a construct is
+ *  ABSENT: the comment explaining why it was removed names the very thing it
+ *  forbids, so a plain grep over the file reports the explanation as the
+ *  defect. That is not hypothetical — the no-idle-warm check below failed on
+ *  its own rationale the moment it was written. Presence checks can use the raw
+ *  source; absence checks must not. */
+const code = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
 /** A static `import ... from "<spec>"` that carries a VALUE — the thing that puts
  *  a module in the eager bundle. `import type` is erased before a bundler ever
  *  sees it, so it does not count; a dynamic `import("<spec>")` is what we want. */
@@ -108,22 +115,24 @@ ok("every panel is warmed on the gesture before the one that opens it", () => {
     "the burger does not warm on pointerdown — the mobile sheet's account grid would pop in late");
 });
 
-/* The hover warm alone left the homepage's first mega-menu open ~1000 ms late
-   (probe:nav-panels measured it): the chunk's fetch queues behind that page's
-   hydration, which is seconds of main thread in one "use client" tree. An idle
-   warm removes it — but only where a mega-menu can be opened at all, so a phone
-   does not download a panel it can never hover. Both halves are asserted: drop
-   the media gate and this becomes a background fetch on every phone. */
-ok("the panels are also warmed on idle, and only where they can be hovered", () => {
-  /* \b, not a bare substring: the first draft of this check matched
+/* The inverse of the assertion that used to sit here, and the swap is the whole
+   lesson. An idle warm was added to cover the homepage's slow first hover
+   (~1000 ms vs ~500 ms on a tool route) and asserted as a requirement. Six
+   replications of the SAME build then read 500/1000/1250/1500/1500/1750 ms —
+   the 1000 ms was one sample from that spread, not a baseline, and the idle
+   warm bought nothing. requestIdleCallback cannot fire while the main thread is
+   saturated, and the homepage's hydration IS that saturation.
+   So it is reverted, and asserted AGAINST: re-adding it costs every desktop
+   visitor the panel chunk whether or not they open a menu, in exchange for an
+   effect that has never survived replication. If a future session has evidence
+   it helps, delete this check with the numbers in the commit message. */
+ok("no unconditional idle warm — it was measured, replicated, and bought nothing", () => {
+  /* \b, not a bare substring: the first draft of the check this replaces matched
      `requestIdleCallbackX` and survived its own mutation. Same trap the studio
      loader's `setAttempt` check hit — a guard whose job is to notice a rename
      must not match the rename. */
-  assert.ok(/\brequestIdleCallback\b/.test(topnav), "nothing warms the panels on idle — the homepage's first hover opens late");
-  assert.ok(/\bwarmPanels\b[\s\S]{0,80}timeout|timeout[\s\S]{0,80}\bwarmPanels\b/.test(topnav)
-    || /ric\(\s*warmPanels/.test(topnav), "the idle callback does not warm the panels — it fires and does nothing");
-  assert.ok(/\(min-width: 1280px\)/.test(topnav), "the idle warm is not gated to xl — phones would fetch the desktop mega-menu");
-  assert.ok(/\(pointer: fine\)/.test(topnav), "the idle warm is not gated to a fine pointer — a touch device would fetch a hover-only panel");
+  assert.ok(!/\brequestIdleCallback\b/.test(code(topnav)),
+    "an idle warm is back in TopNav — it fetches the panel chunk for every desktop visitor and did not measurably speed up the first hover");
 });
 
 /* THE SAFETY PROPERTY, and the reason the split stops where it does. A dynamic

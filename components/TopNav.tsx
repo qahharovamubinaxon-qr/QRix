@@ -132,23 +132,20 @@ export default function TopNav() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname, lang]);
 
-  /* The hover warm is not enough on the homepage, and the probe measured it:
-     the panel took ~1000 ms to appear there against ~500 ms on a tool route,
-     because app/page.tsx is one giant "use client" tree and the chunk's fetch
-     queues behind its hydration. Deferring bytes is not worth a menu that opens
-     a second late, so warm again when the main thread goes idle.
-     Gated to devices that can actually open a mega-menu — a fine pointer at xl
-     and up. A phone would be paying for a panel it can never hover, which is
-     the same rule 7a073dd settled for the cursor canvas. The burger keeps its
-     own pointerdown warm, so touch is covered without this. */
-  useEffect(() => {
-    if (!window.matchMedia("(min-width: 1280px)").matches) return;
-    if (!window.matchMedia("(pointer: fine)").matches) return;
-    const ric = window.requestIdleCallback;
-    if (ric) { const h = ric(warmPanels, { timeout: 3000 }); return () => window.cancelIdleCallback?.(h); }
-    const t = setTimeout(warmPanels, 2000);
-    return () => clearTimeout(t);
-  }, []);
+  /* NO IDLE WARM HERE, and the reason is worth keeping because it looked
+     obviously right and was not. probe:nav-panels timed the homepage's first
+     mega-menu at ~1000 ms after hover against ~500 ms on a tool route, so an
+     idle warm was added to cover that window. Replicated, it bought nothing:
+     six readings of the SAME build came in at 500/1000/1250/1500/1500/1750 ms,
+     a median of ~1375 — the 1000 ms it was meant to beat was one sample from
+     the low end of that spread, not a baseline.
+     The mechanism agrees. requestIdleCallback cannot fire while the main thread
+     is saturated, and app/page.tsx being one giant "use client" tree IS that
+     saturation — so the idle callback lands no earlier than the hover it was
+     supposed to pre-empt, while every desktop visitor pays for the chunk
+     whether or not they ever open a menu.
+     What the homepage's ~1.4 s first hover actually needs is the homepage
+     hydration fix (the biggest open CWV item), not a second warm here. */
 
   // Transparent at top → floating glass after scroll (Design V2).
   useEffect(() => {
