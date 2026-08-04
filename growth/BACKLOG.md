@@ -21,6 +21,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
 
+- [x] SWEEP RESULT (Aug 4, the negative finding — recorded because it closes a
+  question rather than opening one). After M160 found a SECOND twelve-language
+  registry hiding behind the first, every other multi-language registry on the
+  site was checked for the same shape. THERE ARE NO MORE. The remaining ones —
+  lib/usecase-content.i18n.ts (510 KB, by far the largest data file in the
+  repo), resize-presets-i18n (66), barcode-types-i18n (49), hub-i18n (33),
+  convert-pairs-i18n (16) — are reached ONLY from server components:
+  components/LocalizedHub / LocalizedResizePage / LocalizedConvertPage /
+  LocalizedBarcodePage all begin `import Link from "next/link"` with no
+  "use client", and the 510 KB one is imported only by lib/usecase-content.ts,
+  whose consumers are app/use/[lang]/**, and app/sitemap.ts. A server component
+  importing a 510 KB registry costs a visitor nothing.
+  So the rule to carry forward is narrower than "big registries are bad": THE
+  DEFECT IS A REGISTRY CROSSING THE CLIENT BOUNDARY, and the boundary is the
+  only thing worth grepping for. Re-run this after adding a client component
+  that renders localized content, not on a schedule.
+
 - [ ] `cardTitle` is dead copy in fifteen languages. FOUND Aug 4 by M160's live
   probe, which asserted it and reported the ENGLISH CONTROL as broken — English
   never goes through the new loader, so a control failing is the instrument
