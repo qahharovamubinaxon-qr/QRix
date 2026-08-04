@@ -22,6 +22,7 @@
 
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { readAll, languageFiles } from "./home-i18n-aggregate.mjs";
 
 let pass = 0;
@@ -95,6 +96,59 @@ ok("every language has the same number of FAQ entries", () => {
   const [first] = counts.values();
   for (const [code, n] of counts) {
     assert.equal(n, first, `${code} has ${n} FAQ entries, others have ${first} — the merge dropped some`);
+  }
+});
+
+/* ---- the translations have to follow the English ------------------------- */
+
+/* THE BUG THIS EXISTS FOR (M161). On 2026-07-28 the M143 honesty pass corrected
+ * the English answer to FAQ 2 — the twelve translations were a separate file
+ * nobody touched, so for a week they went on telling readers, in twelve
+ * languages, that their files NEVER leave the device. That is false for the
+ * tools that use a server, it is the single claim most likely to decide whether
+ * someone uploads a sensitive document, and NOTHING FAILED when it went stale.
+ *
+ * A test cannot check a translation is faithful. It CAN refuse to let the
+ * English change without someone looking at the other twelve, which is the link
+ * that was missing. Change the English copy and this goes red until you have
+ * revisited lib/home-i18n/<code>.ts and pasted the new fingerprint below. */
+const FAQ_EN_FINGERPRINT = "564c4894487dc8f3";
+
+ok("the English FAQ has not changed without the translations being revisited", () => {
+  const src = read("components/HomeFaq.tsx");
+  const m = src.match(/\n\s*en:\s*\[[\s\S]*?\n\s*\],/);
+  assert.ok(m, "cannot find FAQS_BASE.en in components/HomeFaq.tsx — the guard has come unhooked, which is worse than a stale translation");
+  const actual = createHash("sha256").update(m[0].replace(/\r\n/g, "\n")).digest("hex").slice(0, 16);
+  assert.equal(
+    actual,
+    FAQ_EN_FINGERPRINT,
+    `the authored English FAQ changed.\n        Re-read the ${codes.length} translations in lib/home-i18n/<code>.ts — a correction that skips them is exactly how M161 happened —\n        then set FAQ_EN_FINGERPRINT in this file to: ${actual}`,
+  );
+});
+
+ok("every translated answer admits that some tools DO use a server", () => {
+  /* Assert the EXCEPTION is present, not that some phrase is absent.
+   *
+   * The first draft of this assertion banned the old sentence ("your files never
+   * leave your device") per language, and it failed on the corrected copy —
+   * because several corrected answers still contain that clause, now qualified:
+   * the Japanese reads "most tools run in the browser, SO files do not leave the
+   * device — however some use a server". The clause is fine; what made the old
+   * copy false was that nothing followed it. A substring cannot tell those two
+   * apart, so it is the wrong instrument.
+   *
+   * The word for "server" can: the old answers never mentioned one, every honest
+   * answer must. Checked on the ANSWER only — the question contains it too. */
+  const SERVER = {
+    ar: "خادم", bn: "সার্ভার", de: "server", es: "servidor", fr: "serveur",
+    hi: "सर्वर", id: "server", ja: "サーバー", pt: "servidor", tr: "sunucu",
+    ur: "سرور", zh: "服务器",
+  };
+  for (const code of codes) {
+    const word = SERVER[code];
+    assert.ok(word, `${code} has no "server" keyword registered — add one or this language is unchecked`);
+    const answer = (HOME_I18N[code]?.faq?.[1]?.a ?? "").toLowerCase();
+    assert.ok(answer.includes(word), `${code}: FAQ 2 does not mention a server at all, so it is back to promising files never leave the device — false for the tools that upload`);
   }
 });
 

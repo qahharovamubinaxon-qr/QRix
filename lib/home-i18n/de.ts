@@ -113,7 +113,7 @@ const ui: HomeUi = {
     },
     {
       "q": "Werden meine Dateien auf einen Server hochgeladen?",
-      "a": "Nein. PDF-, Bild- und QR-Tools laufen vollständig in deinem Browser – deine Dateien verlassen dein Gerät nie."
+      "a": "Meistens nicht. Die meisten Tools laufen vollständig in deinem Browser, deine Datei verlässt dein Gerät also nicht. Einige wenige brauchen einen Server – vor allem der PDF-zu-Word-Modus in bester Qualität – und jedes Tool, das etwas hochlädt, sagt das auf seiner eigenen Seite, bevor du eine Datei auswählst."
     },
     {
       "q": "Laufen meine QR-Codes ab?",

@@ -113,7 +113,7 @@ const ui: HomeUi = {
     },
     {
       "q": "Mes fichiers sont-ils envoyés sur un serveur ?",
-      "a": "Non. Les outils PDF, image et QR fonctionnent entièrement dans votre navigateur — vos fichiers ne quittent jamais votre appareil."
+      "a": "Le plus souvent, non. La plupart des outils fonctionnent entièrement dans votre navigateur, donc le fichier ne quitte pas votre appareil. Quelques-uns ont besoin d'un serveur — surtout le mode PDF vers Word de meilleure qualité — et chaque outil qui envoie un fichier le précise sur sa propre page, avant que vous ne le choisissiez."
     },
     {
       "q": "Mes QR codes expirent-ils ?",

@@ -113,7 +113,7 @@ const ui: HomeUi = {
     },
     {
       "q": "¿Mis archivos se suben a un servidor?",
-      "a": "No. Las herramientas de PDF, imágenes y QR funcionan por completo en tu navegador: tus archivos nunca salen de tu dispositivo."
+      "a": "En general, no. La mayoría de las herramientas funcionan por completo en tu navegador, así que el archivo no sale de tu dispositivo. Unas pocas necesitan un servidor —sobre todo el modo PDF a Word de máxima calidad— y toda herramienta que suba algo lo indica en su propia página antes de que elijas el archivo."
     },
     {
       "q": "¿Caducan mis códigos QR?",

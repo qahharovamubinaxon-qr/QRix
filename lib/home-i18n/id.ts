@@ -113,7 +113,7 @@ const ui: HomeUi = {
     },
     {
       "q": "Apakah file saya diunggah ke server?",
-      "a": "Tidak. Alat PDF, gambar, dan QR berjalan sepenuhnya di browser Anda — file Anda tidak pernah keluar dari perangkat."
+      "a": "Sebagian besar tidak. Sebagian besar alat berjalan sepenuhnya di browser Anda, jadi file tidak keluar dari perangkat. Beberapa memang butuh server — terutama mode PDF ke Word kualitas terbaik — dan setiap alat yang mengunggah sesuatu menyatakannya di halamannya sendiri sebelum Anda memilih file."
     },
     {
       "q": "Apakah QR code saya bisa kedaluwarsa?",

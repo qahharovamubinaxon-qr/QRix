@@ -113,7 +113,7 @@ const ui: HomeUi = {
     },
     {
       "q": "Dosyalarım bir sunucuya yükleniyor mu?",
-      "a": "Hayır. PDF, görsel ve QR araçları tamamen tarayıcınızda çalışır — dosyalarınız cihazınızdan asla çıkmaz."
+      "a": "Çoğunlukla hayır. Araçların çoğu tamamen tarayıcınızda çalışır, bu yüzden dosya cihazınızdan çıkmaz. Birkaçı sunucuya ihtiyaç duyar — özellikle en yüksek kaliteli PDF'den Word'e modu — ve dosya yükleyen her araç, siz dosyayı seçmeden önce bunu kendi sayfasında belirtir."
     },
     {
       "q": "QR kodlarımın süresi doluyor mu?",
