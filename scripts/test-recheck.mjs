@@ -23,6 +23,7 @@ function ok(name, fn) {
 
 const STUDY = readFileSync(new URL("../lib/qr-generator-study.ts", import.meta.url), "utf8");
 const COMPARE = readFileSync(new URL("../lib/compare-sources.ts", import.meta.url), "utf8");
+const STATS = readFileSync(new URL("../lib/qr-stats.ts", import.meta.url), "utf8");
 const CHECKER = readFileSync(new URL("./recheck-sources.mjs", import.meta.url), "utf8");
 
 /* Same parse the checker uses. Kept as its own copy on purpose: if the two
@@ -52,13 +53,49 @@ function compareBlocks() {
   }));
 }
 
-const all = [...studyBlocks(), ...compareBlocks()];
+function statsBlocks() {
+  const starts = [...STATS.matchAll(/^(?:export )?const ([A-Z][A-Z0-9_]*): Source = \{/gm)];
+  return starts.map((s, i) => ({
+    id: s[1],
+    block: STATS.slice(s.index, i + 1 < starts.length ? starts[i + 1].index : STATS.length),
+  }));
+}
 
-ok("the parser sees every source in both datasets", () => {
+const all = [...studyBlocks(), ...compareBlocks(), ...statsBlocks()];
+
+ok("the parser sees every source in all three datasets", () => {
   // Nothing below means anything if this is zero — the vacuous pass that let a
   // whole mutation batch measure nothing in M150.
   assert.ok(studyBlocks().length >= 20, `parsed ${studyBlocks().length} study vendors, expected 20+`);
   assert.ok(compareBlocks().length >= 3, `parsed ${compareBlocks().length} compare vendors, expected 3+`);
+  assert.ok(statsBlocks().length >= 5, `parsed ${statsBlocks().length} stats sources, expected 5+`);
+});
+
+ok("/qr-code-statistics is actually wired into the checker", () => {
+  /* The gap this closes, and the reason the assertion is about the CHECKER and
+     not about the data: until 2026-08-04 lib/qr-stats.ts carried perfectly good
+     citations and recheck-sources.mjs simply never opened the file, so the
+     site's flagship citable page was the one sourced dataset nothing re-read.
+     Evidence markers sitting in a file no checker imports are decoration. */
+  assert.match(CHECKER, /\.\.\/lib\/qr-stats\.ts/, "the checker does not read lib/qr-stats.ts");
+  assert.match(CHECKER, /statsSources\(\)/, "statsSources() is defined but never called into the run");
+  assert.ok(
+    /const sources = \[[^\]]*statsSources\(\)/.test(CHECKER),
+    "statsSources() is not part of the `sources` list the run iterates",
+  );
+});
+
+ok("the checker floors each dataset separately, not just the total", () => {
+  /* A single total floor is a vacuous pass waiting to happen: study+compare
+     alone clear 20, so the stats parser could return zero and the run would
+     still print a clean summary over a dataset it had stopped reading. Verified
+     by mutation on 2026-08-04 — renaming the `Source` type made statsSources()
+     return 0, and only the per-dataset floor caught it. */
+  const m = CHECKER.match(/const FLOORS = \{([^}]*)\}/);
+  assert.ok(m, "no per-dataset FLOORS map in the checker");
+  for (const ds of ["study", "compare", "stats"]) {
+    assert.match(m[1], new RegExp(`\\b${ds}\\s*:\\s*\\d+`), `FLOORS has no floor for the ${ds} dataset`);
+  }
 });
 
 ok("every cited source carries at least one evidence marker", () => {
@@ -76,7 +113,17 @@ ok("markers are specific enough to mean something", () => {
         m.length >= 14,
         `${id}: marker "${m}" is ${m.length} chars — too short to be evidence of anything; it will match boilerplate and report fresh on a page that changed`,
       );
-      assert.ok(m.split(/\s+/).length >= 2, `${id}: marker "${m}" is a single token`);
+      /* The rule means "not one generic word". A raw markup fragment can be
+         highly specific with no whitespace at all — the scans-vs-codes table
+         row is stored as `<td><strong>+7%</strong></td><td>…` precisely because
+         the two figures only mean "codes vs scans" while they sit in that row,
+         and the source HTML has no space between those tags to include. So
+         markup is exempt from the token count, never from the length rule. */
+      const isMarkup = m.includes("<") && m.includes(">");
+      assert.ok(
+        m.split(/\s+/).length >= 2 || isMarkup,
+        `${id}: marker "${m}" is a single token and is not markup`,
+      );
     }
   }
 });

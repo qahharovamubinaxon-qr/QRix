@@ -28,6 +28,20 @@ export type Source = {
   kind: SourceKind;
   /** Publication date of that page, as stated on it. */
   published: string;
+  /** ISO date this source was last re-read against the live page. */
+  checked: string;
+  /* Literal strings that must still appear in the source page's RAW markup for
+   * the figures above to still be supported. npm run recheck:sources re-fetches
+   * each url and looks for these; a miss means "go read this page again", never
+   * an automatic re-grading.
+   *
+   * PICK LONG, SENTENCE-SHAPED MARKERS. The figure alone is never enough — on
+   * the Bitly scans page a bare "40%" matches a CSS gradient stop
+   * (`rgb(207,42,186) 40%`), so a marker of "40%" would have passed forever
+   * while the claim it was meant to guard rotted. Same family of error as
+   * M138's "onAuthStateChange" and M155's `/setAttempt/`: a marker that is not
+   * unique to the thing it asserts is not a marker. */
+  evidence: string[];
 };
 
 export type Stat = {
@@ -52,11 +66,22 @@ export type StatGroup = {
 
 /* ------------------------------------------------------------------ sources */
 
+/* Every `checked` date and every marker below was read off the live page on
+   2026-08-04, when these five sources were brought under recheck:sources. */
+const CHECKED = "2026-08-04";
+
 const JUNIPER: Source = {
   name: "Juniper Research — “QR Code Payments to Exceed $8tn by 2029”",
   url: "https://www.juniperresearch.com/press/qr-code-payments-to-exceed-8tn-by-2029/",
   kind: "analyst",
   published: "10 February 2025",
+  checked: CHECKED,
+  evidence: [
+    /* One sentence carries three of the four figures we cite. */
+    "will grow by 50% globally from $5.4 trillion in 2025",
+    "QR Code Payments to Exceed $8tn by 2029",
+    "in-depth forecasts for 61 countries",
+  ],
 };
 
 const NPCI_GOV: Source = {
@@ -64,6 +89,12 @@ const NPCI_GOV: Source = {
   url: "https://www.newsonair.gov.in/upi-transaction-volume-rises-29-year-on-year-to-21-63-billion-in-december",
   kind: "government",
   published: "1 January 2026",
+  checked: CHECKED,
+  evidence: [
+    "year-on-year increase of 29 per cent to reach 21.63 billion transactions",
+    "the value of transactions also rose by 20 per cent annually",
+    "Average daily transaction count rose to 698 million",
+  ],
 };
 
 const BITLY_SCANS: Source = {
@@ -71,6 +102,17 @@ const BITLY_SCANS: Source = {
   url: "https://bitly.com/blog/state-of-qr-code-scans-2026/",
   kind: "vendor-platform",
   published: "10 March 2026",
+  checked: CHECKED,
+  evidence: [
+    "Europe (+42%) and Latin America (+40%) are surging, while North America (+8%)",
+    "scans grew by 21% and 18%, respectively",
+    "Sub-Saharan Africa seeing a 10% increase in scans",
+    /* The scans-vs-codes table. Raw markup on purpose: the two numbers in a row
+       only mean "codes vs scans" while they are still in that row, and once the
+       tags are stripped "+7% +53%" is two loose numbers on a long page. */
+    "<td><strong>+7%</strong></td><td><strong>+53%</strong></td>",
+    "<td><strong>+0.5%</strong></td><td><strong>+41%</strong></td>",
+  ],
 };
 
 const BITLY_SURVEY: Source = {
@@ -78,6 +120,22 @@ const BITLY_SURVEY: Source = {
   url: "https://bitly.com/blog/qr-code-statistics/",
   kind: "vendor-survey",
   published: "2025",
+  checked: CHECKED,
+  /* Ten figures on our page come off this one roundup, so all ten are pinned
+     individually — this is the source most likely to be quietly re-cut, and
+     "the Bitly page changed" would not say which number to go re-read. */
+  evidence: [
+    "Over 90% of marketers say they use QR Codes in 2025",
+    "94% of marketers had increased their usage of QR Codes in the past 12 months",
+    "88% of marketers believe consumer sentiment toward QR Codes has grown more positive",
+    "86% of marketers plan to increase their usage of QR Codes in the next 12 months",
+    "69% of marketers update or redirect dynamic QR Codes at least monthly",
+    "39% of marketers say that exclusive content or information proves most effective",
+    "33% of marketers say that discounts or promotional offers are most",
+    "the most valuable QR Code performance metric is unique users (54%)",
+    "demonstrating the ROI of QR Codes (87%)",
+    "84% of marketers say they plan to integrate AI and machine learning with QR Codes",
+  ],
 };
 
 export const FTC_ALERT: Source = {
@@ -85,6 +143,14 @@ export const FTC_ALERT: Source = {
   url: "https://consumer.ftc.gov/consumer-alerts/2025/01/scam-alert-qr-code-unexpected-package",
   kind: "regulator",
   published: "January 2025",
+  checked: CHECKED,
+  /* This one backs no figure — the page renders it as a safety callout. So the
+     marker is the WARNING ITSELF, which is the thing we are relying on the FTC
+     still saying. */
+  evidence: [
+    "scan a QR code to find out who sent it",
+    "Did someone really send you a gift?",
+  ],
 };
 
 /* A vendor's platform telemetry is a census of that vendor, nothing wider. */

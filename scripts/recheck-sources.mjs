@@ -53,6 +53,7 @@ const only = process.argv.slice(2).find((a) => !a.startsWith("-"));
 
 const studySrc = readFileSync(new URL("../lib/qr-generator-study.ts", import.meta.url), "utf8");
 const compareSrc = readFileSync(new URL("../lib/compare-sources.ts", import.meta.url), "utf8");
+const statsSrc = readFileSync(new URL("../lib/qr-stats.ts", import.meta.url), "utf8");
 
 /** Reads the string literals out of an `evidence: [ ... ]` block. */
 function evidenceFrom(block) {
@@ -119,6 +120,76 @@ function compareSources() {
   return out;
 }
 
+/* /qr-code-statistics. Its five sources are `const NAME: Source = { ... }`
+   blocks; several stats share one source, so the unit here is the SOURCE (one
+   fetch per page) and the markers name the figures between them. Added
+   2026-08-04 — until then the site's flagship citable page was the one sourced
+   dataset nothing re-read. */
+function statsSources() {
+  const out = [];
+  const starts = [...statsSrc.matchAll(/^(?:export )?const ([A-Z][A-Z0-9_]*): Source = \{/gm)];
+  for (let i = 0; i < starts.length; i++) {
+    const from = starts[i].index;
+    const to = i + 1 < starts.length ? starts[i + 1].index : statsSrc.length;
+    const block = statsSrc.slice(from, to);
+    const url = block.match(/url:\s*"([^"]+)"/);
+    if (!url) continue;
+    const checked = block.match(/checked:\s*(?:"([^"]+)"|CHECKED)/);
+    const published = block.match(/published:\s*"([^"]+)"/);
+    out.push({
+      dataset: "stats",
+      id: starts[i][1].toLowerCase().replace(/_/g, "-"),
+      url: url[1],
+      checked: checked && checked[1] ? checked[1] : statsCheckedDefault(),
+      published: published ? published[1] : null,
+      evidence: evidenceFrom(block),
+    });
+  }
+  return out;
+}
+
+function statsCheckedDefault() {
+  const m = statsSrc.match(/^const CHECKED = "([\d-]+)";/m);
+  return m ? m[1] : "unknown";
+}
+
+/* How old a source's PUBLICATION may get before it is worth asking whether a
+   newer edition exists. Deliberately advisory and never a failure: two of the
+   stats sources are dated press releases, and a February 2025 press release
+   that still says exactly what we quote is not wrong, it is dated — which is
+   what the page already prints next to it. A guard that fails on correct data
+   is a guard people learn to skip. `checked` above is the one that can fail. */
+const PUBLISHED_STALE_MONTHS = 14;
+
+/** Latest instant a free-text publication date could denote: "2025" -> 31 Dec
+ *  2025, "January 2025" -> 31 Jan 2025, "10 February 2025" -> that day. Most
+ *  generous on purpose, so the advisory never accuses a source unfairly. */
+function publishedLatest(text) {
+  if (!text) return null;
+  const s = text.trim();
+  const MONTHS = ["january","february","march","april","may","june","july","august","september","october","november","december"];
+  let m = s.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/);
+  if (m) {
+    const mi = MONTHS.indexOf(m[2].toLowerCase());
+    if (mi < 0) return null;
+    return Date.UTC(+m[3], mi, +m[1]);
+  }
+  m = s.match(/^([A-Za-z]+)\s+(\d{4})$/);
+  if (m) {
+    const mi = MONTHS.indexOf(m[1].toLowerCase());
+    if (mi < 0) return null;
+    return Date.UTC(+m[2], mi + 1, 0); // day 0 of next month = last day of this
+  }
+  m = s.match(/^(\d{4})$/);
+  if (m) return Date.UTC(+m[1], 11, 31);
+  return null;
+}
+
+function monthsSince(ms) {
+  if (ms === null) return null;
+  return (Date.now() - ms) / (30.44 * 86_400_000);
+}
+
 /* ------------------------------------------------------------- the matching */
 
 const norm = (s) => s.replace(/\s+/g, " ").toLowerCase();
@@ -146,7 +217,7 @@ function daysSince(iso) {
 
 /* ------------------------------------------------------------------ the run */
 
-const sources = [...studySources(), ...compareSources()].filter(
+const sources = [...studySources(), ...compareSources(), ...statsSources()].filter(
   (s) => !only || s.id.includes(only),
 );
 
@@ -158,9 +229,22 @@ if (!sources.length) {
   );
   process.exit(1);
 }
-if (!only && sources.length < 20) {
-  console.error(`parsed only ${sources.length} sources; both datasets together hold 20+. Parser regression.`);
-  process.exit(1);
+/* Per-dataset floors, not one total. A total-only floor is exactly the
+   vacuous-pass shape this file was built to avoid: the stats parser could
+   return zero and the 24 study+compare rows would still clear a floor of 20,
+   so the flagship page would silently stop being re-read while the run printed
+   a clean summary. Each dataset has to show up on its own. */
+if (!only) {
+  /* Measured 2026-08-04: study 21 · compare 3 · stats 5. Set at or just under
+     the real counts, so losing a dataset trips it and editing one does not. */
+  const FLOORS = { study: 20, compare: 3, stats: 5 };
+  for (const [dataset, min] of Object.entries(FLOORS)) {
+    const n = sources.filter((s) => s.dataset === dataset).length;
+    if (n < min) {
+      console.error(`parsed only ${n} ${dataset} sources, expected >= ${min}. Parser regression in that dataset.`);
+      process.exit(1);
+    }
+  }
 }
 
 console.log(`Re-reading ${sources.length} cited pages.\n`);
@@ -213,6 +297,20 @@ console.log(
 if (stale.length) {
   console.log(`\nOld enough to be worth re-reading by hand even though the markers hold:`);
   for (const s of stale) console.log(`  ${s.id} — read ${s.age} days ago (${s.checked})`);
+}
+
+/* Advisory only — never touches the exit code. See PUBLISHED_STALE_MONTHS. */
+const aged = sources
+  .map((s) => ({ ...s, months: monthsSince(publishedLatest(s.published)) }))
+  .filter((s) => s.months !== null && s.months > PUBLISHED_STALE_MONTHS);
+if (aged.length) {
+  console.log(
+    `\nFYI — published over ${PUBLISHED_STALE_MONTHS} months ago. Not a failure: a dated ` +
+      `press release that still says what we quote is dated, not wrong. Worth asking\nwhether a newer edition exists:`,
+  );
+  for (const s of aged) {
+    console.log(`  ${s.id.padEnd(24)} published ${s.published} (~${Math.floor(s.months)} months)`);
+  }
 }
 
 if (moved.length) {
