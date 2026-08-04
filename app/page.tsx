@@ -31,7 +31,7 @@ import {
   FiTrendingUp, FiDownloadCloud,
 } from "react-icons/fi";
 import { type Lang, isLang } from "@/lib/lang";
-import { HOME_I18N } from "@/lib/home-i18n";
+import { loadHomeUi } from "@/lib/home-i18n";
 
 /* ================= I18N ================= */
 const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
@@ -148,9 +148,12 @@ const T_BASE: Record<"en" | "ru" | "uz", Record<string, string>> = {
   },
 };
 
-// Merge the 12 generated languages; English fills any missing key per language.
-const T: Record<Lang, Record<string, string>> = { ...T_BASE } as Record<Lang, Record<string, string>>;
-for (const [code, v] of Object.entries(HOME_I18N)) T[code as Lang] = { ...T_BASE.en, ...v.pageT };
+/* The other twelve languages are NOT merged in here any more, and that is the
+ * point: doing so imported all of them into this page's bundle so that one
+ * visitor could read one. They now arrive as a per-language chunk (M160) —
+ * see the loadHomeUi effect in HomePage. English still fills missing keys. */
+type BaseLang = "en" | "ru" | "uz";
+const isBaseLang = (l: string): l is BaseLang => l === "en" || l === "ru" || l === "uz";
 
 const COLOR_PRESETS = ["#000000", "#bba9ff", "#2563eb", "#0891b2", "#16a34a", "#dc2626", "#db2777", "#d97706"];
 const BG_PRESETS = ["#ffffff", "#f4f4f8", "#fef9c3", "#e0f2fe", "#f3e8ff", "#dcfce7", "#ffe4e6", "#0a0a14"];
@@ -188,7 +191,10 @@ function CountUp({ end, suffix = "" }: { end: number; suffix?: string }) {
 
 export default function HomePage() {
   const [lang, setLang] = useState<Lang>("en");
-  const t = T[lang] ?? T.en;
+  /* Copy for the twelve generated languages, once its chunk lands. Null for
+   * en/ru/uz, which are authored above and never cost a request. */
+  const [extraT, setExtraT] = useState<Record<string, string> | null>(null);
+  const t = isBaseLang(lang) ? T_BASE[lang] : { ...T_BASE.en, ...(extraT ?? {}) };
   // Mission 41: NEW TOOLS ERA hero — the bunny carries the entrance now.
 
   /* ===== Tabs & forms ===== */
@@ -248,6 +254,18 @@ export default function HomePage() {
     window.addEventListener("qrix-lang", onLang);
     return () => window.removeEventListener("qrix-lang", onLang);
   }, []);
+
+  /* Fetch this language's copy, and only this language's (M160). A failed chunk
+   * leaves English on screen — the same thing every visitor sees before the
+   * effect above runs, so the failure mode is one this page already had. */
+  useEffect(() => {
+    if (isBaseLang(lang)) { setExtraT(null); return; }
+    let alive = true;
+    loadHomeUi(lang)
+      .then((ui) => { if (alive && ui) setExtraT(ui.pageT); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [lang]);
 
   const buildUrlWithUtm = (raw: string): string => {
     if (!utmOn || (!utmSource && !utmCampaign)) return raw;

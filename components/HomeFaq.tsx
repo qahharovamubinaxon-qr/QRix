@@ -1,11 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiPlus } from "react-icons/fi";
 import { jsonLd, faqLd } from "@/lib/seo";
 import { type Lang } from "@/lib/lang";
-import { HOME_I18N } from "@/lib/home-i18n";
-import { FAQ_I18N } from "@/lib/home-faq-i18n";
+import { loadHomeUi, type HomeUi } from "@/lib/home-i18n";
 
 const FAQS_BASE: Partial<Record<Lang, { q: string; a: string }[]>> = {
   en: [
@@ -39,22 +38,37 @@ const FAQS_BASE: Partial<Record<Lang, { q: string; a: string }[]>> = {
     { q: "QRix бошқалардан нимаси билан фарқ қилади?", a: "Тўлиқ тўплам: 30+ QR тури, штрих-код студияси, link-in-bio, постер, PDF ва расм асбоблари — махфий, тез ва бепул." },
   ],
 };
-// Merge the 12 generated languages' Q&A (English fills anything missing).
-const FAQS: Partial<Record<Lang, { q: string; a: string }[]>> = { ...FAQS_BASE };
-for (const [code, v] of Object.entries(FAQ_I18N)) FAQS[code as Lang] = v;
+/* The twelve generated languages are NOT merged in here any more. This
+ * component used to import TWO whole twelve-language registries — 85.8 KB of
+ * copy — so that one visitor could read one language of each. Both now arrive
+ * together as a single per-language chunk (M160). */
 
 const TITLES_BASE: Record<"en" | "ru" | "uz", { t: string; s: string }> = {
   en: { t: "Frequently asked questions", s: "Everything you might want to know before you start." },
   ru: { t: "Частые вопросы", s: "Всё, что стоит знать перед началом." },
   uz: { t: "Кўп бериладиган саволлар", s: "Бошлашдан олдин билишингиз керак бўлган ҳаммаси." },
 };
-const TITLES: Partial<Record<Lang, { t: string; s: string }>> = { ...TITLES_BASE };
-for (const [code, v] of Object.entries(HOME_I18N)) TITLES[code as Lang] = v.homeFaq;
+type BaseLang = "en" | "ru" | "uz";
+const isBaseLang = (l: string): l is BaseLang => l === "en" || l === "ru" || l === "uz";
 
 export default function HomeFaq({ lang }: { lang: Lang }) {
   const [open, setOpen] = useState<number>(0);
-  const faqs = FAQS[lang] || FAQS.en!;
-  const tt = TITLES[lang] || TITLES.en!;
+  /* This language's Q&A and headings, once the chunk lands; null for the three
+   * authored languages, which never fetch. English shows until then — and if
+   * the chunk fails, English is what stays. */
+  const [extra, setExtra] = useState<HomeUi | null>(null);
+
+  useEffect(() => {
+    if (isBaseLang(lang)) { setExtra(null); return; }
+    let alive = true;
+    loadHomeUi(lang)
+      .then((ui) => { if (alive && ui) setExtra(ui); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [lang]);
+
+  const faqs = (isBaseLang(lang) ? FAQS_BASE[lang] : extra?.faq) || FAQS_BASE.en!;
+  const tt = (isBaseLang(lang) ? TITLES_BASE[lang] : extra?.homeFaq) || TITLES_BASE.en;
 
   return (
     <section className="max-w-3xl mx-auto px-5 pb-16 lg:pb-20" aria-label={tt.t}>
@@ -62,7 +76,7 @@ export default function HomeFaq({ lang }: { lang: Lang }) {
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={jsonLd(faqLd(FAQS.en!))}
+        dangerouslySetInnerHTML={jsonLd(faqLd(FAQS_BASE.en!))}
       />
       <div className="text-center mb-10" data-reveal>
         <h2 className="font-display text-3xl lg:text-4xl font-extrabold" style={{ color: "var(--text)" }}>{tt.t}</h2>

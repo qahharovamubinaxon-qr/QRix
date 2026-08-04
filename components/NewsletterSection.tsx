@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiMail, FiCheck, FiArrowRight } from "react-icons/fi";
 import { type Lang } from "@/lib/lang";
-import { HOME_I18N } from "@/lib/home-i18n";
+import { loadHomeUi } from "@/lib/home-i18n";
 
 type NL = { t: string; s: string; ph: string; btn: string; ok: string; err: string };
 const T_BASE: Record<"en" | "ru" | "uz", NL> = {
@@ -11,11 +11,24 @@ const T_BASE: Record<"en" | "ru" | "uz", NL> = {
   ru: { t: "Будьте в курсе", s: "Новые инструменты и гайды — раз в месяц, без спама.", ph: "you@example.com", btn: "Подписаться", ok: "Готово! Скоро напишем.", err: "Не удалось — попробуйте ещё раз." },
   uz: { t: "Янгиликлардан хабардор бўлинг", s: "Янги асбоблар ва қўлланмалар — ойига бир марта, спамсиз.", ph: "you@example.com", btn: "Обуна бўлиш", ok: "Тайёр! Тез орада ёзамиз.", err: "Бўлмади — қайта уриниб кўринг." },
 };
-const T: Partial<Record<Lang, NL>> = { ...T_BASE };
-for (const [code, v] of Object.entries(HOME_I18N)) T[code as Lang] = v.newsletter;
+/* The other twelve languages arrive as a per-language chunk instead of being
+ * merged in at module scope, which used to import all twelve (M160). */
+type BaseLang = "en" | "ru" | "uz";
+const isBaseLang = (l: string): l is BaseLang => l === "en" || l === "ru" || l === "uz";
 
 export default function NewsletterSection({ lang }: { lang: Lang }) {
-  const t = T[lang] || T.en!;
+  const [extra, setExtra] = useState<NL | null>(null);
+
+  useEffect(() => {
+    if (isBaseLang(lang)) { setExtra(null); return; }
+    let alive = true;
+    loadHomeUi(lang)
+      .then((ui) => { if (alive && ui) setExtra(ui.newsletter); })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [lang]);
+
+  const t = (isBaseLang(lang) ? T_BASE[lang] : extra) || T_BASE.en;
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"idle" | "busy" | "ok" | "err">("idle");
 

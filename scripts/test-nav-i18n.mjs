@@ -17,8 +17,14 @@
 
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { HOME_I18N } from "../lib/home-i18n.ts";
+import { readAll, languageFiles } from "./home-i18n-aggregate.mjs";
 import { NAV_I18N } from "../lib/nav-i18n.ts";
+
+/* Every language at once, read from lib/home-i18n/ — which since M160 is one
+ * module per language with no aggregate of its own, precisely so no client
+ * component can import all twelve. This is a Node-side reader; nothing a
+ * browser loads can reach it. */
+const HOME_I18N = await readAll();
 
 let pass = 0;
 const ok = (label, fn) => {
@@ -80,8 +86,13 @@ ok("every language actually carries all 13 labels (no silent English)", () => {
 
 ok("nav-i18n is a fraction of the catalog it was cut from", () => {
   const nav = readFileSync(new URL("../lib/nav-i18n.ts", import.meta.url)).length;
-  const home = readFileSync(new URL("../lib/home-i18n.ts", import.meta.url)).length;
-  assert.ok(nav * 5 < home, `nav-i18n ${nav} B vs home-i18n ${home} B — the split stopped paying`);
+  /* M160 turned lib/home-i18n.ts into lib/home-i18n/<code>.ts, so the thing
+   * nav-i18n was cut from is now the sum of those files, not one file. */
+  const home = languageFiles().reduce(
+    (n, f) => n + readFileSync(new URL(`../lib/home-i18n/${f}`, import.meta.url)).length,
+    0,
+  );
+  assert.ok(nav * 5 < home, `nav-i18n ${nav} B vs home-i18n/ ${home} B — the split stopped paying`);
 });
 
 console.log(`\n  nav-i18n: ${pass}/${pass + (process.exitCode ? 1 : 0)} checks passed (${Object.keys(NAV_I18N).length} languages × ${KEYS.length} labels)\n`);
