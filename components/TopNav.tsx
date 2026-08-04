@@ -2,23 +2,38 @@
 
 import Link from "next/link";
 import Logo from "@/components/Logo";
+import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
-import {
-  FiGlobe, FiChevronDown, FiLogOut, FiSend, FiMenu, FiX,
-  FiLink, FiWifi, FiUser, FiMessageCircle, FiType, FiRefreshCw,
-  FiLayers, FiScissors, FiMinimize2, FiLock, FiDroplet,
-  FiZap, FiBarChart2, FiCamera, FiImage, FiMaximize2,
-  FiGrid, FiPieChart, FiSettings, FiHeart, FiClock, FiPlay, FiFilm,
-} from "react-icons/fi";
+/* Five icons, not twenty-nine: only these paint before a gesture. The other
+ * twenty-four moved to components/nav/NavPanels with the markup that uses them. */
+import { FiGlobe, FiChevronDown, FiUser, FiMenu, FiX } from "react-icons/fi";
 
 import { type Lang, SITE_LANGS, isLang } from "@/lib/lang";
 import { NAV_I18N } from "@/lib/nav-i18n";
+/* Type-only, so it is erased at compile time and drags no chunk with it. */
+import type { NavStrings } from "@/components/nav/NavPanels";
 
 const LANGUAGES = SITE_LANGS;
 
-type NavStrings = { home: string; qr: string; pdf: string; image: string; dashboard: string; pricing: string; blog: string; ai: string; video: string; three: string; signin: string; signout: string; signup: string };
+/* The gesture-gated panels. Each `dynamic` names the same module, so all three
+ * resolve from one chunk — and from the same module registry entry `warmPanels`
+ * primes, which is what makes the warm actually count. */
+const NavMegaMenu = dynamic(() => import("@/components/nav/NavPanels").then((m) => m.NavMegaMenu), { ssr: false });
+const AccountMenuBody = dynamic(() => import("@/components/nav/NavPanels").then((m) => m.AccountMenuBody), { ssr: false });
+const MobileAccountSection = dynamic(() => import("@/components/nav/NavPanels").then((m) => m.MobileAccountSection), { ssr: false });
+
+/* Warmed on the gesture BEFORE the opening one — entering the nav bar at all,
+ * focusing into it, or touching the burger — so the chunk is in flight while the
+ * pointer is still travelling and the panel is there when it opens. Cached at
+ * module scope: the point is one fetch per document, not one per hover.
+ * (M155 shipped this shape for QRDesignStudio; same reasoning, same trap avoided
+ * — a lazily-loaded panel that starts loading only when it is asked for reads to
+ * the visitor as a menu that does not open.) */
+let panelsWarm: Promise<unknown> | null = null;
+const warmPanels = () => { panelsWarm ??= import("@/components/nav/NavPanels"); };
+
 const NAV_BASE: Record<"en" | "ru" | "uz", NavStrings> = {
   en: { home: "Home", qr: "QR Tools", pdf: "PDF Tools", image: "Image Tools", dashboard: "Dashboard", pricing: "Pricing", blog: "Blog", ai: "AI Tools", video: "Video Tools", three: "3D Tools", signin: "Sign in", signout: "Sign out", signup: "Sign up" },
   ru: { home: "Главная", qr: "QR Инструменты", pdf: "PDF Инструменты", image: "Изображения", dashboard: "Панель", pricing: "Тарифы", blog: "Блог", ai: "AI Инструменты", video: "Видео", three: "3D Инструменты", signin: "Войти", signout: "Выйти", signup: "Регистрация" },
@@ -27,108 +42,6 @@ const NAV_BASE: Record<"en" | "ru" | "uz", NavStrings> = {
 // Merge the 12 generated languages; fall back to English per language.
 const NAV: Record<string, NavStrings> = { ...NAV_BASE };
 for (const [code, v] of Object.entries(NAV_I18N)) NAV[code] = { ...NAV_BASE.en, ...(v as Partial<NavStrings>) };
-
-const DROPDOWNS: Record<string, { href: string; label: string; desc: string; icon: React.ReactNode; color: string }[]> = {
-  "/qr-tools": [
-    { href: "/qr-tools/url",       label: "URL QR",      desc: "Any website link",     icon: <FiLink size={15}/>,         color: "#4f46e5" },
-    { href: "/qr-tools/wifi",      label: "WiFi QR",     desc: "Share WiFi access",    icon: <FiWifi size={15}/>,         color: "#16a34a" },
-    { href: "/qr-tools/vcard",     label: "vCard QR",    desc: "Digital business card",icon: <FiUser size={15}/>,         color: "#d97706" },
-    { href: "/qr-tools/whatsapp",  label: "WhatsApp QR", desc: "Direct chat link",     icon: <FiMessageCircle size={15}/>,color: "#16a34a" },
-    { href: "/link-in-bio",        label: "Link-in-Bio", desc: "All your links, one page", icon: <FiLink size={15}/>,      color: "#bba9ff" },
-    { href: "/poster",             label: "QR Poster",   desc: "Printable 'Scan me' flyer", icon: <FiImage size={15}/>,    color: "#ff4d1c" },
-    { href: "/bulk-qr",            label: "Bulk QR",     desc: "Many QR from CSV",     icon: <FiGrid size={15}/>,         color: "#bba9ff" },
-    { href: "/animated-qr",        label: "Animated QR", desc: "QR video for Stories", icon: <FiPlay size={15}/>,         color: "#ff6a13" },
-    { href: "/qr-art",             label: "AI QR Art",   desc: "Beautiful AI QR poster",icon: <FiImage size={15}/>,       color: "#7c3aed" },
-    { href: "/barcode",            label: "Barcode",     desc: "EAN, UPC, Code 128…",  icon: <FiBarChart2 size={15}/>,    color: "#0e7490" },
-    { href: "/qr-tools",           label: "All QR Tools",desc: "25+ QR types",         icon: <FiGrid size={15}/>,         color: "#ff4d1c" },
-  ],
-  "/pdf-tools": [
-    { href: "/pdf-tools/merge",     label: "Merge PDF",   desc: "Combine multiple PDFs",icon: <FiLayers size={15}/>,    color: "#4f46e5" },
-    { href: "/pdf-tools/split",     label: "Split PDF",   desc: "Extract pages",        icon: <FiScissors size={15}/>,  color: "#0891b2" },
-    { href: "/pdf-tools/compress",  label: "Compress",    desc: "Reduce file size",     icon: <FiMinimize2 size={15}/>, color: "#16a34a" },
-    { href: "/pdf-tools/protect",   label: "Protect PDF", desc: "Password protect",     icon: <FiLock size={15}/>,      color: "#bba9ff" },
-    { href: "/pdf-tools/watermark", label: "Watermark",   desc: "Add text/image mark",  icon: <FiDroplet size={15}/>,   color: "#0891b2" },
-    { href: "/pdf-tools",           label: "All PDF Tools",desc: "8+ PDF tools",        icon: <FiGrid size={15}/>,      color: "#ff4d1c" },
-  ],
-  "/image-tools": [
-    { href: "/image-tools/remove-bg",    label: "Remove BG",   desc: "AI background remover",icon: <FiScissors size={15}/>,   color: "#bba9ff" },
-    { href: "/image-tools/image-to-text",label: "Image to Text",desc: "Extract text (OCR)",  icon: <FiType size={15}/>,       color: "#0891b2" },
-    { href: "/image-tools/upscale",      label: "AI Upscale",  desc: "Enhance resolution",   icon: <FiZap size={15}/>,        color: "#d97706" },
-    { href: "/image-tools/compress",     label: "Compress",    desc: "Reduce image size",    icon: <FiMinimize2 size={15}/>,  color: "#16a34a" },
-    { href: "/image-tools/crop-image",   label: "Crop Image",  desc: "Crop with presets",    icon: <FiMaximize2 size={15}/>,  color: "#84cc16" },
-    { href: "/image-tools/social-media-resize", label: "Social Resize", desc: "Every platform size", icon: <FiImage size={15}/>, color: "#db2777" },
-    { href: "/resize",                   label: "Resize to Size",desc: "1920×1080 · 4K · A4 · ID", icon: <FiMaximize2 size={15}/>, color: "#2563eb" },
-    { href: "/convert",                  label: "Convert Format",desc: "PNG · JPG · WebP · AVIF", icon: <FiRefreshCw size={15}/>, color: "#7c3aed" },
-    { href: "/image-tools",              label: "All Image Tools",desc: "70+ tools",          icon: <FiImage size={15}/>,      color: "#ff4d1c" },
-  ],
-  "/ai-tools": [
-    { href: "/ai-tools/background-remover", label: "Background Remover", desc: "Transparent PNG in seconds", icon: <FiScissors size={15}/>, color: "#bba9ff" },
-    { href: "/ai-tools/image-upscaler",     label: "Image Upscaler",     desc: "2×–4× enhancement",        icon: <FiZap size={15}/>,       color: "#ff4d1c" },
-    { href: "/ai-tools/ocr",                label: "AI OCR",             desc: "Image → text",              icon: <FiType size={15}/>,      color: "#0891b2" },
-    { href: "/ai-tools/speech-to-text",     label: "Speech to Text",     desc: "Live dictation",            icon: <FiCamera size={15}/>,    color: "#dc2626" },
-    { href: "/ai-tools/logo-generator",     label: "Logo Generator",     desc: "Monograms & wordmarks",     icon: <FiImage size={15}/>,     color: "#ea580c" },
-    { href: "/ai-tools/resume-builder",     label: "Resume Builder",     desc: "ATS-friendly PDF",          icon: <FiUser size={15}/>,      color: "#059669" },
-    { href: "/ai-tools/qr-generator",       label: "AI QR",              desc: "Brand-styled QR codes",     icon: <FiGrid size={15}/>,      color: "#84cc16" },
-    { href: "/ai-tools",                    label: "All AI Tools",       desc: "28 tools, one toolbox",     icon: <FiZap size={15}/>,       color: "#ff4d1c" },
-  ],
-  "/video-tools": [
-    { href: "/downloader",                 label: "Video Downloader", desc: "TikTok, Instagram, VK…", icon: <FiPlay size={15}/>,   color: "#ff0050" },
-    { href: "/promo-video",                label: "Promo Video",  desc: "Animated brand promo",   icon: <FiFilm size={15}/>,      color: "#ff6a13" },
-    { href: "/video-tools/compress-video", label: "Compress",     desc: "Shrink 60-85%",          icon: <FiMinimize2 size={15}/>, color: "#84cc16" },
-    { href: "/video-tools/trim-video",     label: "Trim",         desc: "Timeline handles",       icon: <FiScissors size={15}/>,  color: "#ff4d1c" },
-    { href: "/video-tools/merge-videos",   label: "Merge",        desc: "Join clips",             icon: <FiLayers size={15}/>,    color: "#22d3ee" },
-    { href: "/video-tools/video-to-gif",   label: "Video to GIF", desc: "Real GIF encoder",       icon: <FiImage size={15}/>,     color: "#f472b6" },
-    { href: "/video-tools/extract-audio",  label: "Extract Audio",desc: "Video to MP3",           icon: <FiZap size={15}/>,       color: "#a78bfa" },
-    { href: "/video-tools/video-thumbnail",label: "Thumbnail",    desc: "Native-res frame grab",  icon: <FiCamera size={15}/>,    color: "#bba9ff" },
-    { href: "/video-tools/subtitle-editor",label: "SRT Editor",   desc: "Fix text and timing",    icon: <FiType size={15}/>,      color: "#34d399" },
-    { href: "/video-tools",                 label: "All Video Tools", desc: "29 tools, one studio", icon: <FiGrid size={15}/>,      color: "#ff4d1c" },
-  ],
-  "/dashboard": [
-    { href: "/dashboard",          label: "Overview",    desc: "Stats & analytics",    icon: <FiPieChart size={15}/>,   color: "#4f46e5" },
-    { href: "/dashboard",          label: "My QR Codes", desc: "Manage all QR codes",  icon: <FiGrid size={15}/>,       color: "#ff4d1c" },
-    { href: "/dashboard",          label: "Analytics",   desc: "Scans & locations",    icon: <FiBarChart2 size={15}/>,  color: "#16a34a" },
-    { href: "/dashboard",          label: "Scanner",     desc: "Scan QR codes",        icon: <FiCamera size={15}/>,     color: "#bba9ff" },
-    { href: "/dashboard",          label: "Dynamic QR",  desc: "Live editable links",  icon: <FiRefreshCw size={15}/>,  color: "#0891b2" },
-    { href: "/dashboard",          label: "Settings",    desc: "Account & preferences",icon: <FiSettings size={15}/>,   color: "#6b7280" },
-  ],
-};
-
-function NavDropdown({ items }: { items: typeof DROPDOWNS[string] }) {
-  return (
-    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 z-[200] w-[340px]"
-      style={{ filter: "drop-shadow(0 20px 40px rgba(0,0,0,0.25))" }}>
-      <div className="rounded-2xl overflow-hidden"
-        style={{
-          background: "var(--surface-solid)",
-          border: "1px solid var(--border)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-        }}>
-        {/* arrow */}
-        <div className="absolute -top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45"
-          style={{ background: "var(--surface-solid)", borderLeft: "1px solid var(--border)", borderTop: "1px solid var(--border)" }}/>
-        <div className="grid grid-cols-2 gap-0">
-          {items.map((item) => (
-            <Link key={item.href + item.label} href={item.href}
-              className="flex items-start gap-3 px-4 py-3.5 transition-all group"
-              style={{ borderBottom: "1px solid var(--border)" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "var(--surface-hover)")}
-              onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
-              <span className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5 transition-transform group-hover:scale-110"
-                style={{ background: `${item.color}18`, color: item.color }}>
-                {item.icon}
-              </span>
-              <div>
-                <div className="text-[12px] font-semibold leading-tight" style={{ color: "var(--text)" }}>{item.label}</div>
-                <div className="text-[10px] mt-0.5 leading-tight" style={{ color: "var(--text-muted)" }}>{item.desc}</div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default function TopNav() {
   const pathname = usePathname();
@@ -249,7 +162,8 @@ export default function TopNav() {
         {/* Nav links */}
         {/* xl and up only: ten single-line links need ~1280px of window. Below that
             the burger carries the same links rather than a squeezed, wrapping bar. */}
-        <nav aria-label="Primary" className="hidden xl:flex items-center gap-0 mx-auto relative" onMouseLeave={moveToActive}>
+        <nav aria-label="Primary" className="hidden xl:flex items-center gap-0 mx-auto relative"
+          onPointerEnter={warmPanels} onFocusCapture={warmPanels} onMouseLeave={moveToActive}>
           {/* sliding glass pill */}
           <span className="qx-nav-glasspill" style={{ transform: `translateX(${pill.x}px)`, top: pill.y, width: pill.w, height: pill.h, opacity: pill.show ? 1 : 0 }} />
           {links.map((l, idx) => {
@@ -280,7 +194,7 @@ export default function TopNav() {
                 </Link>
                 {hasDropdown && hovered === l.dropdown && (
                   <div onMouseEnter={() => l.dropdown && onEnter(l.dropdown)} onMouseLeave={onLeave}>
-                    <NavDropdown items={DROPDOWNS[l.dropdown!]} />
+                    <NavMegaMenu menu={l.dropdown!} />
                   </div>
                 )}
               </div>
@@ -313,7 +227,7 @@ export default function TopNav() {
           </div>
 
           {/* Account menu — always available (favorites/history/settings work for guests too) */}
-          <div className="relative" onMouseLeave={() => setUserOpen(false)}>
+          <div className="relative" onPointerEnter={warmPanels} onMouseLeave={() => setUserOpen(false)}>
             <button onClick={() => setUserOpen((v) => !v)} className="flex items-center gap-2 rounded-xl px-2 py-1.5"
               style={{ background: "var(--surface-hover)", border: "1px solid var(--border)" }} aria-haspopup="true" aria-expanded={userOpen} aria-label="Account menu">
               <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold uppercase shrink-0"
@@ -326,38 +240,15 @@ export default function TopNav() {
             {userOpen && (
               <div className="absolute right-0 top-full mt-2 w-56 rounded-xl overflow-hidden z-50"
                 style={{ background: "var(--surface-solid)", border: "1px solid var(--border)", boxShadow: "var(--shadow-pop)" }}>
-                {user && <div className="px-4 py-3 text-[12px] truncate" style={{ borderBottom: "1px solid var(--border)", color: "var(--text-muted)" }}>{user.email}</div>}
-                {[
-                  { href: "/dashboard", label: t.dashboard, icon: <FiPieChart size={15} /> },
-                  { href: "/workspace", label: "Workspace", icon: <FiGrid size={15} /> },
-                  { href: "/account", label: "Account", icon: <FiUser size={15} /> },
-                  { href: "/favorites", label: "Favorites", icon: <FiHeart size={15} /> },
-                  { href: "/history", label: "History", icon: <FiClock size={15} /> },
-                  { href: "/settings", label: "Settings", icon: <FiSettings size={15} /> },
-                ].map((m) => (
-                  <Link key={m.href + m.label} href={m.href} onClick={() => setUserOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold transition-colors"
-                    style={{ color: "var(--text)" }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--surface-hover)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}>
-                    <span style={{ color: "var(--text-faint)" }}>{m.icon}</span>{m.label}
-                  </Link>
-                ))}
-                <div style={{ borderTop: "1px solid var(--border)" }}>
-                  {user
-                    ? <button onClick={() => { setUserOpen(false); signOut(); }} className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] font-semibold" style={{ color: "var(--danger)" }}><FiLogOut size={15} /> {t.signout}</button>
-                    : <div className="grid grid-cols-2 gap-2 p-3">
-                        <Link href="/login" onClick={() => setUserOpen(false)} className="qx-btn-ghost !py-2 !text-[12px] justify-center">{t.signin}</Link>
-                        <Link href="/register" onClick={() => setUserOpen(false)} className="qx-btn !py-2 !text-[12px] justify-center">{t.signup}</Link>
-                      </div>}
-                </div>
+                <AccountMenuBody t={t} signedIn={!!user} email={user?.email ?? null}
+                  onNavigate={() => setUserOpen(false)} onSignOut={signOut} />
               </div>
             )}
           </div>
           {!user && <Link href="/register" className="qx-btn !py-2 !px-4 text-[13px] font-bold hidden lg:inline-flex">{t.signup}</Link>}
 
           {/* Hamburger — mobile only */}
-          <button onClick={() => setMobileOpen((v) => !v)} className="qx-btn-ghost !p-2.5 xl:hidden" aria-label="Menu" aria-haspopup="true" aria-expanded={mobileOpen}>
+          <button onClick={() => setMobileOpen((v) => !v)} onPointerDown={warmPanels} className="qx-btn-ghost !p-2.5 xl:hidden" aria-label="Menu" aria-haspopup="true" aria-expanded={mobileOpen}>
             {mobileOpen ? <FiX size={18} /> : <FiMenu size={18} />}
           </button>
         </div>
@@ -378,30 +269,10 @@ export default function TopNav() {
                 </Link>
               );
             })}
-            {/* Account section */}
-            <div className="mt-2 pt-2 grid grid-cols-2 gap-1" style={{ borderTop: "1px solid var(--border)" }}>
-              {[
-                { href: "/dashboard", label: t.dashboard, icon: <FiPieChart size={16} /> },
-                { href: "/account", label: "Account", icon: <FiUser size={16} /> },
-                { href: "/favorites", label: "Favorites", icon: <FiHeart size={16} /> },
-                { href: "/history", label: "History", icon: <FiClock size={16} /> },
-                { href: "/settings", label: "Settings", icon: <FiSettings size={16} /> },
-              ].map((m) => (
-                <Link key={m.href} href={m.href} onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-[14px] font-semibold"
-                  style={{ background: "var(--surface)", color: "var(--text)", border: "1px solid var(--border)" }}>
-                  <span style={{ color: "var(--text-faint)" }}>{m.icon}</span>{m.label}
-                </Link>
-              ))}
-            </div>
-            {user
-              ? <button onClick={() => { setMobileOpen(false); signOut(); }} className="flex items-center justify-center gap-2 px-4 py-3 mt-1 rounded-xl text-[14px] font-bold" style={{ background: "var(--surface-2)", color: "var(--danger)", border: "1px solid var(--border)" }}><FiLogOut size={15} /> {t.signout}</button>
-              : (
-              <div className="grid grid-cols-2 gap-2 mt-2">
-                <Link href="/login" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold" style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}>{t.signin}</Link>
-                <Link href="/register" onClick={() => setMobileOpen(false)} className="text-center px-4 py-3 rounded-xl text-[14px] font-bold text-white" style={{ background: "var(--grad-primary)" }}>{t.signup}</Link>
-              </div>
-            )}
+            {/* Account section — deferred; the primary links above are not, so a
+                slow or failed chunk costs a phone its shortcuts, never its nav. */}
+            <MobileAccountSection t={t} signedIn={!!user}
+              onNavigate={() => setMobileOpen(false)} onSignOut={signOut} />
           </nav>
         </div>
       )}

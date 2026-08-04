@@ -59,6 +59,68 @@ ok("TopNav does not statically import the auth SDK", () => {
   assert.ok(/import\("@\/lib\/supabase-browser"\)/.test(topnav), "TopNav no longer loads supabase-browser at all");
 });
 
+/* ---- TopNav's gesture-gated panels ----------------------------------------- */
+/* Same shape as the palette and the studio, one layer up: the 50-entry DROPDOWNS
+ * mega-menu, the account menu body and the mobile account grid can only be
+ * reached by a hover or a tap, and all three shipped in the eager set of all
+ * ~800 pages because they were written inline in a component the root layout
+ * mounts. Nothing about the header looks wrong when they move back — the menus
+ * open exactly the same — so the boundary is asserted rather than remembered. */
+
+const panels = read("components/nav/NavPanels.tsx");
+
+ok("TopNav reaches the nav panels only through a dynamic import", () => {
+  assert.ok(
+    !staticallyImports(topnav, "nav/NavPanels"),
+    "TopNav imports NavPanels for value — the mega-menu is eager on every page again",
+  );
+  assert.ok(/import\("@\/components\/nav\/NavPanels"\)/.test(topnav), "TopNav never loads the panels at all");
+});
+
+/* The registry is the payload, and it is what a careless "just move the
+ * component back" would drag along. Assert on one of its own literals rather
+ * than on the identifier: a rename survives an identifier grep, and DROPDOWNS
+ * has been renamed once already. */
+ok("the mega-menu registry lives in the deferred module, not in TopNav", () => {
+  assert.ok(!/Many QR from CSV/.test(topnav), "the DROPDOWNS registry is back inside TopNav");
+  assert.ok(/Many QR from CSV/.test(panels), "NavPanels no longer holds the mega-menu registry — the marker is stale");
+});
+
+/* 29 icons went in, 5 came out. react-icons is tree-shaken per icon, so this is
+ * the bulk of the win and also the easiest thing to undo by accident: adding one
+ * icon to the header pulls nothing, adding a menu item's icon pulls the panel's
+ * whole markup back with it. */
+ok("TopNav imports only the icons that paint before a gesture", () => {
+  const line = topnav.match(/import\s*\{([^}]*)\}\s*from\s*["']react-icons\/fi["']/);
+  assert.ok(line, "TopNav no longer imports from react-icons/fi — this guard is reading the wrong thing");
+  const icons = line[1].split(",").map((s) => s.trim()).filter(Boolean);
+  assert.ok(icons.length <= 6, `TopNav imports ${icons.length} icons (${icons.join(", ")}) — the panel icons are eager again`);
+});
+
+/* Deferring behind the opening gesture itself would read as a menu that does not
+ * open. Each panel is warmed by the gesture BEFORE it: entering the nav bar,
+ * approaching the account button, pressing the burger. */
+ok("every panel is warmed on the gesture before the one that opens it", () => {
+  assert.ok(/const warmPanels = \(\) =>/.test(topnav), "nothing warms the panel chunk");
+  assert.ok(/onPointerEnter=\{warmPanels\}[^>]*onFocusCapture=\{warmPanels\}/.test(topnav),
+    "the desktop nav does not warm on pointer/focus — the first hover would open an empty panel");
+  assert.ok(/onPointerDown=\{warmPanels\}/.test(topnav),
+    "the burger does not warm on pointerdown — the mobile sheet's account grid would pop in late");
+});
+
+/* THE SAFETY PROPERTY, and the reason the split stops where it does. A dynamic
+ * import can fail; the ten primary links are the only navigation a phone has, so
+ * they stay in TopNav where a dropped chunk cannot reach them. If someone later
+ * "finishes the job" by moving the mobile link list into NavPanels too, a failed
+ * chunk becomes a phone with no way off the page. */
+ok("the primary nav links are NOT deferred, on either breakpoint", () => {
+  assert.ok(/aria-label="Primary"/.test(topnav), "the desktop nav markup left TopNav");
+  assert.ok(/aria-label="Mobile"/.test(topnav), "the mobile sheet's nav markup left TopNav");
+  assert.ok(!/aria-label="Mobile"/.test(panels), "the mobile nav list moved into the deferred chunk — a failed load strands phones");
+  const mobileNav = topnav.match(/aria-label="Mobile"[\s\S]{0,900}/)?.[0] ?? "";
+  assert.ok(/links\.map/.test(mobileNav), "the mobile sheet no longer renders the primary links itself");
+});
+
 /* ---- the command palette --------------------------------------------------- */
 
 ok("the layout mounts the loader, not the palette", () => {

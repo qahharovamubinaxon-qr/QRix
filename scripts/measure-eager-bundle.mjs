@@ -33,6 +33,12 @@ const MARKERS = [
   ["blog posts (lib/blog)", "WiFi QR Code: Let Guests Connect"],
   ["nav labels (either catalog — these must stay)", "Herramientas de vídeo"],
   ["QRDesignStudio (modal — click only)", "Classy R."],
+  /* TopNav's DROPDOWNS registry — 50 mega-menu entries, each with a react-icons
+   * element built at module scope, and the panels only ever open on hover/tap.
+   * Its own literal, not one shared with lib/qr-tools-meta ("Digital business
+   * card" lives in three files and would report the registry as present on any
+   * page that merely lists QR tools). */
+  ["nav mega-menu panels (hover/tap only)", "Many QR from CSV"],
 ];
 
 /* The nav labels ship in the eager set of every page on the site — TopNav is in
