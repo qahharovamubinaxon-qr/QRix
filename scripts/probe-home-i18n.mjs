@@ -117,6 +117,13 @@ for (const lang of langs) {
     const want = ${JSON.stringify(want)};
     const answer = ${JSON.stringify(answer)};
     for (let i = 0; i < 60 && (document.readyState === "loading" || !document.body); i++) await sleep(250);
+    /* Refuse to measure the wrong document. If this ever runs against the page
+       we navigated AWAY from, every string is legitimately absent and the probe
+       would report a correct site as broken — so say which page it landed on
+       instead of quietly grading it. */
+    if (location.pathname !== "/") {
+      return JSON.stringify({ wrongDocument: location.pathname, missing: [], answerPresent: false, hydrated: false, pageErrors: 0 });
+    }
 
     /* Poll for the condition rather than sleeping a fixed time: on a cold chunk
        the copy can land well past any constant delay, and a fixed settle is
@@ -165,6 +172,25 @@ for (const lang of langs) {
     expression: `localStorage.setItem("language", ${JSON.stringify(lang)})`,
   }, sessionId);
   await browser.send("Page.navigate", { url: ORIGIN + "/" }, sessionId);
+
+  /* WAIT FOR THE NAVIGATION TO COMMIT BEFORE EVALUATING ANYTHING.
+     Runtime.evaluate issued straight after Page.navigate can still bind to the
+     OUTGOING document — here /robots.txt, which has no header, no hero and no
+     copy in any language. The probe then measured robots.txt for 25 s and
+     reported the page as missing its strings. That is exactly what "de and zh
+     are broken" looked like while the page was in fact correct, and it is why
+     the same language passed in one run and failed the next. Poll for the new
+     document instead of assuming the navigate has landed. */
+  for (let i = 0; i < 80; i++) {
+    const r = await browser.send("Runtime.evaluate", {
+      expression: "location.pathname + '|' + document.readyState + '|' + (document.body ? 1 : 0)",
+      returnByValue: true,
+    }, sessionId).catch(() => null);
+    const v = r?.result?.value;
+    if (typeof v === "string" && v.startsWith("/|") && !v.endsWith("|0") && !v.includes("|loading|")) break;
+    await new Promise((r2) => setTimeout(r2, 250));
+  }
+
   await browser.send("Runtime.evaluate", {
     expression: "window.__err=0;addEventListener('error',()=>window.__err++);",
   }, sessionId);
@@ -185,6 +211,7 @@ for (const lang of langs) {
   await browser.send("Target.closeTarget", { targetId });
 
   const bad = [];
+  if (out.wrongDocument) bad.push(`probe ran against ${out.wrongDocument}, not / — instrument fault, not a page fault`);
   if (out.missing.length) bad.push(`missing ${out.missing.length}: ${out.missing.map((s) => JSON.stringify(s.slice(0, 40))).join(", ")}`);
   if (!out.answerPresent) bad.push("the corrected FAQ 2 answer is NOT in the DOM");
   if (!out.hydrated) bad.push("header never hydrated");
