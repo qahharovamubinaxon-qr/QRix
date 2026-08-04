@@ -1356,7 +1356,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   is the assertion that would have caught a lost string, and it is why the probe
   was run rather than only the byte measurement. All four routes 200,
   self-canonical, own localized titles. Sitemap unchanged at 815.
-- [~] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
+- [x] /qr-code-statistics follow-ups, ranked: (1) SHIPPED as M140 (623cd42) and
   verified live at 15:10 UTC Jul 27 by the next session — 26 cards at
   /embed/qr-stat/<id> all 200, an unknown id 404s, frame-ancestors * is set on
   /embed/* only and X-Frame-Options is dropped there, and all 26 snippets are in
@@ -1365,6 +1365,94 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   reports that will move (a `published` date older than ~14 months should fail
   test:qr-stats); (3) RU/UZ twins once the EN page shows impressions in GSC —
   not before, the copy is argumentative and expensive to translate well.
+  (2) SHIPPED Aug 4 as M164 (82868f9), and scoping it found the item was filed
+  one level too shallow. It asks for a 14-month rule on the `published` date;
+  the actual gap was that recheck-sources.mjs read qr-generator-study.ts and
+  compare-sources.ts and NEVER OPENED lib/qr-stats.ts — so the page whose whole
+  pitch is "every number links to the page it was read off" was the one sourced
+  dataset nothing re-read. Five sources, 23 markers, all read off the live pages
+  that day; 24 -> 29 sources, 50 -> 73 markers, 0 moved, 0 unreachable.
+  THE RULE THE MARKERS ARE BUILT ON, and it is verified rather than asserted: a
+  marker must not survive the deletion of its own claim. On the Bitly scans page
+  a bare "40%" matches a CSS GRADIENT STOP (`rgb(207,42,186) 40%`), and the same
+  test showed "21%", "8%" and "+41%" also still matching once the sentence they
+  guard was deleted from the fetched page — four markers that would have
+  reported fresh forever. The long sentence-shaped ones correctly went false.
+  Same family as M138's "onAuthStateChange" and M155's `/setAttempt/`, but this
+  is the cheap way to test for it: delete the claim, re-run, see if the marker
+  notices.
+  PER-DATASET FLOORS replaced the single total floor, and that was the real
+  vacuous-pass risk rather than a tidy-up: study+compare alone clear a floor of
+  20, so statsSources() returning zero would have printed a clean run over a
+  dataset it had silently stopped reading. Mutation-confirmed — renaming the
+  `Source` type broke the parser and ONLY the per-dataset floor caught it.
+  THE 14-MONTH RULE SHIPPED AS AN ADVISORY that never touches the exit code, and
+  the reasoning is the reusable part: a February 2025 press release that still
+  says exactly what we quote is DATED, NOT WRONG — and the page already prints
+  that date next to the figure. A guard that fails on correct data is one people
+  learn to skip, which would have cost us the 120-day `checked` signal that can
+  actually fail. It flags juniper (~17mo) and ftc-alert (~18mo): exactly the two
+  this item predicted would move. Whether a newer edition exists is a human call
+  and the advisory is the prompt to make it.
+  Guards: test:recheck 9 -> 12 assertions over 29 sources. 8 mutations verified
+  (marker corruption, `Source` rename, aged `checked`, checker unwired 2 ways,
+  floor removed, short-markup marker, long single-token marker).
+  next on this item: (3) RU/UZ twins, still gated on EN impressions in GSC.
+- [ ] THE HOMEPAGE SPLIT IS MORE BLOCKED THAN THE CWV EPIC RECORDS, and this
+  is a correction to that item's own scoping rather than a new idea. Measured
+  Aug 4 (read-only, nothing changed): app/page.tsx contains FIFTY inline
+  `lang === "uz" ? … : lang === "ru" ? … : <english>` ternaries, and THIRTY-FOUR
+  of them are BELOW the hero — the stats band (5), the downloader card (7), the
+  film section (6), the CTA/footer/Telegram blocks (16).
+  The epic says the blocker is "the five lang-prop sections" (TrustedBy,
+  HomeFaq, ReviewsSection, PricingTeaser, LatestPosts) and that CategoryShowcase
+  plus two others could move to the server "once their heading strings are
+  handled". That understates it the same way the TopNav note did before M163:
+  it is not five sections passing a prop, it is essentially the whole page body
+  reading `lang` inline. TrustedBy's heading (:839) and LatestPosts'
+  heading+cta (:850-851) ARE two of the fifty.
+  CONSEQUENCE, and it is the useful part: the "split around the hero, leave the
+  localised sections for later" plan does not survive contact with the file.
+  Once the page stops being "use client", every one of those 34 call sites needs
+  the language on the server, so the split and the cookie decision are ONE
+  mission, not two — which is worth knowing before someone opens a 1043-line
+  refactor expecting to land half of it. CategoryShowcase (:751, no props, zero
+  hooks) remains the one genuinely clean move, and it is worth ~nothing alone.
+  So the OWNER-GATED cookie item below is the true gate on the biggest open CWV
+  item, and it now blocks three things, not two: the homepage split, the TopNav
+  split, and the homepage's ~0.6-1.4s first mega-menu hover that M163 traced
+  back here. Do not re-scope this without answering that first.
+
+- [ ] The homepage renders ENGLISH to twelve languages nearly everywhere below
+  the hero badge — same defect shape M162 fixed for ONE string, found Aug 4 by
+  sweeping for that shape as M162's note said to. The fifty ternaries above are
+  a language list that stops at three: zh hi es ar fr pt id de ja tr ur bn all
+  fall through to the English arm.
+  NOT TAKEN, and the reasoning is the point rather than the finding, because the
+  cheap read ("M162 again, wire it to t.<key>") is wrong here:
+  (a) THERE IS NOTHING TO WIRE. M162 worked because `cardTitle` was already
+      translated fifteen times and rendered zero times. These fifty strings have
+      NO KEY IN ANY LANGUAGE — pageT holds 74 keys, all of them the ones that
+      went through T_BASE, and every one of these was added later at the call
+      site. Fixing means AUTHORING ~600 strings of marketing copy in twelve
+      languages nobody here can proofread, which is precisely the hazard M161
+      recorded ("writing copy nobody here can proofread is how the fabrication
+      got in"). M161's twelve sentences were a CORRECTION of an existing false
+      claim; this would be net-new prose.
+  (b) IT IS WORTH ZERO IN SEARCH. There is exactly one homepage URL in the
+      sitemap (`https://qrixtools.com/`) — checked, not assumed. app/ru and
+      app/uz are tool-family routes, there is no /de/ homepage, and language on
+      / is a localStorage toggle. Google indexes the English page either way, so
+      this is a UX defect for visitors who switch language, not an indexing or
+      hreflang one, and it serves no P0 gate.
+  WHAT WOULD MAKE IT WORTH TAKING, in order: real evidence that non-en/ru/uz
+  visitors switch language on / (nothing measures this today — a counter on the
+  switcher would answer it for ~10 lines), or the cookie decision landing, which
+  would let these strings be server-rendered per language and turn the same work
+  into something that ships localized HTML. Until one of those, the honest state
+  is: recorded, understood, deliberately not fixed. Do not "quickly localize the
+  homepage" without reading (a).
+
 - [ ] /embed/downloader has the same disease and is harder: it ships the root
   layout too (TopNav, consent banner, gtag.js) but it is a real tool and has to
   hydrate, so it cannot become a Route Handler. Getting it off the root layout
