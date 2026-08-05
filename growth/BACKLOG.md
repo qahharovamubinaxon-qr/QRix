@@ -1584,6 +1584,30 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] PDF converter-pair pages (word-to-pdf, excel-to-pdf, ppt-to-pdf…).
 - [ ] Blog autopilot: +20 topics from GSC impressions data (weekly review).
 - [~] Internal-links pass: every tool page links 6+ related pages.
+  MEASURED FIRST, and the item was not stale — it was worse than written.
+  Content links per page on production 2026-08-05 (chrome links subtracted by
+  taking the set common to all 17 pages fetched, so this is what a crawler
+  gains by being on THAT page):
+    tool pages (qr/pdf/image, the biggest template)   3   <- and all three are
+                                                          /, /image-tools,
+                                                          /pdf-tools. ZERO
+                                                          sibling tools.
+    /convert/* 10 · /barcode/* 10 · /resize/* 14 · /use/* 23
+    hubs: /pdf-tools 26 · /qr-tools 51 · /image-tools 94 · / 42
+  So the programmatic families were fine and the gap was precisely the template
+  covering the most routes. Tool pages were leaf nodes. Compounding it: the
+  50-entry mega-menu that used to carry those links on every page has been
+  behind a dynamic import since M163, and A CRAWLER DOES NOT HOVER — the CWV
+  work removed ~50 links from the server HTML of ~800 pages, which is the M139
+  rule (defer on INTENT, inline on PAINT) meeting the case it was written for
+  and losing. Worth re-reading before the next deferral.
+  SHIPPED faa698f (the block) + 52525cd (the small-family top-up + live probe).
+  next: production deploy dpl_4Uo8eSN3etL9Rqgj2qRNpoya5XLx is BUILDING; when it
+  is READY run `npm run probe:related` (must be green on all six families) AND
+  re-measure /qr-tools/url with measure-eager-bundle against the 652.3 KB M163
+  baseline — the one real risk here is buildSearchIndex leaking across the
+  client boundary, which would add ~245 KB to 46 routes and which only bytes
+  can prove. Then move the item to Done with the after-figures.
   TAKEN Aug 5 (M166). Serves P0 directly — the gate is index coverage and
   internal links are how 817 URLs get crawled. next: measure the real depth per
   template on production before changing anything; the item is a year old and
