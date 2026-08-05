@@ -1541,6 +1541,17 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   third-party iframes also means embed impressions land in GA as page_views,
   which pollutes the very numbers the P0/P1 KPI gates read.
   next: nothing — closed unless embed adoption is measured.
+- [~] BLOG POSTS ARE THE REMAINING CRAWL DEAD END — 5 content links across ~40
+  pages, the second-biggest template on the site. TAKEN Aug 5 (M167).
+  Found by M166's measurement, not guessed: /blog/merge-pdf-files-free renders
+  /, /about, /image-tools, /pdf-tools, /pdf-tools/merge and nothing else. No
+  link to another POST, so the blog is a set of islands — and the homepage's
+  LatestPosts inlines only THREE slugs (M139), which means the other ~37 posts
+  are reachable from /blog alone. Serves P0 (index coverage) for the same reason
+  M166 did, and the same instrument answers it.
+  next: measure the blog template, then related posts + the tool the post is
+  about; reuse relatedTools() for the tool half rather than inventing a second
+  resolver.
 - [ ] /embed/downloader has the same disease and is harder: it ships the root
   layout too (TopNav, consent banner, gtag.js) but it is a real tool and has to
   hydrate, so it cannot become a Route Handler. Getting it off the root layout
