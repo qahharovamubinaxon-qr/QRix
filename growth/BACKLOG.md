@@ -1541,7 +1541,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   third-party iframes also means embed impressions land in GA as page_views,
   which pollutes the very numbers the P0/P1 KPI gates read.
   next: nothing — closed unless embed adoption is measured.
-- [~] BLOG POSTS ARE THE REMAINING CRAWL DEAD END — 5 content links across ~40
+- [x] BLOG POSTS ARE THE REMAINING CRAWL DEAD END — 5 content links across ~40
   pages, the second-biggest template on the site. TAKEN Aug 5 (M167).
   Found by M166's measurement, not guessed: /blog/merge-pdf-files-free renders
   /, /about, /image-tools, /pdf-tools, /pdf-tools/merge and nothing else. No
@@ -1567,10 +1567,26 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   editorial choice), then tops up to six — same category first — rotated by the
   post's own slug. The top-up is not padding: `related` holds 1-3 entries and
   could never reach the six-link target on its own.
-  next: probe:related is polling production; it now covers three articles and
-  was VERIFIED TO FAIL pre-deploy (0/0/2 links), which is the only way to know a
-  guard works. When green, close this and record that no source assertion could
-  ever have caught it — the bug was a data-source mismatch, not a code defect.
+  VERIFIED LIVE. /blog/* 5 -> 11 content links; the three probed articles carry
+  6 links to other posts each (0 / 0 / 2 before), articles differ (1/6 shared),
+  all 200 + self-canonical + own non-homepage title. Sitemap unchanged at 817;
+  all 79 blog URLs submitted to IndexNow as CHANGED (HTTP 200).
+  WHY NO UNIT TEST GUARDS THIS, recorded because the instinct is to add one:
+  nothing in the source was wrong. `post.related` was populated, the template
+  rendered it, the resolver worked — it was pointed at the STATIC registry while
+  the data lived in Supabase. A source assertion cannot see a data-source
+  mismatch, exactly as it could not see M166's registry-size problem. Both
+  halves of this pair needed a LIVE probe, and both probes were verified to fail
+  against production before their fix shipped. That is the pattern to reuse:
+  when the defect is in WHERE the data comes from or HOW MUCH of it there is,
+  the only honest guard fetches the built page.
+  ALSO TRUE AND WORTH KNOWING: this had been live since autopilot started
+  publishing. Every autopilot post that named other autopilot posts rendered no
+  "Keep reading" section at all, and the section is conditional
+  (`related.length > 0 &&`), so the page looked deliberate rather than broken.
+  A conditional section is invisible when its data fails to resolve — check the
+  ones that render nothing, not the ones that render wrong.
+  next: nothing — closed.
 - [ ] /embed/downloader has the same disease and is harder: it ships the root
   layout too (TopNav, consent banner, gtag.js) but it is a real tool and has to
   hydrate, so it cannot become a Route Handler. Getting it off the root layout

@@ -2299,3 +2299,25 @@ Guards: test:related (11 assertions, 9 mutations) + probe:related (live half —
 source assertions cannot see registry SIZES, which is what this bug was).
 Files: lib/related-tools.ts, components/ToolPageShell.tsx,
 scripts/test-related.mjs, scripts/probe-related.mjs, package.json.
+
+## M167 — blog articles resolved their related posts from the wrong source (c87d9af)
+app/blog/[slug]/page.tsx loaded the ARTICLE from both sources and its RELATED
+READING from one: `getPost(slug) || await getAutopilotPost(slug)` for the post,
+but `post.related.map((s) => _get(s))` for the links. Autopilot posts live in
+Supabase, publish daily without a deploy, and name other autopilot posts — so
+every lookup returned undefined, .filter(Boolean) dropped them all, and the
+conditional "Keep reading" section did not render at all. Live before the fix:
+merge-pdf-files-free 0 links to other posts, compress-pdf 0, analytics 2,
+against records naming two each. The newest ~40 articles were crawl islands and
+the pages looked deliberate, not broken.
+lib/server/blog-related.ts resolves both sources in ONE Supabase read, keeps the
+declared slugs in authored order, then tops up to six — same category first —
+rotated by the post's own slug, because `related` holds 1-3 entries and could
+never reach the six-link target alone.
+LIVE: /blog/* 5 → 11 content links, three probed articles at 6 links to other
+posts each, articles differ (1/6 shared), canonicals and titles intact. All 79
+blog URLs submitted to IndexNow as changed.
+Nothing in the source was wrong, so no unit test could have caught it — the
+defect was WHERE the data came from. probe:related covers it live and was
+verified to fail against production before the fix shipped.
+Files: lib/server/blog-related.ts, app/blog/[slug]/page.tsx, scripts/probe-related.mjs.
