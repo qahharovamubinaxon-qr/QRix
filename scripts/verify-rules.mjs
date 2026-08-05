@@ -1,4 +1,4 @@
-/* The two rules in the daily verify pass that cannot be proved against
+/* The rules in the daily verify pass that cannot be proved against
  * production, kept pure so they can be.
  *
  * The live site is correct, which is the problem: driving these through the
@@ -36,6 +36,32 @@ export function titleCanonicalVerdict({ url, canonical, title, homeTitle }) {
      against the homepage title is the cheapest way to see it from outside. */
   else if (homeTitle && title === homeTitle) bad.push("inherits the HOMEPAGE title (client-page canonical trap)");
   return bad.length ? bad.join(" · ") : null;
+}
+
+/* Pull the parts of a recheck:sources run that the daily pass reports.
+ *
+ * The daily pass used to print `out.split("\n").pop()` — the LAST line — on the
+ * assumption that recheck's summary is the last thing it writes. It is not:
+ * anything advisory (a source aged past PUBLISHED_STALE_MONTHS, a read older
+ * than STALE_DAYS) prints AFTER the summary, so the moment one fires, the daily
+ * log stops carrying the counts and carries one arbitrary advisory row instead.
+ * That is how 2026-08-05 logged `ftc-alert … (~18 months)` where every earlier
+ * day logged `N sources · M markers · …`, and it hid a real change — the
+ * datasets had gone 24 -> 29 sources and 50 -> 73 markers with nothing saying so.
+ *
+ * Same reason robotsVerdict lives here: production is healthy, so the happy path
+ * has no advisory at all and prints the summary correctly. The bug is only
+ * reachable through output the network will not produce on demand.
+ */
+export function recheckReport(stdout) {
+  const lines = String(stdout).split(/\r?\n/).map((l) => l.replace(/\s+$/, ""));
+  /* Anchored on the summary's own shape, not on its position. */
+  const summary = lines.find((l) => /^\d+ sources · /.test(l.trim()))?.trim() || null;
+  /* Every advisory row, so the log carries ALL of them rather than the last. */
+  const notes = lines
+    .filter((l) => /\(~\d+ months?\)\s*$/.test(l) || /— read \d+ days ago/.test(l))
+    .map((l) => l.trim().replace(/\s{2,}/g, " "));
+  return { summary, notes };
 }
 
 const trimSlash = (s) => String(s).replace(/\/+$/, "");

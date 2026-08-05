@@ -11,7 +11,7 @@
 
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { robotsVerdict, titleCanonicalVerdict } from "./verify-rules.mjs";
+import { robotsVerdict, titleCanonicalVerdict, recheckReport } from "./verify-rules.mjs";
 
 let pass = 0;
 const failures = [];
@@ -97,6 +97,57 @@ ok("a missing canonical or title is caught", () => {
   assert.match(titleCanonicalVerdict({ url: U, canonical: U, title: null, homeTitle: HOME }) || "", /no title/);
 });
 
+/* ---- what the daily pass reports out of a recheck:sources run ----
+   Both fixtures are real output. The QUIET one is what production produced for
+   months; the ADVISORY one is 2026-08-05, the day a source aged past the notice
+   threshold and the daily log silently stopped carrying the counts. */
+
+const RECHECK_QUIET = `QRix source re-check
+
+  ok           bitly-scans              5 markers
+  ok           ftc-alert                2 markers
+
+24 sources · 50 markers · 0 moved · 0 unreachable · 0 older than 120d
+`;
+
+const RECHECK_ADVISORY = `${RECHECK_QUIET.replace("24 sources · 50 markers", "29 sources · 73 markers")}
+FYI — published over 14 months ago. Not a failure: a dated press release that still says what we quote is dated, not wrong. Worth asking
+whether a newer edition exists:
+  juniper                  published 10 February 2025 (~17 months)
+  ftc-alert                published January 2025 (~18 months)
+`;
+
+ok("the counts survive an advisory printed after them", () => {
+  const { summary } = recheckReport(RECHECK_ADVISORY);
+  /* The bug exactly: `.pop()` here returns the ftc-alert row, and the daily log
+     loses the one line that says how big the dataset is. */
+  assert.match(summary || "", /^29 sources · 73 markers · 0 moved/,
+    "the summary was not recovered — the daily log is reporting an advisory row as its counts");
+});
+
+ok("the quiet run still reports its counts", () => {
+  assert.match(recheckReport(RECHECK_QUIET).summary || "", /^24 sources · 50 markers/);
+  assert.equal(recheckReport(RECHECK_QUIET).notes.length, 0, "a clean run has nothing to flag");
+});
+
+ok("EVERY aged source is surfaced, not just the last one", () => {
+  const { notes } = recheckReport(RECHECK_ADVISORY);
+  /* Two sources aged past the threshold on 2026-08-05 and the pass named one.
+     Reporting a subset of a list is worse than reporting none of it: it reads
+     as the whole list. */
+  assert.equal(notes.length, 2, `expected both aged rows, got ${notes.length}: ${notes.join(" | ")}`);
+  assert.ok(notes.some((n) => /\bjuniper\b/.test(n)), "juniper went unreported");
+  assert.ok(notes.some((n) => /\bftc-alert\b/.test(n)), "ftc-alert went unreported");
+});
+
+ok("a run with no summary at all says so instead of inventing one", () => {
+  /* If recheck dies before printing the summary, the honest answer is null —
+     the earlier code would have handed the daily log whatever line came last,
+     which on a crash is a stack frame. */
+  assert.equal(recheckReport("QRix source re-check\n  ok  bitly-scans  5 markers\n").summary, null);
+  assert.equal(recheckReport("").summary, null);
+});
+
 /* ---- structural properties of the runner itself ---- */
 
 const RUNNER = readFileSync(new URL("./daily-verify.mjs", import.meta.url), "utf8");
@@ -122,6 +173,17 @@ ok("the runner uses the shared rules rather than reimplementing them", () => {
     "the robots rule is inlined again — the tested copy and the running copy have drifted");
   assert.ok(!/inherits the HOMEPAGE title/.test(RUNNER.replace(/^\s*\*.*$/gm, "")),
     "the title rule is inlined again");
+});
+
+ok("the runner does not go back to reading recheck's last line", () => {
+  /* The SHAPE is the defect, not the value: "the last line is the summary" is
+     an assumption that holds only on days nothing needs attention, which is
+     most days — so this cannot be left to be noticed. Comments are stripped
+     first; the one above reportRecheck describes the bug and would match. */
+  const code = RUNNER.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  assert.ok(!/\.split\([^)]*\)\s*\.pop\(\)/.test(code),
+    "recheck's output is being read positionally again — advisories print after the summary");
+  assert.match(code, /recheckReport\(/, "the runner stopped using the tested extractor");
 });
 
 ok("verify:daily is registered in package.json", () => {

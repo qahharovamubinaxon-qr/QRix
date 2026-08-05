@@ -36,7 +36,7 @@
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { execFileSync } from "node:child_process";
-import { robotsVerdict, titleCanonicalVerdict } from "./verify-rules.mjs";
+import { robotsVerdict, titleCanonicalVerdict, recheckReport } from "./verify-rules.mjs";
 
 const ORIGIN = "https://qrixtools.com";
 const BASELINE = new URL("../growth/verify-baseline.json", import.meta.url);
@@ -160,6 +160,15 @@ for (const url of targets) {
 
 /* --------------------------------------------------- 4. the cited vendor pages */
 
+/* Print the counts plus EVERY advisory row. Never `.pop()` recheck's output —
+   its advisories print after the summary, so the last line is the summary only
+   on the days nothing needs attention. See recheckReport. */
+function reportRecheck(out) {
+  const { summary, notes } = recheckReport(out);
+  console.log("    " + (summary || "(recheck printed no summary line — read its full output)"));
+  for (const n of notes) console.log(`    FYI  ${n}`);
+}
+
 if (!flag("--no-sources")) {
   console.log(`\n  Re-reading the pages the vendor datasets cite:`);
   try {
@@ -167,10 +176,14 @@ if (!flag("--no-sources")) {
       "--disable-warning=MODULE_TYPELESS_PACKAGE_JSON",
       new URL("./recheck-sources.mjs", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1"),
     ], { encoding: "utf8", cwd: new URL("..", import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, "$1") });
-    console.log("    " + (out.trim().split("\n").pop() || ""));
+    reportRecheck(out);
     pass("every cited source still contains the sentence its verdict rests on");
   } catch (e) {
-    const tail = ((e.stdout || "") + (e.stderr || "")).trim().split("\n").slice(-6).join("\n    ");
+    const out = (e.stdout || "") + (e.stderr || "");
+    /* Report the counts on the failure path too — they are what says how much
+       of the dataset was reached before it gave up. */
+    reportRecheck(out);
+    const tail = out.trim().split("\n").slice(-6).join("\n    ");
     fail(`recheck:sources reported a problem:\n    ${tail}`);
   }
 }
