@@ -1501,6 +1501,46 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   is: recorded, understood, deliberately not fixed. Do not "quickly localize the
   homepage" without reading (a).
 
+- [x] PRICED Aug 5 AND NOT TAKEN — /embed/downloader's second root layout.
+  Its own note said to price it before starting. Priced, with the numbers, so
+  nobody prices it a third time.
+  WHAT IT WOULD BUY. Measured on production: /embed/downloader ships 15 eager
+  scripts, 628.3 KB — against 652.3 KB on /qr-tools/url, i.e. the widget carries
+  essentially the whole site chrome and is 24 KB lighter than a full tool page.
+  The framework floor (runtime 226.3 + react-dom 134.5 + router 53.5 = 414.3 KB)
+  cannot move, so the ENTIRE removable budget is 214.0 KB and it still contains
+  the downloader widget's own code. The only chrome provably in there is the
+  53.2 KB nav-label catalog (marker YES); the rest is unattributed. So the honest
+  figure is "53.2 KB certain, under 214 KB possible" — not the ~200 KB the phrase
+  "it ships the root layout" suggests.
+  WHAT IT WOULD COST. Two root layouts means app/layout.tsx is deleted and every
+  route moves under app/(site)/: 51 route directories plus app/page.tsx, and the
+  17 special files at the app root have placement rules of their own — including
+  robots.ts, sitemap.ts, manifest.ts and opengraph-image.tsx. That is the
+  decisive half. The P0 gate is INDEX COVERAGE, and this refactor's blast radius
+  is exactly the four files that define the indexing surface.
+  AND THE WIN DOES NOT SERVE P0 AT ALL, which is what actually settles it:
+  /embed/downloader is `<meta name="robots" content="noindex, nofollow">` and
+  appears zero times in sitemap.xml (both checked live, not assumed). It is a
+  widget, not a page. The refactor risks the indexing surface to speed up
+  something deliberately kept out of the index, for third-party embedders whose
+  adoption nothing here measures. Revisit IF embed adoption becomes measurable
+  and non-trivial — that is a P1 question (each embed = a backlink), not a P0 one.
+  REJECTED WHILE SCOPING, recorded because it looks obviously right: making the
+  root layout read headers() (or a middleware-set `x-qx-embed`) to skip the
+  chrome. Reading headers() in the ROOT layout opts the whole site out of static
+  rendering — it would make ~800 static pages dynamic to save bytes on one
+  noindex widget. There is no middleware.ts today either. The route group is the
+  only correct mechanism, which is precisely why this is expensive.
+  NOTE the chrome is only hidden, not absent: design-v2.css:1366 does
+  `html.qx-embed body > *:not(#main) { display: none }`, so TopNav, the consent
+  banner and gtag.js all still MOUNT and hydrate inside the iframe. Cheap partial
+  levers exist if this ever matters (bail out of GoogleAnalytics and
+  DotDistortionBackground on /embed/*), and they win main-thread time without
+  winning bytes, since the imports stay. Worth knowing: gtag firing inside
+  third-party iframes also means embed impressions land in GA as page_views,
+  which pollutes the very numbers the P0/P1 KPI gates read.
+  next: nothing — closed unless embed adoption is measured.
 - [ ] /embed/downloader has the same disease and is harder: it ships the root
   layout too (TopNav, consent banner, gtag.js) but it is a real tool and has to
   hydrate, so it cannot become a Route Handler. Getting it off the root layout
