@@ -1549,9 +1549,28 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   LatestPosts inlines only THREE slugs (M139), which means the other ~37 posts
   are reachable from /blog alone. Serves P0 (index coverage) for the same reason
   M166 did, and the same instrument answers it.
-  next: measure the blog template, then related posts + the tool the post is
-  about; reuse relatedTools() for the tool half rather than inventing a second
-  resolver.
+  ROOT CAUSE FOUND, and it is not missing data — it is the WRONG SOURCE. The
+  template already had a "Keep reading" section and every post record already
+  named 1-3 related posts. app/blog/[slug]/page.tsx resolved the ARTICLE from
+  both sources and its RELATED READING from one:
+      const post    = getPost(slug) || (await getAutopilotPost(slug));
+      const related = post.related.map((s) => _get(s)).filter(Boolean);
+  Autopilot posts live in SUPABASE, publish daily with no deploy, and name
+  other autopilot posts. So every lookup returned undefined, .filter(Boolean)
+  dropped them all, related.length was 0 and the section did not render.
+  INVISIBLE BY CONSTRUCTION: a post with no related reading and a post whose
+  related reading failed to resolve render identically. Live proof before the
+  fix — merge-pdf-files-free 0 links to other posts, compress-pdf 0,
+  qr-code-analytics-tracking 2, against records naming two each.
+  SHIPPED c87d9af. lib/server/blog-related.ts resolves from both sources in ONE
+  Supabase read, keeps the declared slugs in authored order (they are an
+  editorial choice), then tops up to six — same category first — rotated by the
+  post's own slug. The top-up is not padding: `related` holds 1-3 entries and
+  could never reach the six-link target on its own.
+  next: probe:related is polling production; it now covers three articles and
+  was VERIFIED TO FAIL pre-deploy (0/0/2 links), which is the only way to know a
+  guard works. When green, close this and record that no source assertion could
+  ever have caught it — the bug was a data-source mismatch, not a code defect.
 - [ ] /embed/downloader has the same disease and is harder: it ships the root
   layout too (TopNav, consent banner, gtag.js) but it is a real tool and has to
   hydrate, so it cannot become a Route Handler. Getting it off the root layout
