@@ -2269,3 +2269,33 @@ parse, and the advisory path had not executed once in the four days the pass
 has existed. Guard: test:verify 14 -> 19 assertions, 5 mutations verified, both
 fixtures real output, one assertion structural against any positional re-read.
 Files: scripts/verify-rules.mjs, scripts/daily-verify.mjs, scripts/test-verify.mjs.
+
+## M166 — tool pages stopped being crawl dead ends (faa698f + 52525cd)
+Measured on production before touching anything: every individual tool page
+carried exactly THREE content links — /, /image-tools, /pdf-tools — and not one
+link to a sibling tool. The programmatic families were fine (/convert 10,
+/barcode 10, /resize 14, /use 23; hubs 26–94), so the gap was precisely the
+template covering the most routes. Compounding it, the 50-entry mega-menu that
+used to carry those links on every page has been behind a dynamic import since
+M163, and a crawler does not hover — the CWV work had removed ~50 links from the
+server HTML of ~800 pages.
+ToolPageShell now renders a Related tools section: 8 siblings + the category hub,
+static server markup, zero JS. No call sites changed; the family comes from the
+categoryHref the template already receives, and self-exclusion is a normalised
+title match because the registries disagree on wording ("Add Watermark" vs
+"Watermark PDF"). The window is rotated by a hash of the page's own title, so a
+family's links spread over all its members instead of piling onto the same six —
+coverage 20/20 for the PDF family, 14 distinct link sets.
+Second defect, found by counting registries rather than reading code: THREE_TOOLS
+holds ONE tool, so /3d-tools/* had a sibling pool of zero and rendered no block
+at all. Small families now top up from the others.
+LIVE: tool pages 3 → 11 content links; /convert 10→18, /barcode 10→18,
+/resize 14→22. probe:related green on all six families, 9 links each, no
+self-links, sibling pages carry different sets. /qr-tools/url eager bundle
+652.3 KB — exactly the M163 baseline, so the ~245 KB catalog did not cross the
+client boundary. Sitemap unchanged at 817; all 202 tool URLs submitted to
+IndexNow as changed (HTTP 200), since re-crawl is the deliverable.
+Guards: test:related (11 assertions, 9 mutations) + probe:related (live half —
+source assertions cannot see registry SIZES, which is what this bug was).
+Files: lib/related-tools.ts, components/ToolPageShell.tsx,
+scripts/test-related.mjs, scripts/probe-related.mjs, package.json.

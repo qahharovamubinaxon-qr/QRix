@@ -1583,7 +1583,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] Turkish (tr), Indonesian (id) — same.
 - [ ] PDF converter-pair pages (word-to-pdf, excel-to-pdf, ppt-to-pdf…).
 - [ ] Blog autopilot: +20 topics from GSC impressions data (weekly review).
-- [~] Internal-links pass: every tool page links 6+ related pages.
+- [x] Internal-links pass: every tool page links 6+ related pages. SHIPPED AND VERIFIED LIVE Aug 5 (M166).
   MEASURED FIRST, and the item was not stale — it was worse than written.
   Content links per page on production 2026-08-05 (chrome links subtracted by
   taking the set common to all 17 pages fetched, so this is what a crawler
@@ -1607,7 +1607,57 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   re-measure /qr-tools/url with measure-eager-bundle against the 652.3 KB M163
   baseline — the one real risk here is buildSearchIndex leaking across the
   client boundary, which would add ~245 KB to 46 routes and which only bytes
-  can prove. Then move the item to Done with the after-figures.
+  VERIFIED LIVE. Content links per page, production, same instrument both sides:
+    tool pages   3 -> 11      (8 siblings + the category hub, + the 2 that were
+                              already there; measured on qr/pdf/image alike)
+    /convert    10 -> 18 · /barcode 10 -> 18 · /resize 14 -> 22
+  npm run probe:related green on all SIX families, 9 links each, no self-links,
+  and the two pages of every family carry DIFFERENT sets (1-6 of 9 shared) — the
+  rotation is doing the thing it exists for. All URLs 200 + self-canonical +
+  own non-homepage title. Sitemap unchanged at 817, so nothing NEW to submit,
+  but all 202 tool URLs were pushed to IndexNow as CHANGED (3 batches, HTTP 200,
+  key file 200): the entire value of this item is crawl discovery of a new
+  internal link graph, so re-crawl is the deliverable, not a formality.
+  THE RISK WAS BYTES AND IT DID NOT MATERIALISE: buildSearchIndex is ~245 KB of
+  registries (M138) and ToolPageShell is imported by 46 routes, so a client
+  boundary crossing here would have been the worst regression in this file.
+  /qr-tools/url measures 652.3 KB eager — EXACTLY the M163 baseline, unchanged
+  to the decimal. Server markup, zero JS. Asserted in test:related as well, but
+  the bytes are the proof.
+  A SECOND DEFECT FOUND BY COUNTING THE REGISTRIES RATHER THAN READING THE CODE:
+  THREE_TOOLS holds exactly ONE tool, so /3d-tools/* had a sibling pool of zero
+  after self-exclusion and rendered NO BLOCK AT ALL — a dead end that reads as a
+  design choice. Small families now top up from the other families (52525cd).
+  Nothing in the source was wrong, which is the lesson: test:related asserts
+  SOURCE properties and could never have caught this, because what decides the
+  link count is the SIZE OF EACH FAMILY IN THE REGISTRY. That is why the guard
+  has a live half — scripts/probe-related.mjs, two pages per family off
+  production, anchors counted INSIDE the block (bounded at the next </section>,
+  or FAQ and CTA links below it pad the count and a broken block reads healthy).
+  Guards: npm run test:related (11 assertions, 9 mutations verified) + npm run
+  probe:related (live). Two of the test's assertions were wrong on first write
+  and both are the shapes this file keeps recording: one matched the source's
+  OWN COMMENT about determinism (comment-stripper, third appearance), and one
+  demanded near-perfect window distinctness that the birthday bound forbids
+  (~12.8 distinct offsets expected for 20 pages; measured 14 — the code was
+  right and the assertion was wrong). Coverage is the property that matters and
+  it is 20/20. A third survived its mutation because `data-href={r.href}`
+  CONTAINS `href={r.href}` — the M155 substring trap, fixed with s.
+  NOT A GAP, checked rather than assumed: /ru/[tool] and /uz/[tool] use
+  LocalizedToolPage, a client mirror that ALREADY renders a 7-link "Другие
+  инструменты" block. Nothing to do there — and note it must stay that way,
+  since importing the catalog into a "use client" file is the M160 defect.
+  FOLLOW-UPS, measured not guessed — two templates are still under 6 content
+  links: /blog/* (5) and /free-forever (5). Different templates, so out of
+  scope here; /blog/* is ~40 pages and therefore the bigger of the two.
+  VERIFICATION LIMIT, recorded because it will recur: the in-app browser could
+  not composite this page (screenshot times out; the content subtree measures
+  0x0 while TopNav and the consent banner measure fine). So the block is proved
+  present, correct and crawlable from the SERVER HTML and its computed styles
+  resolve to the same tokens the neighbouring cards use — but NO ONE HAS SEEN IT
+  RENDERED. Worth a human glance. Do not read the 0x0 as evidence of a broken
+  layout; it is the instrument, the same shape as M162's English control.
+  next: nothing — closed.
   TAKEN Aug 5 (M166). Serves P0 directly — the gate is index coverage and
   internal links are how 817 URLs get crawled. next: measure the real depth per
   template on production before changing anything; the item is a year old and
