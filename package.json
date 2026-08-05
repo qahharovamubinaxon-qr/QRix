@@ -47,7 +47,8 @@
     "test:home-i18n": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-home-i18n.mjs",
     "probe:home-i18n": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-home-i18n.mjs",
     "probe:nav-panels": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-nav-panels.mjs",
-    "test:related": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-related.mjs"
+    "test:related": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-related.mjs",
+    "probe:related": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-related.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

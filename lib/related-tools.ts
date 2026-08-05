@@ -31,6 +31,13 @@ import { buildSearchIndex, type SearchItem } from "@/lib/search-index";
  *  1920×1080" is not a related tool for the background remover. */
 const familyOf = (href: string) => "/" + href.split("/").filter(Boolean)[0];
 
+/* Every family the template is used from. Needed because a family can be too
+   SMALL to fill the block on its own: THREE_TOOLS holds one tool, so /3d-tools
+   pages had a sibling pool of zero and rendered no block at all — a dead end
+   that looks like a deliberate design choice rather than a bug. Anything under
+   the limit tops up from the other families. */
+const TOOL_FAMILIES = ["/qr-tools", "/pdf-tools", "/image-tools", "/ai-tools", "/video-tools", "/3d-tools"];
+
 /** Stable across builds — Math.random() and Date would break SSG reproducibility. */
 function hash(s: string): number {
   let h = 2166136261;
@@ -87,13 +94,25 @@ export function relatedTools(categoryHref: string, title: string, limit = 8): Re
     if (s > best) { best = s; selfIdx = n; }
   });
   const siblings = pool.filter((_, n) => n !== selfIdx);
-  if (siblings.length <= limit) return siblings.map(({ title: t, href }) => ({ title: t, href }));
 
-  const start = hash(title) % siblings.length;
-  const out: RelatedTool[] = [];
-  for (let n = 0; n < limit; n++) {
-    const { title: t, href } = siblings[(start + n) % siblings.length];
-    out.push({ title: t, href });
-  }
-  return out;
+  const take = (from: RelatedTool[], n: number, seed: string): RelatedTool[] => {
+    if (!from.length || n <= 0) return [];
+    if (from.length <= n) return from;
+    const start = hash(seed) % from.length;
+    return Array.from({ length: n }, (_, i) => from[(start + i) % from.length]);
+  };
+
+  const plain = (i: SearchItem): RelatedTool => ({ title: i.title, href: i.href });
+  const out = take(siblings.map(plain), limit, title);
+  if (out.length >= limit) return out;
+
+  /* Top up across families, same rotation so the filler differs per page too.
+     Rotated by a distinct seed, otherwise a page whose family is nearly empty
+     draws its neighbours from the same offset and the two halves correlate. */
+  const seen = new Set(out.map((r) => r.href));
+  const wider = buildSearchIndex()
+    .filter((i) => TOOL_FAMILIES.includes(familyOf(i.href)) && familyOf(i.href) !== family)
+    .filter((i) => i.href !== familyOf(i.href) && !seen.has(i.href))
+    .map(plain);
+  return [...out, ...take(wider, limit - out.length, title + "|x")];
 }

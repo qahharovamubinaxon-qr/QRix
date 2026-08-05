@@ -55,7 +55,9 @@ ok("the rotation is deterministic", () => {
   const code = SRC.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   assert.ok(!/Math\.random|Date\.now|new Date\(/.test(code),
     "a nondeterministic window breaks static regeneration");
-  assert.match(SRC, /hash\(title\)\s*%/, "the window is no longer seeded by the page");
+  assert.match(SRC, /hash\(seed\)\s*%/, "the window is no longer seeded");
+  assert.match(SRC, /take\(siblings\.map\(plain\), limit, title\)/,
+    "the window is no longer seeded by the PAGE — every page in a family would share one link set");
 });
 
 ok("the registry stays on the server", () => {
@@ -158,6 +160,19 @@ ok("self-exclusion survives the two registries disagreeing on wording", () => {
      without being in the index (/poster, /qr-art) must not lose a real sibling
      to whatever happens to match best. */
   assert.match(SRC, /best = 0\.6/, "self-exclusion became an argmax — unindexed pages will drop a good link");
+});
+
+ok("a family too small to fill the block tops up from the others", () => {
+  /* THREE_TOOLS holds exactly ONE tool, so /3d-tools pages had a sibling pool
+     of zero and rendered no block at all — a dead end that reads as a design
+     choice. The source can only show the top-up exists; that it produces six
+     real links on every family is a question about registry SIZES, which only
+     the built page answers. That is scripts/probe-related.mjs. */
+  assert.match(SRC, /TOOL_FAMILIES/, "the cross-family pool is gone");
+  assert.match(SRC, /take\(wider, limit - out\.length/,
+    "small families no longer top up — /3d-tools goes back to rendering nothing");
+  const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+  assert.ok(pkg.scripts["probe:related"], "the live half of this guard is unregistered");
 });
 
 ok("the resolver asks for at least six links", () => {
