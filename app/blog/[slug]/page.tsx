@@ -4,8 +4,9 @@ import type { Metadata } from "next";
 import { FiArrowRight, FiClock, FiChevronRight, FiUser } from "react-icons/fi";
 import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME, OG_IMAGE } from "@/lib/seo";
 import { articleAuthorLd, articlePublisherLd, BYLINE, OPERATOR } from "@/lib/operator";
-import { getPost, getPost as _get, POSTS, formatPostDate } from "@/lib/blog";
+import { getPost, POSTS, formatPostDate } from "@/lib/blog";
 import { getAutopilotPost } from "@/lib/server/autopilot";
+import { relatedPosts } from "@/lib/server/blog-related";
 import BookmarkButton from "@/components/BookmarkButton";
 import ShareButtons from "@/components/ShareButtons";
 import AdSlot from "@/components/AdSlot";
@@ -59,7 +60,11 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
   const post = getPost(slug) || (await getAutopilotPost(slug));
   if (!post) notFound();
 
-  const related = post.related.map((s) => _get(s)).filter(Boolean);
+  /* Resolved from BOTH sources and topped up to six. Reading it out of the
+     static registry alone silently dropped every autopilot post (they name each
+     other, and they live in Supabase), so this section did not render at all on
+     the newest ~40 articles. See lib/server/blog-related.ts. */
+  const related = await relatedPosts(post);
   const url = `${SITE_URL}/blog/${post.slug}`;
   const published = formatPostDate(post.date, { year: "numeric", month: "long", day: "numeric" });
 
@@ -207,7 +212,7 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
         <section className="mt-12">
           <h2 className="font-display text-lg font-bold mb-4" style={{ color: "var(--text)" }}>Keep reading</h2>
           <div className="grid sm:grid-cols-2 gap-4">
-            {related.map((r) => r && (
+            {related.map((r) => (
               <Link key={r.slug} href={`/blog/${r.slug}`} className="group qx-card qx-card-lift p-5">
                 <h3 className="font-bold text-[15px] leading-snug" style={{ color: "var(--text)" }}>{r.title}</h3>
                 <span className="inline-flex items-center gap-1 text-[12px] font-bold mt-3 group-hover:translate-x-0.5 transition-transform" style={{ color: "var(--primary-bright)" }}>

@@ -88,5 +88,35 @@ for (const [family, urls] of Object.entries(FAMILIES)) {
   }
 }
 
-console.log(failed ? `\n${failed} FAILED` : `\nrelated-tools probe: ok`);
+
+/* ---- blog articles ------------------------------------------------------
+   Different bug, same failure mode, so it is checked the same way. The article
+   template resolved its "Keep reading" links out of the STATIC registry while
+   autopilot posts live in Supabase and name each other -- so every lookup
+   missed, the list came back empty, and the section did not render at all. A
+   post with no related reading and a post whose related reading silently failed
+   to resolve look IDENTICAL from the outside. That is why this has to be live. */
+
+const BLOG = ["/blog/merge-pdf-files-free", "/blog/compress-pdf-without-losing-quality", "/blog/qr-code-analytics-tracking"];
+const blogSets = [];
+for (const u of BLOG) {
+  let html, status;
+  try {
+    const r = await fetch(BASE + u, { headers: { "user-agent": "Mozilla/5.0 QRixRelatedProbe" } });
+    status = r.status; html = await r.text();
+  } catch (e) { fail(u + " -- fetch failed: " + e.message); continue; }
+  if (status !== 200) { fail(u + " -- HTTP " + status); continue; }
+  const links = [...new Set([...html.matchAll(/<a\b[^>]*\shref="(\/blog\/[^"#?]+)"/gi)].map((m) => m[1]))]
+    .filter((h) => h.replace(/\/+$/, "") !== u);
+  if (links.length < MIN) fail(u + " -- " + links.length + " links to other posts, want >= " + MIN);
+  else ok(u + " -- " + links.length + " links to other posts");
+  blogSets.push({ u, links });
+}
+if (blogSets.length >= 2) {
+  const [a, b] = blogSets;
+  if (a.links.join(",") === b.links.join(",")) fail("/blog -- two articles carry an IDENTICAL set; the rotation is not rotating");
+  else ok("/blog -- articles differ (" + a.links.filter((h) => b.links.includes(h)).length + "/" + a.links.length + " shared)");
+}
+
+console.log(failed ? `\n${failed} FAILED` : `\nrelated probe: ok`);
 process.exit(failed ? 1 : 0);
