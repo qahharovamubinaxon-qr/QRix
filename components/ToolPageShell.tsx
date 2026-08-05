@@ -14,6 +14,7 @@ import AdSlot from "@/components/AdSlot";
 import ShareButtons from "@/components/ShareButtons";
 import ToolFavorite from "@/components/ToolFavorite";
 import RecordVisit from "@/components/RecordVisit";
+import { relatedTools } from "@/lib/related-tools";
 
 type Step = { title: string; desc: string };
 type Faq = { q: string; a: string };
@@ -87,6 +88,7 @@ export default function ToolPageShell({
   processing?: Processing;
   children: React.ReactNode;
 }) {
+  const related = relatedTools(categoryHref, title);
   return (
     <div id="top" className="max-w-6xl mx-auto p-5 lg:p-8">
       <GlobalFileDrop />
@@ -197,6 +199,35 @@ export default function ToolPageShell({
               </div>
             ))}
           </div>
+        </section>
+      )}
+
+      {/* Related tools — static markup, no JS. This template covers more routes
+          than any other on the site and until M166 it rendered THREE content
+          links, none of them to a sibling tool, so every tool page was a crawl
+          dead end. The set is rotated per page (see relatedTools) so the
+          family's links spread across all its members instead of piling onto
+          the same six. */}
+      {related.length > 0 && (
+        <section className="qx-card p-6 mt-8" aria-label={`Tools related to ${title}`}>
+          <h2 className="qx-title mb-4" style={{ color: "var(--text)" }}>Related tools</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            {related.map((r) => (
+              <Link
+                key={r.href}
+                href={r.href}
+                className="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl text-[13px] font-semibold hover:opacity-80"
+                style={{ background: "var(--surface-2)", color: "var(--text)", border: "1px solid var(--border)" }}
+              >
+                <span className="truncate">{r.title}</span>
+                <FiArrowRight size={13} className="shrink-0" style={{ color: "var(--primary-bright)" }} />
+              </Link>
+            ))}
+          </div>
+          <Link href={categoryHref} className="inline-flex items-center gap-1.5 mt-4 text-[13px] font-bold"
+            style={{ color: "var(--primary-bright)" }}>
+            See all {category} <FiArrowRight size={13} />
+          </Link>
         </section>
       )}
 
