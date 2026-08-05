@@ -2248,3 +2248,24 @@ Production rendering is unchanged by design (this is tooling plus two data
 fields) — /qr-code-statistics re-checked live: 200, self-canonical, correct
 title, all five spot-checked figures still in the HTML.
 Files: lib/qr-stats.ts, scripts/recheck-sources.mjs, scripts/test-recheck.mjs.
+
+## M165 — the daily verify pass reported an advisory row as its counts (7d2af4d)
+scripts/daily-verify.mjs read `out.trim().split("\n").pop()` of a
+recheck:sources run, but recheck prints its summary FIRST and its advisories
+AFTER, so the last line is the summary only on days when nothing needs
+attention. Aug 5 was the first day one fired: the pass logged
+`ftc-alert published January 2025 (~18 months)` in place of
+`N sources · M markers · 0 moved · …`. Two costs, not one — the counts had
+CHANGED (24 -> 29 sources, 50 -> 73 markers when M164 landed) and the line that
+would have said so was the line being dropped; and TWO sources are past the
+threshold while the pass named ONE, which this session then wrote into
+DAILY_LOG as a new finding. Log corrected in place with the cause named.
+Fix: recheckReport() in scripts/verify-rules.mjs — anchored on the summary's
+shape, not its position; null rather than a guessed line when there is no
+summary; every advisory row, not the last. The failure branch reports the
+counts too. It belongs in that module for that module's stated reason:
+production is healthy, so a real run never produces the output that breaks the
+parse, and the advisory path had not executed once in the four days the pass
+has existed. Guard: test:verify 14 -> 19 assertions, 5 mutations verified, both
+fixtures real output, one assertion structural against any positional re-read.
+Files: scripts/verify-rules.mjs, scripts/daily-verify.mjs, scripts/test-verify.mjs.

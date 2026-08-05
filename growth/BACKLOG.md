@@ -21,6 +21,54 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
 
+- [x] THE DAILY PASS WAS REPORTING AN ADVISORY ROW AS ITS COUNTS (M165, 7d2af4d).
+  FOUND Aug 5 by the daily VERIFY itself, and it had already put a false
+  sentence into this log before it was noticed — which is the part worth
+  keeping.
+  THE BUG: scripts/daily-verify.mjs printed `out.trim().split("
+").pop()` of a
+  recheck:sources run. recheck prints its summary FIRST and everything advisory
+  AFTER it (sources published over 14 months, reads older than 120 days), so the
+  last line is the summary only on the days nothing needs attention. Aug 5 was
+  the first day one fired, and the pass printed
+      ftc-alert   published January 2025 (~18 months)
+  where every previous day printed `N sources · M markers · 0 moved · …`.
+  WHAT IT COST, and it is more than cosmetics. (1) The counts vanished, and they
+  had CHANGED: the datasets went 24 -> 29 sources and 50 -> 73 markers when M164
+  landed, and the one line that would have said so was the line being dropped.
+  (2) TWO sources are past the threshold, juniper and ftc-alert; the pass named
+  ONE. A truncated list does not read as truncated — it reads as the list, and
+  this session duly wrote "juniper has aged past the threshold" into DAILY_LOG
+  as if it were new. Corrected in place, with the cause named.
+  THE FIX is recheckReport() in scripts/verify-rules.mjs, and it belongs there
+  for that module's stated reason: PRODUCTION IS HEALTHY, so a real run cannot
+  produce the output that breaks the parse — the advisory path had never once
+  been executed by the daily pass in the four days it has existed. It anchors on
+  the summary's own shape (`/^d+ sources · /`) rather than its position,
+  returns null instead of a guessed line when there is no summary (on a crash
+  `.pop()` hands the log a stack frame), and returns EVERY advisory row. The
+  failure branch now prints the counts too — they are what says how much of the
+  dataset was reached before it gave up.
+  GENERALISABLE, and this is the third form of it in this file: a reporter that
+  reads its input POSITIONALLY is making a claim about the producer's output
+  order that nothing checks. `.pop()`, `[0]`, `slice(-6)` — each is an unstated
+  assumption. Anchor on the shape of the line you want. And note the failure
+  mode: it did not throw, it did not go red, it printed something plausible.
+  Guard: npm run test:verify, 14 -> 19 assertions, 5 mutations verified. Both
+  fixtures are REAL output, the quiet run and the Aug 5 advisory run. One
+  assertion is structural and asserts the SHAPE — no positional read of
+  recheck's output may reappear in the runner — because "the last line is the
+  summary" is true on most days, which is exactly why it cannot be left to be
+  noticed. It strips comments first: the comment explaining the bug contains it.
+  METHOD NOTE for the next session, cost ~15 min here: `sed -i` and passing
+  regex literals as argv to node BOTH corrupt under Git Bash on this machine —
+  MSYS path conversion rewrote `/markers/` to `C:/Program Files/Git/markers/`
+  and `d` to `/d`. Write mutations as a small .mjs file with the strings
+  inline. Also: these scripts are CRLF on disk, so a `
+` in a match string
+  finds nothing.
+  next: nothing — closed.
+
 - [x] SWEEP RESULT (Aug 4, the negative finding — recorded because it closes a
   question rather than opening one). After M160 found a SECOND twelve-language
   registry hiding behind the first, every other multi-language registry on the
