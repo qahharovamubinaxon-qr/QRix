@@ -1583,7 +1583,11 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] Turkish (tr), Indonesian (id) — same.
 - [ ] PDF converter-pair pages (word-to-pdf, excel-to-pdf, ppt-to-pdf…).
 - [ ] Blog autopilot: +20 topics from GSC impressions data (weekly review).
-- [ ] Internal-links pass: every tool page links 6+ related pages.
+- [~] Internal-links pass: every tool page links 6+ related pages.
+  TAKEN Aug 5 (M166). Serves P0 directly — the gate is index coverage and
+  internal links are how 817 URLs get crawled. next: measure the real depth per
+  template on production before changing anything; the item is a year old and
+  may already be satisfied on some templates.
 - [ ] Image alt-text + OG images per tool category.
 - [ ] search_miss report → build the top-3 requested missing tools.
 
