@@ -2321,3 +2321,61 @@ Nothing in the source was wrong, so no unit test could have caught it — the
 defect was WHERE the data came from. probe:related covers it live and was
 verified to fail against production before the fix shipped.
 Files: lib/server/blog-related.ts, app/blog/[slug]/page.tsx, scripts/probe-related.mjs.
+
+## Mission 147e — 167 URLs had never been crawled, and the reason was one missing link
+
+The first Search Console read (M147c) raised a question it could not answer: 599
+distinct queries, but only 67 of ~810 URLs earn a single impression. Silence has
+two causes with opposite fixes — not indexed, or indexed and never shown — so
+`npm run inspect` was built to ask the URL Inspection API which one it is,
+sampling the live sitemap stratified by family so a 225-URL family and a 14-URL
+family both get looked at.
+
+The answer was neither of the expected shapes. 24 of 38 sampled URLs came back
+**"URL is unknown to Google"** — never crawled at all. And not scattered: every
+/convert (26 EN + 52 RU/UZ), every /resize (25 + 50), all /barcode (14), and the
+/convert, /resize and /pdf-tools hub pages themselves. What was indexed was
+exactly what the homepage links to.
+
+The cause was measured, not inferred: `href="/convert"`, `href="/resize"` and
+`href="/barcode"` appeared ZERO times in the server HTML of /, /image-tools,
+/image-tools/remove-bg and /pdf-tools. 167 URLs — a fifth of the site, four
+missions of work — were reachable only through the sitemap, which the sitemaps
+API says Google last downloaded on 2026-07-21. On a domain with ~0 referring
+domains that is not enough of a signal, so Google saw them listed and declined
+to fetch them.
+
+Fixed with links, not pages: the homepage footer's Categories column (all three
+languages), the homepage tool directory (convert and resize inside Image Tools
+where they belong as image operations, barcode inside QR Tools), and
+/image-tools, which is itself indexed and is the topical parent of two of the
+three. The top nav was deliberately NOT used: its dropdown panels are lazily
+loaded and are not in the server HTML at all, so those links count for nothing
+with a crawler, and the bar already overflows in ru/uz between 1280 and 1360px.
+
+`npm run test:links` guards both halves of the path — that the links are in the
+SERVER HTML of pages Google already crawls, and that each hub links DOWN to at
+least 20/20/10 children, because a crawlable hub with no child links just moves
+the orphan one level down. 23 assertions, mutation-verified, and it strips
+`<script>` before counting since the RSC flight payload inlines the same markup
+and doubles any naive count. Verified live on production: 23/23.
+
+`npm run sitemap:ping` resubmitted the sitemap (lastSubmitted Jul 21 → Aug 6,
+isPending true, 0 errors). It is the only writing script in the gsc-* family, so
+it asks for the write scope explicitly instead of widening the one the readers
+share.
+
+Left open, and larger than this mission: **the site has no site-wide footer.**
+It exists only in app/page.tsx, so every one of the ~800 non-homepage URLs
+offers a crawler nothing but ten nav links. This mission fixed the specific
+case; that is its general form.
+
+Re-measure in about a week with `npm run inspect` on the same sample. The number
+to watch is "URL is unknown to Google" falling from 24 of 38 — discovery takes
+days, so anything sooner is not evidence.
+
+Files: app/page.tsx, components/CategoryShowcase.tsx, app/image-tools/page.tsx,
+scripts/test-internal-links.mjs (new), scripts/gsc-inspect.mjs (new),
+scripts/gsc-auth.mjs (new), scripts/gsc-submit-sitemap.mjs (new),
+scripts/gsc-kpi.mjs, package.json, growth/BACKLOG.md, growth/DAILY_LOG.md,
+growth/SEO_STRATEGY.md. Branch design-v2.
