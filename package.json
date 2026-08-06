@@ -32,6 +32,7 @@
     "test:shell": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-tool-shell.mjs",
     "kpi": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gsc-kpi.mjs",
     "inspect": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gsc-inspect.mjs",
+    "test:links": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-internal-links.mjs",
     "test:study": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-generator-study.mjs",
     "test:barcode": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-barcode-i18n.mjs",
     "test:tool-i18n": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-tool-ui-i18n.mjs",

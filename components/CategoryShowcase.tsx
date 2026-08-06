@@ -24,6 +24,9 @@ const CATS: Cat[] = [
       { label: "vCard QR", href: "/qr-tools/vcard" },
       { label: "Bulk QR from CSV", href: "/bulk-qr" },
       { label: "QR Scanner", href: "/scanner" },
+      /* Same orphan problem as /convert and /resize: 14 barcode URLs that
+         nothing on the site linked to. Barcodes sit next to QR for a reader. */
+      { label: "Barcode Generator", href: "/barcode" },
     ],
   },
   {
@@ -44,6 +47,12 @@ const CATS: Cat[] = [
       { label: "Crop Image", href: "/image-tools/crop-image" },
       { label: "Watermark", href: "/image-tools/watermark-image" },
       { label: "Color Picker", href: "/image-tools/color-picker" },
+      /* /convert and /resize are image operations and belong here, but the
+         reason they are listed at all is that they had no internal link from
+         anywhere: Google had never crawled either hub, or any of the 153 pages
+         under them, because a sitemap entry was their only route in (M147e). */
+      { label: "Convert Image Format", href: "/convert" },
+      { label: "Resize to Exact Size", href: "/resize" },
     ],
   },
   {

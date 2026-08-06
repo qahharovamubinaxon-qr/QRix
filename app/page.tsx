@@ -934,6 +934,13 @@ export default function HomePage() {
                 { href: "/ai-tools", label: "AI Tools" },
                 { href: "/video-tools", label: "Video Tools" },
                 { href: "/3d-tools", label: "3D Tools" },
+                /* These three hubs had NO internal link anywhere on the site, so
+                   Google reached them only through the sitemap and never crawled
+                   them: URL Inspection returned "URL is unknown to Google" for
+                   the hubs and for all 167 pages under them (M147e). */
+                { href: "/convert", label: lang === "uz" ? "Формат ўзгартириш" : lang === "ru" ? "Конвертеры форматов" : "Format Converters" },
+                { href: "/resize", label: lang === "uz" ? "Расм ўлчамлари" : lang === "ru" ? "Размеры изображений" : "Image Sizes" },
+                { href: "/barcode", label: lang === "uz" ? "Штрих-код" : lang === "ru" ? "Штрих-коды" : "Barcode Generator" },
                 { href: "/use/en", label: lang === "uz" ? "Ҳолатлar" : lang === "ru" ? "Сценарии" : "Use cases" },
                 { href: "/free-forever", label: lang === "uz" ? "Текин — тузоқсиз" : lang === "ru" ? "Бесплатно без уловок" : "Free forever" },
               ].map((l) => (

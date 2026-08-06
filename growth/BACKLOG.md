@@ -18,7 +18,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 > the task file, this note can go.
 
 ## NOW (this week)
-- [ ] **ROOT CAUSE FOUND (Aug 7) — 167 URLs are orphaned, not thin.** URL
+- [x] **ROOT CAUSE FOUND AND FIXED (Aug 7, M147e) — 167 URLs were orphaned, not thin.** URL
   Inspection on a stratified sample of 38 says 24 are "URL is unknown to
   Google": never crawled, not crawled-and-rejected. Whole families are out:
   every /convert (26) and /ru|uz/convert (52), every /resize (25) and
@@ -37,6 +37,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   "unknown to Google" drops, and it takes days, not minutes.
   DO NOT ship new page families until this is fixed: the last four missions of
   page-building all landed in the same invisible bucket.
+  SHIPPED: the three hubs are now linked from the homepage footer, from the
+  homepage tool directory (convert + resize inside Image Tools, barcode inside
+  QR Tools) and from /image-tools, which is itself indexed and is the topical
+  parent of two of the three. `npm run test:links` guards both halves — that the
+  links are in the SERVER HTML of pages Google already crawls, and that each hub
+  links down to its children, so the crawl does not stop at the hub. 23
+  assertions, mutation-verified.
+  STILL OPEN, and bigger than this item: **the site has no site-wide footer.**
+  It exists only in app/page.tsx, so every one of the ~800 non-homepage URLs
+  offers a crawler nothing but the ten top-level nav links — the mega-menu
+  panels are lazily loaded and are not in the HTML at all. That is the general
+  form of the defect fixed here. A shared footer would give every page a link
+  surface; it touches the root layout and every route's CWV, so it wants its own
+  mission.
+  RE-MEASURE in ~7 days: `npm run inspect` on the same sample. The number to
+  watch is "URL is unknown to Google" falling from 24/38. Discovery takes days,
+  so anything sooner is not evidence.
 - [ ] **DEMAND-VERIFIED, from the first real GSC read (Aug 7).** Two pages earn
   79% of all impressions and neither is a QR page: /image-tools/remove-bg
   (1,215 imp/wk, pos 88.6) and /image-tools/passport-photo (278, pos 84.3),

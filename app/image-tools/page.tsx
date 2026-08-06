@@ -85,6 +85,32 @@ export default function ImageToolsPage() {
         </header>
 
         <ImageExpansionGrid />
+
+        {/* The two families this page is the natural parent of, and which had no
+            internal link from anywhere on the site: URL Inspection reported the
+            /convert and /resize hubs and all 153 pages under them as "URL is
+            unknown to Google" — never crawled, because a sitemap entry was their
+            only route in (M147e). This page is indexed, so it is the one that
+            can pass discovery to them. */}
+        <section className="mt-16 pt-10" style={{ borderTop: "1px solid var(--border)" }} aria-labelledby="img-more">
+          <h2 id="img-more" className="font-display font-bold text-[20px] mb-1" style={{ color: "var(--text)" }}>
+            Convert and resize by exact target
+          </h2>
+          <p className="text-[13.5px] mb-5" style={{ color: "var(--text-muted)" }}>
+            Every format pair and every common size has its own page, with the tool on it.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/convert" className="qx-btn qx-btn-ghost text-[13px]">
+              Image format converters — 26 pairs
+            </Link>
+            <Link href="/resize" className="qx-btn qx-btn-ghost text-[13px]">
+              Resize presets — 25 sizes
+            </Link>
+            <Link href="/barcode" className="qx-btn qx-btn-ghost text-[13px]">
+              Barcode generator — 13 symbologies
+            </Link>
+          </div>
+        </section>
       </main>
     </div>
   );
