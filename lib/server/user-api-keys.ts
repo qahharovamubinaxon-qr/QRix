@@ -77,9 +77,12 @@ export async function planState(userId: string, email: string | null): Promise<P
 
   const plan = String(data?.plan ?? "free").toLowerCase();
   const until = data?.pro_until ? Date.parse(String(data.pro_until)) : null;
-  const paid = plan === "pro" && (until === null || until > Date.now());
+  /* "business" as well as "pro": app/api/billing/webhook writes both, and a
+     business customer being told to upgrade would be a paying customer denied
+     the thing they pay for. Read what the writer writes. */
+  const paid = (plan === "pro" || plan === "business") && (until === null || until > Date.now());
   return paid
-    ? { allowed: true, reason: "pro", maxKeys: 5 }
+    ? { allowed: true, reason: "pro", maxKeys: plan === "business" ? 20 : 5 }
     : { allowed: false, reason: "free", maxKeys: 0 };
 }
 
