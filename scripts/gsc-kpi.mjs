@@ -26,87 +26,14 @@
    ("sc-domain:qrixtools.com" vs "https://qrixtools.com/") is the classic silent
    404 here. Override with GSC_SITE if the account has several. */
 
-import crypto from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
+import { loadKey, accessToken, api, API, resolveSite, printErrorsPlainly } from "./gsc-auth.mjs";
 
-/* Every failure here is a setup mistake with a specific fix (key misplaced,
-   account not added to the property, wrong property form), and each message
-   below says which. A 40-line stack trace buries that, so print the message. */
-for (const ev of ["uncaughtException", "unhandledRejection"]) {
-  process.on(ev, (e) => {
-    console.error(`\n  x ${e?.message || e}\n`);
-    process.exit(1);
-  });
-}
+printErrorsPlainly();
 
-const TOKEN_URL = "https://oauth2.googleapis.com/token";
-const SCOPE = "https://www.googleapis.com/auth/webmasters.readonly";
-const API = "https://www.googleapis.com/webmasters/v3";
 const SITE_HINT = process.env.GSC_SITE || "qrixtools.com";
-
 const args = process.argv.slice(2);
 const asJson = args.includes("--json");
-const days = Number(args[args.indexOf("--days") + 1]) || (args.includes("--days") ? 7 : 7);
-
-/* ── credentials ─────────────────────────────────────────────────────────── */
-
-function loadKey() {
-  const inline = process.env.GSC_SERVICE_ACCOUNT_JSON;
-  if (inline) return JSON.parse(inline);
-
-  const envPath = process.env.GSC_SERVICE_ACCOUNT_FILE;
-  const candidates = [
-    envPath,
-    path.join(process.env.USERPROFILE || process.env.HOME || ".", ".qrix", "gsc.json"),
-  ].filter(Boolean);
-
-  for (const p of candidates) {
-    if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf8"));
-  }
-  throw new Error(
-    "no service-account key found. Set GSC_SERVICE_ACCOUNT_FILE to its path, " +
-    `or place it at ${candidates[candidates.length - 1]}. Never commit it.`,
-  );
-}
-
-const b64url = (buf) => Buffer.from(buf).toString("base64url");
-
-async function accessToken(key) {
-  const now = Math.floor(Date.now() / 1000);
-  const header = b64url(JSON.stringify({ alg: "RS256", typ: "JWT" }));
-  const claim = b64url(JSON.stringify({
-    iss: key.client_email, scope: SCOPE, aud: TOKEN_URL, iat: now, exp: now + 3600,
-  }));
-  const sig = crypto.createSign("RSA-SHA256").update(`${header}.${claim}`).sign(key.private_key);
-  const assertion = `${header}.${claim}.${b64url(sig)}`;
-
-  const res = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer", assertion,
-    }),
-  });
-  const body = await res.json();
-  if (!res.ok) throw new Error(`token exchange failed (${res.status}): ${JSON.stringify(body)}`);
-  return body.access_token;
-}
-
-async function api(token, url, init = {}) {
-  const res = await fetch(url, {
-    ...init,
-    headers: { authorization: `Bearer ${token}`, "content-type": "application/json", ...(init.headers || {}) },
-  });
-  const body = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    const hint = res.status === 403
-      ? " — is the service account added as a user on this property in Search Console?"
-      : "";
-    throw new Error(`${res.status} ${url.replace(API, "")}${hint}: ${JSON.stringify(body).slice(0, 300)}`);
-  }
-  return body;
-}
+const days = Number(args[args.indexOf("--days") + 1]) || 7;
 
 /* ── queries ─────────────────────────────────────────────────────────────── */
 
@@ -148,17 +75,7 @@ const delta = (now, before) => {
 const key = loadKey();
 const token = await accessToken(key);
 
-const sites = await api(token, `${API}/sites`);
-const owned = (sites.siteEntry || []).map((s) => s.siteUrl);
-const site = owned.find((s) => s === SITE_HINT)
-  || owned.find((s) => s.includes(SITE_HINT))
-  || owned[0];
-if (!site) {
-  throw new Error(
-    `the service account (${key.client_email}) sees no properties. Add it as a user ` +
-    "on the property in Search Console → Settings → Users and permissions.",
-  );
-}
+const site = await resolveSite(token, SITE_HINT);
 
 const cur = window(0, days);
 const prev = window(days, days);
