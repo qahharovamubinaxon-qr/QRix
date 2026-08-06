@@ -2379,3 +2379,63 @@ scripts/test-internal-links.mjs (new), scripts/gsc-inspect.mjs (new),
 scripts/gsc-auth.mjs (new), scripts/gsc-submit-sitemap.mjs (new),
 scripts/gsc-kpi.mjs, package.json, growth/BACKLOG.md, growth/DAILY_LOG.md,
 growth/SEO_STRATEGY.md. Branch design-v2.
+
+## Missions 148-149 — API keys, and the code-gated document the owner's program needs
+
+**M148 — keys.** Paid accounts (and site owners) can mint API keys at
+/account/api; "API" is now in the account menu, desktop and mobile. Keys live in
+Supabase, NOT in lib/server/db.ts, whose store is in-memory: on Vercel a key
+minted there authenticates until the next cold start and then 401s forever with
+nothing in the logs to explain it. Only a sha-256 hash is stored; the plaintext
+is shown once. Revocation keeps the row, so a leaked key reads "revoked, last
+used <date>" instead of vanishing.
+
+Two defects found while building, both older than this mission:
+- **public.profiles did not exist in production.** Repo migration 0002 was
+  authored months ago and never applied, so the referral system and every plan
+  read have been dead. Applied now, minus its trigger on auth.users — a fault in
+  a trigger there blocks every registration, and ensureProfile() does the same
+  job lazily where it can be tested and cannot take signup down.
+- **The Stripe webhook writes plan="business" as well as "pro"**, and the first
+  cut of the gate accepted only "pro": a paying business customer would have
+  been told to upgrade to the plan they already had. Migration 0003
+  (stripe_customer_id) was also missing, so a real payment would never have
+  flipped an account to pro at all.
+
+**M149 — code-gated documents (the OFIS contract).** POST /api/v1/links with
+{ target_url, code, title } returns { id, short_url }. Opening the short URL
+asks for the four-digit code printed on the document; on success the document
+renders on that page. It is deliberately not a dynamic link: a redirect puts the
+destination in the address bar, history, Referer and any screenshot, after which
+the code protects nothing. /s/<id>/image is the server fetching the destination
+and streaming the bytes, so the URL never crosses to the browser.
+
+The unlock is a signed httpOnly cookie scoped to Path=/s/<id> — no write on
+unlock, and a shared phone learns nothing about another document. It is NOT
+signed with config's auth secret: that falls back to the literal
+"dev-insecure-secret-change-me" and AUTH_SECRET is unset, so anyone who read the
+source could have minted an unlock. Rate limit is 8 per 10 minutes per
+(document, IP), applied BEFORE the comparison, since four digits is ten thousand
+possibilities. The image proxy refuses redirects (a destination that 302s to
+169.254.169.254 would walk past the address checks), caps at 25 MB, requires an
+image/PDF content-type, and sends private, no-store + nosniff + a sandbox CSP.
+Ids avoid 0/O and 1/l/I because someone reads them off a printed page;
+https://qrixtools.com/s/kXy7Qa is 30 characters against the 40 the QR needs.
+
+qrix.tools, the host in the spec, does not exist (NXDOMAIN). short_url is built
+from NEXT_PUBLIC_SHORT_BASE and falls back to the live site, so buying the
+domain and setting one variable moves every new link with no code change.
+
+Guards: npm run test:api (13 assertions closed-door, more with QRIX_API_KEY) and
+npm run test:secure (21 with no credential — forged/tampered/expired tokens,
+private and metadata addresses, id shape, short_url length, JSON-not-HTML on
+every refusal; with a key it runs create → wrong code → right code → image and
+asserts the destination appears nowhere the browser can see it). Both 100% on
+production.
+
+Files: lib/server/user-api-keys.ts, lib/secure-doc-core.ts,
+lib/server/secure-docs.ts, app/api/account/api-keys/**, app/api/public/v1/**,
+app/api/v1/links/route.ts, app/s/[id]/**, app/account/api/page.tsx,
+components/account/ApiKeysClient.tsx, components/nav/NavPanels.tsx,
+migrations/0005_api_keys.sql, types/qrcode.d.ts, app/robots.ts,
+scripts/test-public-api.mjs, scripts/test-secure-docs.mjs. Branch design-v2.
