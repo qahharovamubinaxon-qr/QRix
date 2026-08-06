@@ -42,7 +42,7 @@ async function page(pathname) {
   return { status: res.status, html: strip(await res.text()) };
 }
 
-const HUBS = ["/convert", "/resize", "/barcode", "/remove-background"];
+const HUBS = ["/convert", "/resize", "/barcode", "/remove-background", "/passport-photo"];
 
 /* Sources that must carry the links. Kept explicit so that deleting the block
    from one of them fails here rather than six weeks later in a crawl report. */
@@ -53,7 +53,7 @@ const SOURCES = [
   ["app/page.tsx", ["/convert", "/resize", "/barcode"]],
   ["components/CategoryShowcase.tsx", ["/convert", "/resize", "/barcode"]],
   ["app/image-tools/page.tsx", HUBS],
-  ["app/sitemap.ts", ["/remove-background"]],
+  ["app/sitemap.ts", ["/remove-background", "/passport-photo"]],
 ];
 
 for (const [file, hubs] of SOURCES) {
@@ -75,7 +75,7 @@ for (const entry of ["/", "/image-tools"]) {
   ok(`live: ${entry} is 200`, status === 200, `got ${status}`);
   /* The homepage does not carry /remove-background — /image-tools is its
      parent — so each entry point is checked against what it should link. */
-  for (const hub of (entry === "/" ? HUBS.filter((h) => h !== "/remove-background") : HUBS)) {
+  for (const hub of (entry === "/" ? HUBS.filter((h) => !["/remove-background", "/passport-photo"].includes(h)) : HUBS)) {
     const n = (html.match(new RegExp(`href="${hub}"`, "g")) || []).length;
     ok(`live: ${entry} links ${hub}`, n > 0, "0 occurrences in server HTML");
   }
@@ -86,7 +86,8 @@ for (const entry of ["/", "/image-tools"]) {
    symbologies), so adding pages cannot break this and deleting the child list
    cannot pass it. */
 const CHILDREN = [["/convert", "/convert/", 20], ["/resize", "/resize/", 20], ["/barcode", "/barcode/", 10],
-  ["/remove-background", "/remove-background/", 10]];
+  ["/remove-background", "/remove-background/", 10],
+  ["/passport-photo", "/passport-photo/", 4]];
 for (const [hub, childPrefix, floor] of CHILDREN) {
   const { status, html } = await page(hub);
   ok(`live: ${hub} is 200`, status === 200, `got ${status}`);

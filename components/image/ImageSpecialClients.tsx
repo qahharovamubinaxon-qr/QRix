@@ -126,7 +126,15 @@ export function ImageStudioClient({ mode }: { mode: "beautifier" | "device" | "r
 
 /* ── Passport photo ── */
 const DOC_SIZES = [["35×45 mm (EU/Visa)", 413, 531], ["2×2 in (US)", 600, 600], ["50×70 mm", 591, 827], ["35×35 mm", 413, 413]] as [string, number, number][];
-export function PassportClient() {
+/* A country page passes the size its authority publishes; without one the tool
+   keeps the four generic presets it has always had. The preset is prepended and
+   selected, and the generic list stays available underneath — someone who
+   landed on the India page and actually needs the US size should not have to
+   navigate away to get it. */
+export function PassportClient({ preset }: { preset?: { label: string; w: number; h: number } } = {}) {
+  const sizes: [string, number, number][] = preset
+    ? [[preset.label, preset.w, preset.h], ...DOC_SIZES]
+    : DOC_SIZES;
   const [img, setImg] = useState<HTMLImageElement | null>(null);
   const [sizeIdx, setSizeIdx] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -137,7 +145,7 @@ export function PassportClient() {
 
   function render(target?: HTMLCanvasElement) {
     if (!img) return null;
-    const [, w, h] = DOC_SIZES[sizeIdx]; const c = target || document.createElement("canvas"); c.width = w; c.height = h; const ctx = c.getContext("2d")!;
+    const [, w, h] = sizes[sizeIdx]; const c = target || document.createElement("canvas"); c.width = w; c.height = h; const ctx = c.getContext("2d")!;
     ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
     const s = Math.max(w / img.width, h / img.height) * zoom; const iw = img.width * s, ih = img.height * s;
     ctx.drawImage(img, w * off.x - iw * off.x, h * off.y - ih * off.y, iw, ih);
@@ -156,7 +164,7 @@ export function PassportClient() {
     {!img && <AiDropzone onFile={async (f) => { trackTool("img-passport"); setImg(await loadImg(f)); }} hint="Upload a front-facing portrait" />}
     {img && <>
       <div className="flex flex-wrap items-center gap-4">
-        <select value={sizeIdx} onChange={(e) => setSizeIdx(+e.target.value)} className="qx-auth-input !py-2 w-48">{DOC_SIZES.map((d, i) => <option key={i} value={i}>{d[0]}</option>)}</select>
+        <select value={sizeIdx} onChange={(e) => setSizeIdx(+e.target.value)} className="qx-auth-input !py-2 w-48">{sizes.map((d, i) => <option key={i} value={i}>{d[0]}</option>)}</select>
         <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>Zoom <input type="range" min={100} max={250} value={zoom * 100} onChange={(e) => setZoom(+e.target.value / 100)} className="w-32 accent-[#e1ff04]" /></label>
       </div>
       <canvas ref={viewRef} className="rounded-xl cursor-move mx-auto" style={{ border: "1px solid var(--border)", maxHeight: 400, touchAction: "none" }}
