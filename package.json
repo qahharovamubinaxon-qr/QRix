@@ -33,6 +33,7 @@
     "kpi": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gsc-kpi.mjs",
     "inspect": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gsc-inspect.mjs",
     "test:links": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-internal-links.mjs",
+    "test:api": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-public-api.mjs",
     "sitemap:ping": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/gsc-submit-sitemap.mjs",
     "test:study": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-generator-study.mjs",
     "test:barcode": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-barcode-i18n.mjs",

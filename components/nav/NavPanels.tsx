@@ -28,7 +28,7 @@ import {
   FiLogOut, FiLink, FiWifi, FiUser, FiMessageCircle, FiType, FiRefreshCw,
   FiLayers, FiScissors, FiMinimize2, FiLock, FiDroplet,
   FiZap, FiBarChart2, FiCamera, FiImage, FiMaximize2,
-  FiGrid, FiPieChart, FiSettings, FiHeart, FiClock, FiPlay, FiFilm,
+  FiGrid, FiPieChart, FiSettings, FiHeart, FiClock, FiPlay, FiFilm, FiKey,
 } from "react-icons/fi";
 
 /* Defined here rather than in TopNav so TopNav can `import type` it — a type-only
@@ -173,6 +173,7 @@ export function AccountMenuBody({ t, signedIn, email, onNavigate, onSignOut }: {
         { href: "/account", label: "Account", icon: <FiUser size={15} /> },
         { href: "/favorites", label: "Favorites", icon: <FiHeart size={15} /> },
         { href: "/history", label: "History", icon: <FiClock size={15} /> },
+        { href: "/account/api", label: "API", icon: <FiKey size={15} /> },
         { href: "/settings", label: "Settings", icon: <FiSettings size={15} /> },
       ].map((m) => (
         <Link key={m.href + m.label} href={m.href} onClick={onNavigate}
@@ -212,6 +213,7 @@ export function MobileAccountSection({ t, signedIn, onNavigate, onSignOut }: {
           { href: "/account", label: "Account", icon: <FiUser size={16} /> },
           { href: "/favorites", label: "Favorites", icon: <FiHeart size={16} /> },
           { href: "/history", label: "History", icon: <FiClock size={16} /> },
+          { href: "/account/api", label: "API", icon: <FiKey size={16} /> },
           { href: "/settings", label: "Settings", icon: <FiSettings size={16} /> },
         ].map((m) => (
           <Link key={m.href} href={m.href} onClick={onNavigate}
