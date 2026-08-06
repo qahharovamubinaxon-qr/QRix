@@ -163,21 +163,29 @@ if (!site) {
 const cur = window(0, days);
 const prev = window(days, days);
 
+/* The API sorts rows by CLICKS descending and there is no way to ask for
+   impressions instead, so a small rowLimit returns whatever happens to have a
+   click — at 3 clicks/week that is noise, and the pages actually earning the
+   1881 impressions never appear. Pull a wide page and sort locally; this is the
+   difference between "what got clicked" and "what has demand", and P2 keys off
+   the second one. */
 const [nowT, beforeT, queries, pages, countries] = await Promise.all([
   query(token, site, { ...cur }),
   query(token, site, { ...prev }),
-  query(token, site, { ...cur, dimensions: ["query"], rowLimit: 15 }),
-  query(token, site, { ...cur, dimensions: ["page"], rowLimit: 15 }),
-  query(token, site, { ...cur, dimensions: ["country"], rowLimit: 8 }),
+  query(token, site, { ...cur, dimensions: ["query"], rowLimit: 1000 }),
+  query(token, site, { ...cur, dimensions: ["page"], rowLimit: 1000 }),
+  query(token, site, { ...cur, dimensions: ["country"], rowLimit: 250 }),
 ]);
 
 const now = totals(nowT.rows);
 const before = totals(beforeT.rows);
 
-const rows = (r, label) => (r.rows || []).map((x) => ({
-  [label]: x.keys[0], clicks: x.clicks, impressions: x.impressions,
-  position: +x.position.toFixed(1),
-}));
+const rows = (r, label) => (r.rows || [])
+  .map((x) => ({
+    [label]: x.keys[0], clicks: x.clicks, impressions: x.impressions,
+    position: +x.position.toFixed(1),
+  }))
+  .sort((a, b) => b.impressions - a.impressions || b.clicks - a.clicks);
 
 const report = {
   site, window: cur, previous: prev,
@@ -199,8 +207,9 @@ if (asJson) {
   console.log(`  clicks       ${report.change.clicks}`);
   console.log(`  impressions  ${report.change.impressions}`);
   console.log(`  avg position ${report.change.position}   ctr ${now.ctr}%\n`);
-  console.log(`  top queries — what people actually search for:\n${table(report.topQueries, "query")}\n`);
-  console.log(`  top pages — where the impressions are:\n${table(report.topPages, "page")}\n`);
+  console.log(`  top queries by impressions — the demand we are shown for:\n${table(report.topQueries, "query", 15)}\n`);
+  console.log(`  top pages by impressions — where that demand lands:\n${table(report.topPages, "page", 15)}\n`);
+  console.log(`  distinct queries ${report.topQueries.length} · distinct pages ${report.topPages.length}\n`);
   console.log(`  countries:\n${table(report.countries, "country", 8)}\n`);
   console.log("  Paste into growth/SEO_STRATEGY.md → Baseline:");
   console.log(`  - GSC: ${now.impressions} impressions/${days}d, ${now.clicks} clicks, avg position ~${now.position} (was ${before.impressions}/${before.clicks}/${before.position})`);

@@ -18,6 +18,22 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 > the task file, this note can go.
 
 ## NOW (this week)
+- [ ] **DEMAND-VERIFIED, from the first real GSC read (Aug 7).** Two pages earn
+  79% of all impressions and neither is a QR page: /image-tools/remove-bg
+  (1,215 imp/wk, pos 88.6) and /image-tools/passport-photo (278, pos 84.3),
+  both at zero clicks because page 9 earns none. Head terms there are owned by
+  remove.bg / Canva / Adobe and are not winnable at ~0 referring domains, so
+  the move is the long tail INSIDE these two families, each with the working
+  tool already behind it:
+   · passport/visa photo by country and size — "passport photo size india",
+     "us visa photo 2x2", "schengen visa photo 35x45mm". Classic programmatic
+     family, weak competition, and lib/ has the sizing engine already.
+   · background removal by subject — signature, product photo, logo, portrait.
+  Verify each candidate against `npm run kpi` output before building, not after.
+- [ ] Only 67 of ~810 URLs earn a single impression. Before adding pages, find
+  out whether the other ~740 are (a) not indexed, or (b) indexed and never
+  shown — different problems with different fixes. The URL Inspection API is
+  available to the same service account now; sample 30 URLs across families.
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
 

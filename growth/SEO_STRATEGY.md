@@ -5,15 +5,42 @@ single source of direction for every growth session. Read it at startup; pick
 work that serves the CURRENT PHASE. Update the baseline block weekly (Friday
 KPI snapshot). Written 2026-07-28 off the M142 seven-agent audit.
 
-## Baseline (2026-07-28 — be honest, update weekly)
+## Baseline (2026-08-07 — first read from the API, not the UI)
 
-- Traffic: ~13 visitors/day (Vercel Analytics, 30d: 134 visitors, half of it us)
-- GSC: 362 impressions/wk (+66% WoW), 2 clicks, avg position ~75
-- Yandex = 70% of referral traffic; UZ users view ~11 pages/visit (stickiest)
-- 801 sitemap URLs; sitemap re-read by Google Jul 22 (was stuck at 526)
-- Audit Health Score 72/100 (technical 84 · SXO 83 · GEO 79 · schema 78 ·
-  perf-lab 78 · sitemap 62→fixed · content 41→M143 fixed the fabrications)
-- Referring domains: ~0. This is the binding constraint on everything.
+`npm run kpi` reads Search Console directly now (M147c), so these are measured,
+not pasted, and the weekly snapshot no longer depends on the owner.
+
+- GSC 7d (Jul 29–Aug 4): **1,881 impressions · 3 clicks · CTR 0.16% · avg
+  position 84.1** — prior 7d was 1,100 / 1 / 70.2. 28d: 3,923 / 6 / 77.4.
+- Impressions +71% WoW. Average position got WORSE (70 → 84) and that is
+  dilution, not decline: more pages started surfacing, all of them deep.
+- **599 distinct queries, but only 67 pages earn a single impression** out of
+  ~810 URLs. Coverage, not ranking, is still the first constraint.
+- **Demand is concentrated in two pages that are not QR pages:**
+  /image-tools/remove-bg 1,215 imp (65% of everything, pos 88.6, 0 clicks) and
+  /image-tools/passport-photo 278 imp (15%, pos 84.3, 0 clicks). 79% from two.
+- Top queries are all one family: "remove background" (58), "background
+  remover" (39), "remove background online" (36), "passport photo online" (45)
+  — every one at position 82–92, i.e. page 9. Shown, never seen.
+- Countries by impressions: USA 386 · GBR 80 · PAK 64 · RUS 64 · BGD 56 ·
+  TUR 50 · KEN 47 · CHE 42. Google's demand is English-first; the RU/UZ thesis
+  is a **Yandex** thesis and should not be confused with this.
+- The only click-earning page is `/` on the brand query "qrix" (pos 4.8).
+- Referring domains: ~0. Still the binding constraint on position.
+
+### What this first read changed
+
+The site was built QR-first and expanded RU/UZ-first. Google's actual demand is
+English background-removal and passport photos, on two tools that already work.
+That is not a reason to abandon QR — Yandex and direct traffic behave
+differently — but it means the demand-verified expansion (P2) has a clear first
+target, and it is not where the last twenty missions went.
+
+Head terms in that family (remove.bg, Canva, Adobe own them) are not winnable at
+0 referring domains. The winnable shape is the long tail *inside* the two
+families that already surface: passport/visa photo by country and size, and
+background removal by subject (signature, product, logo, portrait). Both have a
+real tool behind them already, which is the rule for any new page here.
 
 ## The honest math
 
