@@ -2440,3 +2440,45 @@ app/api/v1/links/route.ts, app/s/[id]/**, app/account/api/page.tsx,
 components/account/ApiKeysClient.tsx, components/nav/NavPanels.tsx,
 migrations/0005_api_keys.sql, types/qrcode.d.ts, app/robots.ts,
 scripts/test-public-api.mjs, scripts/test-secure-docs.mjs. Branch design-v2.
+
+## Mission 150 — eleven pages on the one family Google already shows us
+
+The first GSC read said /image-tools/remove-bg earns 1,215 of the site's 1,881
+weekly impressions — 65% of everything — at average position 88.6 and zero
+clicks. Page nine earns no clicks, and the head terms it sits on belong to
+remove.bg, Canva and Adobe, which nobody with ~0 referring domains takes.
+
+So this does not chase them. Eleven pages target the tail where the query names
+WHAT is being cut out, and each is a different job: what ruins a signature
+cutout (pale ink, uneven light) has nothing to do with what ruins furniture
+(thin legs against a similar floor) or a car — where the honest note is that a
+background remover removes backgrounds, not the readable number plate.
+
+Every page mounts the real @imgly on-device tool, so none is copy wrapped around
+nothing. 546-600 unique words each, HowTo + FAQ + Breadcrumb + WebApplication
+schema, self-canonical, file input present in the server HTML. Claims are held
+to what the code does, and several pages say where the model fails — the hair
+page states outright that no automatic tool keeps every strand.
+
+Discovery was designed in rather than discovered missing later (M147e): the hub
+is linked from /image-tools, which is indexed and is the topical parent, the hub
+links all eleven children, and both are in the sitemap. Sitemap 810 -> 830,
+IndexNow accepted 12 URLs, npm run test:links 28/28 against production.
+
+Two traps cost time and are worth keeping. A Turbopack dev server started BEFORE
+a route folder exists caches an empty generateStaticParams for it, so every valid
+slug 404s under dynamicParams=false and the route looks broken when it is
+correct — restart before believing the 404. And Git Bash rewrites a bare "/path"
+argument into C:/Program Files/Git/..., so a loop over URL paths quietly
+requested the wrong thing and reported 404s that meant nothing; pass full URLs.
+
+Next in this direction: passport/visa photo by country and size. It needs two
+things first — the passport engine currently hard-codes four sizes and would
+have to take an arbitrary one, and every country's size has to be verified
+against an official source before a page states it. Guessing them would be the
+no-fabrication rule failing on the exact surface where being wrong costs someone
+a rejected application.
+
+Files: lib/removebg-usecases.ts (new), app/remove-background/page.tsx (new),
+app/remove-background/[topic]/page.tsx (new), app/sitemap.ts,
+app/image-tools/page.tsx, scripts/test-internal-links.mjs. Branch design-v2.
