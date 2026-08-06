@@ -50,9 +50,10 @@ export function isSafeTarget(raw: unknown): raw is string {
 }
 
 /* ── short url ───────────────────────────────────────────────────────────
-   qrix.tools did not exist when this shipped (NXDOMAIN, 2026-08-07). Point it
-   at this deployment and set NEXT_PUBLIC_SHORT_BASE=https://qrix.tools; every
-   new link uses it and the API contract does not change. */
+   The live site, which is what the short URL should be:
+   https://qrixtools.com/s/kXy7Qa is 30 characters, against the 40 a scannable
+   QR wants. NEXT_PUBLIC_SHORT_BASE exists only as an escape hatch if a shorter
+   domain is ever pointed at this deployment; nothing needs it today. */
 export const shortBase = () =>
   (process.env.NEXT_PUBLIC_SHORT_BASE || process.env.NEXT_PUBLIC_SITE_URL || "https://qrixtools.com")
     .replace(/\/+$/, "");

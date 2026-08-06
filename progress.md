@@ -2422,9 +2422,10 @@ image/PDF content-type, and sends private, no-store + nosniff + a sandbox CSP.
 Ids avoid 0/O and 1/l/I because someone reads them off a printed page;
 https://qrixtools.com/s/kXy7Qa is 30 characters against the 40 the QR needs.
 
-qrix.tools, the host in the spec, does not exist (NXDOMAIN). short_url is built
-from NEXT_PUBLIC_SHORT_BASE and falls back to the live site, so buying the
-domain and setting one variable moves every new link with no code change.
+The spec named qrix.tools; the owner corrected it to qrixtools.com, which is
+what short_url already used, so no domain work is pending.
+NEXT_PUBLIC_SHORT_BASE stays as an escape hatch if a shorter host is ever
+pointed here.
 
 Guards: npm run test:api (13 assertions closed-door, more with QRIX_API_KEY) and
 npm run test:secure (21 with no credential — forged/tampered/expired tokens,
