@@ -11,7 +11,7 @@ export default function robots(): MetadataRoute.Robots {
       // Google/Bing/Yandex) pins the rule to the exact /p short-link page.
       // "/pin" stays out of crawl deliberately — the gate was covered by the
       // old prefix and must not start ranking.
-      { userAgent: "*", allow: "/", disallow: ["/dashboard", "/api/", "/r/", "/p$", "/pin", "/login", "/register", "/settings", "/account", "/history", "/favorites", "/admin", "/workspace"] },
+      { userAgent: "*", allow: "/", disallow: ["/dashboard", "/api/", "/r/", "/p$", "/pin", "/s/", "/login", "/register", "/settings", "/account", "/history", "/favorites", "/admin", "/workspace"] },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
     host: SITE_URL,
