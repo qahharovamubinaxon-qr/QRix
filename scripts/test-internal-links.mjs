@@ -42,20 +42,29 @@ async function page(pathname) {
   return { status: res.status, html: strip(await res.text()) };
 }
 
-const HUBS = ["/convert", "/resize", "/barcode"];
+const HUBS = ["/convert", "/resize", "/barcode", "/remove-background"];
 
 /* Sources that must carry the links. Kept explicit so that deleting the block
    from one of them fails here rather than six weeks later in a crawl report. */
 const SOURCES = [
-  ["app/page.tsx", HUBS],
+  /* The homepage footer and directory carry the three M147e hubs;
+     /remove-background is younger and hangs off /image-tools, which is the
+     indexed page Google already crawls. */
+  ["app/page.tsx", ["/convert", "/resize", "/barcode"]],
   ["components/CategoryShowcase.tsx", ["/convert", "/resize", "/barcode"]],
   ["app/image-tools/page.tsx", HUBS],
+  ["app/sitemap.ts", ["/remove-background"]],
 ];
 
 for (const [file, hubs] of SOURCES) {
   const src = fs.readFileSync(path.join(root, file), "utf8");
   for (const hub of hubs) {
-    ok(`source: ${file} links ${hub}`, new RegExp(`href[=:]\\s*["'\`]${hub}["'\`]`).test(src));
+    /* An href in a component, or the bare quoted path in the sitemap, which
+       writes entry("/x") rather than href. Matching only href silently passed
+       the sitemap on a file that never contained the word. */
+    const linked = new RegExp(`href[=:]\\s*["'\`]${hub}["'\`]`).test(src);
+    const listed = new RegExp(`["'\`]${hub}["'\`]`).test(src);
+    ok(`source: ${file} carries ${hub}`, linked || listed);
   }
 }
 
@@ -64,7 +73,9 @@ for (const [file, hubs] of SOURCES) {
 for (const entry of ["/", "/image-tools"]) {
   const { status, html } = await page(entry);
   ok(`live: ${entry} is 200`, status === 200, `got ${status}`);
-  for (const hub of HUBS) {
+  /* The homepage does not carry /remove-background — /image-tools is its
+     parent — so each entry point is checked against what it should link. */
+  for (const hub of (entry === "/" ? HUBS.filter((h) => h !== "/remove-background") : HUBS)) {
     const n = (html.match(new RegExp(`href="${hub}"`, "g")) || []).length;
     ok(`live: ${entry} links ${hub}`, n > 0, "0 occurrences in server HTML");
   }
@@ -74,7 +85,8 @@ for (const entry of ["/", "/image-tools"]) {
    taken from the registries (26 convert pairs, 25 resize presets, 13 barcode
    symbologies), so adding pages cannot break this and deleting the child list
    cannot pass it. */
-const CHILDREN = [["/convert", "/convert/", 20], ["/resize", "/resize/", 20], ["/barcode", "/barcode/", 10]];
+const CHILDREN = [["/convert", "/convert/", 20], ["/resize", "/resize/", 20], ["/barcode", "/barcode/", 10],
+  ["/remove-background", "/remove-background/", 10]];
 for (const [hub, childPrefix, floor] of CHILDREN) {
   const { status, html } = await page(hub);
   ok(`live: ${hub} is 200`, status === 200, `got ${status}`);

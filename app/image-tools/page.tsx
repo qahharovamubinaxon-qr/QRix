@@ -109,6 +109,9 @@ export default function ImageToolsPage() {
             <Link href="/barcode" className="qx-btn qx-btn-ghost text-[13px]">
               Barcode generator — 13 symbologies
             </Link>
+            <Link href="/remove-background" className="qx-btn qx-btn-ghost text-[13px]">
+              Background removal — 11 guides
+            </Link>
           </div>
         </section>
       </main>

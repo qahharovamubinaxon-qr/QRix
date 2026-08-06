@@ -18,6 +18,7 @@ import { PLATFORMS as DL_PLATFORMS } from "@/lib/downloader-platforms";
 import { LOC_TOOLS } from "@/lib/localized-tools";
 import { CONVERT_PAIRS } from "@/lib/convert-pairs";
 import { RESIZE_PRESETS } from "@/lib/resize-presets";
+import { BG_USE_CASES } from "@/lib/removebg-usecases";
 import { LOC_RESIZE_PRESETS } from "@/lib/resize-presets-i18n";
 import { BARCODE_TYPES } from "@/lib/barcode-types";
 import { LOC_BARCODE_TYPES } from "@/lib/barcode-types-i18n";
@@ -116,6 +117,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...PDF_TOOLS.map((s) => entry(`/pdf-tools/${s}`, 0.8)),
     ...IMAGE_TOOLS.map((s) => entry(`/image-tools/${s}`, 0.8)),
     ...IMG_EXP.map((t) => entry(`/image-tools/${t.slug}`, 0.8)),
+    entry("/remove-background", 0.9),
+    ...BG_USE_CASES.map((u) => entry(`/remove-background/${u.slug}`, 0.8)),
     entry("/convert", 0.9),
     entry("/ru/convert", 0.85),
     entry("/uz/convert", 0.85),
