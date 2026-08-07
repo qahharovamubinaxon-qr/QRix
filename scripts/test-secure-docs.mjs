@@ -2,14 +2,14 @@
 
    Three halves, so that as much as possible runs without a credential:
 
-   · CRYPTO — the unlock token, tested directly. If a forged or expired token
-     ever validates, the four-digit code becomes decoration and nothing else in
-     this file would notice.
+   · PURE — id shape and the destination rules, tested directly. A private or
+     metadata address slipping through would turn a short link into a redirect
+     into somebody's network.
    · CLOSED DOOR — the API refuses a missing or wrong key with JSON, never HTML,
      because the caller is a program that has to branch on it.
-   · FULL FLOW (needs QRIX_API_KEY) — create, wrong code, right code, image, and
-     the assertion the whole feature exists for: the destination URL must not
-     appear anywhere the browser can see it.
+   · FULL FLOW (needs QRIX_API_KEY) — create, wrong code, right code, and the
+     two assertions that matter: the gate page must not contain the destination
+     (the QR alone must reveal nothing), and a correct code must redirect to it.
 
    Usage:
      npm run test:secure
@@ -22,8 +22,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-/* The token functions read the signing secret from the environment, and this
-   script is not Next, so .env.local has to be loaded by hand. */
+/* Loaded by hand because this script is not Next. Nothing in the pure half
+   needs a secret any more, but the full flow reads QRIX_API_KEY from here. */
 for (const line of fs.existsSync(path.join(root, ".env.local"))
   ? fs.readFileSync(path.join(root, ".env.local"), "utf8").split("\n") : []) {
   const m = /^([A-Z0-9_]+)=(.*)$/.exec(line.trim());
@@ -40,22 +40,12 @@ const ok = (name, cond, detail = "") => {
   else fails.push(`${name}${detail ? ` — ${detail}` : ""}`);
 };
 
-/* ── crypto ──────────────────────────────────────────────────────────────── */
+/* ── pure ────────────────────────────────────────────────────────────────── */
 
-const { mintUnlock, unlockValid, isSafeTarget, newId } =
+const { isSafeTarget, newId } =
   await import(`file:///${path.join(root, "lib/secure-doc-core.ts").replace(/\\/g, "/")}`);
 
 {
-  const { value } = await mintUnlock("abc123");
-  ok("token: a fresh token validates", await unlockValid("abc123", value));
-  ok("token: it does not validate for another document", !(await unlockValid("zzz999", value)));
-  ok("token: a flipped signature fails",
-    !(await unlockValid("abc123", value.slice(0, -1) + (value.endsWith("A") ? "B" : "A"))));
-  ok("token: an unsigned token fails", !(await unlockValid("abc123", `${Date.now() + 60000}.`)));
-  ok("token: an expired token fails", !(await unlockValid("abc123", `${Date.now() - 1000}.whatever`)));
-  ok("token: junk fails", !(await unlockValid("abc123", "nonsense")));
-  ok("token: absent cookie fails", !(await unlockValid("abc123", undefined)));
-
   /* An id that reads badly off a printed page is a support call, not a bug
      report — the alphabet deliberately drops 0/O and 1/l/I. */
   const ids = Array.from({ length: 200 }, () => newId());
@@ -98,15 +88,13 @@ const sample = { target_url: "https://i.ibb.co/abc123/x.jpg", code: "3255", titl
   const missingHtml = await missing.text();
   ok("page: an unknown id shows no code form", !/4-digit code/i.test(missingHtml), `status ${missing.status}`);
 
-  const lockedImage = await fetch(`${BASE}/s/zzzzzz/image`);
-  ok("image: locked without a cookie", lockedImage.status === 403 || lockedImage.status === 404, `got ${lockedImage.status}`);
 }
 
 /* ── full flow ───────────────────────────────────────────────────────────── */
 
 if (!KEY) {
-  console.log(`${pass}/${pass + fails.length} assertions passed  (base ${BASE}, no key: crypto + closed door)`);
-  console.log("  set QRIX_API_KEY to also exercise create → wrong code → right code → image");
+  console.log(`${pass}/${pass + fails.length} assertions passed  (base ${BASE}, no key: pure + closed door)`);
+  console.log("  set QRIX_API_KEY to also exercise create → wrong code → right code → redirect");
 } else {
   const auth = { authorization: `Bearer ${KEY}` };
   const TARGET = "https://i.ibb.co/QQ1test/qrix-guard-sample.png";
@@ -136,27 +124,21 @@ if (!KEY) {
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ code: CODE === "1111" ? "2222" : "1111" }),
     });
-    ok("verify: a wrong code sets no cookie", !(wrong.headers.get("set-cookie") || "").includes("qxs_"));
     ok("verify: a wrong code returns to the form", (wrong.headers.get("location") || "").includes("error=1"));
+    ok("verify: a wrong code does not leak the destination",
+      !(wrong.headers.get("location") || "").includes("ibb.co"));
 
     const right = await fetch(`${BASE}/s/${doc.id}/verify`, {
       method: "POST", redirect: "manual",
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ code: CODE }),
     });
-    const setCookie = right.headers.get("set-cookie") || "";
-    ok("verify: the right code sets an unlock cookie", setCookie.includes(`qxs_${doc.id}`), setCookie.slice(0, 60));
-    ok("verify: the cookie is httpOnly", /httponly/i.test(setCookie));
-    ok("verify: the cookie is scoped to this document", setCookie.includes(`Path=/s/${doc.id}`));
-
-    const cookie = setCookie.split(";")[0];
-    const img = await fetch(`${BASE}/s/${doc.id}/image`, { headers: { cookie } });
-    /* i.ibb.co/QQ1test is not a real upload, so upstream will not be an image.
-       What must hold either way: the request is ALLOWED past the lock (not 403)
-       and the destination never appears in the response the browser sees. */
-    ok("image: the unlock is accepted", img.status !== 403, `got ${img.status}`);
-    const seen = JSON.stringify([...img.headers.entries()]) + (await img.text()).slice(0, 2000);
-    ok("image: the destination is not in the response", !seen.includes("i.ibb.co"));
+    ok("verify: the right code redirects", right.status === 303, `got ${right.status}`);
+    ok("verify: it redirects to the destination", (right.headers.get("location") || "") === TARGET,
+      right.headers.get("location") || "(no location)");
+    /* No session is minted any more — the redirect IS the grant, and a cookie
+       that outlived it would be a promise the flow no longer keeps. */
+    ok("verify: no unlock cookie is set", !(right.headers.get("set-cookie") || "").includes("qxs_"));
   }
 
   console.log(`${pass}/${pass + fails.length} assertions passed  (base ${BASE}, full flow)`);

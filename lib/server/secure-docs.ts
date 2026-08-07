@@ -3,12 +3,12 @@
  *
  * A caller posts a URL it already has (an image host, say) plus a 4-digit code.
  * We hand back a short URL. Whoever opens it is asked for the code, and on
- * success sees the document rendered on that page — never the URL behind it.
+ * success is sent to the document.
  *
- * That last part is the whole point, and it is why this is not a dynamic link:
- * a redirect puts the destination in the address bar, in history, in the
- * Referer and in any screenshot, which makes the code pointless. Here the
- * server fetches the bytes and streams them.
+ * The short link carries no destination, so the QR alone reveals nothing — that
+ * is what this buys. Once the code is right the browser is redirected, which
+ * the owner chose over rendering the document here, so from that moment the
+ * destination is in the address bar and in history like any other link.
  *
  * Everything that needs no database — id generation, destination rules, the
  * unlock token — lives in lib/secure-doc-core.ts so it can be imported by a
@@ -20,9 +20,7 @@ import { createAdminClient } from "@/lib/supabase-admin";
 import { hashPassword, verifyPassword } from "@/lib/server/security";
 import { newId } from "@/lib/secure-doc-core";
 
-export {
-  newId, isSafeTarget, shortBase, shortUrl, COOKIE, mintUnlock, unlockValid,
-} from "@/lib/secure-doc-core";
+export { newId, isSafeTarget, shortBase, shortUrl } from "@/lib/secure-doc-core";
 
 export type SecureDoc = {
   id: string;

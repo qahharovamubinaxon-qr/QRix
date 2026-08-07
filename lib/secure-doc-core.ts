@@ -1,13 +1,18 @@
 /**
- * Pure half of the code-gated document flow: id generation, destination rules,
- * and the unlock token. No imports at all, on purpose.
+ * Pure half of the code-gated document flow: id generation and destination
+ * rules. No imports at all, on purpose.
  *
  * lib/server/secure-docs.ts pulls in Supabase and lib/server/security, and that
  * chain contains syntax Node's type-stripping refuses, so a test importing it
- * dies before it reaches the crypto — which is precisely the part that must be
- * tested. Everything security-critical that needs no database lives here, and
- * npm run test:secure imports this file directly, so the code asserted is the
- * code that runs.
+ * dies before it reaches this code. Everything security-critical that needs no
+ * database lives here, and npm run test:secure imports this file directly, so
+ * what is asserted is what runs.
+ *
+ * The signed unlock token that used to live here is gone (2026-08-07). The
+ * owner chose to redirect to the destination once the code is right rather than
+ * render the document on our page, so there is no session to sign and no image
+ * proxy to gate. Signing helpers with no caller are worse than absent ones —
+ * they read like a protection that is still in force.
  */
 
 /* Base62 minus the characters that get misread off a printed page: 0/O and
@@ -20,9 +25,11 @@ export function newId(len = 6): string {
 }
 
 /* ── destination rules ───────────────────────────────────────────────────
-   The same addresses the dynamic-link endpoint refuses, and they matter more
-   here: this URL is fetched BY OUR SERVER, so a private address would turn the
-   feature into a way to read things only our server can reach. */
+   The same addresses the dynamic-link endpoint refuses. They are checked twice:
+   when the link is created, and again at the moment a browser is redirected, so
+   a rule tightened later still applies to links made before it. Without them
+   the qrixtools.com domain could be used to mask a redirect into somebody's
+   private network. */
 function isPublicHost(hostname: string): boolean {
   const h = hostname.toLowerCase().replace(/^\[|\]$/g, "");
   if (h === "localhost" || h.endsWith(".localhost") || h.endsWith(".local")) return false;
@@ -59,55 +66,3 @@ export const shortBase = () =>
     .replace(/\/+$/, "");
 
 export const shortUrl = (id: string) => `${shortBase()}/s/${id}`;
-
-/* ── unlock token ────────────────────────────────────────────────────────
-   Signed rather than stored: unlocking costs no write, and two people can hold
-   a valid session for the same document at once.
-
-   AUTH_SECRET is preferred, but its fallback in lib/server/config.ts is the
-   literal "dev-insecure-secret-change-me" — signing with a string printed in
-   the source would let anyone mint their own unlock and walk past the code. So
-   the key comes from whichever real secret exists, and if neither does this
-   throws rather than pretending to be secure. */
-function signingKey(): string {
-  const explicit = process.env.AUTH_SECRET;
-  if (explicit && explicit.length >= 16 && !explicit.startsWith("dev-insecure")) return explicit;
-  const service = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (service && service.length >= 32) return service;
-  throw new Error("no_signing_secret");
-}
-
-async function hmac(payload: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    "raw", new TextEncoder().encode(signingKey()),
-    { name: "HMAC", hash: "SHA-256" }, false, ["sign"],
-  );
-  const sig = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
-  /* base64url by hand: Buffer is not available in every runtime this could end
-     up in, and the alphabet has to be URL-safe because this lives in a cookie. */
-  let bin = "";
-  for (const b of sig) bin += String.fromCharCode(b);
-  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-export const COOKIE = (id: string) => `qxs_${id}`;
-const TTL_MS = 20 * 60_000;
-
-export async function mintUnlock(id: string): Promise<{ value: string; maxAge: number }> {
-  const exp = Date.now() + TTL_MS;
-  return { value: `${exp}.${await hmac(`${id}.${exp}`)}`, maxAge: Math.floor(TTL_MS / 1000) };
-}
-
-export async function unlockValid(id: string, cookie: string | undefined): Promise<boolean> {
-  if (!cookie) return false;
-  const [expRaw, sig] = cookie.split(".");
-  const exp = Number(expRaw);
-  if (!Number.isFinite(exp) || exp < Date.now() || !sig) return false;
-  const expected = await hmac(`${id}.${exp}`);
-  /* Constant-time. A timing oracle on a 32-byte tag is not a realistic attack
-     here, but `===` in auth code is how the habit gets lost. */
-  if (sig.length !== expected.length) return false;
-  let diff = 0;
-  for (let i = 0; i < sig.length; i++) diff |= sig.charCodeAt(i) ^ expected.charCodeAt(i);
-  return diff === 0;
-}
