@@ -42,7 +42,7 @@ async function page(pathname) {
   return { status: res.status, html: strip(await res.text()) };
 }
 
-const HUBS = ["/convert", "/resize", "/barcode", "/remove-background", "/passport-photo"];
+const HUBS = ["/convert", "/resize", "/barcode", "/remove-background", "/passport-photo", "/document-scanner"];
 
 /* Sources that must carry the links. Kept explicit so that deleting the block
    from one of them fails here rather than six weeks later in a crawl report. */
@@ -53,7 +53,8 @@ const SOURCES = [
   ["app/page.tsx", ["/convert", "/resize", "/barcode"]],
   ["components/CategoryShowcase.tsx", ["/convert", "/resize", "/barcode"]],
   ["app/image-tools/page.tsx", HUBS],
-  ["app/sitemap.ts", ["/remove-background", "/passport-photo"]],
+  ["app/sitemap.ts", ["/remove-background", "/passport-photo", "/document-scanner"]],
+  ["app/pdf-tools/page.tsx", ["/document-scanner"]],
 ];
 
 for (const [file, hubs] of SOURCES) {
@@ -75,12 +76,15 @@ for (const entry of ["/", "/image-tools"]) {
   ok(`live: ${entry} is 200`, status === 200, `got ${status}`);
   /* The homepage does not carry /remove-background — /image-tools is its
      parent — so each entry point is checked against what it should link. */
-  for (const hub of (entry === "/" ? HUBS.filter((h) => !["/remove-background", "/passport-photo"].includes(h)) : HUBS)) {
+  for (const hub of (entry === "/" ? HUBS.filter((h) => !["/remove-background", "/passport-photo", "/document-scanner"].includes(h)) : HUBS)) {
     const n = (html.match(new RegExp(`href="${hub}"`, "g")) || []).length;
     ok(`live: ${entry} links ${hub}`, n > 0, "0 occurrences in server HTML");
   }
 }
 
+/* Each hub with children must pass the crawl downward. /document-scanner is a
+   single tool page with none, so it is checked for reachability above and not
+   here — asserting children it will never have would be inventing a rule. */
 /* Each hub must be reachable AND pass the crawl downward. The counts are floors
    taken from the registries (26 convert pairs, 25 resize presets, 13 barcode
    symbologies), so adding pages cannot break this and deleting the child list

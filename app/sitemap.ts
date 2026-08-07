@@ -118,6 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...PDF_TOOLS.map((s) => entry(`/pdf-tools/${s}`, 0.8)),
     ...IMAGE_TOOLS.map((s) => entry(`/image-tools/${s}`, 0.8)),
     ...IMG_EXP.map((t) => entry(`/image-tools/${t.slug}`, 0.8)),
+    entry("/document-scanner", 0.9),
     entry("/passport-photo", 0.9),
     ...PASSPORT_SIZES.map((p) => entry(`/passport-photo/${p.slug}`, 0.8)),
     entry("/remove-background", 0.9),

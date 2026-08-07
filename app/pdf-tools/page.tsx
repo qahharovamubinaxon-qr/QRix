@@ -114,6 +114,10 @@ export default function PdfToolsPage() {
               Image Tools
             </h3>
             <Link href="/image-tools" className="qx-navlink"><FiImage size={15} /> Image Tools</Link>
+            {/* A phone photo of a document ends up here as a PDF, so this is the
+                page people arrive at looking for it. Also its second crawlable
+                parent — the M147e rule about pages that live only in a sitemap. */}
+            <Link href="/document-scanner" className="qx-navlink"><FiImage size={15} /> Document Scanner</Link>
           </div>
         </nav>
 

@@ -112,6 +112,9 @@ export default function ImageToolsPage() {
             <Link href="/remove-background" className="qx-btn qx-btn-ghost text-[13px]">
               Background removal — 11 guides
             </Link>
+            <Link href="/document-scanner" className="qx-btn qx-btn-ghost text-[13px]">
+              Document scanner — photo to clean scan
+            </Link>
             <Link href="/passport-photo" className="qx-btn qx-btn-ghost text-[13px]">
               Passport photo sizes — 5 countries
             </Link>

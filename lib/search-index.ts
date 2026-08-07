@@ -36,6 +36,7 @@ const IMAGE_TOOLS: [string, string][] = [
 ];
 
 const PAGES: SearchItem[] = [
+  { title: "Document Scanner", href: "/document-scanner", group: "Pages", keywords: "document scanner scan id card passport a4 pdf straighten deskew perspective phone photo skanner skanirovat pasport spravka hujjat skaner" },
   { title: "QR Code Statistics (sourced)", href: "/qr-code-statistics", group: "Pages", keywords: "qr code statistics data research numbers scans payments adoption 2026 report sourced citation" },
   { title: "Free QR Generators Compared (20 checked)", href: "/free-qr-code-generator-comparison", group: "Pages", keywords: "free qr code generator comparison best no expiration expire watermark scan limit sign up trial catch tested vs alternatives review" },
   { title: "Video & Audio Downloader", href: "/downloader", group: "Pages", keywords: "tiktok instagram vk downloader video audio mp3 mp4 save reels download skachat yuklab olish" },
