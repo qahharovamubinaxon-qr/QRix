@@ -347,12 +347,26 @@ function SideEditor({
             {[...side.quad, side.mids.left, side.mids.right].map((p, i) => (
               <button key={i} aria-label={i < 4 ? `Corner ${i + 1}` : i === 4 ? "Left fold handle" : "Right fold handle"}
                 onPointerDown={(e) => { (e.target as HTMLElement).setPointerCapture(e.pointerId); setDrag(i); }}
-                className={i < 4 ? "absolute w-7 h-7 -ml-3.5 -mt-3.5 rounded-full" : "absolute w-6 h-6 -ml-3 -mt-3 rounded-full"}
+                className="absolute"
                 style={{
                   ...pct(p),
+                  width: i < 4 ? 28 : 26,
+                  height: i < 4 ? 28 : 26,
+                  marginLeft: i < 4 ? -14 : -13,
+                  marginTop: i < 4 ? -14 : -13,
+                  /* The fold handles are a rotated square, not another circle.
+                     Shape carries where colour cannot: on a pale passport page a
+                     white dot with an orange ring disappears, and the owner's
+                     first report of this feature was that the two extra handles
+                     "did not appear" — they were there and invisible. A dark
+                     halo underneath keeps both kinds readable on white paper and
+                     on a dark desk alike. */
+                  transform: i < 4 ? undefined : "rotate(45deg)",
+                  borderRadius: i < 4 ? "9999px" : 4,
                   background: i < 4 ? "#ff6a13" : "#fff",
                   border: i < 4 ? "2px solid #fff" : "3px solid #ff6a13",
-                  boxShadow: "0 2px 8px rgba(0,0,0,.4)", touchAction: "none",
+                  boxShadow: "0 0 0 2px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.45)",
+                  touchAction: "none",
                 }} />
             ))}
           </>
