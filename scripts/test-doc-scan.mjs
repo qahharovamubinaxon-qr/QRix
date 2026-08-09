@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const {
   makeImg, detectQuad, warpToRect, solveHomography, flattenIllumination,
-  composePage, mmToPx, targetSize, toGray, resize, orderCorners, quadArea,
+  composePage, mmToPx, targetSize, toGray, resize, orderCorners, quadArea, midDefaults,
 } = await import(`file:///${path.join(root, "lib/doc-scan.ts").replace(/\\/g, "/")}`);
 
 let pass = 0;
@@ -337,6 +337,92 @@ for (const c of CASES) {
     empty.data[p] += n; empty.data[p + 1] += n; empty.data[p + 2] += n;
   }
   ok("detect: an empty surface returns null, not a guess", detectQuad(empty) === null);
+}
+
+
+/* ── 6. a folded passport: what the two extra handles are for ────────────── */
+{
+  /* A booklet photographed open does not lie on one plane. Painted here as two
+     planes meeting at a fold, which is what the camera actually sees — and
+     which a single homography cannot undo however well the corners are placed. */
+  const doc = makeDocument(480, 360);
+  const W = 800, H = 640;
+  const photo = makeImg(W, H, 115);
+
+  const paintHalf = (y0, y1, dstQuad) => {
+    const srcRect = [
+      { x: 0, y: y0 }, { x: doc.width - 1, y: y0 },
+      { x: doc.width - 1, y: y1 - 1 }, { x: 0, y: y1 - 1 },
+    ];
+    const H2 = solveHomography(dstQuad, srcRect);
+    const xs = dstQuad.map((p) => p.x), ys = dstQuad.map((p) => p.y);
+    const inside = (px, py) => {
+      let sign = 0;
+      for (let i = 0; i < 4; i++) {
+        const a = dstQuad[i], b = dstQuad[(i + 1) % 4];
+        const cr = (b.x - a.x) * (py - a.y) - (b.y - a.y) * (px - a.x);
+        if (cr === 0) continue;
+        const sg = cr > 0 ? 1 : -1;
+        if (sign === 0) sign = sg; else if (sg !== sign) return false;
+      }
+      return true;
+    };
+    for (let y = Math.max(0, Math.floor(Math.min(...ys))); y <= Math.min(H - 1, Math.ceil(Math.max(...ys))); y++) {
+      for (let x = Math.max(0, Math.floor(Math.min(...xs))); x <= Math.min(W - 1, Math.ceil(Math.max(...xs))); x++) {
+        if (!inside(x + 0.5, y + 0.5)) continue;
+        const w = H2[6] * x + H2[7] * y + H2[8];
+        const sx = Math.round((H2[0] * x + H2[1] * y + H2[2]) / w);
+        const sy = Math.round((H2[3] * x + H2[4] * y + H2[5]) / w);
+        if (sx < 0 || sy < 0 || sx >= doc.width || sy >= doc.height) continue;
+        const s = (sy * doc.width + sx) * 4, d = (y * W + x) * 4;
+        photo.data[d] = doc.data[s]; photo.data[d + 1] = doc.data[s + 1]; photo.data[d + 2] = doc.data[s + 2];
+      }
+    }
+  };
+
+  /* The fold: the mid edge sits HIGHER than the straight line between the side
+     corners, the way an open booklet rises at the spine. */
+  const tl = { x: 110, y: 90 }, tr = { x: 690, y: 110 };
+  const ml = { x: 130, y: 300 }, mr = { x: 670, y: 315 };
+  const bl = { x: 105, y: 545 }, br = { x: 695, y: 560 };
+  paintHalf(0, doc.height / 2, [tl, tr, mr, ml]);
+  paintHalf(doc.height / 2, doc.height, [ml, mr, br, bl]);
+
+  const quad = [tl, tr, br, bl];
+  const flat = resize(doc, 480, 360);
+  const meanErr = (a, b) => {
+    const ga = toGray(a), gb = toGray(b);
+    let sum = 0;
+    for (let i = 0; i < ga.length; i++) sum += Math.abs(ga[i] - gb[i]);
+    return sum / ga.length;
+  };
+
+  const four = warpToRect(photo, quad, 480, 360);
+  const six = warpToRect(photo, quad, 480, 360, { left: ml, right: mr });
+  const e4 = meanErr(four, flat), e6 = meanErr(six, flat);
+
+  /* The number that matters: the two handles must actually buy something. A
+     change that looks right and measures the same is a change that did nothing. */
+  ok("fold: six points beat four on a folded booklet", e6 < e4 * 0.25,
+    `four-point ${e4.toFixed(1)}, six-point ${e6.toFixed(1)}`);
+  /* The resampling floor on this fixture is 1.3 grey levels, measured with a
+     flat document and the same pipeline, so anything near it means the fold is
+     genuinely gone rather than merely reduced. */
+  ok("fold: the six-point result reaches the resampling floor", e6 < 4, e6.toFixed(1));
+
+  /* Handles left at their defaults must not make a FLAT document worse — most
+     scans are flat, and a feature for booklets that degrades everything else is
+     a bad trade. */
+  const flatQuad = [{ x: 120, y: 90 }, { x: 640, y: 140 }, { x: 610, y: 520 }, { x: 90, y: 470 }];
+  const flatPhoto = makePhoto(makeDocument(400, 300), 760, 620, flatQuad, {});
+  const target = resize(makeDocument(400, 300), 400, 300);
+  const eFlat4 = meanErr(warpToRect(flatPhoto, flatQuad, 400, 300), target);
+  const eFlat6 = meanErr(warpToRect(flatPhoto, flatQuad, 400, 300, midDefaults(flatQuad)), target);
+  ok("fold: default handles leave a flat document unchanged", Math.abs(eFlat6 - eFlat4) < 2,
+    `${eFlat4.toFixed(1)} vs ${eFlat6.toFixed(1)}`);
+
+  ok("midDefaults: sits halfway down each long edge",
+    Math.abs(midDefaults(flatQuad).left.y - (90 + 470) / 2) < 0.01);
 }
 
 console.log(`${pass}/${pass + fails.length} assertions passed`);

@@ -4,8 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FiUploadCloud, FiDownload, FiRotateCw, FiX } from "react-icons/fi";
 import {
   DOC_STANDARDS, PAGES, detectQuad, warpToRect, flattenIllumination,
-  composePage, targetSize,
-  type DocStandard, type PageSize, type Img, type Quad, type Point,
+  composePage, targetSize, midDefaults,
+  type DocStandard, type PageSize, type Img, type Quad, type Point, type Mids,
 } from "@/lib/doc-scan";
 import { trackTool } from "@/lib/track";
 import { saveBlob } from "@/lib/save-file";
@@ -19,9 +19,16 @@ import { saveBlob } from "@/lib/save-file";
    into the desk — and a scanner that fails with no way to intervene is a
    scanner people stop using after the first bad photo. */
 
-type Side = { name: string; img: Img | null; url: string | null; quad: Quad | null; auto: boolean };
+type Side = {
+  name: string; img: Img | null; url: string | null; quad: Quad | null; auto: boolean;
+  /* The two extra handles on the long edges. `midsMoved` is what tells the warp
+     whether they mark a real fold or are just sitting where they were put — an
+     untouched pair means a flat document and must change nothing. */
+  mids: Mids | null; midsMoved: boolean;
+};
 
-const emptySide = (name: string): Side => ({ name, img: null, url: null, quad: null, auto: false });
+const emptySide = (name: string): Side =>
+  ({ name, img: null, url: null, quad: null, auto: false, mids: null, midsMoved: false });
 
 /* Written through createImageData rather than `new ImageData(buffer, …)`: the
    constructor's type demands a Uint8ClampedArray backed specifically by an
@@ -98,6 +105,8 @@ export default function DocScanClient() {
           img,
           url: URL.createObjectURL(file),
           quad: detected ?? fallbackQuad(img),
+          mids: midDefaults(detected ?? fallbackQuad(img)),
+          midsMoved: false,
           auto: !!detected,
         };
         return next;
@@ -111,7 +120,7 @@ export default function DocScanClient() {
       .filter((s) => s.img && s.quad)
       .map((s) => {
         const size = targetSize(std, s.quad!);
-        const warped = warpToRect(s.img!, s.quad!, size.w, size.h);
+        const warped = warpToRect(s.img!, s.quad!, size.w, size.h, s.mids);
         return enhance ? flattenIllumination(warped, { grayscale }) : warped;
       });
   }, [sides, std, enhance, grayscale]);
@@ -161,7 +170,14 @@ export default function DocScanClient() {
           <SideEditor
             key={i} side={side} index={i}
             onFile={(f) => loadInto(i, f)}
-            onQuad={(q) => setSides((prev) => { const n = [...prev]; n[i] = { ...n[i], quad: q }; return n; })}
+            onQuad={(q) => setSides((prev) => {
+              const n = [...prev];
+              /* Handles that have not been touched follow their corners, so
+                 dragging a corner never leaves a stale midpoint behind. */
+              n[i] = { ...n[i], quad: q, mids: n[i].midsMoved ? n[i].mids : midDefaults(q) };
+              return n;
+            })}
+            onMids={(m) => setSides((prev) => { const n = [...prev]; n[i] = { ...n[i], mids: m, midsMoved: true }; return n; })}
             onClear={() => setSides((prev) => {
               const n = [...prev];
               if (n[i].url) URL.revokeObjectURL(n[i].url!);
@@ -237,10 +253,10 @@ export default function DocScanClient() {
 /* ── one photo, with its corners ─────────────────────────────────────────── */
 
 function SideEditor({
-  side, index, onFile, onQuad, onClear,
+  side, index, onFile, onQuad, onMids, onClear,
 }: {
   side: Side; index: number;
-  onFile: (f: File) => void; onQuad: (q: Quad) => void; onClear: () => void;
+  onFile: (f: File) => void; onQuad: (q: Quad) => void; onMids: (m: Mids) => void; onClear: () => void;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<number | null>(null);
@@ -259,13 +275,19 @@ function SideEditor({
     };
   };
 
+  /* 0-3 are the corners, 4 is the left edge handle and 5 the right — one index
+     space so the pointer logic does not fork. */
   const move = (e: React.PointerEvent) => {
-    if (drag === null || !side.quad) return;
+    if (drag === null || !side.quad || !side.mids) return;
     const p = toImage(e.clientX, e.clientY);
     if (!p) return;
-    const q = [...side.quad] as Quad;
-    q[drag] = p;
-    onQuad(q);
+    if (drag < 4) {
+      const q = [...side.quad] as Quad;
+      q[drag] = p;
+      onQuad(q);
+    } else {
+      onMids(drag === 4 ? { ...side.mids, left: p } : { ...side.mids, right: p });
+    }
   };
 
   if (!side.img) {
@@ -306,30 +328,47 @@ function SideEditor({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={side.url!} alt="" className="block w-full h-auto" draggable={false} />
 
-        {side.quad && (
+        {side.quad && side.mids && (
           <>
+            {/* The outline runs through the edge handles, so a dragged fold is
+                visible as a bend rather than being hidden under a straight
+                line the shape no longer follows. */}
             <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox={`0 0 ${side.img.width} ${side.img.height}`} preserveAspectRatio="none">
               <polygon
-                points={side.quad.map((p) => `${p.x},${p.y}`).join(" ")}
+                points={[side.quad[0], side.quad[1], side.mids.right, side.quad[2], side.quad[3], side.mids.left]
+                  .map((p) => `${p.x},${p.y}`).join(" ")}
                 fill="rgba(255,106,19,0.14)" stroke="#ff6a13"
                 strokeWidth={Math.max(2, side.img.width / 300)} />
+              <line x1={side.mids.left.x} y1={side.mids.left.y} x2={side.mids.right.x} y2={side.mids.right.y}
+                stroke="#ff6a13" strokeDasharray={`${Math.max(6, side.img.width / 90)}`} strokeOpacity={0.75}
+                strokeWidth={Math.max(1.5, side.img.width / 420)} />
             </svg>
-            {side.quad.map((p, i) => (
-              <button key={i} aria-label={`Corner ${i + 1}`}
+
+            {[...side.quad, side.mids.left, side.mids.right].map((p, i) => (
+              <button key={i} aria-label={i < 4 ? `Corner ${i + 1}` : i === 4 ? "Left fold handle" : "Right fold handle"}
                 onPointerDown={(e) => { (e.target as HTMLElement).setPointerCapture(e.pointerId); setDrag(i); }}
-                className="absolute w-7 h-7 -ml-3.5 -mt-3.5 rounded-full"
-                style={{ ...pct(p), background: "#ff6a13", border: "2px solid #fff", boxShadow: "0 2px 8px rgba(0,0,0,.4)", touchAction: "none" }} />
+                className={i < 4 ? "absolute w-7 h-7 -ml-3.5 -mt-3.5 rounded-full" : "absolute w-6 h-6 -ml-3 -mt-3 rounded-full"}
+                style={{
+                  ...pct(p),
+                  background: i < 4 ? "#ff6a13" : "#fff",
+                  border: i < 4 ? "2px solid #fff" : "3px solid #ff6a13",
+                  boxShadow: "0 2px 8px rgba(0,0,0,.4)", touchAction: "none",
+                }} />
             ))}
           </>
         )}
       </div>
 
-      {!side.auto && (
-        <p className="px-3 py-2 text-[11.5px]" style={{ color: "var(--text-muted)" }}>
-          <FiRotateCw size={11} className="inline mr-1" aria-hidden />
-          Nothing was detected confidently — drag the four dots onto the document&rsquo;s corners.
-        </p>
-      )}
+      <p className="px-3 py-2 text-[11.5px]" style={{ color: "var(--text-muted)" }}>
+        {!side.auto && (
+          <>
+            <FiRotateCw size={11} className="inline mr-1" aria-hidden />
+            Nothing was detected confidently — drag the orange dots onto the corners.{" "}
+          </>
+        )}
+        Scanning an open booklet? Drag the two white dots onto the fold and each half is
+        straightened separately.
+      </p>
     </div>
   );
 }
