@@ -5,6 +5,28 @@ single source of direction for every growth session. Read it at startup; pick
 work that serves the CURRENT PHASE. Update the baseline block weekly (Friday
 KPI snapshot). Written 2026-07-28 off the M142 seven-agent audit.
 
+## Baseline (2026-08-11 — second read)
+
+- GSC 7d: **1,460 impressions · 4 clicks · avg position 85.1** — the read four
+  days earlier was 1,270 / 1 / 78.8. Clicks went 1 → 4, which is still noise,
+  but it is the first week with more than one.
+- **513 distinct queries across 51 pages.** Pages earning an impression went
+  67 → 51 while queries went 599 → 513: the long tail thinned, and what is left
+  is more concentrated, not broader.
+- `/image-tools/remove-bg` alone is **1,076 of 1,460 impressions (74%)** at
+  position 89.2 and zero clicks; `/image-tools/passport-photo` adds 137 (9%).
+  The concentration got *worse*, not better — 83% from two pages.
+- Position drifting 78.8 → 85.1 is the same dilution as before: nothing lost
+  rank, more deep pages started surfacing.
+- USA is 335 impressions of 1,460. The RU/UZ thesis remains a **Yandex** thesis.
+- First backlinks landed this week: AlternativeTo (in review) and Startup Fame
+  (submitted, badge live). Neither can show in these numbers yet.
+
+**What to watch next read:** whether remove-bg's position moves off 89 at all.
+Impressions rising while position sits at 89 means Google is testing the page
+and nobody is seeing it. That is a link problem, not a content problem, which
+is exactly what the directory work is for.
+
 ## Baseline (2026-08-07 — first read from the API, not the UI)
 
 `npm run kpi` reads Search Console directly now (M147c), so these are measured,
