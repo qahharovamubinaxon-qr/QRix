@@ -80,7 +80,7 @@ the owner to fill in as they go.
 | # | Directory | Needs | Notes | Status |
 |---|---|---|---|---|
 | 1 | **Product Hunt** — producthunt.com | Account with some history | Launch prep already ran (Aug 5). The account warm-up task has been running daily since July, which is what stops a launch from being buried. Biggest single hit if it lands. | |
-| 2 | **AlternativeTo** — alternativeto.net | Account, 7 days old | Submission task ran Jul 27 — confirm the listing is live and claim it. List QRix as an alternative to remove.bg, Smallpdf, iLovePDF, QR Code Generator. | |
+| 2 | **AlternativeTo** — alternativeto.net | Account, 7 days old | **SUBMITTED Aug 10 2026, PRIORITY QUEUE (owner paid $5) — expect review in 1-2 business days.** Page exists at /software/qrix/ but is private until approved, so do not share the link yet. Filled: name, both descriptions, Freemium, Online, EN/RU/UZ, company QRix (Uzbekistan), 5 tags, 6 features, icon from qrixtools.com/icon.png. Alternatives attached: Smallpdf, iLovePDF. Remove.bg failed twice with a site-side error — retry after approval. Ad-free deliberately NOT ticked: the site runs AdSense. | **PENDING REVIEW** |
 | 3 | **SaaSHub** — saashub.com | Account | Already the site's one referring domain. Fill the profile out properly: description, screenshots, alternatives, pricing. | |
 | 4 | **OpenAlternative** — openalternative.co | GitHub sign-in | Open-source-leaning directory of alternatives to paid SaaS. QRix fits the "free alternative to X" framing exactly. | |
 | 5 | **alternative.me** — alternative.me | Account | Same alternatives framing; add the four above as the things QRix replaces. | |
