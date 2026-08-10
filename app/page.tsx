@@ -1028,6 +1028,20 @@ export default function HomePage() {
               <Link key={h} href={h} className="qx-foot-link">{l}</Link>
             ))}
           </div>
+          {/* Startup Fame's free listing is granted in exchange for this badge, and their
+              crawler looks for THIS link on the home page — so the href and the img src are
+              copied from their embed code verbatim. Only loading/decoding are added, which
+              cost them nothing and keep an off-domain request out of the critical path.
+              A plain <img>, not next/image: the file is a 224x36 webp on their CDN, so the
+              optimizer would proxy it for no gain. If the listing is ever dropped, delete
+              this whole block — a badge with no listing behind it is just an outbound link. */}
+          <a href="https://startupfa.me/s/qrixtools.com-45?utm_source=qrixtools.com" target="_blank" rel="noopener"
+            className="shrink-0 opacity-70 transition-opacity hover:opacity-100" aria-label="QRix on Startup Fame">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="https://startupfa.me/badges/featured-badge-small.webp"
+              alt="QRix - Featured on Startup Fame" width={224} height={36}
+              loading="lazy" decoding="async" />
+          </a>
         </div>
       </footer>
 
