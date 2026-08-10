@@ -81,8 +81,8 @@ the owner to fill in as they go.
 |---|---|---|---|---|
 | 1 | **Product Hunt** — producthunt.com | Account with some history | Launch prep already ran (Aug 5). The account warm-up task has been running daily since July, which is what stops a launch from being buried. Biggest single hit if it lands. | |
 | 2 | **AlternativeTo** — alternativeto.net | Account, 7 days old | **SUBMITTED Aug 10 2026, PRIORITY QUEUE (owner paid $5) — expect review in 1-2 business days.** Page exists at /software/qrix/ but is private until approved, so do not share the link yet. Filled: name, both descriptions, Freemium, Online, EN/RU/UZ, company QRix (Uzbekistan), 5 tags, 6 features, icon from qrixtools.com/icon.png. Alternatives attached: Smallpdf, iLovePDF. Remove.bg failed twice with a site-side error — retry after approval. Ad-free deliberately NOT ticked: the site runs AdSense. | **PENDING REVIEW** |
-| 3 | **SaaSHub** — saashub.com | Account | Already the site's one referring domain. Fill the profile out properly: description, screenshots, alternatives, pricing. | |
-| 4 | **OpenAlternative** — openalternative.co | GitHub sign-in | Open-source-leaning directory of alternatives to paid SaaS. QRix fits the "free alternative to X" framing exactly. | |
+| 3 | **SaaSHub** — saashub.com | Account only for verification | **The listing is already live and complete** at /qrix: description, 6 features, 5 answered Q&A, Freemium + $4/mo, 9 categories, badges, and **13 alternatives each with its own /vs page** — 26 SaaSHub pages already point at qrixtools.com. Aug 11: suggested 5 non-QR competitors (remove.bg, Smallpdf, iLovePDF, 10015.io, TinyWow) so QRix also surfaces on the pages for the tools that actually earn its impressions; suggestions are accepted into a moderation queue, not published instantly. **Only verification is left** — see below. | **LIVE, unverified** |
+| 4 | **Uneed** — uneed.best | Account | Free product directory, weekly launch slots, no fee. Replaces OpenAlternative, which QRix does not qualify for (see below). Same copy blocks apply. | |
 | 5 | **alternative.me** — alternative.me | Account | Same alternatives framing; add the four above as the things QRix replaces. | |
 | 6 | **Slant** — slant.co | Account | Answer existing questions ("best free PDF tools", "best QR generator") rather than creating a listing. Slower, but the pages rank. | |
 | 7 | **There's An AI For That** — theresanaiforthat.com | Account, sometimes a fee | Only for the AI tools, and only if the free tier is still free — do not pay to be listed. | |
@@ -92,6 +92,23 @@ the owner to fill in as they go.
 
 Cloudflare returns 403 to a script on AlternativeTo, Softpedia and G2 — that is
 a bot block, not a dead site. They open normally in a browser.
+
+**SaaSHub verification — the one thing still blocking row 3.** Verifying lets us
+edit every detail ourselves and marks the listing as a verified product, which
+SaaSHub says gets higher exposure. Two routes, both needing the owner:
+
+1. **HTML meta tag** — the easy one for us: SaaSHub gives a tag, it goes in the
+   site's `<head>`, we deploy, they check. But the button reads "You need to
+   **log in** to enable this method", so the owner must sign in first.
+2. **Email** — needs a live mailbox `@qrixtools.com`. There isn't one today
+   (contact is a gmail address), so this route means setting up domain email
+   first. Not worth it just for SaaSHub; do it only if it's wanted anyway.
+
+**Do not use OpenAlternative.** The kit used to claim QRix "fits the free
+alternative to X framing exactly" — the live form disproves it. It is titled
+"Submit your Open Source Software" and the Repository URL field is **required**:
+"Must be a public, actively maintained repository with at least 10 stars." QRix
+is closed-source, so a submission would be rejected. Row 4 is Uneed instead.
 
 **Deliberately not here:** G2 and Capterra (business verification, and they suit
 paid B2B software rather than a free toolbox), and every directory that charges
