@@ -59,3 +59,6 @@ growth/.lock
 # service-account keys must never land in the repo (they belong in ~/.qrix/)
 *service-account*.json
 gsc*.json
+
+# listing screenshots produced by scripts/shoot-listing.mjs (regenerate, never commit)
+scripts/.shots/

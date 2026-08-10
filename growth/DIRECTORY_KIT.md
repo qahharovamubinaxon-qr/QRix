@@ -72,10 +72,65 @@ generated code, /passport-photo/usa. 1280×800 or larger.
 
 ---
 
-## Order to work through
+## Use SaaSHub's submit tool as the worklist, not this table
 
-Ranked by what the link is worth against how long it takes. Status column is for
-the owner to fill in as they go.
+**saashub.com/manage/qrix/submit** (owner is logged in, QRix is verified) is a
+free tool that lists **98 directories and communities** with, per row: monthly
+traffic, Domain Strength, **whether the link is do-follow**, whether there is a
+free option, and whether registration is required. Each row opens a page with a
+"Submit Here »" link, the copy-paste assets, other products' recent submissions,
+and a **Mark Submitted / Skip** tracker.
+
+That tracker is now the source of truth for what has been submitted. This file
+keeps the copy blocks and the judgement calls; it no longer tries to be the
+status list, because a hand-kept table drifts and theirs does not.
+
+**The number that matters: only 31 of the 98 give a do-follow link, and only 18
+are do-follow AND free.** A no-follow listing is still worth having for referral
+traffic and as an entity signal, but it does not move authority — and authority
+is why well-optimised pages sit at position 84. Read from SaaSHub 11 Aug 2026,
+sorted by Domain Strength:
+
+| Directory | DS | Note |
+|---|---|---|
+| **AlternativeTo** | 87 | **DONE** — submitted Aug 10, priority queue paid |
+| **Startup Fame** | 49 | DR 74 / DA 25, 5.2K traffic. Free tier **requires a badge on our site** — see the caveat below |
+| **FutureTools.io** | 48 | AI-tools directory; the AI tools qualify |
+| **PeerPush** | 47 | Free, do-follow, no fee anywhere in the flow |
+| **TOOOLS.design** | 32 | Design-tools directory; image tools + QR studio qualify |
+| **StartupInspire** | 30 | |
+| **AI Agents Directory** | 26 | Only if an actual agent ships; do not stretch the pitch |
+| **Hrefgo** | 24 | |
+| Awesome Indie · LunarList · AppRater · AI to Grow · CyberSecTools · e-SideHustles · GrowthBoosters · Theres An AI · LaunchBoard.dev · Tool Summary | 5–16 | Low DS, quick to do while the big ones are pending |
+
+Worth knowing about the paid ones so nobody pays twice: **Uneed.best** $5 to join
+the queue / $30 to jump it, **There's An AI For That** $49, **Toolify** $99,
+**MicroLaunch** $49, **aitoolnet** $9, **Prodpapa** $1. All do-follow. None are
+worth paying for before the free eighteen are exhausted.
+
+**High traffic but NO do-follow** — do these for referral traffic, not for
+authority: Product Hunt (DS 90), Hacker News (89), SourceForge (92),
+r/SideProject (93), G2 (83), Capterra (85), Indie Hackers (69), Stackshare (68).
+
+**The badge caveat.** Startup Fame's free tier wants a badge linking back to
+them, and a commenter on SaaSHub says so plainly. A single badge for a real
+listing is normal practice, not a link scheme — but the moment a directory wants
+badges on many pages, or wants us to link to unrelated sites, it is an exchange
+and the rule at the top of this file applies: skip it and note it here.
+
+**Screenshots are ready to upload.** `node scripts/shoot-listing.mjs` captures
+the homepage, /image-tools/remove-bg, /passport-photo and /qr-tools/url at
+1280×800 into `scripts/.shots/` (git-ignored), with the cookie bar and floating
+overlays hidden and hydration waited out. SaaSHub shows screenshots on every
+"QRix vs X" page — 17 of those exist now — and its listing has none yet. The
+files have to be picked by hand in the browser: an assistant can generate them
+but cannot feed a file input.
+
+---
+
+## Old hand-ranked order (kept for the notes on each site)
+
+Superseded by the SaaSHub list above for ordering. Status column is stale.
 
 | # | Directory | Needs | Notes | Status |
 |---|---|---|---|---|
