@@ -96,7 +96,7 @@ sorted by Domain Strength:
 | **AlternativeTo** | 87 | **SUBMITTED** Aug 10, priority queue paid. Logo there is the OLD mark — replace it |
 | **Startup Fame** | 49 | **SUBMITTED** Aug 11. Listing filled, free/Verified tier, badge live in our footer. Review within 7 days |
 | **FutureTools.io** | 48 | **SUBMITTED** Aug 11 — "Tool Submitted!" Category Design, Freemium |
-| **PeerPush** | 47 | **WAITING ON OWNER.** Whole form was filled once and lost when the browser closed. Redo needs ~2 min: peerpush.com/submit → Autofill from the URL, then paste from the copy blocks above; **Logo is required** and only a human can attach `public/qrix-logo.png` |
+| **PeerPush** | 47 | **SUBMITTED** Aug 12 — live at peerpush.com/p/qrix, status "Not yet published", free queue position #1708, est. ~29 days. Owner attached the logo; everything else filled here. **Declined the paid launch**: $39 skips the queue and a timed "40% off" modal pushes it, but their own FAQ says the permanent backlink comes with *the listing*, not with the promotion — so waiting costs nothing but time |
 | **TOOOLS.design** | 32 | **SUBMITTED** Aug 11 — "Your suggestion has been submitted". Design Tools / Freemium |
 | **StartupInspire** | 30 | **BLOCKED** — shows a login page. Needs the owner signed in first |
 | **AI Agents Directory** | 26 | Skip unless an actual agent ships; do not stretch the pitch |
