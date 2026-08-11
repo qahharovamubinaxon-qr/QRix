@@ -91,17 +91,35 @@ traffic and as an entity signal, but it does not move authority — and authorit
 is why well-optimised pages sit at position 84. Read from SaaSHub 11 Aug 2026,
 sorted by Domain Strength:
 
-| Directory | DS | Note |
+| Directory | DS | State as of 11 Aug 2026 |
 |---|---|---|
-| **AlternativeTo** | 87 | **DONE** — submitted Aug 10, priority queue paid |
-| **Startup Fame** | 49 | DR 74 / DA 25, 5.2K traffic. Free tier **requires a badge on our site** — see the caveat below |
-| **FutureTools.io** | 48 | AI-tools directory; the AI tools qualify |
-| **PeerPush** | 47 | Free, do-follow, no fee anywhere in the flow |
-| **TOOOLS.design** | 32 | Design-tools directory; image tools + QR studio qualify |
-| **StartupInspire** | 30 | |
-| **AI Agents Directory** | 26 | Only if an actual agent ships; do not stretch the pitch |
-| **Hrefgo** | 24 | |
-| Awesome Indie · LunarList · AppRater · AI to Grow · CyberSecTools · e-SideHustles · GrowthBoosters · Theres An AI · LaunchBoard.dev · Tool Summary | 5–16 | Low DS, quick to do while the big ones are pending |
+| **AlternativeTo** | 87 | **SUBMITTED** Aug 10, priority queue paid. Logo there is the OLD mark — replace it |
+| **Startup Fame** | 49 | **SUBMITTED** Aug 11. Listing filled, free/Verified tier, badge live in our footer. Review within 7 days |
+| **FutureTools.io** | 48 | **SUBMITTED** Aug 11 — "Tool Submitted!" Category Design, Freemium |
+| **PeerPush** | 47 | **WAITING ON OWNER.** Whole form was filled once and lost when the browser closed. Redo needs ~2 min: peerpush.com/submit → Autofill from the URL, then paste from the copy blocks above; **Logo is required** and only a human can attach `public/qrix-logo.png` |
+| **TOOOLS.design** | 32 | **SUBMITTED** Aug 11 — "Your suggestion has been submitted". Design Tools / Freemium |
+| **StartupInspire** | 30 | **BLOCKED** — shows a login page. Needs the owner signed in first |
+| **AI Agents Directory** | 26 | Skip unless an actual agent ships; do not stretch the pitch |
+| **Hrefgo** | 24 | **BROKEN on their side** — /submit and /en/submit render an empty body. Retry in a week |
+| **Awesome Indie** | 16 | **SUBMITTED** Aug 11. Their AI drafted it from the live site; every line was checked, and their category guess "No Code" was corrected to Image. **Launch estimate 18–25 Jan 2027** — 3,180 products booked ahead, so treat it as a slow-burn link, not a launch |
+| **AppRater** | 14 | **WAITING ON OWNER** — form was filled and lost with the browser. Ends in a reCAPTCHA, which an assistant must not solve |
+| **LaunchBoard.dev** | 9 | **REFUSED** — see below |
+| LunarList · AI to Grow · CyberSecTools · e-SideHustles · GrowthBoosters · Theres An AI · Tool Summary | 5–16 | Low DS, not started |
+
+**Two things to know before the next session.**
+
+*Sessions do not survive.* Every filled form lives in a browser tab, and closing
+the browser loses it. Fill and **submit** one directory at a time; never leave a
+completed form parked for later. The SaaSHub management panel logs out too — as
+of this writing `/manage/qrix` returns "You don't have permissions to manage this
+product", so the owner has to sign in again before any of it is editable.
+
+*The SaaSHub competitor edit has not shown up publicly.* The manage panel
+accepted remove.bg, 10015.io and PhotoRoom and said "The competitors list was
+updated", but `/qrix-alternatives` still lists thirteen and only iLovePDF of the
+new set appears. Its own stamp reads "Latest update: 2026-08-10" — before the
+edit — so this is most likely their rebuild schedule, not a lost edit. Re-check
+before redoing it, or the same three get added twice.
 
 Worth knowing about the paid ones so nobody pays twice: **Uneed.best** $5 to join
 the queue / $30 to jump it, **There's An AI For That** $49, **Toolify** $99,
