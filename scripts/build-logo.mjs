@@ -48,20 +48,36 @@ const ICO = path.join(ROOT, "app", "favicon.ico");
 
 const svg = fs.readFileSync(MASTER, "utf8");
 
-/* app/opengraph-image.tsx carries the mark as a data URI, because Satori renders
-   <img> reliably and inline SVG only partly. That copy is the one that can rot
-   without anyone seeing it — the share card is the last thing you look at. So
-   check it here, where the mark is already in hand. Compares the SHAPES only:
-   the tsx has no newlines or xmlns, and matching on those would fail forever. */
+/* Two files draw the mark in code rather than loading a generated PNG, and both
+   can rot without anyone noticing:
+
+     app/opengraph-image.tsx  the share card — the last thing anyone looks at
+     components/Logo.tsx      the site header — the FIRST thing everyone looks at
+
+   The header is why this list has two entries. The icon, the favicon and the
+   share card were all changed in one pass while Logo.tsx quietly kept a gradient
+   tile and three QR dots for a full release, on every page of the site.
+
+   Compares the SHAPE TAGS only. The tsx copies have no newlines and no xmlns,
+   so matching the whole file would fail forever; matching the rects, lines and
+   paths catches every real change to the geometry or the colours. JSX writes
+   stroke-width the same as SVG does, so the strings are directly comparable. */
 const shapes = svg.match(/<(rect|line|circle|path)\b[^>]*>/g) || [];
-const og = path.join(ROOT, "app", "opengraph-image.tsx");
-if (fs.existsSync(og)) {
-  const src = fs.readFileSync(og, "utf8");
-  const missing = shapes.filter((s) => !src.includes(s));
+const MIRRORS = [
+  path.join(ROOT, "app", "opengraph-image.tsx"),
+  path.join(ROOT, "components", "Logo.tsx"),
+];
+for (const file of MIRRORS) {
+  if (!fs.existsSync(file)) continue;
+  const src = fs.readFileSync(file, "utf8");
+  /* The JSX copy may self-close as `/>` where the master writes `>`; compare
+     with the trailing bracket stripped so that difference is not a false alarm. */
+  const missing = shapes.filter((s) => !src.includes(s.replace(/\s*\/?>$/, "")));
   if (missing.length) {
-    console.error("app/opengraph-image.tsx no longer draws the master mark. Missing:");
+    const rel = path.relative(ROOT, file).replace(/\\/g, "/");
+    console.error(`${rel} no longer draws the master mark. Missing:`);
     for (const m of missing) console.error("  " + m);
-    console.error("\nCopy the shapes from public/qrix-logo.svg into its MARK constant.");
+    console.error("\nCopy the shapes from public/qrix-logo.svg into it.");
     process.exit(1);
   }
 }
