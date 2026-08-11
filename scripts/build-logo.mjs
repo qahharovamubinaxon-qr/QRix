@@ -32,10 +32,15 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const MASTER = path.join(ROOT, "public", "qrix-logo.svg");
 const CHECK = process.argv.includes("--check");
 
-/* size → where it lands. The .ico is assembled from the two smaller renders. */
+/* size → where it lands. The .ico is assembled from the two smaller renders.
+
+   `square` strips the tile's corner radius. That is only for apple-icon.png:
+   iOS applies its own squircle mask, so shipping pre-rounded corners rounds the
+   icon twice and leaves pale notches at the corners. Everywhere else the rounded
+   tile with transparent corners is what we want. */
 const TARGETS = [
   { size: 512, out: path.join(ROOT, "public", "qrix-logo.png") },
-  { size: 180, out: path.join(ROOT, "app", "apple-icon.png") },
+  { size: 180, out: path.join(ROOT, "app", "apple-icon.png"), square: true },
   { size: 64, out: path.join(ROOT, "app", "icon.png") },
   { size: 32, out: null },
 ];
@@ -109,18 +114,26 @@ await call("Runtime.enable");
 
 /* The SVG is inlined rather than fetched: no server to start, and the render
    cannot silently pick up a stale file from disk cache. */
-function page(size) {
-  const scaled = svg
+function page(size, square) {
+  let scaled = svg
     .replace(/width="\d+"/, `width="${size}"`)
     .replace(/height="\d+"/, `height="${size}"`);
+  if (square) scaled = scaled.replace(/(<rect width="512" height="512") rx="\d+"/, "$1");
   return "data:text/html;charset=utf-8," + encodeURIComponent(
     `<style>html,body{margin:0;padding:0;background:transparent}svg{display:block}</style>${scaled}`
   );
 }
 
-async function render(size) {
+async function render(size, square) {
   await call("Emulation.setDeviceMetricsOverride", { width: size, height: size, deviceScaleFactor: 1, mobile: false });
-  await call("Page.navigate", { url: page(size) });
+  /* Transparent page background, and not only so the rounded corners come out
+     clean. Chrome writes a PNG with no alpha channel when every pixel is opaque,
+     and Next refuses to build an .ico whose PNGs are not RGBA — "The PNG is not
+     in RGBA format!", which is a deploy that never lands rather than a red test.
+     Transparent corners force colour type 6. The assertion below keeps it that
+     way if anyone ever squares off the tile. */
+  await call("Emulation.setDefaultBackgroundColorOverride", { color: { r: 0, g: 0, b: 0, a: 0 } });
+  await call("Page.navigate", { url: page(size, square) });
   /* Wait for the document AND for the SVG box to measure exactly `size`. A
      fixed sleep here produced a half-laid-out 0x0 render about one run in ten. */
   const ok = await call("Runtime.evaluate", {
@@ -142,7 +155,16 @@ async function render(size) {
 }
 
 const png = new Map();
-for (const t of TARGETS) png.set(t.size, await render(t.size));
+for (const t of TARGETS) png.set(t.size, await render(t.size, t.square));
+
+/* IHDR colour type lives at byte 25: 6 is RGBA. Asserted for the two renders
+   that go inside the .ico, because that is the one place the wrong value stops
+   a production build — and it does it on Vercel, not here. */
+const colourType = (buf) => buf.readUInt8(25);
+for (const size of [32, 64]) {
+  const ct = colourType(png.get(size));
+  if (ct !== 6) throw new Error(`the ${size}px render is PNG colour type ${ct}, not 6 (RGBA) — Next will refuse to build the .ico`);
+}
 
 await call("Emulation.clearDeviceMetricsOverride").catch(() => {});
 ws.close();
