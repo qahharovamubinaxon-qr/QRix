@@ -15,7 +15,7 @@ export const alt = `${SITE_NAME} — ${SITE_TAGLINE}`;
    data URI because Satori (next/og) renders <img> reliably and inline SVG only
    partly. scripts/build-logo.mjs fails if these two drift apart, so changing the
    master and re-running the build is enough — nobody has to remember this file. */
-const MARK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="112" fill="#0E0E10"/><rect x="112" y="112" width="288" height="288" rx="88" fill="none" stroke="#FF4D1C" stroke-width="52"/><rect x="208" y="208" width="96" height="96" rx="28" fill="#FF4D1C"/><line x1="374" y1="374" x2="438" y2="438" stroke="#FF4D1C" stroke-width="52" stroke-linecap="round"/></svg>`;
+const MARK = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512"><rect width="512" height="512" rx="112" fill="#0E0E10"/><rect x="112" y="112" width="288" height="288" rx="88" fill="none" stroke="#FF4D1C" stroke-width="52"/><line x1="374" y1="374" x2="438" y2="438" stroke="#FF4D1C" stroke-width="52" stroke-linecap="round"/><path d="M256 196 V300 M208 252 L256 300 L304 252" fill="none" stroke="#FF4D1C" stroke-width="42" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 const MARK_URI = `data:image/svg+xml;utf8,${encodeURIComponent(MARK)}`;
 
 export default function OpengraphImage() {
