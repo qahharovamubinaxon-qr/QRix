@@ -2482,3 +2482,32 @@ a rejected application.
 Files: lib/removebg-usecases.ts (new), app/remove-background/page.tsx (new),
 app/remove-background/[topic]/page.tsx (new), app/sitemap.ts,
 app/image-tools/page.tsx, scripts/test-internal-links.mjs. Branch design-v2.
+
+## Growth session — linking Mission 150's pages to the page that earns their traffic (2026-08-12, cb9f949)
+
+The growth worker picked up "background removal by subject" from the backlog
+and nearly rebuilt Mission 150 from scratch — a second, near-identical family
+at /image-tools/remove-bg/[subject] was half-written before a check against
+app/sitemap.ts found lib/removebg-usecases.ts already there, eleven pages,
+already live. Discarded before committing.
+
+What Mission 150 actually still needed: /image-tools/remove-bg itself — the
+page carrying 65-73% of the site's GSC impressions — had zero links to the
+family built to catch that traffic's long tail. It was reachable only through
+/image-tools and its own hub, never from the page search visibility actually
+lands on. Also absent from lib/search-index.ts, so the site's own Ctrl+K
+search could not find any of the 12 URLs.
+
+Fixed both: a "By what you're cutting out" section on /image-tools/remove-bg
+linking all 11 pages, and the hub + 11 subpages registered in search-index.ts
+mapped directly off BG_USE_CASES so the two lists cannot drift apart.
+Verified on production: self-canonical + correct title, all 11 links present
+in the server HTML, all 11 targets 200, npm run test:links 37/37.
+
+Also closed the long-stalled [~] CWV audit item in growth/BACKLOG.md — its
+only remaining work (the homepage split, the rest of the TopNav split) is
+entirely gated on the owner's lang-cookie decision, so it was downgraded to
+[B] rather than being re-read and re-scoped every session.
+
+Files: app/image-tools/remove-bg/page.tsx, lib/search-index.ts,
+growth/BACKLOG.md, growth/DAILY_LOG.md. Branch design-v2.

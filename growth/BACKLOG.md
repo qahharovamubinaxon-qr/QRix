@@ -54,7 +54,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   RE-MEASURE in ~7 days: `npm run inspect` on the same sample. The number to
   watch is "URL is unknown to Google" falling from 24/38. Discovery takes days,
   so anything sooner is not evidence.
-- [~] **DEMAND-VERIFIED, from the first real GSC read (Aug 7).** Two pages earn
+- [x] **DEMAND-VERIFIED, from the first real GSC read (Aug 7).** Two pages earn
   79% of all impressions and neither is a QR page: /image-tools/remove-bg
   (1,215 imp/wk, pos 88.6) and /image-tools/passport-photo (278, pos 84.3),
   both at zero clicks because page 9 earns none. Head terms there are owned by
@@ -69,7 +69,35 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
      they are in the sitemap as of the Aug 12 verify pass. Nothing left to do
      on this half.
    · background removal by subject — signature, product photo, logo, portrait.
-     TAKEN Aug 12 by the growth worker — see below for the shipped result.
+     TAKEN Aug 12 by the growth worker, and it turned into a DIFFERENT fix than
+     planned. Scoped first (per this file's own rule to verify before
+     building) and found the family already existed: lib/removebg-usecases.ts
+     + /remove-background/[topic], eleven pages (signature, logo,
+     product-photo, profile-picture, transparent-png, white-background, hair,
+     id-photo, sticker, furniture, car), shipped by the concurrent worktree
+     session (M150, f5e4fa0) and already live and in the sitemap. Building a
+     second, near-identical family at /image-tools/remove-bg/[subject] would
+     have been the M147e defect in miniature — duplicate/competing content
+     inside the site instead of across it. Caught before committing (see the
+     discarded files in this session's history) and re-scoped.
+     THE REAL GAP, found while checking why an already-shipped family still
+     needed anything: /image-tools/remove-bg — the page carrying 65-73% of
+     ALL impressions — had ZERO links to /remove-background. The family was
+     reachable only via /image-tools and its own hub, never from the page
+     that actually earns the search visibility this whole item exists to use.
+     Also absent from lib/search-index.ts entirely (site search could not
+     find any of the 12 URLs).
+     SHIPPED + VERIFIED LIVE (cb9f949): a "By what you're cutting out" section
+     added to /image-tools/remove-bg linking all 11 pages, and hub + 11
+     subpages registered in search-index.ts, mapped directly off
+     BG_USE_CASES so the two cannot drift apart. Verified on production: self
+     canonical + correct title on /image-tools/remove-bg, all 11
+     /remove-background/* links present in its HTML, all 11 target URLs 200.
+     No sitemap delta (already registered), so no IndexNow submission needed.
+     npm run test:links 37/37 both before and after.
+     next: nothing — closed. The passport-photo family (M151) may have the
+     same search-index gap; not checked this session, worth a quick grep
+     next time someone is in lib/search-index.ts.
   Verify each candidate against `npm run kpi` output before building, not after.
 - [ ] Only 67 of ~810 URLs earn a single impression. Before adding pages, find
   out whether the other ~740 are (a) not indexed, or (b) indexed and never
