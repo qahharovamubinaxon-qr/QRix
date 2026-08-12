@@ -6,6 +6,7 @@ import { IMAGE_TOOLS as IMG_EXP } from "@/lib/image-tools-meta";
 import { THREE_TOOLS } from "@/lib/three-tools-meta";
 import { CONVERT_PAIRS } from "@/lib/convert-pairs";
 import { RESIZE_PRESETS } from "@/lib/resize-presets";
+import { BG_USE_CASES } from "@/lib/removebg-usecases";
 
 /** One flat, client-safe index of everything searchable on the site. */
 export type SearchGroup =
@@ -172,6 +173,10 @@ export function buildSearchIndex(): SearchItem[] {
     { title: "Image Resizer (presets)", href: "/resize", group: "Image Tools" as const, keywords: "resize image exact size preset 1920x1080 4k square passport a4 photo size" },
     ...RESIZE_PRESETS.map((p) => ({
       title: `Resize to ${p.w}×${p.h}`, href: `/resize/${p.slug}`, group: "Image Tools" as const, keywords: p.keywords.join(" "),
+    })),
+    { title: "Background Remover — by what you're cutting out", href: "/remove-background", group: "Image Tools" as const, keywords: "remove background use cases signature logo product photo id photo hair sticker" },
+    ...BG_USE_CASES.map((u) => ({
+      title: u.title, href: `/remove-background/${u.slug}`, group: "Image Tools" as const, keywords: u.keywords.join(" "),
     })),
     ...THREE_TOOLS.map((t) => ({
       title: t.title, href: `/3d-tools/${t.slug}`, group: "Pages" as const, keywords: t.keywords.join(" "),
