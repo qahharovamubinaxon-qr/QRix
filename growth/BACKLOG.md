@@ -54,7 +54,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   RE-MEASURE in ~7 days: `npm run inspect` on the same sample. The number to
   watch is "URL is unknown to Google" falling from 24/38. Discovery takes days,
   so anything sooner is not evidence.
-- [ ] **DEMAND-VERIFIED, from the first real GSC read (Aug 7).** Two pages earn
+- [~] **DEMAND-VERIFIED, from the first real GSC read (Aug 7).** Two pages earn
   79% of all impressions and neither is a QR page: /image-tools/remove-bg
   (1,215 imp/wk, pos 88.6) and /image-tools/passport-photo (278, pos 84.3),
   both at zero clicks because page 9 earns none. Head terms there are owned by
@@ -64,7 +64,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
    · passport/visa photo by country and size — "passport photo size india",
      "us visa photo 2x2", "schengen visa photo 35x45mm". Classic programmatic
      family, weak competition, and lib/ has the sizing engine already.
+     DONE — a concurrent session (not the growth worker; see the M138 worktree
+     note above) shipped /passport-photo + 6 country pages (M151, 5545d5b) and
+     they are in the sitemap as of the Aug 12 verify pass. Nothing left to do
+     on this half.
    · background removal by subject — signature, product photo, logo, portrait.
+     TAKEN Aug 12 by the growth worker — see below for the shipped result.
   Verify each candidate against `npm run kpi` output before building, not after.
 - [ ] Only 67 of ~810 URLs earn a single impression. Before adding pages, find
   out whether the other ~740 are (a) not indexed, or (b) indexed and never
@@ -829,7 +834,18 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   wired, flip its `wired` in AI_CLOUD_ROUTES — the trust strip, privacy FAQ
   and CloudNotice follow automatically (M131) — and rewrite that tool's
   intro/about/desc, which still promise the cloud engine in the future tense.
-- [~] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile. (M135)
+- [B] CWV audit — Lighthouse on 5 template types; fix to 95+ mobile. (M135)
+  CLOSED OUT Aug 12 (this session): re-read end to end before touching anything
+  else. Eight tranches shipped (below), and the two things still open — the
+  homepage split and the rest of the TopNav split — are BOTH entirely gated on
+  the "[B] Move the UI language from localStorage to a COOKIE" item further
+  down this file (grep for it). Nothing here is actionable without that owner
+  decision landing first; re-scoping this item without the cookie decision is
+  re-reading the same conclusion M163/M167 already reached. Downgraded from
+  [~] to [B] so it stops being the thing every session re-opens and re-reads
+  before reaching real work — the pattern this file already uses for the
+  E-E-A-T and study-localisation items. UNBLOCKS the moment the cookie
+  decision lands; nothing else needs to change first.
   Lighthouse mobile against production, measured (not estimated):
     baseline   home 36 · qr-tools/url 51 · image-tools/compress 41 ·
                convert/png-to-jpg 45 · qr-code-statistics 46
