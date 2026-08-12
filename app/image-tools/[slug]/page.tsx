@@ -7,6 +7,7 @@ import ImageEngineRegistry from "@/components/image/ImageEngineRegistry";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 import { IMAGE_TOOLS, getImgTool } from "@/lib/image-tools-meta";
 import { allPostsSorted } from "@/lib/blog";
+import { PASSPORT_SIZES } from "@/lib/passport-sizes";
 
 export function generateStaticParams() {
   return IMAGE_TOOLS.map((t) => ({ slug: t.slug }));
@@ -52,6 +53,29 @@ export default async function ImageToolPage({ params }: { params: Promise<{ slug
             {tool.faqs.map((f, i) => (<div key={i}><h3 className="text-[14px] font-bold mb-1" style={{ color: "var(--text)" }}>{f.q}</h3><p className="text-[13px] leading-relaxed" style={{ color: "var(--text-muted)" }}>{f.a}</p></div>))}
           </div>
         </section>
+
+        {tool.slug === "passport-photo" && (
+          // /image-tools/passport-photo earns 278 impressions/wk (SEO_STRATEGY.md
+          // baseline) and had no link to the country-specific sizes built for the
+          // exact-intent tail of that same query family (M151, /passport-photo/*).
+          // Same shape as the remove-bg fix above: link the generic page to the
+          // pages built to win its own long tail.
+          <section className="qx-card p-6 mt-7" aria-label="Passport photo size by country">
+            <h2 className="qx-title mb-1" style={{ color: "var(--text)" }}>By country</h2>
+            <p className="text-[13px] mb-4" style={{ color: "var(--text-muted)" }}>
+              Crop to the exact size your country&rsquo;s authority publishes, sourced and dated.
+            </p>
+            <div className="flex flex-wrap gap-2.5">
+              {PASSPORT_SIZES.map((p) => (
+                <Link key={p.slug} href={`/passport-photo/${p.slug}`}
+                  className="inline-flex items-center gap-2 pl-2.5 pr-3.5 py-2 rounded-full text-[12.5px] font-semibold transition-opacity hover:opacity-80"
+                  style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}>
+                  {p.country} — {p.sizeLabel}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="mt-7" aria-label="Related image tools">
           <h2 className="font-display text-lg font-bold mb-4" style={{ color: "var(--text)" }}>More image tools</h2>

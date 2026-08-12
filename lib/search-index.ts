@@ -7,6 +7,7 @@ import { THREE_TOOLS } from "@/lib/three-tools-meta";
 import { CONVERT_PAIRS } from "@/lib/convert-pairs";
 import { RESIZE_PRESETS } from "@/lib/resize-presets";
 import { BG_USE_CASES } from "@/lib/removebg-usecases";
+import { PASSPORT_SIZES } from "@/lib/passport-sizes";
 
 /** One flat, client-safe index of everything searchable on the site. */
 export type SearchGroup =
@@ -177,6 +178,11 @@ export function buildSearchIndex(): SearchItem[] {
     { title: "Background Remover — by what you're cutting out", href: "/remove-background", group: "Image Tools" as const, keywords: "remove background use cases signature logo product photo id photo hair sticker" },
     ...BG_USE_CASES.map((u) => ({
       title: u.title, href: `/remove-background/${u.slug}`, group: "Image Tools" as const, keywords: u.keywords.join(" "),
+    })),
+    { title: "Passport Photo Size by Country", href: "/passport-photo", group: "Image Tools" as const, keywords: "passport photo size by country visa photo size passport photo maker sourced" },
+    ...PASSPORT_SIZES.map((p) => ({
+      title: `${p.country} Passport Photo Size — ${p.sizeLabel}`, href: `/passport-photo/${p.slug}`, group: "Image Tools" as const,
+      keywords: `${p.country} passport photo size visa photo ${p.sizeLabel}`,
     })),
     ...THREE_TOOLS.map((t) => ({
       title: t.title, href: `/3d-tools/${t.slug}`, group: "Pages" as const, keywords: t.keywords.join(" "),
