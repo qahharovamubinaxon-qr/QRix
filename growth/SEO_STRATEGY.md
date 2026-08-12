@@ -5,6 +5,29 @@ single source of direction for every growth session. Read it at startup; pick
 work that serves the CURRENT PHASE. Update the baseline block weekly (Friday
 KPI snapshot). Written 2026-07-28 off the M142 seven-agent audit.
 
+## Baseline (2026-08-12 — third read, and it corrects the second)
+
+- GSC 7d (Aug 4–10): **638 impressions · 2 clicks · avg position 83.8** — the
+  week before was 1,916 / 3 / 83.5. **Impressions fell 67%.**
+- **Position did not move** (83.5 → 83.8). That is the whole story: nothing was
+  demoted, Google simply stopped showing us as often. A ranking penalty moves
+  position; this moved frequency. It is the shape of a new-site burst decaying —
+  the 11 remove-background pages shipped Aug 7, drew a spike, and are now being
+  re-evaluated at a lower rate.
+- 293 distinct queries across 38 pages, down from 513 / 51.
+- /image-tools/remove-bg is still the whole business: 688 of 638… i.e. the
+  page-level rows sum higher than the site total because GSC drops anonymised
+  queries from grouped rows. Treat grouped sums as shape, not as totals.
+- **Clicks are the number that matters and it is 2 per week.** From Google, the
+  site receives roughly zero visitors a day.
+
+**Correction to the 2026-08-11 entry below.** It recorded 1,460 impressions and
+read as growth. That was a genuine reading of a window ending Aug 9, taken
+mid-UTC-day; the window ending Aug 10 is 638. Both are real, the trend is down,
+and the earlier entry should not be quoted as evidence of improvement. Lesson for
+whoever reads this next: `npm run kpi` prints the window it used — quote it with
+the number, or the number means nothing.
+
 ## Baseline (2026-08-11 — second read)
 
 - GSC 7d: **1,460 impressions · 4 clicks · avg position 85.1** — the read four
