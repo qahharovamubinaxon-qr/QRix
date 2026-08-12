@@ -2511,3 +2511,16 @@ entirely gated on the owner's lang-cookie decision, so it was downgraded to
 
 Files: app/image-tools/remove-bg/page.tsx, lib/search-index.ts,
 growth/BACKLOG.md, growth/DAILY_LOG.md. Branch design-v2.
+
+Same session, same shape: /image-tools/passport-photo (278 impressions/wk)
+had the identical gap against the 5 country pages from Mission 151
+(/passport-photo/*) — no link either direction on the traffic page, neither
+family in search-index.ts. Fixed the same way (5c8462e): a "By country"
+section gated on tool.slug === "passport-photo" in the shared
+app/image-tools/[slug]/page.tsx template. Verified live, test:links 37/37.
+
+Filed as a standing sweep in growth/BACKLOG.md: this pair-shape (generic tool
+earns real search traffic, a dedicated long-tail family exists, nothing links
+them) has shown up twice in one session, both times found by accident while
+scoping something else — worth checking directly next time rather than
+waiting for a third accident.

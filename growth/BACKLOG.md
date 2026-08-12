@@ -95,10 +95,32 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
      /remove-background/* links present in its HTML, all 11 target URLs 200.
      No sitemap delta (already registered), so no IndexNow submission needed.
      npm run test:links 37/37 both before and after.
-     next: nothing — closed. The passport-photo family (M151) may have the
-     same search-index gap; not checked this session, worth a quick grep
-     next time someone is in lib/search-index.ts.
+     FOLLOW-UP TAKEN THE SAME SESSION: checked the passport-photo family and
+     it had the identical gap — /image-tools/passport-photo (278 imp/wk) had
+     no link to the 5 /passport-photo/* country pages (M151), and neither the
+     hub nor the countries were in search-index.ts. Fixed the same way
+     (5c8462e): a "By country" section gated on tool.slug === "passport-photo"
+     in the shared app/image-tools/[slug]/page.tsx template, plus search-index
+     entries mapped off PASSPORT_SIZES. Verified live: self-canonical +
+     correct title, all 5 links present, all 5 targets 200, an unrelated tool
+     on the same template (compress) unaffected, test:links 37/37.
+     next: nothing — both demand-verified families closed. Worth a repo-wide
+     check for other "generic tool earns real impressions, dedicated
+     long-tail family exists, no link between them" pairs before assuming
+     this is the last one — the pattern has now shown up twice in one
+     session and both times were a session finding it by accident while
+     scoping something else.
   Verify each candidate against `npm run kpi` output before building, not after.
+- [ ] SWEEP: find every "generic tool page that earns real impressions has no
+  link to the dedicated long-tail family built for it" pair, the shape found
+  twice by accident on Aug 12 (remove-bg -> /remove-background/*, cb9f949; and
+  passport-photo -> /passport-photo/*, 5c8462e). Both times a session found it
+  while scoping something else, not by looking for it directly. Method: for
+  every top-level family in app/sitemap.ts that is NOT reachable from the
+  generic tool page whose traffic it was built to catch, check with the same
+  curl the two fixes above used (`curl .../GENERIC-PAGE | grep 'href="/FAMILY'`)
+  before assuming a family with real content is actually being found by the
+  visitors its own traffic justified building it for.
 - [ ] Only 67 of ~810 URLs earn a single impression. Before adding pages, find
   out whether the other ~740 are (a) not indexed, or (b) indexed and never
   shown — different problems with different fixes. The URL Inspection API is
