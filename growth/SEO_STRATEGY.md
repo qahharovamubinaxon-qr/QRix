@@ -5,6 +5,32 @@ single source of direction for every growth session. Read it at startup; pick
 work that serves the CURRENT PHASE. Update the baseline block weekly (Friday
 KPI snapshot). Written 2026-07-28 off the M142 seven-agent audit.
 
+## Baseline (2026-08-16 — the first time we could count VISITORS)
+
+`npm run ga` reads GA4 now. The question "how many people come a day" has an
+answer for the first time, and it is small.
+
+- GA4 7d (Aug 9–15): **10 users · 21 sessions · 45 page views** — ~**1.4 users a
+  day**. The week before was 19 / 31 / 139.
+- **Not one session came from Google organic.** The sources are: direct (3),
+  yandex.ru, ya.ru, yandex.uz, tv.yandex.com, yandex/organic (5–6 between them),
+  baidu/organic (1). Google contributed nothing, which agrees with Search
+  Console's 2 clicks and settles a long argument: **for this site today, Yandex
+  is the only search engine sending anyone at all.**
+- Uzbekistan shows 2 users but 12 of the 21 sessions, and /admin and /dashboard
+  each appear — that is the owner. Strip it and the outside world is under 10
+  people a week.
+- Most-opened after `/`: **/document-scanner** (2 users, 8 sessions). The newest
+  tool is the one being looked at.
+- Caveat that must ride with every one of these numbers: `analytics_storage`
+  defaults to DENIED until someone accepts the cookie banner, so GA4 is
+  reporting consent-mode data. These are a **floor**, not a ceiling.
+
+**What this changes.** Every SEO decision so far optimised for Google, where the
+site earns 2 clicks a week and 0 GA sessions. The only measurable search traffic
+is Yandex. Sample of 10 is too small to bet the roadmap on — but it is the first
+evidence we have ever had, and it points the opposite way to where the work went.
+
 ## Baseline (2026-08-12 — third read, and it corrects the second)
 
 - GSC 7d (Aug 4–10): **638 impressions · 2 clicks · avg position 83.8** — the
