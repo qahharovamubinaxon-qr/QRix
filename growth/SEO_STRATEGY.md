@@ -5,6 +5,13 @@ single source of direction for every growth session. Read it at startup; pick
 work that serves the CURRENT PHASE. Update the baseline block weekly (Friday
 KPI snapshot). Written 2026-07-28 off the M142 seven-agent audit.
 
+**Direction as of 2026-08-16: see growth/TWO_FRONTS.md.** The phases below were
+written before any visitor data existed and assume Google is the road. The first
+GA read showed zero Google organic sessions and all measurable search traffic
+arriving from Yandex, so the plan now runs two fronts with different targets —
+Yandex for volume within months, Google for the long tail and the authority that
+eventually pays. Read that file first; this one keeps the baselines.
+
 ## Baseline (2026-08-16 — the first time we could count VISITORS)
 
 `npm run ga` reads GA4 now. The question "how many people come a day" has an
