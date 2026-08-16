@@ -117,11 +117,26 @@ export default function RootLayout({
             the banner can ship in the server HTML and be revealed by CSS instead
             of mounting after hydration — it is a 354x81 block of text at the
             bottom of the viewport, i.e. the LCP element on every template, and
-            mounting it late put 2.25 s of element render delay in front of LCP. */}
+            mounting it late put 2.25 s of element render delay in front of LCP.
+
+            REGION-SCOPED DEFAULTS (2026-08-16). It used to default DENIED for
+            everyone until someone clicked Accept, and almost nobody clicks. GA4
+            was therefore reporting consent-mode estimates for an audience that
+            is overwhelmingly UZ/RU — where no prior-consent rule applies — and
+            the first real visitor count came back as "10 users, and treat it as
+            a floor". gtag's own `region` parameter fixes that without a server
+            round trip or a middleware hop: denied for the EEA plus UK, Iceland,
+            Liechtenstein, Norway and Switzerland, granted everywhere else.
+            Google resolves the region itself, so this stays a static page.
+
+            A stored choice still wins over both defaults — Decline means denied
+            in Tashkent exactly as it does in Berlin, and the banner still offers
+            that choice to everyone. What changed is only the DEFAULT for people
+            who never answer. */}
         <script
           // eslint-disable-next-line react/no-danger
           dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=window.gtag||gtag;var c=null;try{c=localStorage.getItem("qrix_consent")}catch(e){}var v=c==="granted"?"granted":"denied";if(c!=="granted"&&c!=="denied"){document.documentElement.setAttribute("data-consent","pending")}gtag("consent","default",{ad_storage:v,ad_user_data:v,ad_personalization:v,analytics_storage:v,functionality_storage:"granted",security_storage:"granted",wait_for_update:500});`,
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=window.gtag||gtag;var c=null;try{c=localStorage.getItem("qrix_consent")}catch(e){}var s=c==="granted"||c==="denied";if(!s){document.documentElement.setAttribute("data-consent","pending")}var b={functionality_storage:"granted",security_storage:"granted",wait_for_update:500};var EU=["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE","IS","LI","NO","GB","CH"];if(s){var v=c;gtag("consent","default",Object.assign({ad_storage:v,ad_user_data:v,ad_personalization:v,analytics_storage:v},b))}else{gtag("consent","default",Object.assign({region:EU,ad_storage:"denied",ad_user_data:"denied",ad_personalization:"denied",analytics_storage:"denied"},b));gtag("consent","default",Object.assign({ad_storage:"granted",ad_user_data:"granted",ad_personalization:"granted",analytics_storage:"granted"},b))}`,
           }}
         />
         {/* Google AdSense loader — only injected once the publisher id is configured */}
