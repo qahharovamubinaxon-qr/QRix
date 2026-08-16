@@ -947,6 +947,38 @@ export default function HomePage() {
                 <Link key={l.href} href={l.href} className="qx-foot-link">{l.label}</Link>
               ))}
             </div>
+
+            {/* The localized tool pages — /ru/<tool> and /uz/<tool>, 107 URLs in
+                the sitemap — had NO internal link from anywhere on the site. The
+                language selector in the nav only writes localStorage and swaps
+                copy in place; it never navigates, so a Russian visitor on the
+                home page had no path to the Russian tools at all, and a crawler
+                reached them only through the sitemap and the hreflang on their
+                English twins. Same defect as the three orphaned hubs above, one
+                language over.
+
+                Rendered UNCONDITIONALLY rather than when lang === "ru", because
+                the language lives in localStorage and a crawler has none: gating
+                these on it would keep them out of the server HTML, which is the
+                only HTML that counts here. Slugs are inlined instead of imported
+                from lib/localized-tools.ts — that registry is ~15 KB of copy and
+                this is a client component, and M160 was spent removing exactly
+                that kind of weight from the home page bundle. */}
+            <h3 className="qx-foot-h mt-7">Русский · O‘zbekcha</h3>
+            <div className="space-y-3 text-sm">
+              {[
+                { slug: "pdf-to-word", ru: "PDF в Word", uz: "PDF‑dan Word" },
+                { slug: "background-remover", ru: "Удалить фон", uz: "Fonni olib tashlash" },
+                { slug: "compress", ru: "Сжать PDF", uz: "PDF hajmini kichraytirish" },
+                { slug: "merge", ru: "Объединить PDF", uz: "PDF birlashtirish" },
+                { slug: "image-to-text", ru: "Текст с картинки", uz: "Rasmdan matn" },
+              ].map((t) => (
+                <span key={t.slug} className="flex gap-3">
+                  <Link href={`/ru/${t.slug}`} className="qx-foot-link">{t.ru}</Link>
+                  <Link href={`/uz/${t.slug}`} className="qx-foot-link" style={{ opacity: 0.75 }}>{t.uz}</Link>
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* company */}
