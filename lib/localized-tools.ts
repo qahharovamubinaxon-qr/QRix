@@ -21,6 +21,35 @@ export type LocTool = {
 
 export const LOC_TOOLS: LocTool[] = [
   {
+    slug: "split", enPath: "/pdf-tools/split", emoji: "✂️", grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", onDevice: true,
+    ru: {
+      title: "Разделить PDF онлайн — извлечь страницы бесплатно",
+      h1: "Разделить PDF",
+      desc: "Извлеките нужные страницы из PDF и сохраните их отдельным файлом. Бесплатно, без регистрации, прямо в браузере — файл никуда не загружается.",
+      intro: "Укажите номера страниц через запятую — инструмент соберёт из них новый PDF. Всё происходит на вашем устройстве: документ не уходит на сервер, поэтому договор или паспорт можно разделить, не переживая за приватность.",
+      keywords: ["разделить pdf", "разделить pdf на страницы", "извлечь страницы из pdf", "разбить pdf", "вырезать страницу из pdf"],
+      steps: [["Загрузите PDF", "Выберите документ — инструмент покажет количество страниц."], ["Укажите страницы", "Например 1,3,5 — через запятую."], ["Скачайте результат", "Получите новый PDF только с нужными страницами."]],
+      faqs: [
+        { q: "Файл загружается на сервер?", a: "Нет. Разделение идёт целиком в вашем браузере — документ не покидает устройство." },
+        { q: "Можно извлечь несколько страниц сразу?", a: "Да, перечислите их через запятую: 1,3,5,8 — они соберутся в один файл." },
+        { q: "Есть ли ограничение по размеру?", a: "Ограничение задаёт только память вашего устройства, а не наш сервер." },
+      ],
+    },
+    uz: {
+      title: "PDF ni bo‘lish — sahifalarni bepul ajratib olish",
+      h1: "PDF ni bo‘lish",
+      desc: "PDF dan kerakli sahifalarni ajratib, alohida fayl qilib saqlang. Bepul, ro‘yxatdan o‘tmasdan, to‘g‘ridan-to‘g‘ri brauzerda — fayl hech qayerga yuklanmaydi.",
+      intro: "Sahifa raqamlarini vergul bilan yozing — vosita ulardan yangi PDF yig‘adi. Hammasi qurilmangizda bajariladi: hujjat serverga ketmaydi, shuning uchun shartnoma yoki pasportni xotirjam bo‘lishingiz mumkin.",
+      keywords: ["pdf ni bo‘lish", "pdf dan sahifa ajratish", "pdf bo‘lib olish", "pdf sahifalarini ajratish", "pdf kesish"],
+      steps: [["PDF yuklang", "Hujjatni tanlang — vosita sahifalar sonini ko‘rsatadi."], ["Sahifalarni ko‘rsating", "Masalan 1,3,5 — vergul bilan."], ["Natijani yuklab oling", "Faqat kerakli sahifalardan iborat yangi PDF."]],
+      faqs: [
+        { q: "Fayl serverga yuklanadimi?", a: "Yo‘q. Bo‘lish butunlay brauzeringizda bajariladi — hujjat qurilmangizdan chiqmaydi." },
+        { q: "Bir vaqtda bir nechta sahifa olish mumkinmi?", a: "Ha, vergul bilan sanang: 1,3,5,8 — ular bitta faylga yig‘iladi." },
+        { q: "Hajm cheklovi bormi?", a: "Cheklovni faqat qurilmangiz xotirasi belgilaydi, bizning serverimiz emas." },
+      ],
+    },
+  },
+  {
     slug: "pdf-to-word", enPath: "/pdf-tools/pdf-to-word", emoji: "📝", grad: "linear-gradient(135deg,#2563eb,#60a5fa)", onDevice: false,
     ru: {
       title: "PDF в Word онлайн — конвертировать бесплатно, 1:1",

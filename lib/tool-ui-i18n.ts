@@ -110,6 +110,17 @@ export type ToolStrings = {
     noText: string;
     error: string;
   };
+  split: {
+    pagesLabel: string;
+    pagesHint: string;
+    pagesPlaceholder: string;
+    pagesCount: string;
+    splitBtn: string;
+    splitting: string;
+    engineFailed: string;
+    invalidPages: string;
+    failed: string;
+  };
   pdfToWord: {
     modes: Record<"cloud" | "exact" | "flow", { label: string; hint: string }>;
     convertBtn: string;
@@ -235,6 +246,17 @@ const EN: ToolStrings = {
     placeholder: "Extracted text will appear here. You can edit it before copying.",
     noText: "(No text detected)",
     error: "Error: could not extract text. Try another image.",
+  },
+  split: {
+    pagesLabel: "Pages to extract",
+    pagesHint: "Comma-separated page numbers.",
+    pagesPlaceholder: "e.g. 1,3,5,8",
+    pagesCount: "pages",
+    splitBtn: "Split PDF",
+    splitting: "Splitting…",
+    engineFailed: "Split failed: the PDF engine could not be loaded. Check your connection and try again.",
+    invalidPages: "Enter valid page numbers, e.g. 1,3,5",
+    failed: "Split failed: ",
   },
   pdfToWord: {
     modes: {
@@ -368,6 +390,17 @@ const RU: ToolStrings = {
     noText: "(Текст не найден)",
     error: "Ошибка: не удалось распознать текст. Попробуйте другое изображение.",
   },
+  split: {
+    pagesLabel: "Какие страницы извлечь",
+    pagesHint: "Номера страниц через запятую.",
+    pagesPlaceholder: "например 1,3,5,8",
+    pagesCount: "стр.",
+    splitBtn: "Разделить PDF",
+    splitting: "Разделение…",
+    engineFailed: "Не удалось разделить: PDF-движок не загрузился. Проверьте соединение и попробуйте снова.",
+    invalidPages: "Введите корректные номера страниц, например 1,3,5",
+    failed: "Не удалось разделить: ",
+  },
   pdfToWord: {
     modes: {
       cloud: { label: "★ Лучшее качество (облако)", hint: "Настоящие таблицы и текст Word — обработка на защищённом сервере" },
@@ -499,6 +532,17 @@ const UZ: ToolStrings = {
     placeholder: "Ajratilgan matn shu yerda paydo bo‘ladi. Nusxalashdan oldin tahrirlashingiz mumkin.",
     noText: "(Matn topilmadi)",
     error: "Xatolik: matnni ajratib bo‘lmadi. Boshqa rasmni sinab ko‘ring.",
+  },
+  split: {
+    pagesLabel: "Qaysi sahifalar ajratilsin",
+    pagesHint: "Sahifa raqamlari vergul bilan.",
+    pagesPlaceholder: "masalan 1,3,5,8",
+    pagesCount: "bet",
+    splitBtn: "PDF ni bo‘lish",
+    splitting: "Bo‘linmoqda…",
+    engineFailed: "Bo‘lib bo‘lmadi: PDF dvigateli yuklanmadi. Aloqani tekshirib, qayta urining.",
+    invalidPages: "To‘g‘ri sahifa raqamlarini kiriting, masalan 1,3,5",
+    failed: "Bo‘lib bo‘lmadi: ",
   },
   pdfToWord: {
     modes: {

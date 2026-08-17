@@ -29,6 +29,7 @@ const PdfToJpgClient = dynamic(() => import("@/components/PdfToJpgClient"), { lo
 const RemoveBgClient = dynamic(() => import("@/components/RemoveBgClient"), { loading, ssr: false });
 const ImageUpscaleClient = dynamic(() => import("@/components/ImageUpscaleClient"), { loading, ssr: false });
 const ImageToTextClient = dynamic(() => import("@/components/ImageToTextClient"), { loading, ssr: false });
+const SplitPdfClient = dynamic(() => import("@/components/SplitPdfClient"), { loading, ssr: false });
 
 export default function LocalizedToolEngine({ slug, lang = "en" }: { slug: string; lang?: ToolLang }) {
   switch (slug) {
@@ -40,6 +41,7 @@ export default function LocalizedToolEngine({ slug, lang = "en" }: { slug: strin
     case "background-remover": return <RemoveBgClient lang={lang} />;
     case "image-upscaler": return <ImageUpscaleClient lang={lang} />;
     case "image-to-text": return <ImageToTextClient lang={lang} />;
+    case "split": return <SplitPdfClient lang={lang} />;
     default: return null;
   }
 }
