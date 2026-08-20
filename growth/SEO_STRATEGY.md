@@ -12,6 +12,35 @@ arriving from Yandex, so the plan now runs two fronts with different targets —
 Yandex for volume within months, Google for the long tail and the authority that
 eventually pays. Read that file first; this one keeps the baselines.
 
+## Baseline (2026-08-19 — traffic tripled, and part of that is the ruler
+
+GA4 Aug 13–19: **37 users · 43 sessions · 69 views**, ~5.3 users/day. The week
+before was 14 / 28 / 84.
+
+**Read the caveat before the number.** The region-scoped consent defaults shipped
+on 16 Aug, inside this window; the comparison week is entirely before it. So some
+of +164% is people we were already receiving and failing to count. The two cannot
+be separated from this data, and anyone quoting "traffic tripled" without this
+sentence is quoting a measurement change as a growth result.
+
+What the consent fix CANNOT manufacture is the shape, because it scales
+everything evenly rather than reordering it:
+
+- **yandex / organic is 9 users** — real organic search, not referral. Plus
+  yandex.ru 9, yandex.com.tr 5, tv/wap.yandex 2. Yandex is ~24 of 37 users.
+- **/downloader/ok is the single most-used page** — 13 users, ahead of the home
+  page. The Odnoklassniki downloader, which no plan on this site has ever
+  mentioned.
+- **/ru/resize/413x531 is third with 7 users.** A Russian page, on an exact pixel
+  size — 3.5×4.5 cm at 300 DPI. The long-tail exact-spec thesis is not a theory
+  any more; it is already earning, in Russian, without a single backlink.
+- Countries: Russia 10 · USA 6 · Uzbekistan 4 · Türkiye 3 · UK 3.
+
+**Google, same week (GSC Aug 12–18): impressions 894 → 3,077 (+244%), clicks
+2 → 2, position 83.8 → 88.6.** Three times as many impressions bought nothing.
+More pages surfacing deeper is the same dilution as every previous read, and it
+is what an authority problem looks like from the inside.
+
 ## Baseline (2026-08-16 — the first time we could count VISITORS)
 
 `npm run ga` reads GA4 now. The question "how many people come a day" has an
