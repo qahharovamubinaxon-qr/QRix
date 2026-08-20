@@ -21,6 +21,35 @@ export type LocTool = {
 
 export const LOC_TOOLS: LocTool[] = [
   {
+    slug: "passport-photo", enPath: "/image-tools/passport-photo", emoji: "🪪", grad: "linear-gradient(135deg,#0f766e,#2dd4bf)", onDevice: true,
+    ru: {
+      title: "Фото на документы онлайн — 3х4, 3.5х4.5, паспорт и виза",
+      h1: "Фото на документы",
+      desc: "Сделайте фото на паспорт, ID или визу нужного размера на белом фоне. Бесплатно, без регистрации, прямо в браузере — снимок никуда не загружается.",
+      intro: "Загрузите обычный портрет — выберите размер документа, подвиньте лицо в кадре и скачайте готовое фото или целый лист для печати в фотосалоне. Обработка идёт на вашем устройстве: фотография не уходит на сервер, что важно, когда снимок идёт на документ.",
+      keywords: ["фото на документы", "фото 3х4", "фото на паспорт онлайн", "фото на визу", "фото на документы онлайн бесплатно"],
+      steps: [["Загрузите портрет", "Обычное фото анфас на светлом фоне."], ["Выберите размер", "3х4, 3.5х4.5, 2×2 дюйма и другие стандарты."], ["Скачайте", "Одно фото или лист 10×15 с копиями для печати."]],
+      faqs: [
+        { q: "Фото загружается на сервер?", a: "Нет. Кадрирование идёт полностью в браузере — снимок не покидает ваше устройство." },
+        { q: "Какие размеры доступны?", a: "Стандартные размеры документов: 3х4 и 3.5х4.5 см, 2×2 дюйма и другие." },
+        { q: "Можно распечатать в фотосалоне?", a: "Да — скачайте лист 10×15 с копиями и отдайте его на печать." },
+      ],
+    },
+    uz: {
+      title: "Hujjat uchun rasm onlayn — 3x4, 3.5x4.5, pasport va viza",
+      h1: "Hujjat uchun rasm",
+      desc: "Pasport, ID yoki viza uchun kerakli o‘lchamdagi rasmni oq fonda tayyorlang. Bepul, ro‘yxatdan o‘tmasdan, brauzerda — rasm hech qayerga yuklanmaydi.",
+      intro: "Oddiy portret yuklang — hujjat o‘lchamini tanlang, yuzni kadrda joylashtiring va tayyor rasmni yoki bosmaxonaga beriladigan butun varaqni yuklab oling. Qayta ishlash qurilmangizda bajariladi: rasm serverga ketmaydi, bu esa hujjatga ketadigan surat uchun muhim.",
+      keywords: ["hujjat uchun rasm", "3x4 rasm", "pasport uchun rasm onlayn", "viza uchun rasm", "hujjatga rasm bepul"],
+      steps: [["Portret yuklang", "Yorug‘ fonda to‘g‘ridan qaragan oddiy rasm."], ["O‘lchamni tanlang", "3x4, 3.5x4.5, 2×2 dyuym va boshqa standartlar."], ["Yuklab oling", "Bitta rasm yoki nusxalari bilan 10×15 varaq."]],
+      faqs: [
+        { q: "Rasm serverga yuklanadimi?", a: "Yo‘q. Kadrlash butunlay brauzerda bajariladi — rasm qurilmangizdan chiqmaydi." },
+        { q: "Qanday o‘lchamlar bor?", a: "Standart hujjat o‘lchamlari: 3x4 va 3.5x4.5 sm, 2×2 dyuym va boshqalar." },
+        { q: "Bosmaxonada chop etsa bo‘ladimi?", a: "Ha — nusxalari bilan 10×15 varaqni yuklab olib, chop etishga bering." },
+      ],
+    },
+  },
+  {
     slug: "split", enPath: "/pdf-tools/split", emoji: "✂️", grad: "linear-gradient(135deg,#7c3aed,#a78bfa)", onDevice: true,
     ru: {
       title: "Разделить PDF онлайн — извлечь страницы бесплатно",

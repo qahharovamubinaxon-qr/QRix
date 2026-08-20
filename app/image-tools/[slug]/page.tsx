@@ -6,6 +6,7 @@ import ToolPageShell from "@/components/ToolPageShell";
 import ImageEngineRegistry from "@/components/image/ImageEngineRegistry";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 import { IMAGE_TOOLS, getImgTool } from "@/lib/image-tools-meta";
+import { LOC_TOOLS } from "@/lib/localized-tools";
 import { allPostsSorted } from "@/lib/blog";
 import { PASSPORT_SIZES } from "@/lib/passport-sizes";
 
@@ -20,7 +21,19 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const tool = getImgTool(slug);
   if (!tool) return pageMeta({ title: "Image tool not found", path: `/image-tools/${slug}`, noindex: true });
-  return pageMeta({ title: `${tool.title} — Free Online`, description: tool.desc, path: `/image-tools/${tool.slug}`, keywords: tool.keywords });
+  /* hreflang has to be RECIPROCAL or a search engine may ignore it. The
+     localized twins at /ru/<slug> and /uz/<slug> already point back here, so
+     the English page has to point at them — and deriving that from LOC_TOOLS
+     rather than hand-listing it means the next localized tool is wired the
+     moment it enters the registry, instead of shipping a one-way pair nobody
+     notices. Matched on enPath because a localized slug need not equal the
+     English one. */
+  const loc = LOC_TOOLS.find((l) => l.enPath === `/image-tools/${tool.slug}`);
+  return pageMeta({
+    title: `${tool.title} — Free Online`, description: tool.desc,
+    path: `/image-tools/${tool.slug}`, keywords: tool.keywords,
+    ...(loc ? { languages: { en: loc.enPath, ru: `/ru/${loc.slug}`, uz: `/uz/${loc.slug}`, "x-default": loc.enPath } } : {}),
+  });
 }
 
 export default async function ImageToolPage({ params }: { params: Promise<{ slug: string }> }) {

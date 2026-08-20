@@ -121,6 +121,14 @@ export type ToolStrings = {
     invalidPages: string;
     failed: string;
   };
+  passport: {
+    uploadHint: string;
+    zoom: string;
+    dragHint: string;
+    downloadPhoto: string;
+    printSheet: string;
+    newPhoto: string;
+  };
   pdfToWord: {
     modes: Record<"cloud" | "exact" | "flow", { label: string; hint: string }>;
     convertBtn: string;
@@ -257,6 +265,14 @@ const EN: ToolStrings = {
     engineFailed: "Split failed: the PDF engine could not be loaded. Check your connection and try again.",
     invalidPages: "Enter valid page numbers, e.g. 1,3,5",
     failed: "Split failed: ",
+  },
+  passport: {
+    uploadHint: "Upload a front-facing portrait",
+    zoom: "Zoom",
+    dragHint: "Drag to position the face; use zoom to frame.",
+    downloadPhoto: "Download photo",
+    printSheet: "Print sheet (4×6)",
+    newPhoto: "New",
   },
   pdfToWord: {
     modes: {
@@ -401,6 +417,14 @@ const RU: ToolStrings = {
     invalidPages: "Введите корректные номера страниц, например 1,3,5",
     failed: "Не удалось разделить: ",
   },
+  passport: {
+    uploadHint: "Загрузите портрет анфас",
+    zoom: "Масштаб",
+    dragHint: "Перетащите, чтобы разместить лицо; масштабом задайте кадр.",
+    downloadPhoto: "Скачать фото",
+    printSheet: "Лист для печати (10×15)",
+    newPhoto: "Заново",
+  },
   pdfToWord: {
     modes: {
       cloud: { label: "★ Лучшее качество (облако)", hint: "Настоящие таблицы и текст Word — обработка на защищённом сервере" },
@@ -543,6 +567,14 @@ const UZ: ToolStrings = {
     engineFailed: "Bo‘lib bo‘lmadi: PDF dvigateli yuklanmadi. Aloqani tekshirib, qayta urining.",
     invalidPages: "To‘g‘ri sahifa raqamlarini kiriting, masalan 1,3,5",
     failed: "Bo‘lib bo‘lmadi: ",
+  },
+  passport: {
+    uploadHint: "To‘g‘ridan qaragan portret yuklang",
+    zoom: "Masshtab",
+    dragHint: "Yuzni joylashtirish uchun suring; kadrni masshtab bilan tanlang.",
+    downloadPhoto: "Rasmni yuklab olish",
+    printSheet: "Chop etish varag‘i (10×15)",
+    newPhoto: "Qaytadan",
   },
   pdfToWord: {
     modes: {

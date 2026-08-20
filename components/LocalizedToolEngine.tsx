@@ -30,6 +30,7 @@ const RemoveBgClient = dynamic(() => import("@/components/RemoveBgClient"), { lo
 const ImageUpscaleClient = dynamic(() => import("@/components/ImageUpscaleClient"), { loading, ssr: false });
 const ImageToTextClient = dynamic(() => import("@/components/ImageToTextClient"), { loading, ssr: false });
 const SplitPdfClient = dynamic(() => import("@/components/SplitPdfClient"), { loading, ssr: false });
+const PassportClient = dynamic(() => import("@/components/image/ImageSpecialClients").then((m) => ({ default: m.PassportClient })), { loading, ssr: false });
 
 export default function LocalizedToolEngine({ slug, lang = "en" }: { slug: string; lang?: ToolLang }) {
   switch (slug) {
@@ -42,6 +43,7 @@ export default function LocalizedToolEngine({ slug, lang = "en" }: { slug: strin
     case "image-upscaler": return <ImageUpscaleClient lang={lang} />;
     case "image-to-text": return <ImageToTextClient lang={lang} />;
     case "split": return <SplitPdfClient lang={lang} />;
+    case "passport-photo": return <PassportClient lang={lang} />;
     default: return null;
   }
 }

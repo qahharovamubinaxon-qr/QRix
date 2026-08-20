@@ -1,5 +1,7 @@
 "use client";
 
+import { toolUI, type ToolLang } from "@/lib/tool-ui-i18n";
+
 /* Metadata (view/remove/exif) + Studio special (beautifier/device/passport/removewm). */
 
 import { useEffect, useRef, useState } from "react";
@@ -131,7 +133,8 @@ const DOC_SIZES = [["35×45 mm (EU/Visa)", 413, 531], ["2×2 in (US)", 600, 600]
    selected, and the generic list stays available underneath — someone who
    landed on the India page and actually needs the US size should not have to
    navigate away to get it. */
-export function PassportClient({ preset }: { preset?: { label: string; w: number; h: number } } = {}) {
+export function PassportClient({ preset, lang = "en" }: { preset?: { label: string; w: number; h: number }; lang?: ToolLang } = {}) {
+  const t = toolUI(lang).passport;
   const sizes: [string, number, number][] = preset
     ? [[preset.label, preset.w, preset.h], ...DOC_SIZES]
     : DOC_SIZES;
@@ -161,17 +164,17 @@ export function PassportClient({ preset }: { preset?: { label: string; w: number
   }
 
   return <div className="qx-card p-6 space-y-5">
-    {!img && <AiDropzone onFile={async (f) => { trackTool("img-passport"); setImg(await loadImg(f)); }} hint="Upload a front-facing portrait" />}
+    {!img && <AiDropzone onFile={async (f) => { trackTool("img-passport"); setImg(await loadImg(f)); }} hint={t.uploadHint} />}
     {img && <>
       <div className="flex flex-wrap items-center gap-4">
         <select value={sizeIdx} onChange={(e) => setSizeIdx(+e.target.value)} className="qx-auth-input !py-2 w-48">{sizes.map((d, i) => <option key={i} value={i}>{d[0]}</option>)}</select>
-        <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>Zoom <input type="range" min={100} max={250} value={zoom * 100} onChange={(e) => setZoom(+e.target.value / 100)} className="w-32 accent-[#e1ff04]" /></label>
+        <label className="flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--text-faint)" }}>{t.zoom} <input type="range" min={100} max={250} value={zoom * 100} onChange={(e) => setZoom(+e.target.value / 100)} className="w-32 accent-[#ff4d1c]" /></label>
       </div>
       <canvas ref={viewRef} className="rounded-xl cursor-move mx-auto" style={{ border: "1px solid var(--border)", maxHeight: 400, touchAction: "none" }}
         onPointerDown={(e) => { drag.current = true; e.currentTarget.setPointerCapture(e.pointerId); }} onPointerUp={() => { drag.current = false; }}
         onPointerMove={(e) => { if (!drag.current) return; const r = e.currentTarget.getBoundingClientRect(); setOff({ x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), y: Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)) }); }} />
-      <p className="text-[11px]" style={{ color: "var(--text-faint)" }}>Drag to position the face; use zoom to frame.</p>
-      <div className="flex gap-2"><button onClick={() => download(false)} className="qx-btn-hero !py-2.5 !px-5 text-sm" data-magnetic>Download photo</button><button onClick={() => download(true)} className="qx-btn !py-2.5 text-sm">Print sheet (4×6)</button><button onClick={() => setImg(null)} className="qx-btn-ghost !py-2.5 text-sm">New</button></div>
+      <p className="text-[11px]" style={{ color: "var(--text-faint)" }}>{t.dragHint}</p>
+      <div className="flex gap-2"><button onClick={() => download(false)} className="qx-btn-hero !py-2.5 !px-5 text-sm" data-magnetic>{t.downloadPhoto}</button><button onClick={() => download(true)} className="qx-btn !py-2.5 text-sm">{t.printSheet}</button><button onClick={() => setImg(null)} className="qx-btn-ghost !py-2.5 text-sm">{t.newPhoto}</button></div>
       {blob && <AiResultBar blob={blob} filename="passport-photo.jpg" onReset={() => { setImg(null); setBlob(null); }} />}
     </>}
   </div>;
