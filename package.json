@@ -55,7 +55,8 @@
     "probe:nav-panels": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-nav-panels.mjs",
     "test:related": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-related.mjs",
     "probe:related": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-related.mjs",
-    "ga": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ga-kpi.mjs"
+    "ga": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ga-kpi.mjs",
+    "ga:setup": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ga-setup-dimensions.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
