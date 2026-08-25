@@ -169,6 +169,32 @@ await table("where they came from", "sessionSourceMedium");
 await table("what they opened", "pagePath");
 await table("countries", "country");
 
+/* The funnel — the only thing that answers "did they SUCCEED".
+   DownloaderClient fires tool_used twice on purpose: once when the link
+   RESOLVES and once when DOWNLOAD is pressed, so `action` separates intent from
+   result. These dimensions were registered on 2026-08-24 and GA4 custom
+   dimensions are NOT retroactive, so any window before that reports "(not set)"
+   no matter how the query is written. That is a data boundary, not a bug. */
+const funnel = async (label, dim, limit = 10) => {
+  const r = await report({
+    dateRanges: [cur], dimensions: [{ name: dim }],
+    metrics: [{ name: "eventCount" }, { name: "totalUsers" }], limit,
+    dimensionFilter: { filter: { fieldName: "eventName", stringFilter: { value: "tool_used" } } },
+    orderBys: [{ metric: { metricName: "eventCount" }, desc: true }],
+  });
+  console.log("\n  " + label + ":");
+  for (const row of r.rows || []) {
+    const v = row.dimensionValues[0].value;
+    const note = v === "(not set)" ? "(recorded before 24 Aug - dimension did not exist yet)" : v;
+    console.log("      " + String(row.metricValues[0].value).padStart(6) + " events "
+      + String(row.metricValues[1].value).padStart(5) + " users  " + note);
+  }
+  if (!(r.rows || []).length) console.log("      (no tool_used events in this window)");
+};
+await funnel("which tool was used", "customEvent:tool");
+await funnel("which step - resolve vs download", "customEvent:action");
+await funnel("downloader platform", "customEvent:platform");
+
 console.log(`\n  Paste into growth/SEO_STRATEGY.md → Baseline:`);
 console.log(`  - GA4: ${now.users} users/${days}d (~${(now.users / days).toFixed(1)}/day), ${now.sessions} sessions, ${now.views} views (was ${before.users}/${before.sessions}/${before.views})`);
 console.log(`\n  Note: analytics_storage defaults to DENIED until someone accepts the cookie`);
