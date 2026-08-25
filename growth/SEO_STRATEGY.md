@@ -12,6 +12,39 @@ arriving from Yandex, so the plan now runs two fronts with different targets —
 Yandex for volume within months, Google for the long tail and the authority that
 eventually pays. Read that file first; this one keeps the baselines.
 
+## Baseline (2026-08-24 — an AI assistant became our biggest single source
+
+GA4 Aug 18–24: **116 users · 132 sessions · 231 views**, ~16.6/day. The week
+before was 23 / 34 / 62.
+
+The growth is real but the composition is the finding:
+
+- **chatgpt.com / ai-assistant — 46 users, the single largest source.** Not
+  Google, not Yandex. An AI assistant is recommending this site to people.
+- Yandex across all its properties (.ru, organic, .com.tr, .kz, .uz) — ~48 users.
+- Direct 14. **Google organic: still zero.**
+- **/downloader/vk is the top page with 49 users**, and 46 of the week's ChatGPT
+  referrals line up with it almost exactly. ChatGPT is answering "how to download
+  a VK video" with our page.
+- /ru/resize/413x531 grew 7 → 24 users. The exact-pixel long tail keeps compounding.
+- Countries: Russia 52 · Kazakhstan 10 · Uzbekistan 7 · Ukraine 6 · USA 6.
+
+Google the same week (GSC Aug 17–23): clicks 2 → 3, impressions 2,392 → 3,235,
+position 88.4 → 87.3. Still nothing.
+
+**Caveats that must ride with the number.** The comparison week straddles the
+16 Aug consent fix, so part of the rise is still ruler rather than growth. And
+this window contains the 24 Aug DNS outage, which was per-network and silent —
+so if anything these figures are *under*stated for the affected days.
+
+**What this changes.** TWO_FRONTS was written for two search engines. The largest
+source today is neither: it is an AI assistant, reached because a page answered a
+specific question well. The two pages carrying this site — /downloader/vk and
+/ru/resize/413x531 — are both exact-answer pages, and neither appears in any plan
+we have written. The strategy should follow the evidence: **be the best exact
+answer to a narrow question, in Russian**, and both AI assistants and Yandex will
+carry it. Google can keep waiting for the authority it wants.
+
 ## Baseline (2026-08-19 — traffic tripled, and part of that is the ruler
 
 GA4 Aug 13–19: **37 users · 43 sessions · 69 views**, ~5.3 users/day. The week
