@@ -7,6 +7,28 @@
 @import "./fonts.css";
 @import "./design-v2.css";
 
+/* Metric-matched fallback for Bricolage Grotesque (BACKLOG, referenced by the
+   .qx-consent comment below). Every text block on the site re-wraps when the
+   75 KB webfont swaps in over a generic system fallback; this face is sized
+   with size-adjust/ascent-override/descent-override/line-gap-override so a
+   local Arial occupies the exact box Bricolage will occupy, eliminating that
+   reflow — the same technique next/font's adjustFontFallback automates.
+   Metrics are measured data, not estimates: @capsizecss/metrics 4.2.0,
+   bricolageGrotesque/regular (capHeight 660, ascent 930, descent -270,
+   lineGap 0, unitsPerEm 1000, xWidthAvg 470) and arial/regular (ascent 1854,
+   descent -434, lineGap 67, unitsPerEm 2048, xWidthAvg 913). Formula matches
+   next/font's own (get-fallback-metrics-from-font-file.js): size-adjust =
+   (targetAvgWidth/targetUPM) / (fallbackAvgWidth/fallbackUPM); each override
+   = targetMetric / (targetUPM * size-adjust). */
+@font-face {
+  font-family: "Bricolage Grotesque Fallback";
+  src: local("Arial");
+  ascent-override: 88.21%;
+  descent-override: 25.61%;
+  line-gap-override: 0.00%;
+  size-adjust: 105.43%;
+}
+
 /* ============================================
    QRix Premium Design System
    Glass morphism + Neon accents + Ambient BG
@@ -52,8 +74,8 @@
   --radius-xl: 34px;
 
   /* Fonts */
-  --font-display: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
-  --font-body: "Bricolage Grotesque", "Inter", system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque", "Bricolage Grotesque Fallback", "Inter", system-ui, sans-serif;
+  --font-body: "Bricolage Grotesque", "Bricolage Grotesque Fallback", "Inter", system-ui, sans-serif;
 
   /* Shadows */
   --shadow-card: 0 4px 24px rgba(0,0,0,0.4), 0 1px 3px rgba(0,0,0,0.3);
@@ -1144,18 +1166,13 @@ html.qx-perf .qx-cs-card::after { display: none; }
    because the element also carries Tailwind's `flex`, which has equal
    specificity and whose source order we do not control. */
 html:not([data-consent="pending"]) .qx-consent { display: none !important; }
-/* …and it renders in the fallback stack, not Bricolage. It is anchored to the
-   bottom edge, so when the webfont swapped in, the text re-wrapped, the box grew
-   and the whole banner moved up — 0.091 CLS, all of it this one element, which
-   is the price of painting it before the font instead of after. 12.5 px of
-   legal boilerplate is the one place on the site that can give up the display
-   face; everything else keeps it. (A metric-matched @font-face fallback for
-   Bricolage would fix the swap reflow site-wide — see BACKLOG.) Nothing here
-   may name a webfont: Inter is self-hosted too and is not even preloaded, so it
-   would arrive later than Bricolage and shift the box harder. */
-.qx-consent, .qx-consent button {
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
+/* …it used to render in a bare system-ui fallback rather than Bricolage,
+   because it is anchored to the bottom edge and the pre-fix swap reflow moved
+   the whole banner up 0.091 CLS when the webfont arrived. The metric-matched
+   "Bricolage Grotesque Fallback" face above (size-adjust + ascent/descent/
+   line-gap overrides) now sizes the fallback to the exact box Bricolage will
+   occupy, so the swap no longer reflows — this carve-out is no longer needed
+   and the banner uses the normal --font-display stack again. */
 
 @media (prefers-contrast: more) {
   :root { --text-muted: var(--text); --text-faint: var(--text); --border: color-mix(in srgb, var(--text) 45%, transparent); }
