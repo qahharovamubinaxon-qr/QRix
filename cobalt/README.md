@@ -58,12 +58,44 @@ Three things decide whether it works:
 
 ## Where to run it
 
-It needs a machine with Docker and a public address. Any small VPS does. There
-is also a one-click Railway template if you would rather not manage a server.
+It needs a machine with Docker and a public address.
 
-Costs are the owner's call and are not assumed here — check the current price
-before committing to anything, since free tiers change and most now want a card
-on file.
+**Test before paying.** Nobody has yet proved that a cobalt instance on rented
+hardware brings VK back — the old one worked, but from an address we no longer
+know. VK is hostile to datacenter ranges, so the answer depends on where the
+server sits, and that is worth finding out for free rather than by subscription.
+
+Prices checked August 2026; they move, so re-check before committing.
+
+| Option | Cost | Card needed | Notes |
+| --- | --- | --- | --- |
+| **Railway free trial** | $0, $5 credit, 30 days | **No** | One-click cobalt template. The right first step: it answers "does cobalt fix VK" at no cost and no risk. |
+| Railway Hobby | $5/mo (includes $5 usage) | Yes | If the trial works and you want it to stay. No server to administer. |
+| Hetzner CX22 | ~€7.99/mo EU, ~$4.59/mo US | Yes | A real VPS, 2 vCPU / 4 GB. Cheapest in the US locations. You manage Docker yourself. |
+| Contabo | from ~$4–7/mo | Yes | More RAM per euro; performance is less consistent. |
+| A machine you already own | free | — | Only if it is always on AND reachable from the internet. Home connections usually are not. |
+
+### Where the server sits matters more than what it costs
+
+Two constraints pull in opposite directions, and this is the reason
+`COBALT_API_URL` accepts a list:
+
+- **VK** is far more permissive toward addresses in Russia and the CIS than
+  toward Western datacenter ranges.
+- **Instagram** is blocked from inside Russia, so a Russian server may not be
+  able to reach it at all.
+
+One instance may therefore not serve both. If that turns out to be the case,
+run two small ones and list both:
+
+```
+COBALT_API_URL = https://ru-instance.example,https://eu-instance.example
+```
+
+Do not plan for two before testing one. Deploy a single instance, run
+`npm run verify:daily`, and let the canary say which platforms actually came
+back. Buying a second server for a problem that has not appeared is how a
+five-dollar fix becomes a monthly bill.
 
 ## Checking it actually works
 
