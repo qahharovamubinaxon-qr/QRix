@@ -111,7 +111,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
      session and both times were a session finding it by accident while
      scoping something else.
   Verify each candidate against `npm run kpi` output before building, not after.
-- [ ] SWEEP: find every "generic tool page that earns real impressions has no
+- [~] SWEEP: find every "generic tool page that earns real impressions has no
   link to the dedicated long-tail family built for it" pair, the shape found
   twice by accident on Aug 12 (remove-bg -> /remove-background/*, cb9f949; and
   passport-photo -> /passport-photo/*, 5c8462e). Both times a session found it
@@ -121,6 +121,8 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   curl the two fixes above used (`curl .../GENERIC-PAGE | grep 'href="/FAMILY'`)
   before assuming a family with real content is actually being found by the
   visitors its own traffic justified building it for.
+  next: enumerate families from app/sitemap.ts, pair each to its generic
+  parent tool page, curl-check for a live href.
 - [ ] Only 67 of ~810 URLs earn a single impression. Before adding pages, find
   out whether the other ~740 are (a) not indexed, or (b) indexed and never
   shown — different problems with different fixes. The URL Inspection API is
