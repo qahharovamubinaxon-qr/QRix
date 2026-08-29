@@ -2675,3 +2675,40 @@ instance, not our own scrapers. The rest of the downloader no longer depends on
 it — Rutube, Telegram, Pinterest, Odnoklassniki, TikTok and SoundCloud are all
 in-process and verified live — so cobalt is now a fallback that adds VK,
 Instagram, Facebook and X rather than a single point of failure for everything.
+
+### M153e — failover, a canary, and the two pages it caught
+
+Three changes, one root cause: a page answering 200 while the tool behind it
+delivered nothing, with no check able to tell the difference.
+
+COBALT_API_URL now takes a comma-separated LIST. One instance being the only
+route is why VK and Instagram went dark; a list is tried in order and an
+instance answering "error" is not treated as fatal, since another may succeed
+on the same URL from a different IP.
+
+verify:daily gained a downloader canary that asks PRODUCTION to resolve a real
+link per platform — the same call a visitor makes, so it needs no secrets.
+Platforms that only exist through cobalt (VK, Instagram, Facebook, X) report as
+a labelled known gap rather than a failure, because a permanently red check
+teaches everyone to stop reading it, which is how the last outage survived two
+weeks. Once cobalt is connected those lines should read ok; if they do not,
+that is the line that says the instance is not working.
+
+The canary caught a regression within the hour — my own. Adding Rutube and
+Telegram to PLATFORMS put them in the sitemap and generateStaticParams, but the
+per-platform SEO registry had no entry for them, so both fell through
+notFound() and served the HOMEPAGE title and canonical: the client-page
+canonical trap, on two brand-new indexable URLs. Both now carry full copy
+(title, description, intro, keywords, features, four FAQs, Russian keywords)
+and are registered in lib/search-index.ts, which the sitemap does automatically
+from PLATFORMS but the site's own search does not. Verified the older platform
+pages were unaffected.
+
+cobalt/ holds a deployment kit — compose file, the three settings that decide
+whether it works, and how to verify from this repo. The API_URL trap is named
+in the header: it must be the PUBLIC address, because cobalt embeds it in the
+links it returns, so a wrong value breaks every download while the instance
+looks healthy. Hosting cost is the owner's decision; no free tier is promised.
+
+VERIFY now clean: 15 URLs, sitemap 847 (+6), canaries ok/ok/ok/ok + VK labelled.
+Merged to main as 563cb18.

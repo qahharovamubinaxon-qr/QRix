@@ -236,12 +236,25 @@ if (!flag("--no-downloader")) {
       if (j.ok) {
         console.log(`  ok    ${name.padEnd(10)} ${j.formats.length} format(s)`);
       } else {
-        /* VK and Instagram ride on cobalt, so their failure is expected while
-           no instance is configured. Saying "expected" out loud is the point:
-           an unexplained failure and a known gap look identical in a log, and
-           the last one went unnoticed for two weeks. */
-        const expected = j.error === "vk_needs_api";
-        if (expected) console.log(`  note  ${name.padEnd(10)} ${j.error}  (expected — no cobalt / VK token yet)`);
+        /* VK, Instagram, Facebook and X have no in-process extractor — they
+           resolve only through cobalt, and there is no working instance right
+           now (see cobalt/README.md). Their failure is a KNOWN gap with an
+           owner action attached, so it is reported on its own line rather than
+           counted as a regression: a check that is permanently red teaches
+           everyone to stop reading it, which is how the last outage survived a
+           fortnight.
+
+           Both error shapes mean the same thing here. `vk_needs_api` is what
+           comes back with no cobalt configured at all; `extraction_failed` is
+           what comes back when COBALT_API_URL points at an instance that is
+           not answering — which is exactly today's situation.
+
+           Once cobalt is connected this line should read "ok". If it still
+           says needs-cobalt after that, the instance is not working and this
+           is the line that says so. */
+        const COBALT_ONLY = new Set(["vk", "instagram", "facebook", "twitter"]);
+        const expected = COBALT_ONLY.has(name) && ["vk_needs_api", "extraction_failed"].includes(j.error);
+        if (expected) console.log(`  note  ${name.padEnd(10)} ${j.error}  (known gap — needs a working cobalt, see cobalt/README.md)`);
         else fail(`downloader: ${name} -> ${j.error}`);
       }
     } catch (e) {
