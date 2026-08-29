@@ -14,11 +14,14 @@
        the download button — re-resolving makes expiry impossible.
 
    Provider order per platform, best first:
-     1. cobalt  — a self-hosted cobalt instance (COBALT_API_URL). Covers most
-        platforms reliably; joins only when the env is set.
-     2. built-in keyless extractors — TikTok via tikwm, SoundCloud via its
-        public web API (cobalt's soundcloud route is IP-blocked from
-        datacenter ranges), direct media passthrough.
+     1. our own in-process extractors — TikTok (tikwm), SoundCloud, Vimeo,
+        Pinterest, Odnoklassniki, Telegram, and VK through the official API.
+        All keyless except VK; none depend on a machine we have to keep alive.
+     2. cobalt — a self-hosted instance (COBALT_API_URL), now a FALLBACK rather
+        than the primary route. It was the only provider for most platforms
+        until it stopped answering, at which point the site's most-visited page
+        served a week of traffic without delivering one file.
+     3. direct media passthrough (…/x.mp4).
 
    YouTube is intentionally unsupported (AdSense policy — see downloader-platforms). */
 
@@ -110,7 +113,7 @@ export function verifyMedia(token: string): VerifiedToken | null {
     const host = hostOf(p.u);
     const cob = cobaltHost();
     const ok = SUPPORTED_DOMAINS.some((d) => host.includes(d)) ||
-      /(tikwm\.com|tiktokcdn|fbcdn|cdninstagram|pinimg|vkuservideo|vkuseraudio|vk-cdn|mycdn\.me|akamaized|akamaihd|vimeocdn|sndcdn|twimg|ttwstatic|muscdn|bcbits|dmcdn|byteoversea|redditvideo|redd\.it|v\.redd|pinterest|okcdn|mvk\.com)/.test(host) ||
+      /(tikwm\.com|tiktokcdn|fbcdn|cdninstagram|pinimg|vkuservideo|vkuseraudio|vk-cdn|mycdn\.me|akamaized|akamaihd|vimeocdn|sndcdn|twimg|ttwstatic|muscdn|bcbits|dmcdn|byteoversea|redditvideo|redd\.it|v\.redd|pinterest|okcdn|mvk\.com|telesco\.pe|cdn-telegram\.org|vkvideo\.ru|userapi\.com)/.test(host) ||
       (!!cob && host === cob);
     if (!ok) return null;
     return { kind: "direct", url: p.u, filename, mime };
@@ -319,6 +322,142 @@ async function viaDirect(url: string): Promise<MediaInfo | null> {
   return { ok: true, platform: "web", platformName: "Direct link", title, thumbnail: type === "image" ? url : undefined, formats: [fmt(type, ext === "jpeg" ? "jpg" : ext, "Original", url, title)] };
 }
 
+/* ── provider: Vimeo via the public player config ──────────────
+   player.vimeo.com/video/<id>/config needs no key and lists the progressive
+   MP4 renditions. Newer uploads ship HLS/DASH only; those have no single URL
+   the file proxy can stream, so this returns null instead of offering a button
+   that would fail. An honest miss beats a broken download. */
+async function viaVimeo(url: string, signal: AbortSignal): Promise<MediaInfo | null> {
+  const id = url.match(/vimeo\.com\/(?:video\/)?(\d+)/)?.[1];
+  if (!id) return null;
+  const r = await fetch(`https://player.vimeo.com/video/${id}/config`, {
+    headers: { "User-Agent": UA, Referer: "https://vimeo.com/" }, signal,
+  }).catch(() => null);
+  if (!r?.ok) return null;
+  const j = (await r.json().catch(() => null)) as any;
+  const prog: any[] = j?.request?.files?.progressive || [];
+  const title = j?.video?.title || "Vimeo video";
+  const formats = [...prog]
+    .filter((p) => p?.url)
+    .sort((a, b) => (b.height || 0) - (a.height || 0))
+    .map((p) => fmt("video", "mp4", p.quality || `${p.height}p`, p.url, title));
+  if (!formats.length) return null;
+  return {
+    ok: true, platform: "vimeo", platformName: "Vimeo", title,
+    thumbnail: j?.video?.thumbs?.base || j?.video?.thumbs?.["640"],
+    author: j?.video?.owner?.name, duration: j?.video?.duration, formats,
+  };
+}
+
+/* ── provider: Pinterest ───────────────────────────────────────
+   The pin page carries the original asset in its JSON island: video pins an
+   .mp4 on v1.pinimg.com, image pins an /originals/ file. The island escapes
+   slashes, so they are unescaped before matching. */
+async function viaPinterest(url: string, signal: AbortSignal): Promise<MediaInfo | null> {
+  const r = await fetch(url, { headers: { "User-Agent": UA, "Accept-Language": "en" }, signal, redirect: "follow" }).catch(() => null);
+  if (!r?.ok) return null;
+  const html = (await r.text()).replace(/\\u002F/gi, "/").replace(/\\\//g, "/");
+  const title = html.match(/<title>([^<]*)<\/title>/)?.[1]?.replace(/\s*[|·-]\s*Pinterest\s*$/i, "").trim() || "Pinterest pin";
+  const video = html.match(/https:\/\/v1\.pinimg\.com\/videos\/[^"'\s\\]+?\.mp4/)?.[0];
+  const image = html.match(/https:\/\/i\.pinimg\.com\/originals\/[^"'\s\\]+?\.(?:jpg|jpeg|png|gif|webp)/)?.[0];
+  const formats: MediaFormat[] = [];
+  if (video) formats.push(fmt("video", "mp4", "Original", video, title));
+  if (image) {
+    const e = extOf(image);
+    formats.push(fmt("image", e === "jpeg" ? "jpg" : e || "jpg", "Original", image, title));
+  }
+  if (!formats.length) return null;
+  return { ok: true, platform: "pinterest", platformName: "Pinterest", title, thumbnail: image, formats };
+}
+
+/* ── provider: Odnoklassniki ───────────────────────────────────
+   The player element carries data-options: HTML-escaped JSON whose flashvars
+   hold the rendition list either inline (`metadata`) or behind a POST
+   (`metadataUrl`). Both shapes are live in the wild, so both are read. */
+async function viaOk(url: string, signal: AbortSignal): Promise<MediaInfo | null> {
+  const r = await fetch(url, { headers: { "User-Agent": UA, "Accept-Language": "ru,en" }, signal, redirect: "follow" }).catch(() => null);
+  if (!r?.ok) return null;
+  const raw = (await r.text()).match(/data-options="([^"]+)"/)?.[1];
+  if (!raw) return null;
+  const unesc = (s: string) => s.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  let opts: any = null;
+  try { opts = JSON.parse(unesc(raw)); } catch { return null; }
+  const fv = opts?.flashvars || {};
+  let meta: any = null;
+  try { meta = fv.metadata ? JSON.parse(fv.metadata) : null; } catch { /* try the URL form */ }
+  if (!meta && fv.metadataUrl) {
+    const m = await fetch(fv.metadataUrl, { method: "POST", headers: { "User-Agent": UA }, signal }).catch(() => null);
+    meta = m?.ok ? await m.json().catch(() => null) : null;
+  }
+  const vids: any[] = (meta?.videos || []).filter((v: any) => v?.url);
+  if (!vids.length) return null;
+  const title = meta?.movie?.title || "Odnoklassniki video";
+  /* OK names renditions rather than numbering them; this is their real order,
+     best first. Anything unknown sorts last instead of jumping to the top. */
+  const RANK = ["full", "quad", "ultra", "hd", "sd", "low", "lowest", "mobile"];
+  const rank = (n: string) => { const i = RANK.indexOf(String(n)); return i < 0 ? RANK.length : i; };
+  const formats = [...vids]
+    .sort((a, b) => rank(a.name) - rank(b.name))
+    .map((v) => fmt("video", "mp4", String(v.name || "sd").toUpperCase(), v.url, title));
+  return {
+    ok: true, platform: "ok", platformName: "Odnoklassniki", title,
+    thumbnail: meta?.movie?.poster, duration: meta?.movie?.duration, formats,
+  };
+}
+
+/* ── provider: Telegram public post ────────────────────────────
+   ?embed=1 renders one post standalone, and for a public channel it points at
+   a plain .mp4 on telesco.pe. Private channels render an empty widget — null,
+   not a guess. */
+async function viaTelegram(url: string, signal: AbortSignal): Promise<MediaInfo | null> {
+  const m = url.match(/t\.me\/(?:s\/)?([^/?#]+)\/(\d+)/);
+  if (!m) return null;
+  const r = await fetch(`https://t.me/${m[1]}/${m[2]}?embed=1&mode=tme`, { headers: { "User-Agent": UA }, signal }).catch(() => null);
+  if (!r?.ok) return null;
+  const html = await r.text();
+  const pick = (ext: string) => html.match(new RegExp(`https://[^"'\\s]*?(?:telesco\\.pe|cdn-telegram\\.org)/file/[^"'\\s]+?\\.${ext}`))?.[0];
+  const video = pick("mp4");
+  const image = pick("jpg");
+  const title = html.match(/tgme_widget_message_text[^>]*>([\s\S]{0,140}?)</)?.[1]?.replace(/<[^>]+>/g, "").trim()
+    || `${m[1]} · post ${m[2]}`;
+  const formats: MediaFormat[] = [];
+  if (video) formats.push(fmt("video", "mp4", "Original", video, title));
+  else if (image) formats.push(fmt("image", "jpg", "Original", image, title));
+  if (!formats.length) return null;
+  return { ok: true, platform: "telegram", platformName: "Telegram", title, thumbnail: image, formats };
+}
+
+/* ── provider: VK via the official API ─────────────────────────
+   VK answers scrapers with an anti-bot interstitial ("У вас большие запросы!")
+   — HTTP 200, ordinary-looking HTML, no media. It does this to datacenter
+   ranges essentially always, which is why the cobalt route stopped working and
+   why writing our own page scraper would hit the identical wall. The API is
+   the supported path and is not gated that way.
+
+   Joins the chain only when VK_ACCESS_TOKEN is set. Without it VK has no
+   provider at all, and resolveMedia says exactly that instead of reporting a
+   generic failure the owner cannot act on. */
+async function viaVkApi(url: string, signal: AbortSignal): Promise<MediaInfo | null> {
+  const token = process.env.VK_ACCESS_TOKEN;
+  if (!token) return null;
+  const m = url.match(/video(-?\d+)_(\d+)/);
+  if (!m) return null;
+  const q = new URLSearchParams({ videos: `${m[1]}_${m[2]}`, access_token: token, v: "5.199" });
+  const r = await fetch(`https://api.vk.com/method/video.get?${q}`, { headers: { "User-Agent": UA }, signal }).catch(() => null);
+  if (!r?.ok) return null;
+  const j = (await r.json().catch(() => null)) as any;
+  const item = j?.response?.items?.[0];
+  if (!item?.files) return null;
+  const title = item.title || "VK video";
+  const formats = Object.keys(item.files)
+    .filter((k) => /^mp4_\d+$/.test(k))
+    .sort((a, b) => Number(b.split("_")[1]) - Number(a.split("_")[1]))
+    .map((k) => fmt("video", "mp4", `${k.split("_")[1]}p`, item.files[k], title));
+  if (!formats.length) return null;
+  const thumb = (item.image || []).slice(-1)[0]?.url;
+  return { ok: true, platform: "vk", platformName: "VK", title, thumbnail: thumb, duration: item.duration, formats };
+}
+
 /* ── the chain ────────────────────────────────────────────────── */
 export async function resolveMedia(pageUrl: string): Promise<MediaInfo | MediaError> {
   let url = pageUrl.trim();
@@ -334,23 +473,35 @@ export async function resolveMedia(pageUrl: string): Promise<MediaInfo | MediaEr
     const isDirect = !!extOf(url);
     if (!platform && !isDirect) return { ok: false, error: "unsupported_platform" };
 
+    /* Our own extractors run FIRST, cobalt only as the fallback behind them.
+       For most platforms cobalt used to be the sole route, which made one
+       self-hosted box a single point of failure for the site's most-visited
+       page — and when it stopped answering, /downloader/vk served 107 sessions
+       in a week without delivering a single file. Every provider below is
+       keyless and runs in-process, so a platform we can read ourselves keeps
+       working no matter what cobalt is doing. */
+    const own: Record<string, (u: string, s: AbortSignal) => Promise<MediaInfo | null>> = {
+      tiktok: viaTikwm,          // keyless, no watermark, survives datacenter IPs
+      soundcloud: viaSoundcloud, // cobalt's soundcloud route is IP-blocked from datacenters
+      vimeo: viaVimeo,
+      pinterest: viaPinterest,
+      ok: viaOk,
+      telegram: viaTelegram,
+      vk: viaVkApi,              // API only — VK blocks scraping outright
+    };
     const attempts: Array<() => Promise<MediaInfo | null>> = [];
-    if (platform?.id === "tiktok") {
-      // keyless tikwm is faster AND survives datacenter IPs — try it first
-      attempts.push(() => viaTikwm(url, c.signal));
-      attempts.push(() => viaCobalt(url, c.signal));
-    } else if (platform?.id === "soundcloud") {
-      // cobalt's soundcloud route is IP-blocked from datacenters — own extractor first
-      attempts.push(() => viaSoundcloud(url, c.signal));
-      attempts.push(() => viaCobalt(url, c.signal));
-    } else if (platform) {
-      attempts.push(() => viaCobalt(url, c.signal));
-    }
+    const mine = platform ? own[platform.id] : undefined;
+    if (mine) attempts.push(() => mine(url, c.signal));
+    if (platform) attempts.push(() => viaCobalt(url, c.signal));
     if (isDirect) attempts.push(() => viaDirect(url));
 
     for (const a of attempts) {
       try { const r = await a(); if (r && r.formats.length) return r; } catch { /* next */ }
     }
+    /* Name the cause the owner can actually act on. VK without a token is not
+       the same failure as a deleted video, and telling the user "couldn't read
+       that link" for a missing env var hides a one-line fix for months. */
+    if (platform?.id === "vk" && !process.env.VK_ACCESS_TOKEN) return { ok: false, error: "vk_needs_api" };
     return { ok: false, error: process.env.COBALT_API_URL ? "extraction_failed" : "engine_not_configured" };
   } finally {
     clearTimeout(t);

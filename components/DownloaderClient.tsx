@@ -298,6 +298,9 @@ function msgFor(error: string): string {
     case "unsupported_platform": return "That site isn't supported yet. Try TikTok, Instagram, VK, X, Facebook, Pinterest or Reddit.";
     case "engine_not_configured": return "This platform is coming online shortly — please try again soon.";
     case "extraction_failed": return "Couldn't read that link. It may be private, deleted, or region-locked.";
+    // VK blocks scraping outright, so this is a missing key — not a bad link.
+    // Saying so keeps people from retrying a link that was never the problem.
+    case "vk_needs_api": return "VK downloads are being reconnected — this one needs our VK access to be restored. Other platforms still work.";
     case "invalid_url": return "That doesn't look like a valid link.";
     case "rate_limited": return "Too many downloads — please wait a minute and try again.";
     default: return "Something went wrong. Please try another link.";
