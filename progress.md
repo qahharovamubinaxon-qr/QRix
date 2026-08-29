@@ -2616,3 +2616,29 @@ VK is written and waiting on VK_ACCESS_TOKEN, which only the owner can create.
 Live behaviour today is the honest `vk_needs_api`.
 
 Merged to main as e4787b1.
+
+### M153c — Odnoklassniki, and a bug only production could show
+
+The OK.ru extractor worked first try against a real link: six renditions
+(FULL/HD/SD/LOW/LOWEST/MOBILE, sorted by OK's own naming), correct title, and
+a media URL answering 200 locally.
+
+In production every download returned 403 bad_token. OK serves a different CDN
+depending on where the request comes from — mycdn.me to Uzbekistan, which was
+allowlisted, and vkuser.net to Vercel's us-east range, which was not. So
+verifyMedia rejected a token the same server had just signed. The extractor was
+never the problem; the allowlist had been written from the only country we had
+ever tested from.
+
+Verified after the fix, on production: 200, video/mp4, 46.6 MB pulled, first
+bytes `ftypisom` — a real playable MP4.
+
+Downloader status after M153: Rutube, Telegram, Pinterest, Odnoklassniki,
+TikTok and SoundCloud all verified live end-to-end. VK is written and waiting
+on VK_ACCESS_TOKEN. Instagram is not possible keyless — evidence in M153b.
+
+Lesson worth keeping: for any platform that shards by region, a local pass says
+nothing about which host production will be handed. Test the file proxy from
+production, not just the resolver from here.
+
+Merged to main as 2ae7a4d.
