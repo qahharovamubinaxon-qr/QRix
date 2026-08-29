@@ -2642,3 +2642,36 @@ nothing about which host production will be handed. Test the file proxy from
 production, not just the resolver from here.
 
 Merged to main as 2ae7a4d.
+
+### M153d — correcting the VK/Instagram conclusion
+
+The owner pointed out that Instagram used to work. That is right, and the
+M153b note read as if Instagram had never been possible. It was: it worked
+through cobalt, and it stopped when cobalt stopped. What M153b actually
+established is narrower — there is no KEYLESS SERVER-SIDE route to Instagram
+media, which is a statement about writing our own extractor, not about whether
+the feature ever functioned.
+
+VK was re-tested properly rather than left at the earlier "blocked" reading,
+which was partly self-inflicted: repeated probes from one IP earn a rate-limit
+that looks identical to a permanent block.
+
+With a cookie jar and manual redirects VK behaves quite differently from the
+first probe. vkvideo.ru attempts an autologin, fails with "invalid user" and
+lands on badbrowser.php. vk.com/video_ext.php does return a real embed page —
+but the media URLs are no longer in it. The 22 KB of player config carries only
+feature flags (hls_fmp4, useManagedMediaSource, …); the modern VK player
+fetches its sources through a separate authenticated call.
+
+So a VK extractor is not a one-off piece of code, it is a maintained
+adversarial target — which is precisely the job cobalt and yt-dlp do full time.
+
+And VK's API is not the cheap alternative it looked like: obtaining a token now
+requires business verification with SWIFT and bank-card details. That is not a
+reasonable price for one downloader route, and it was declined.
+
+Conclusion for both platforms: the realistic route is a working cobalt
+instance, not our own scrapers. The rest of the downloader no longer depends on
+it — Rutube, Telegram, Pinterest, Odnoklassniki, TikTok and SoundCloud are all
+in-process and verified live — so cobalt is now a fallback that adds VK,
+Instagram, Facebook and X rather than a single point of failure for everything.
