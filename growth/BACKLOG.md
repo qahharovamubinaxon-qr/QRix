@@ -111,18 +111,28 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
      session and both times were a session finding it by accident while
      scoping something else.
   Verify each candidate against `npm run kpi` output before building, not after.
-- [~] SWEEP: find every "generic tool page that earns real impressions has no
-  link to the dedicated long-tail family built for it" pair, the shape found
-  twice by accident on Aug 12 (remove-bg -> /remove-background/*, cb9f949; and
-  passport-photo -> /passport-photo/*, 5c8462e). Both times a session found it
-  while scoping something else, not by looking for it directly. Method: for
-  every top-level family in app/sitemap.ts that is NOT reachable from the
-  generic tool page whose traffic it was built to catch, check with the same
-  curl the two fixes above used (`curl .../GENERIC-PAGE | grep 'href="/FAMILY'`)
-  before assuming a family with real content is actually being found by the
-  visitors its own traffic justified building it for.
-  next: enumerate families from app/sitemap.ts, pair each to its generic
-  parent tool page, curl-check for a live href.
+- [x] Aug 29: SWEEP done — found every family array in app/sitemap.ts and
+  checked each against its generic parent tool page with the same
+  `curl .../GENERIC-PAGE | grep 'href="/FAMILY'` the two Aug 12 fixes used.
+  Result: exactly 5 family arrays exist site-wide (grep for the pattern
+  across lib/*.ts), and now all 5 are reachable from the traffic-earning
+  page they were built for:
+    - BG_USE_CASES -> /image-tools/remove-bg — already fixed (cb9f949, Aug 12)
+    - PASSPORT_SIZES -> /image-tools/passport-photo — already fixed (5c8462e, Aug 12)
+    - CONVERT_PAIRS (20 pairs) -> /image-tools/convert — WAS ORPHANED, fixed
+      today (588a1f3): 0 links before, chip list by format pair after
+    - RESIZE_PRESETS (25 presets) -> /image-tools/resize — WAS ORPHANED, fixed
+      today (588a1f3): 0 links before, chips grouped by Display/Web/ID/Print after
+    - BARCODE_TYPES -> /barcode and DL_PLATFORMS -> /downloader — both already
+      self-linked (13 and 16 hrefs respectively); these are hub pages that list
+      their own children directly, not a second orphaned "generic tool" page,
+      so no defect.
+  Both families were already registered in lib/search-index.ts (unlike the
+  Aug 12 pair, which needed that too) — only the on-page link was missing.
+  tsc clean, both pushed, verified live.
+  NOT covered by this sweep: whether any of these pages actually earn GSC
+  impressions worth the internal-link equity (no live GSC read this session).
+  The pattern-completeness is what was being closed, not a traffic claim.
 - [ ] Only 67 of ~810 URLs earn a single impression. Before adding pages, find
   out whether the other ~740 are (a) not indexed, or (b) indexed and never
   shown — different problems with different fixes. The URL Inspection API is
