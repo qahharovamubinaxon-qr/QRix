@@ -35,6 +35,35 @@ breaks whenever VK changes something. That is exactly the job cobalt does full
 time, which is why the answer is to run cobalt rather than to reimplement it
 badly.
 
+## Why not the official APIs
+
+This is the obvious question and the answer is no for both, for different
+reasons. Checked August 2026.
+
+**Instagram — no such API exists.** Meta's Graph API only reaches accounts you
+own or manage, and only Professional (Business/Creator) accounts have any API
+access at all. There is no endpoint, at any price tier, that returns the media
+of an arbitrary public reel. Every service that downloads Instagram posts is
+scraping; none of them is using an API, whatever their marketing says.
+
+**VK — an API exists, but not one this product can use.** Three separate walls,
+and any one of them is enough:
+
+1. Creating an app requires profile verification within 60 days or the app is
+   blocked. That verification is what asked for SWIFT and bank-card details.
+2. A *service* key only works for VK's "open" methods. `video.get` is not one
+   of them — it needs a **user** token.
+3. A user token acts as that person's own account. Pointing a public
+   downloader at the owner's personal VK account risks the account, not just
+   the feature.
+
+So for both platforms the only working route is the one cobalt already takes.
+That is not a workaround; it is the actual state of the world.
+
+**Paid third-party APIs** do exist for both, and what they sell is the
+scraping, maintained for you. That is a real option, it costs money monthly,
+and reliability varies — it is the owner's call, and nothing here assumes it.
+
 ## Deploying
 
 Everything is in `docker-compose.yml`, with the steps in its header comment.
