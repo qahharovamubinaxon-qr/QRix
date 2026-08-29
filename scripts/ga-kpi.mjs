@@ -172,9 +172,16 @@ await table("countries", "country");
 /* The funnel — the only thing that answers "did they SUCCEED".
    DownloaderClient fires tool_used twice on purpose: once when the link
    RESOLVES and once when DOWNLOAD is pressed, so `action` separates intent from
-   result. These dimensions were registered on 2026-08-24 and GA4 custom
-   dimensions are NOT retroactive, so any window before that reports "(not set)"
-   no matter how the query is written. That is a data boundary, not a bug. */
+   result. Most other tools send only `tool`, so THEIR rows land in the
+   `action`/`platform` "(not set)" bucket legitimately — that bucket is not
+   evidence of anything on its own.
+
+   The dimensions were registered on 2026-08-24 and GA4 does not backfill, so
+   earlier events also read "(not set)". Two different causes, one label: never
+   attribute it to the date alone. What IS readable is a NAMED value that should
+   be present and is absent — 107 sessions on /downloader/vk producing zero
+   `downloader` rows is a finding, and it was the one that surfaced the broken
+   cobalt resolver. */
 const funnel = async (label, dim, limit = 10) => {
   const r = await report({
     dateRanges: [cur], dimensions: [{ name: dim }],
@@ -185,7 +192,7 @@ const funnel = async (label, dim, limit = 10) => {
   console.log("\n  " + label + ":");
   for (const row of r.rows || []) {
     const v = row.dimensionValues[0].value;
-    const note = v === "(not set)" ? "(recorded before 24 Aug - dimension did not exist yet)" : v;
+    const note = v === "(not set)" ? "(no value: either recorded before 24 Aug, or this event does not send this param)" : v;
     console.log("      " + String(row.metricValues[0].value).padStart(6) + " events "
       + String(row.metricValues[1].value).padStart(5) + " users  " + note);
   }
