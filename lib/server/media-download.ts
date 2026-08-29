@@ -119,12 +119,19 @@ export function verifyMedia(token: string): VerifiedToken | null {
       return { kind: "hls", playlistUrl: p.u, filename, mime };
     }
 
-    // direct: defence in depth — only ever proxy from a supported media / CDN
-    // host, or our own cobalt instance (tunnel streams).
+    /* direct: defence in depth — only ever proxy from a supported media / CDN
+       host, or our own cobalt instance (tunnel streams).
+
+       This list is only as good as the hosts we have actually SEEN. Odnoklassniki
+       hands out a different CDN depending on where the request comes from: from
+       Uzbekistan it answered mycdn.me, which was allowlisted, while from Vercel's
+       us-east range it answered vkuser.net, which was not — so the resolver
+       worked locally and every real download 403'd with bad_token. A local pass
+       proves nothing about which CDN production will be given. */
     const host = hostOf(p.u);
     const cob = cobaltHost();
     const ok = SUPPORTED_DOMAINS.some((d) => host.includes(d)) ||
-      /(tikwm\.com|tiktokcdn|fbcdn|cdninstagram|pinimg|vkuservideo|vkuseraudio|vk-cdn|mycdn\.me|akamaized|akamaihd|vimeocdn|sndcdn|twimg|ttwstatic|muscdn|bcbits|dmcdn|byteoversea|redditvideo|redd\.it|v\.redd|pinterest|okcdn|mvk\.com|telesco\.pe|cdn-telegram\.org|vkvideo\.ru|userapi\.com|rtbcdn\.ru|rutube\.ru)/.test(host) ||
+      /(tikwm\.com|tiktokcdn|fbcdn|cdninstagram|pinimg|vkuservideo|vkuseraudio|vk-cdn|mycdn\.me|akamaized|akamaihd|vimeocdn|sndcdn|twimg|ttwstatic|muscdn|bcbits|dmcdn|byteoversea|redditvideo|redd\.it|v\.redd|pinterest|okcdn|mvk\.com|telesco\.pe|cdn-telegram\.org|vkvideo\.ru|userapi\.com|rtbcdn\.ru|rutube\.ru|vkuser\.net|okcdn\.ru|ok\.ru)/.test(host) ||
       (!!cob && host === cob);
     if (!ok) return null;
     return { kind: "direct", url: p.u, filename, mime };
