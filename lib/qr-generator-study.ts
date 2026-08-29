@@ -153,11 +153,11 @@ export const VENDORS: Vendor[] = [
     host: "forqrcode.com",
     sourceUrl: "https://forqrcode.com/",
     sourceLabel: "Homepage + FAQ",
-    checked: D,
+    checked: "2026-08-29",
     shape: "static-only",
     headline: "Free vector output and no scan limit, stated on the page — a straightforward static generator.",
     evidence: [
-      "our QR codes are not limited to the number of scans",
+      "Static QR codes from ForQRCode do not expire and are not capped by scan count.",
     ],
     checks: {
       permanent: OK("The page's own summary line says the codes never expire."),

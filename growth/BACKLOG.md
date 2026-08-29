@@ -111,20 +111,55 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
      session and both times were a session finding it by accident while
      scoping something else.
   Verify each candidate against `npm run kpi` output before building, not after.
-- [ ] SWEEP: find every "generic tool page that earns real impressions has no
-  link to the dedicated long-tail family built for it" pair, the shape found
-  twice by accident on Aug 12 (remove-bg -> /remove-background/*, cb9f949; and
-  passport-photo -> /passport-photo/*, 5c8462e). Both times a session found it
-  while scoping something else, not by looking for it directly. Method: for
-  every top-level family in app/sitemap.ts that is NOT reachable from the
-  generic tool page whose traffic it was built to catch, check with the same
-  curl the two fixes above used (`curl .../GENERIC-PAGE | grep 'href="/FAMILY'`)
-  before assuming a family with real content is actually being found by the
-  visitors its own traffic justified building it for.
-- [ ] Only 67 of ~810 URLs earn a single impression. Before adding pages, find
-  out whether the other ~740 are (a) not indexed, or (b) indexed and never
-  shown — different problems with different fixes. The URL Inspection API is
-  available to the same service account now; sample 30 URLs across families.
+- [x] Aug 29: SWEEP done — found every family array in app/sitemap.ts and
+  checked each against its generic parent tool page with the same
+  `curl .../GENERIC-PAGE | grep 'href="/FAMILY'` the two Aug 12 fixes used.
+  Result: exactly 5 family arrays exist site-wide (grep for the pattern
+  across lib/*.ts), and now all 5 are reachable from the traffic-earning
+  page they were built for:
+    - BG_USE_CASES -> /image-tools/remove-bg — already fixed (cb9f949, Aug 12)
+    - PASSPORT_SIZES -> /image-tools/passport-photo — already fixed (5c8462e, Aug 12)
+    - CONVERT_PAIRS (20 pairs) -> /image-tools/convert — WAS ORPHANED, fixed
+      today (588a1f3): 0 links before, chip list by format pair after
+    - RESIZE_PRESETS (25 presets) -> /image-tools/resize — WAS ORPHANED, fixed
+      today (588a1f3): 0 links before, chips grouped by Display/Web/ID/Print after
+    - BARCODE_TYPES -> /barcode and DL_PLATFORMS -> /downloader — both already
+      self-linked (13 and 16 hrefs respectively); these are hub pages that list
+      their own children directly, not a second orphaned "generic tool" page,
+      so no defect.
+  Both families were already registered in lib/search-index.ts (unlike the
+  Aug 12 pair, which needed that too) — only the on-page link was missing.
+  tsc clean, both pushed, verified live.
+  NOT covered by this sweep: whether any of these pages actually earn GSC
+  impressions worth the internal-link equity (no live GSC read this session).
+  The pattern-completeness is what was being closed, not a traffic claim.
+- [x] Aug 29: ANSWERED — `npm run inspect` sampled 38 URLs stratified across
+  all 13 sitemap families (841 URLs total). Result is not close: **14/38
+  indexed (37%)**, and of the 24 not indexed, EVERY SINGLE ONE says "never
+  crawled" — 14 "Discovered - currently not indexed" (Google knows the URL
+  exists, chose not to fetch it) and 10 "URL is unknown to Google" (never
+  even discovered). Zero were "indexed and just not ranking" and zero were
+  "crawled and rejected for quality". This is a discovery/crawl-budget
+  problem, not a content-quality or ranking problem.
+  Notable specifics: entire families came back 100% unindexed in this sample
+  — convert en, convert ru/uz, resize en, resize ru/uz, pdf-tools, barcode.
+  /barcode itself (the hub, priority 0.8, real content, 13 internal links to
+  its own children) is "Discovered - currently not indexed" — not a thin or
+  orphaned page, just never crawled. image-tools/qr-tools/ai-tools/video-3d/
+  use/blog all showed a healthy IN/OUT mix, so this isn't uniform: it reads
+  like crawl budget getting spent on the families Google already trusts and
+  never reaching the newer/larger ones.
+  STRATEGIC CONSEQUENCE, ties directly to TWO_FRONTS.md G2: with 1 referring
+  domain, Google has no reason to allocate more crawl budget here. Building
+  more pages against this bottleneck adds more never-crawled URLs, not more
+  traffic — the fix is authority (finish DIRECTORY_KIT.md's remaining free
+  do-follow directories) and internal-link depth to the families getting
+  skipped, not new content. This is now the strongest evidence yet for P2's
+  own rule ("expansion only where GSC/Yandex data shows real queries").
+  Not measured this pass, worth a follow-up: whether the families that DID
+  index share a trait (older, or more externally-linked, or shallower path)
+  — the 38-URL sample isn't enough to say, `npm run inspect -- --per 10`
+  would sharpen it.
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
 
@@ -1721,15 +1756,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   for `<XClient`/`<XTool` renders and check for a `lang=` prop. Six wrappers
   exist; four render no client at all, LocalizedBarcodePage was fixed by M149,
   and LocalizedToolEngine is the hit.
-- [ ] Metric-matched @font-face fallback for Bricolage Grotesque
-  (size-adjust / ascent-override / descent-override on a `local("Arial")`
-  face, the trick next/font's adjustFontFallback does). Every text block on
-  the site re-wraps when the 75 KB webfont swaps in; the consent banner is
-  just the one place it was measurable, because it is bottom-anchored, and
-  M135 bought that one back by dropping the brand font there. A matched
-  fallback would let it keep the face and would cut swap reflow everywhere.
-  Needs the font's real metrics — @capsizecss/metrics has them, or measure
-  empirically in the browser; do NOT guess the numbers.
+- [x] Aug 29: SHIPPED (58eaa92) — metric-matched fallback face for Bricolage
+  Grotesque. Real metrics, not guessed: fetched @capsizecss/metrics 4.2.0's
+  bricolageGrotesque/regular and arial/regular JSON directly (unpkg, no
+  package install needed — this is dev-time data, never shipped), and
+  confirmed the override formula against next/font's own source
+  (get-fallback-metrics-from-font-file.js on unpkg, since GitHub's API was
+  rate-limited): size-adjust = (targetAvgWidth/targetUPM) /
+  (fallbackAvgWidth/fallbackUPM); each override = targetMetric /
+  (targetUPM * size-adjust). Result: size-adjust 105.43%, ascent-override
+  88.21%, descent-override 25.61%, line-gap-override 0.00%. New
+  "Bricolage Grotesque Fallback" @font-face (local(Arial)) added to
+  app/globals.css (not app/fonts.css — that file is machine-generated by
+  fetch-fonts.mjs and this face is hand-authored), inserted into
+  --font-display/--font-body between the webfont and Inter.
+  Also removed the .qx-consent system-ui carve-out from M135 — that was the
+  workaround for the exact swap reflow this fix eliminates, so the banner
+  uses the normal brand stack again. tsc clean, pushed both branches.
 - [ ] Multi-file for the engines that still take one file. The old "batch
   conversion for real" item was written against a gap that has since closed:
   ImageConvertClient (convert:/social:/resize: — the /convert pages the item
