@@ -19,7 +19,7 @@
    a broken extractor, and that cost an hour the first time. Every default
    below is a real, public, long-lived post. When adding one, open it in a
    browser first. */
-import { resolveMedia, verifyMedia, MEDIA_UA } from "../lib/server/media-download.ts";
+import { resolveMedia, verifyMedia, streamHls, MEDIA_UA } from "../lib/server/media-download.ts";
 import { detectPlatform } from "../lib/downloader-platforms.ts";
 
 /* Real public posts. Fill in the platforms we could not verify yet — VK, OK,
@@ -83,6 +83,37 @@ for (const url of urls) {
       ? `${res.status} ${res.type} ${res.len ? Math.round(res.len / 1024) + " KB" : "streaming"}`
       : `${res.status || res.err} — resolves but will NOT download`}`);
     if (!res.ok) failed++;
+  } else if (d?.kind === "hls") {
+    /* An HLS format is assembled from many segment fetches, so "the playlist
+       parsed" proves nothing. Pull the first few segments and check the sync
+       byte: 0x47 is what makes the bytes a real MPEG-TS the browser can remux.
+       Without this the format list looks healthy while the download is empty —
+       the exact failure mode this whole script exists for. */
+    const stream = await streamHls(d.playlistUrl).catch(() => null);
+    if (!stream) {
+      console.log("     media: playlist parsed but yields no stream");
+      failed++;
+    } else {
+      const reader = stream.getReader();
+      let bytes = 0, segs = 0, first = null;
+      try {
+        while (segs < 3) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (first === null) first = value[0];
+          bytes += value.length; segs++;
+        }
+      } catch (e) {
+        console.log(`     media: segment fetch failed — ${e.message}`);
+        failed++;
+      }
+      reader.cancel().catch(() => {});
+      if (segs) {
+        const ts = first === 0x47;
+        console.log(`     media: ${segs} segment(s), ${Math.round(bytes / 1024)} KB, ${ts ? "valid MPEG-TS" : `first byte 0x${first?.toString(16)} — NOT MPEG-TS`}`);
+        if (!ts) failed++;
+      }
+    }
   } else if (d) {
     console.log(`     media: re-resolved at download time (${d.kind}) — not checked here`);
   }

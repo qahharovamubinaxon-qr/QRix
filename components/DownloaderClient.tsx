@@ -20,6 +20,8 @@ type Fmt = {
   id: string; type: "video" | "audio" | "image"; container: string; quality: string; label: string; token: string;
   /** client-side fallback: download the video stream, extract its soundtrack in-browser */
   extract?: boolean;
+  /** HLS platforms arrive as MPEG-TS; the browser turns it into a real MP4 */
+  remux?: boolean;
 };
 type Info = { ok: true; platform: string; platformName: string; title: string; thumbnail?: string; author?: string; duration?: number; formats: Fmt[] };
 
@@ -88,8 +90,9 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
       const res = await fetch(`/api/download/file?t=${encodeURIComponent(f.token)}`);
       if (!res.ok || !res.body) throw new Error("stream");
       const total = Number(res.headers.get("content-length")) || 0;
-      // when we still have to extract audio locally, the stream is only ~70% of the job
-      const cap = f.extract ? 70 : 99;
+      // when there is still local work to do (audio extract, TS→MP4 remux) the
+      // download is only part of the job, so the bar stops short of the end
+      const cap = f.extract || f.remux ? 70 : 99;
       const reader = res.body.getReader();
       const chunks: Uint8Array[] = [];
       let got = 0;
@@ -103,6 +106,18 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
         setDl({ id: f.id, pct: 70 });
         const { extractAudioMp3 } = await import("@/lib/video/convert-mb");
         blob = await extractAudioMp3(blob, (p) => setDl({ id: f.id, pct: 70 + Math.round(p * 29) }));
+      } else if (f.remux) {
+        /* Rutube (and any HLS source) reaches us as MPEG-TS, which most
+           players on Windows will not open. Mediabunny reads MPEG-TS and
+           writes MP4, so the container is fixed here rather than shipping a
+           .ts file and calling the download a success. */
+        setDl({ id: f.id, pct: 70 });
+        const { convertVideo } = await import("@/lib/video/convert-mb");
+        const out = await convertVideo(blob, {
+          format: "mp4",
+          onProgress: (p) => setDl({ id: f.id, pct: 70 + Math.round(p * 29) }),
+        });
+        blob = out.blob;
       }
       setDl({ id: f.id, pct: 100 });
       const name = `${(info?.title || "qrix-download").replace(/[^\w\-. ]+/g, "").trim().slice(0, 60) || "qrix-download"}.${f.container}`;
@@ -112,6 +127,8 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
     } catch {
       setErr(f.extract
         ? "Couldn't extract audio from this video in your browser. Try downloading the video instead."
+        : f.remux
+        ? "Couldn't finish converting this video in your browser. Try a lower quality, or another browser."
         : "Download failed — the link may have expired. Paste it again.");
     } finally {
       setTimeout(() => setDl(null), 600);

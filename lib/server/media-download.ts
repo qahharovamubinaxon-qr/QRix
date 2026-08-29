@@ -36,6 +36,8 @@ export type MediaFormat = {
   label: string;       // human label for the button
   token: string;       // signed handle → /api/download/file?t=<token>
   size?: number;
+  /** the proxy will deliver MPEG-TS; the browser has to remux it to MP4 */
+  remux?: boolean;
 };
 
 export type MediaInfo = {
@@ -83,7 +85,8 @@ export function signMedia(url: string, filename: string, mime: string): string {
 export type VerifiedToken =
   | { kind: "direct"; url: string; filename: string; mime: string }
   | { kind: "cobalt"; pageUrl: string; mode: "auto" | "audio"; index?: number; filename: string; mime: string }
-  | { kind: "soundcloud"; pageUrl: string; filename: string; mime: string };
+  | { kind: "soundcloud"; pageUrl: string; filename: string; mime: string }
+  | { kind: "hls"; playlistUrl: string; filename: string; mime: string };
 
 export function verifyMedia(token: string): VerifiedToken | null {
   try {
@@ -107,13 +110,21 @@ export function verifyMedia(token: string): VerifiedToken | null {
       if (!/(^|\.)(soundcloud\.com|snd\.sc)$/.test(hostOf(p.u))) return null;
       return { kind: "soundcloud", pageUrl: p.u, filename, mime };
     }
+    if (kind === "h") {
+      /* An HLS playlist is a list of segment URLs, so signing it hands the
+         proxy a fetch list rather than one file. Restricted to the CDNs that
+         actually serve our HLS platforms, or the signature becomes a way to
+         make the server walk an arbitrary playlist. */
+      if (!/(rutube\.ru|rtbcdn\.ru)$/.test(hostOf(p.u))) return null;
+      return { kind: "hls", playlistUrl: p.u, filename, mime };
+    }
 
     // direct: defence in depth — only ever proxy from a supported media / CDN
     // host, or our own cobalt instance (tunnel streams).
     const host = hostOf(p.u);
     const cob = cobaltHost();
     const ok = SUPPORTED_DOMAINS.some((d) => host.includes(d)) ||
-      /(tikwm\.com|tiktokcdn|fbcdn|cdninstagram|pinimg|vkuservideo|vkuseraudio|vk-cdn|mycdn\.me|akamaized|akamaihd|vimeocdn|sndcdn|twimg|ttwstatic|muscdn|bcbits|dmcdn|byteoversea|redditvideo|redd\.it|v\.redd|pinterest|okcdn|mvk\.com|telesco\.pe|cdn-telegram\.org|vkvideo\.ru|userapi\.com)/.test(host) ||
+      /(tikwm\.com|tiktokcdn|fbcdn|cdninstagram|pinimg|vkuservideo|vkuseraudio|vk-cdn|mycdn\.me|akamaized|akamaihd|vimeocdn|sndcdn|twimg|ttwstatic|muscdn|bcbits|dmcdn|byteoversea|redditvideo|redd\.it|v\.redd|pinterest|okcdn|mvk\.com|telesco\.pe|cdn-telegram\.org|vkvideo\.ru|userapi\.com|rtbcdn\.ru|rutube\.ru)/.test(host) ||
       (!!cob && host === cob);
     if (!ok) return null;
     return { kind: "direct", url: p.u, filename, mime };
@@ -136,6 +147,17 @@ const fmtVia = (k: "c" | "s", type: MediaFormat["type"], container: string, qual
   type, container, quality,
   label: label(type, container, quality),
   token: signPayload({ k, u: pageUrl, d: mode, ...(index != null ? { i: index } : {}), f: `${slug(title)}.${container}`, m: mimeFor(container), e: Date.now() + TOKEN_TTL_MS }),
+});
+/** A format whose bytes are assembled from an HLS playlist at download time.
+    `remux` tells the client the stream arrives as MPEG-TS and has to be turned
+    into MP4 in the browser — the same shape as the existing audio-extract
+    path, so the progress UI already knows how to show it. */
+const fmtHls = (quality: string, playlistUrl: string, title: string): MediaFormat => ({
+  id: `video-mp4-${quality}`.replace(/\s+/g, ""),
+  type: "video", container: "mp4", quality,
+  label: label("video", "mp4", quality),
+  remux: true,
+  token: signPayload({ k: "h", u: playlistUrl, f: `${slug(title)}.ts`, m: "video/mp2t", e: Date.now() + TOKEN_TTL_MS }),
 });
 function mimeFor(container: string): string {
   const m: Record<string, string> = { mp4: "video/mp4", webm: "video/webm", mp3: "audio/mpeg", m4a: "audio/mp4", ogg: "audio/ogg", jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", webp: "image/webp", gif: "image/gif" };
@@ -427,6 +449,78 @@ async function viaTelegram(url: string, signal: AbortSignal): Promise<MediaInfo 
   return { ok: true, platform: "telegram", platformName: "Telegram", title, thumbnail: image, formats };
 }
 
+/* ── provider: Rutube ──────────────────────────────────────────
+   The play/options endpoint is public and keyless, but Rutube serves HLS and
+   nothing else: the CDN answers 403 to the underlying .mp4 path, so there is
+   no single URL to hand the proxy. The master playlist lists every rendition
+   from 144p to 1080p, twice over (two CDN mirrors per resolution), so the list
+   is de-duplicated by height, keeping the first mirror for each. */
+async function viaRutube(url: string, signal: AbortSignal): Promise<MediaInfo | null> {
+  const id = url.match(/rutube\.ru\/(?:video|play\/embed|shorts)\/([0-9a-f]{32})/i)?.[1];
+  if (!id) return null;
+  const r = await fetch(`https://rutube.ru/api/play/options/${id}/?format=json&no_404=true`, {
+    headers: { "User-Agent": UA, "Accept-Language": "ru,en" }, signal,
+  }).catch(() => null);
+  if (!r?.ok) return null;
+  const j = (await r.json().catch(() => null)) as any;
+  const master = j?.video_balancer?.m3u8 || j?.video_balancer?.default;
+  if (!master) return null;
+
+  const m = await fetch(master, { headers: { "User-Agent": UA }, signal }).catch(() => null);
+  if (!m?.ok) return null;
+  const lines = (await m.text()).split("\n");
+  const seen = new Set<number>();
+  const formats: MediaFormat[] = [];
+  const title = j.title || "Rutube video";
+  for (let i = 0; i < lines.length; i++) {
+    if (!lines[i].startsWith("#EXT-X-STREAM-INF")) continue;
+    const height = Number(lines[i].match(/RESOLUTION=\d+x(\d+)/)?.[1] || 0);
+    const variant = (lines[i + 1] || "").trim();
+    if (!height || !variant.startsWith("http") || seen.has(height)) continue;
+    seen.add(height);
+    formats.push(fmtHls(`${height}p`, variant, title));
+  }
+  if (!formats.length) return null;
+  formats.sort((a, b) => parseInt(b.quality) - parseInt(a.quality));
+  return {
+    ok: true, platform: "rutube", platformName: "Rutube", title,
+    thumbnail: j.thumbnail_url, author: j.author?.name,
+    duration: j.duration ? Math.round(j.duration / 1000) : undefined,
+    formats,
+  };
+}
+
+/** Called by the file proxy: turns an HLS playlist into ONE byte stream by
+    fetching its segments in order. MPEG-TS concatenates cleanly — that is what
+    the format was designed for — so no muxing happens here; the browser turns
+    the result into MP4. Segments are fetched one at a time on purpose: a
+    1080p video is hundreds of them, and buffering the lot would blow the
+    function's memory on exactly the long videos people care about. */
+export async function streamHls(playlistUrl: string): Promise<ReadableStream<Uint8Array> | null> {
+  const r = await fetch(playlistUrl, { headers: { "User-Agent": UA } }).catch(() => null);
+  if (!r?.ok) return null;
+  const base = new URL(playlistUrl);
+  const segments = (await r.text())
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#"))
+    .map((l) => new URL(l, base).toString());
+  if (!segments.length) return null;
+
+  let i = 0;
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      if (i >= segments.length) { controller.close(); return; }
+      const seg = segments[i++];
+      const res = await fetch(seg, { headers: { "User-Agent": UA, Referer: "https://rutube.ru/" } }).catch(() => null);
+      /* One missing segment would silently produce a truncated video that
+         still opens — worse than a failed download, because nobody checks. */
+      if (!res?.ok) { controller.error(new Error(`segment ${i} of ${segments.length}: ${res?.status ?? "unreachable"}`)); return; }
+      controller.enqueue(new Uint8Array(await res.arrayBuffer()));
+    },
+  });
+}
+
 /* ── provider: VK via the official API ─────────────────────────
    VK answers scrapers with an anti-bot interstitial ("У вас большие запросы!")
    — HTTP 200, ordinary-looking HTML, no media. It does this to datacenter
@@ -487,6 +581,7 @@ export async function resolveMedia(pageUrl: string): Promise<MediaInfo | MediaEr
       pinterest: viaPinterest,
       ok: viaOk,
       telegram: viaTelegram,
+      rutube: viaRutube,         // HLS only; the browser remuxes what we assemble
       vk: viaVkApi,              // API only — VK blocks scraping outright
     };
     const attempts: Array<() => Promise<MediaInfo | null>> = [];
