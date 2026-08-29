@@ -2524,3 +2524,65 @@ earns real search traffic, a dedicated long-tail family exists, nothing links
 them) has shown up twice in one session, both times found by accident while
 scoping something else — worth checking directly next time rather than
 waiting for a third accident.
+
+---
+
+## Mission 153 — the downloader stops depending on one machine
+
+Started from the owner's question "did the people who came for /downloader/vk
+actually get their file". GA4 could not answer it until the custom dimensions
+`tool` / `action` / `platform` were registered (npm run ga:setup, 2026-08-24),
+and npm run ga now reports the funnel beside the totals.
+
+The answer was no. /downloader/vk is the most-visited page on the site — 99
+users, 107 sessions in seven days — and it produced **zero** successful
+tool_used events, while answering HTTP 200 the whole time. trackTool only fires
+on `j.ok`, so zero means nobody got a file.
+
+Cause: every platform except TikTok and SoundCloud resolved through a single
+self-hosted cobalt instance, and it had stopped answering. Probing production
+confirmed it — TikTok (keyless, no cobalt) returned ok:true with a real title;
+VK and OK.ru returned extraction_failed. The error was `extraction_failed`
+rather than `engine_not_configured`, which proves COBALT_API_URL *is* set: the
+instance is reachable-but-failing, not missing.
+
+Rebuilt so cobalt is a FALLBACK, not the primary route. In-process extractors:
+Vimeo (player config; HLS-only uploads return null rather than a button that
+fails at download), Pinterest (JSON island), Odnoklassniki (data-options →
+flashvars, both the inline and metadataUrl shapes), Telegram (?embed=1), and
+VK through the official API gated on VK_ACCESS_TOKEN.
+
+VK deliberately gets no scraper. It answers scrapers with an anti-bot
+interstitial — HTTP 200, ordinary HTML, no media — measured directly from a
+residential IP during this mission, on vk.com, vk.ru and video_ext.php alike.
+It does this to datacenter ranges essentially always, so our own scraper on
+Vercel would hit the identical wall. Writing one would have looked like
+progress and changed nothing.
+
+Two bugs found on the way:
+  · detectPlatform matched domains with host.includes(), and "pinteres[t.co]m"
+    contains Twitter's t.co — so every Pinterest link went to the Twitter
+    extractor. Anything ending in "t.com" hit it. Now matches label
+    boundaries; Pinterest resolves and downloads end to end, verified.
+  · The "(not set)" label in ga-kpi.mjs blamed the registration date for a
+    bucket with two causes; most tools send only `tool`, so their rows land
+    there legitimately and forever.
+
+New: `npm run probe:downloader [url…]` — resolves a link AND reaches past the
+signed token to check the real media URL will serve, because "the URL
+responds" and "the tool works" are different questions.
+
+Also added three project agents in .claude/agents/ (qrix-analyst,
+qrix-marketer, qrix-tool-qa), each forbidden from asserting what it did not
+measure.
+
+Verified: tsc clean · test:nav 6/6 · test:links 37/37 · probe:downloader
+delivers Pinterest end-to-end (200, real bytes).
+
+Remaining: OK.ru, Telegram and Rutube are unverified — the owner is supplying
+real links, and made-up video ids fail in a way indistinguishable from a
+broken extractor. Rutube serves HLS only, so it needs a remux step and is not
+built. Instagram is not built. VK stays dark until VK_ACCESS_TOKEN is set by
+the owner in Vercel.
+
+Merged to main as 1a05e75. Branch claude/qrix-six-point.
