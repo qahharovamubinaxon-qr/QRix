@@ -213,6 +213,43 @@ if (added.length && !flag("--no-indexnow")) {
 
 /* -------------------------------------------------------------- the verdict */
 
+/* Downloader canary.
+   The site's most-visited page spent a fortnight answering 200 while
+   delivering nothing to anyone: the page was up, the resolver behind it was
+   not, and nothing in this script could tell the difference. Checking that a
+   URL still 200s is not the same as checking the tool still works, so this
+   asks the live API to resolve a real link on each platform and reports what
+   it actually says. No secrets needed — it is the same call a visitor makes. */
+if (!flag("--no-downloader")) {
+  const CANARIES = [
+    ["ok.ru", "https://ok.ru/video/7475662490142"],
+    ["rutube", "https://rutube.ru/video/c599713cbb4c12ce90d498947c9ef571/"],
+    ["telegram", "https://t.me/telegram/406"],
+    ["pinterest", "https://www.pinterest.com/pin/99360735500167749/"],
+    ["vk", "https://vkvideo.ru/video-229033973_456239171"],
+  ];
+  console.log(`\n  Downloader — asking production to resolve a real link per platform:`);
+  for (const [name, link] of CANARIES) {
+    try {
+      const r = await fetch(`${ORIGIN}/api/download?url=${encodeURIComponent(link)}`, { signal: AbortSignal.timeout(45000) });
+      const j = await r.json();
+      if (j.ok) {
+        console.log(`  ok    ${name.padEnd(10)} ${j.formats.length} format(s)`);
+      } else {
+        /* VK and Instagram ride on cobalt, so their failure is expected while
+           no instance is configured. Saying "expected" out loud is the point:
+           an unexplained failure and a known gap look identical in a log, and
+           the last one went unnoticed for two weeks. */
+        const expected = j.error === "vk_needs_api";
+        if (expected) console.log(`  note  ${name.padEnd(10)} ${j.error}  (expected — no cobalt / VK token yet)`);
+        else fail(`downloader: ${name} -> ${j.error}`);
+      }
+    } catch (e) {
+      fail(`downloader: ${name} unreachable — ${e.message}`);
+    }
+  }
+}
+
 const clean = problems.length === 0;
 if (clean || flag("--update-baseline")) {
   writeFileSync(
@@ -226,7 +263,7 @@ if (clean || flag("--update-baseline")) {
 
 console.log(
   clean
-    ? `\nVERIFY: ok — ${targets.length} URLs, robots, sitemap ${current.length}${added.length ? ` (+${added.length})` : ""}${flag("--no-sources") ? "" : ", vendor sources"}`
+    ? `\nVERIFY: ok — ${targets.length} URLs, robots, sitemap ${current.length}${added.length ? ` (+${added.length})` : ""}${flag("--no-sources") ? "" : ", vendor sources"}, downloader canaries`
     : `\nVERIFY: issues — ${problems.length} problem(s):\n` + problems.map((p) => `  · ${p}`).join("\n"),
 );
 process.exit(clean ? 0 : 1);

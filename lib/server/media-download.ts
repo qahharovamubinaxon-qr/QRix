@@ -69,8 +69,19 @@ function secret(): string {
 function hostOf(u: string): string {
   try { return new URL(u).hostname.toLowerCase(); } catch { return ""; }
 }
-function cobaltHost(): string {
-  return hostOf(process.env.COBALT_API_URL || "");
+/* COBALT_API_URL accepts a COMMA-SEPARATED list, not just one URL.
+   One instance was the whole reason VK and Instagram went dark for a
+   fortnight: it stopped answering and there was nothing behind it. A list is
+   tried in order, so a dead box costs one timeout instead of the feature. A
+   single URL still works exactly as before. */
+function cobaltEndpoints(): string[] {
+  return (process.env.COBALT_API_URL || "")
+    .split(",")
+    .map((s) => s.trim().replace(/\/+$/, ""))
+    .filter(Boolean);
+}
+function cobaltHosts(): string[] {
+  return cobaltEndpoints().map(hostOf).filter(Boolean);
 }
 
 function signPayload(p: Record<string, unknown>): string {
@@ -129,10 +140,10 @@ export function verifyMedia(token: string): VerifiedToken | null {
        worked locally and every real download 403'd with bad_token. A local pass
        proves nothing about which CDN production will be given. */
     const host = hostOf(p.u);
-    const cob = cobaltHost();
+    const cobs = cobaltHosts();
     const ok = SUPPORTED_DOMAINS.some((d) => host.includes(d)) ||
       /(tikwm\.com|tiktokcdn|fbcdn|cdninstagram|pinimg|vkuservideo|vkuseraudio|vk-cdn|mycdn\.me|akamaized|akamaihd|vimeocdn|sndcdn|twimg|ttwstatic|muscdn|bcbits|dmcdn|byteoversea|redditvideo|redd\.it|v\.redd|pinterest|okcdn|mvk\.com|telesco\.pe|cdn-telegram\.org|vkvideo\.ru|userapi\.com|rtbcdn\.ru|rutube\.ru|vkuser\.net|okcdn\.ru|ok\.ru)/.test(host) ||
-      (!!cob && host === cob);
+      cobs.includes(host);
     if (!ok) return null;
     return { kind: "direct", url: p.u, filename, mime };
   } catch { return null; }
@@ -201,16 +212,24 @@ async function unshorten(u: string, signal: AbortSignal): Promise<string> {
 
 /* ── provider: cobalt (self-hosted) ───────────────────────────── */
 async function cobaltCall(url: string, mode: "auto" | "audio", signal?: AbortSignal): Promise<any | null> {
-  const api = process.env.COBALT_API_URL;
-  if (!api) return null;
-  const r = await fetch(api.replace(/\/$/, "") + "/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "application/json", ...(process.env.COBALT_API_KEY ? { Authorization: `Api-Key ${process.env.COBALT_API_KEY}` } : {}) },
-    body: JSON.stringify({ url, downloadMode: mode, videoQuality: "1080", audioFormat: "mp3", filenameStyle: "basic" }),
-    ...(signal ? { signal } : {}),
-  }).catch(() => null);
-  if (!r?.ok) return null;
-  return r.json().catch(() => null);
+  const endpoints = cobaltEndpoints();
+  if (!endpoints.length) return null;
+  for (const api of endpoints) {
+    const r = await fetch(`${api}/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json", ...(process.env.COBALT_API_KEY ? { Authorization: `Api-Key ${process.env.COBALT_API_KEY}` } : {}) },
+      body: JSON.stringify({ url, downloadMode: mode, videoQuality: "1080", audioFormat: "mp3", filenameStyle: "basic" }),
+      ...(signal ? { signal } : {}),
+    }).catch(() => null);
+    if (!r?.ok) continue;                       // dead or refusing — try the next
+    const j = await r.json().catch(() => null);
+    /* An instance that answers "error" for this URL is not necessarily broken —
+       the video may be private. But a second instance sometimes succeeds where
+       the first cannot (different IP, different cookies), so keep going and
+       only give up once every endpoint has had a turn. */
+    if (j && j.status !== "error") return j;
+  }
+  return null;
 }
 
 async function viaCobalt(url: string, signal: AbortSignal): Promise<MediaInfo | null> {
@@ -219,8 +238,8 @@ async function viaCobalt(url: string, signal: AbortSignal): Promise<MediaInfo | 
 
   const p = detectPlatform(url);
   const title = v.filename?.replace(/\.[a-z0-9]+$/i, "") || `${p?.name || "media"} download`;
-  const cob = cobaltHost();
-  const tunnel = (u: string) => !!cob && hostOf(u) === cob;
+  const cobs = cobaltHosts();
+  const tunnel = (u: string) => cobs.includes(hostOf(u));
   const formats: MediaFormat[] = [];
   let thumbnail: string | undefined;
 
@@ -603,8 +622,8 @@ export async function resolveMedia(pageUrl: string): Promise<MediaInfo | MediaEr
     /* Name the cause the owner can actually act on. VK without a token is not
        the same failure as a deleted video, and telling the user "couldn't read
        that link" for a missing env var hides a one-line fix for months. */
-    if (platform?.id === "vk" && !process.env.VK_ACCESS_TOKEN) return { ok: false, error: "vk_needs_api" };
-    return { ok: false, error: process.env.COBALT_API_URL ? "extraction_failed" : "engine_not_configured" };
+    if (platform?.id === "vk" && !process.env.VK_ACCESS_TOKEN && !cobaltEndpoints().length) return { ok: false, error: "vk_needs_api" };
+    return { ok: false, error: cobaltEndpoints().length ? "extraction_failed" : "engine_not_configured" };
   } finally {
     clearTimeout(t);
   }
