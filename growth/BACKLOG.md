@@ -133,10 +133,33 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   NOT covered by this sweep: whether any of these pages actually earn GSC
   impressions worth the internal-link equity (no live GSC read this session).
   The pattern-completeness is what was being closed, not a traffic claim.
-- [ ] Only 67 of ~810 URLs earn a single impression. Before adding pages, find
-  out whether the other ~740 are (a) not indexed, or (b) indexed and never
-  shown — different problems with different fixes. The URL Inspection API is
-  available to the same service account now; sample 30 URLs across families.
+- [x] Aug 29: ANSWERED — `npm run inspect` sampled 38 URLs stratified across
+  all 13 sitemap families (841 URLs total). Result is not close: **14/38
+  indexed (37%)**, and of the 24 not indexed, EVERY SINGLE ONE says "never
+  crawled" — 14 "Discovered - currently not indexed" (Google knows the URL
+  exists, chose not to fetch it) and 10 "URL is unknown to Google" (never
+  even discovered). Zero were "indexed and just not ranking" and zero were
+  "crawled and rejected for quality". This is a discovery/crawl-budget
+  problem, not a content-quality or ranking problem.
+  Notable specifics: entire families came back 100% unindexed in this sample
+  — convert en, convert ru/uz, resize en, resize ru/uz, pdf-tools, barcode.
+  /barcode itself (the hub, priority 0.8, real content, 13 internal links to
+  its own children) is "Discovered - currently not indexed" — not a thin or
+  orphaned page, just never crawled. image-tools/qr-tools/ai-tools/video-3d/
+  use/blog all showed a healthy IN/OUT mix, so this isn't uniform: it reads
+  like crawl budget getting spent on the families Google already trusts and
+  never reaching the newer/larger ones.
+  STRATEGIC CONSEQUENCE, ties directly to TWO_FRONTS.md G2: with 1 referring
+  domain, Google has no reason to allocate more crawl budget here. Building
+  more pages against this bottleneck adds more never-crawled URLs, not more
+  traffic — the fix is authority (finish DIRECTORY_KIT.md's remaining free
+  do-follow directories) and internal-link depth to the families getting
+  skipped, not new content. This is now the strongest evidence yet for P2's
+  own rule ("expansion only where GSC/Yandex data shows real queries").
+  Not measured this pass, worth a follow-up: whether the families that DID
+  index share a trait (older, or more externally-linked, or shallower path)
+  — the 38-URL sample isn't enough to say, `npm run inspect -- --per 10`
+  would sharpen it.
 - [ ] STRATEGY: read growth/SEO_STRATEGY.md at every session start — pick work
   that serves the CURRENT PHASE (P0 Foundation until its KPI gate passes).
 

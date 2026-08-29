@@ -149,6 +149,17 @@ which is a thing other people cite rather than a thing we ask them to link to.
 
 30 referring domains is the number that starts to move position. We have 1.
 
+**Confirmed 2026-08-29** (growth/BACKLOG.md, `npm run inspect`, 38-URL stratified
+sample): this is not a hypothesis any more. 24 of 38 sampled URLs are
+unindexed and every one of them is "never crawled" by Google — not "crawled
+and rejected", not "indexed but unranked". Whole families (convert, resize,
+pdf-tools, barcode — including the /barcode hub itself, which has real
+content and 13 internal links) came back 100% never-crawled in the sample.
+Zero evidence of a content or ranking problem; all the evidence is a crawl-
+budget/authority problem. This is the concrete number behind "the biggest
+mistake available is more pages against this bottleneck" — don't build new
+programmatic families until this moves.
+
 ## G3. Topical authority in one narrow place
 
 185 shallow tools read to Google as a directory. Forty deep pages about document
