@@ -2586,3 +2586,33 @@ built. Instagram is not built. VK stays dark until VK_ACCESS_TOKEN is set by
 the owner in Vercel.
 
 Merged to main as 1a05e75. Branch claude/qrix-six-point.
+
+### M153b — Rutube, and why Instagram is not here
+
+Rutube's play/options API is public and keyless but serves HLS only; the CDN
+403s the .mp4 its segment paths are named after. A new "h" token kind carries
+the variant playlist, the proxy concatenates the segments into one MPEG-TS
+response, and the browser remuxes to MP4 with mediabunny — the same shape as
+the existing audio-extract path. Segments are fetched one at a time (a 1080p
+video is hundreds of them) and a failed segment errors the stream rather than
+being skipped, because a silently truncated video still opens.
+
+Verified on production, end to end: 6 renditions (144p–1080p), and the file
+proxy streamed 166 MB of the 360p rendition at ~1.9 MB/s, first byte 0x47.
+
+KNOWN LIMIT: the browser holds the whole file in memory to remux it. That 20-
+minute video is 166 MB at 360p; at 1080p it is several times that, and a phone
+will not survive it. Short clips — which is most of what people paste — are
+fine. Offering six qualities is the mitigation, not a decoration.
+
+Instagram remains unsupported after real investigation, not assumption: reel
+pages carry no og:video, no video_url and no playable_url, under a browser UA
+(620 KB of HTML) or Googlebot (920 KB). The media exists only behind an
+authenticated GraphQL call, so there is no keyless server-side route. Adding it
+would need either a logged-in session cookie (fragile, against their terms) or
+a paid third-party API — an owner decision, not a coding one.
+
+VK is written and waiting on VK_ACCESS_TOKEN, which only the owner can create.
+Live behaviour today is the honest `vk_needs_api`.
+
+Merged to main as e4787b1.
