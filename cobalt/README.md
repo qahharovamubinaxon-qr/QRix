@@ -151,9 +151,35 @@ Resolving is not delivering, so the VK tunnel was pulled as well:
 **HTTP 200, `video/mp4`, 87,750,449 bytes in 49 s, first bytes `ftypisom`** — a
 real, playable MP4.
 
-So both dead platforms come back from this address, at no cost. That is the
-whole question answered, and it answers it in favour of the free route: the
-rented instance failed at VK from a datacenter, and a home connection does not.
+So both dead platforms come back from this address, at no cost.
+
+**What that does and does not prove.** It proves cobalt still solves VK and
+Instagram, and that it does so from this home connection. It does **not** prove
+a datacenter address would fail — the old rented instance died without leaving
+a diagnosis, and "VK blocks datacenters" is the likeliest explanation, not a
+measured one. It could equally have been expired hosting, a crashed container
+or an old build.
+
+That distinction matters, because it decides whether the machine has to stay
+on. Railway's free trial settles it in half an hour for nothing: deploy cobalt
+there, point `COBALT_API_URL` at it, run `npm run verify:daily`, and read the
+VK line. If it says ok, the PC is not needed and any cheap host will do. If it
+does not, the residential address is the reason this works and the PC stays.
+
+Do that experiment before choosing where this lives permanently.
+
+### Without the main PC, but keeping the home address
+
+Cloudflare Tunnel is only the pipe — it gives a local service a public https
+address, so it does not remove the need for a machine. But that machine does
+not have to be the main PC. Anything always-on inside the house keeps the
+residential address, which is the part that is proven to work: an old laptop, a
+mini PC, a Raspberry Pi, even an old Android phone running Termux.
+
+Cloudflare cannot host cobalt itself on the free plans. Workers and Pages run a
+restricted JavaScript runtime with short CPU limits and no ffmpeg; cobalt needs
+a full Node process and long-lived streams. Cloudflare's container product is a
+paid add-on.
 
 ## Where to run it, if you would rather not use your own PC
 
@@ -168,7 +194,8 @@ Prices checked August 2026; they move, so re-check before committing.
 
 | Option | Cost | Card needed | Notes |
 | --- | --- | --- | --- |
-| **Railway free trial** | $0, $5 credit, 30 days | **No** | One-click cobalt template. The right first step: it answers "does cobalt fix VK" at no cost and no risk. |
+| **Railway free trial** | $0, $5 credit, 30 days | **No** | One-click cobalt template. Run this first — it is the experiment that says whether a datacenter address works for VK, and it costs nothing. |
+| **Oracle Cloud Always Free** | $0 forever | Yes, for identity | 2 OCPU / 12 GB ARM (halved from 4/24 on 18 Aug 2026). Genuinely free with no time limit, but "out of host capacity" is common and it is still a datacenter address. |
 | Railway Hobby | $5/mo (includes $5 usage) | Yes | If the trial works and you want it to stay. No server to administer. |
 | Hetzner CX22 | ~€7.99/mo EU, ~$4.59/mo US | Yes | A real VPS, 2 vCPU / 4 GB. Cheapest in the US locations. You manage Docker yourself. |
 | Contabo | from ~$4–7/mo | Yes | More RAM per euro; performance is less consistent. |
