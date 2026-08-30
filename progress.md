@@ -2712,3 +2712,38 @@ looks healthy. Hosting cost is the owner's decision; no free tier is promised.
 
 VERIFY now clean: 15 URLs, sitemap 847 (+6), canaries ok/ok/ok/ok + VK labelled.
 Merged to main as 563cb18.
+
+### M153f — VK and Instagram are live again
+
+A cobalt instance now runs on Railway (project qrix-cobalt, image
+ghcr.io/imputnet/cobalt:11, API_URL set to its public domain). It resolves VK,
+Instagram and Facebook from a datacenter address, which also answers the open
+question from M153e: the old instance did NOT die because VK blocks
+datacenters. It just died.
+
+Connecting it could not go through COBALT_API_URL. The owner is locked out of
+Vercel — their Vercel entry is gone from Google Authenticator, so every sign-in
+fails 2FA and recovery is an email round-trip of unknown length. The endpoint
+is a public HTTPS URL rather than a key, so it ships in code instead, where git
+can deliver it.
+
+The first attempt shipped it as `env || DEFAULT` and changed nothing:
+COBALT_API_URL is already set in production, to the instance that died, so the
+dead value kept winning. That is the exact failure this whole mission was
+about, reproduced one line after documenting it. The constant is now APPENDED
+to the env value and deduped — the list is tried in order and a dead entry
+costs one timeout, so carrying both beats trusting either. Verified by forcing
+it: with COBALT_API_URL=dead.example.invalid, VK still resolves.
+
+Live on production, measured:
+  VK          ok, and 79,790,080 bytes pulled through the file proxy, ftypisom
+  Instagram   ok
+  canary      ok.ru 6 · rutube 6 · telegram 1 · pinterest 1 · vk 1 — no gaps
+
+The downloader now covers nine platforms end to end. The Railway trial expires
+30 days from 2026-08-30; the expiry is written at the constant and the canary
+is what will announce it.
+
+STILL OPEN: Vercel account recovery. It is not needed for the downloader any
+more, but it is where the site lives — the owner should run "Start 2FA
+recovery" from the Vercel sign-in page, which uses their Gmail.
