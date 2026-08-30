@@ -88,10 +88,16 @@ function hostOf(u: string): string {
 const COBALT_DEFAULT = "https://cobalt-production-eca4.up.railway.app";
 
 function cobaltEndpoints(): string[] {
-  return (process.env.COBALT_API_URL || COBALT_DEFAULT)
-    .split(",")
-    .map((s) => s.trim().replace(/\/+$/, ""))
-    .filter(Boolean);
+  /* APPENDED to the env value, not overridden by it. The env var is already
+     set in production — to the instance that died — so treating it as the
+     winner left VK broken even with a working endpoint compiled in. The list
+     is tried in order and a dead entry costs one timeout, so carrying both is
+     strictly better than trusting either. */
+  const list = [
+    ...(process.env.COBALT_API_URL || "").split(","),
+    COBALT_DEFAULT,
+  ].map((s) => s.trim().replace(/\/+$/, "")).filter(Boolean);
+  return [...new Set(list)];
 }
 function cobaltHosts(): string[] {
   return cobaltEndpoints().map(hostOf).filter(Boolean);
