@@ -85,17 +85,16 @@ Three things decide whether it works:
    use it at your expense. Set an API key and put the same value in Vercel as
    `COBALT_API_KEY`; QRix already sends it.
 
-## The free route: your own PC, through Cloudflare
+## The zero-hosting route: your own PC, through Cloudflare
 
 This costs nothing, forever, and needs no card, no server and no Docker. It
 also has a real technical advantage over a rented box, not just a price one.
 
-**Why it may work better than paying.** This address is known to work — see the
-measurements below. VK is widely reported to treat datacenter ranges more
-harshly than residential ones, so a rented server could buy an address VK likes
-*less* than the one already in the house. Reported, not measured here: the
-"Railway free trial" row in the table below is how to find out for certain,
-without spending anything.
+**When this is the right choice.** It is the zero-hosting option: nothing
+rented, nothing to expire. It is NOT needed for VK — that theory was tested and
+disproved (see below), so a datacenter host works fine and does not require
+leaving a PC switched on. Use this route if you want no external dependency at
+all, not because VK demands it.
 
 Everything needed is already on the owner's machine: Node 24, git, and
 `cloudflared` (already at `C:\Windows\System32\cloudflared.exe`). The
@@ -155,20 +154,37 @@ real, playable MP4.
 
 So both dead platforms come back from this address, at no cost.
 
-**What that does and does not prove.** It proves cobalt still solves VK and
-Instagram, and that it does so from this home connection. It does **not** prove
-a datacenter address would fail — the old rented instance died without leaving
-a diagnosis, and "VK blocks datacenters" is the likeliest explanation, not a
-measured one. It could equally have been expired hosting, a crashed container
-or an old build.
+### The datacenter theory was wrong — measured, 30 August 2026
 
-That distinction matters, because it decides whether the machine has to stay
-on. Railway's free trial settles it in half an hour for nothing: deploy cobalt
-there, point `COBALT_API_URL` at it, run `npm run verify:daily`, and read the
-VK line. If it says ok, the PC is not needed and any cheap host will do. If it
-does not, the residential address is the reason this works and the PC stays.
+"VK blocks datacenter ranges, so the rented instance failed and a home address
+is needed" was the working explanation. It was flagged as unproven, and then it
+was tested on Railway's free trial. It is **wrong**.
 
-Do that experiment before choosing where this lives permanently.
+`https://cobalt-production-eca4.up.railway.app` — cobalt 11.7.1, official
+image, US datacenter:
+
+| Link | Result |
+| --- | --- |
+| `vkvideo.ru/video-229033973_456239171` | `tunnel` — same title as from home |
+| `instagram.com/reel/DcnQEC5Mndn/` | `redirect` — real `cdninstagram.com` .mp4 |
+
+And the bytes, not just the resolve: **HTTP 200, `video/mp4`, 39,765,627 bytes
+in 18 s, first bytes `ftypisom`.**
+
+So VK is perfectly reachable from a datacenter. The previous instance died of
+something ordinary — expired hosting, a crashed container, a stale build — and
+the IP was never the problem. Which means:
+
+- **The owner's PC does not need to stay on.** Any always-on host works.
+- The residential-address argument for self-hosting evaporates; the free-PC
+  route is now a fallback for someone who wants zero hosting, not the
+  recommended path.
+- Once the Railway trial ends, Oracle Cloud Always Free — also a datacenter —
+  is a genuine forever-free home for this.
+
+Worth keeping as a lesson: the failure was diagnosed from its shape rather than
+measured, the diagnosis was plausible, and it was wrong. Half an hour on a free
+trial was the whole cost of finding out.
 
 ### Without the main PC, but keeping the home address
 
@@ -248,3 +264,39 @@ That one goes further than resolving — it reaches past the signed token to
 check the media URL will really serve, because a resolver can hand back a link
 that 403s at download time. "The URL responds" and "the tool works" are
 different questions, and confusing them is what cost a fortnight.
+
+## The live instance
+
+Deployed 30 August 2026 on Railway's free trial, under
+`qahharovamubinaxon@gmail.com`, project **qrix-cobalt**, service **cobalt**.
+
+```
+https://cobalt-production-eca4.up.railway.app
+```
+
+Set in Vercel as:
+
+```
+COBALT_API_URL = https://cobalt-production-eca4.up.railway.app
+```
+
+Managed from the CLI (`npm i -g @railway/cli`, `railway login`):
+
+```bash
+railway logs --service cobalt
+railway variables --service cobalt
+railway redeploy --service cobalt
+```
+
+### Two things to know about it
+
+**It is publicly reachable and unprotected.** Anyone who finds the URL can use
+it. The trial has no card attached, so the worst case is the $5 credit running
+out and the instance stopping — it cannot generate a bill. If it is ever kept
+past the trial, add an API key (`API_KEY_URL`) and set the same value in Vercel
+as `COBALT_API_KEY`; QRix already sends it.
+
+**The trial is 30 days.** When it ends, either move to Railway Hobby ($5/mo) or
+redeploy the same image on Oracle Cloud Always Free, which costs nothing
+indefinitely. Nothing in QRix changes either way — only the one env var, and it
+accepts a comma-separated list so both can run at once during a move.
