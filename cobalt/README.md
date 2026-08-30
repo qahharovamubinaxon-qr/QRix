@@ -90,10 +90,12 @@ Three things decide whether it works:
 This costs nothing, forever, and needs no card, no server and no Docker. It
 also has a real technical advantage over a rented box, not just a price one.
 
-**Why it can work better than paying.** VK is hostile to datacenter ranges —
-that is why the rented instance stopped resolving VK in the first place. A home
-connection is a residential address, which is exactly the kind VK treats
-normally. Paying for a server can buy you an address VK likes *less*.
+**Why it may work better than paying.** This address is known to work — see the
+measurements below. VK is widely reported to treat datacenter ranges more
+harshly than residential ones, so a rented server could buy an address VK likes
+*less* than the one already in the house. Reported, not measured here: the
+"Railway free trial" row in the table below is how to find out for certain,
+without spending anything.
 
 Everything needed is already on the owner's machine: Node 24, git, and
 `cloudflared` (already at `C:\Windows\System32\cloudflared.exe`). The
