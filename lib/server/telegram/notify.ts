@@ -6,6 +6,7 @@
 import { tg } from "./api";
 import { tgConfig, telegramConfigured } from "./config";
 import { overview, analyticsDashboard } from "../analytics";
+import { uzbekTrafficBlock } from "../analytics-ga";
 import { creditStats } from "../credits";
 import { queueStats } from "../queue";
 import { db, helpers } from "../db";
@@ -58,20 +59,26 @@ export async function buildReport(period: "daily" | "weekly" | "monthly"): Promi
 ⚙️ Queue: ${q.done} done · ${q.failed} failed
 ❗ Errors: <b>${errors}</b> · Health: server up ${Math.round(process.uptime() / 3600)}h`;
 
+  /* Everything above this line comes from the in-memory mock db, which on
+     Vercel is empty after every cold start — so those figures describe the
+     lambda, not the site. The real visitor numbers come from GA4 and are
+     appended in Uzbek, because that is the half the owner actually reads. */
+  const traffic = await uzbekTrafficBlock(days);
+
   if (period === "weekly") {
     return `${core}
 📈 Growth: ${a.funnel.map((f) => `${f.stage} ${f.value}`).join(" → ")}
 🌍 Top countries: ${a.breakdown.countries.slice(0, 5).map((x) => `${x.name} ${x.value}`).join(" · ")}
-🔥 Most active: ${a.activeUsers.slice(0, 3).map((u) => u.email).join(", ") || "—"}`;
+🔥 Most active: ${a.activeUsers.slice(0, 3).map((u) => u.email).join(", ") || "—"}${traffic}`;
   }
   if (period === "monthly") {
     return `${core}
 📊 MRR: <b>${money(o.mrr)}</b> · ARR: <b>${money(o.mrr * 12)}</b>
 📈 Conversion rate: ${o.conversionRate}%
 💸 Est. AI cost: $${(await (await import("../ai/manager")).providerStatus()).reduce((s, p) => s + p.costUsd, 0).toFixed(2)}
-🧮 Profit estimate: ${money(Number(a.headline.revenue))} revenue − infra/AI costs.`;
+🧮 Profit estimate: ${money(Number(a.headline.revenue))} revenue − infra/AI costs.${traffic}`;
   }
-  return core;
+  return core + traffic;
 }
 
 export async function sendReport(period: "daily" | "weekly" | "monthly"): Promise<boolean> {
