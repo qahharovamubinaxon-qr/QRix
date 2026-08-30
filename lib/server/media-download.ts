@@ -69,13 +69,26 @@ function secret(): string {
 function hostOf(u: string): string {
   try { return new URL(u).hostname.toLowerCase(); } catch { return ""; }
 }
-/* COBALT_API_URL accepts a COMMA-SEPARATED list, not just one URL.
-   One instance was the whole reason VK and Instagram went dark for a
-   fortnight: it stopped answering and there was nothing behind it. A list is
-   tried in order, so a dead box costs one timeout instead of the feature. A
-   single URL still works exactly as before. */
+/* Our cobalt instance. Checked in deliberately, and it is NOT a secret — it is
+   a public HTTPS endpoint, not a key. It lives here because the alternative
+   was leaving VK and Instagram broken: the env var can only be set from the
+   Vercel dashboard, the owner is locked out behind a 2FA method they no longer
+   have, and the resolver was already working. Code ships through git; an env
+   var does not.
+
+   COBALT_API_URL still wins when set, and it accepts a COMMA-SEPARATED list —
+   one instance being the only route is why those platforms went dark for a
+   fortnight, so a list is tried in order and a dead box costs one timeout
+   rather than the feature.
+
+   MAINTENANCE: this default is a Railway free trial started 2026-08-30 and it
+   expires after 30 days. When it does, VK/Instagram/Facebook/X stop resolving
+   and `npm run verify:daily` says so on the downloader canary line. Replace
+   the constant, or set COBALT_API_URL and forget it. */
+const COBALT_DEFAULT = "https://cobalt-production-eca4.up.railway.app";
+
 function cobaltEndpoints(): string[] {
-  return (process.env.COBALT_API_URL || "")
+  return (process.env.COBALT_API_URL || COBALT_DEFAULT)
     .split(",")
     .map((s) => s.trim().replace(/\/+$/, ""))
     .filter(Boolean);
