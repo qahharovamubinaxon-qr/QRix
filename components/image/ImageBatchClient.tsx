@@ -1,6 +1,6 @@
 "use client";
 
-/* Batch engine: convert | resize | compress | rename. Queue + progress + ZIP. */
+/* Batch engine: convert | resize | compress | rename | meta. Queue + progress + ZIP. */
 
 import { useState } from "react";
 import { FiX, FiDownload } from "react-icons/fi";
@@ -11,7 +11,7 @@ import { flattensToWhite, keepFormat } from "@/lib/image-output";
 type Job = { file: File; url: string };
 function loadImg(src: string): Promise<HTMLImageElement> { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; }); }
 
-export default function ImageBatchClient({ preset }: { preset: "convert" | "resize" | "compress" | "rename" }) {
+export default function ImageBatchClient({ preset }: { preset: "convert" | "resize" | "compress" | "rename" | "meta" }) {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(0);
@@ -41,7 +41,7 @@ export default function ImageBatchClient({ preset }: { preset: "convert" | "resi
            because "webp" is the picker's default (the M120 resize bug, which
            was fixed in ImageConvertClient but never here). Resizing must
            preserve the format, so a transparent PNG stays a PNG. */
-        const outFmt = preset === "compress" ? "jpeg" : preset === "resize" ? keepFormat(j.file.type, j.file.name) : fmt;
+        const outFmt = preset === "compress" ? "jpeg" : preset === "resize" || preset === "meta" ? keepFormat(j.file.type, j.file.name) : fmt;
         const mime = `image/${outFmt}`;
         if (flattensToWhite(mime, outFmt)) { ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h); }
         ctx.drawImage(img, 0, 0, w, h);
