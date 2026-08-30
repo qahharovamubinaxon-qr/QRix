@@ -410,7 +410,14 @@ export async function runAutopilot(): Promise<AutopilotResult> {
   const existing = new Set(POSTS.map((p) => p.slug));
   for (const p of await getAutopilotPosts()) existing.add(p.slug);
   const topic = AUTOPILOT_TOPICS.find((t) => !existing.has(t.slug));
-  if (!topic) return { published: false, reason: "no_pending_topics" };
+  if (!topic) {
+    // Silent for 25 days (2026-08-05 → 2026-08-30, see BACKLOG.md) before
+    // anyone noticed the queue had run dry — the AI-skip path below alerts,
+    // this path did not. An empty queue is a standing problem, not a one-off,
+    // so it re-alerts once a day rather than once ever.
+    notifyOwner("autopilot:empty", `🤖 <b>Autopilot queue is empty</b> — all ${AUTOPILOT_TOPICS.length} topics in AUTOPILOT_TOPICS are published. Add more in lib/server/autopilot.ts or the daily article stops.`, 20 * 3_600_000);
+    return { published: false, reason: "no_pending_topics" };
+  }
 
   const post = await writeArticle(topic);
   if (!post) {
