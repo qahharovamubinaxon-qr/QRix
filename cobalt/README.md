@@ -85,7 +85,77 @@ Three things decide whether it works:
    use it at your expense. Set an API key and put the same value in Vercel as
    `COBALT_API_KEY`; QRix already sends it.
 
-## Where to run it
+## The free route: your own PC, through Cloudflare
+
+This costs nothing, forever, and needs no card, no server and no Docker. It
+also has a real technical advantage over a rented box, not just a price one.
+
+**Why it can work better than paying.** VK is hostile to datacenter ranges —
+that is why the rented instance stopped resolving VK in the first place. A home
+connection is a residential address, which is exactly the kind VK treats
+normally. Paying for a server can buy you an address VK likes *less*.
+
+Everything needed is already on the owner's machine: Node 24, git, and
+`cloudflared` (already at `C:\Windows\System32\cloudflared.exe`). The
+Cloudflare account already exists too — qrixtools.com is on it — so a
+`cobalt.qrixtools.com` subdomain costs nothing and needs no new signup.
+
+```bash
+git clone https://github.com/imputnet/cobalt
+cd cobalt/api
+corepack enable pnpm
+pnpm install
+```
+
+Create `api/.env` with the public address the tunnel will serve — cobalt puts
+this into the links it hands out, so it must be the public one, not localhost:
+
+```
+API_URL=https://cobalt.qrixtools.com/
+API_PORT=9000
+```
+
+Then run the two halves:
+
+```bash
+pnpm start
+cloudflared tunnel --url http://localhost:9000
+```
+
+Finally set `COBALT_API_URL=https://cobalt.qrixtools.com` in Vercel and
+redeploy.
+
+### What this costs you instead of money
+
+- **The PC has to be on.** When it sleeps, VK, Instagram, Facebook and X stop
+  resolving. The other six platforms are unaffected — that is exactly what the
+  fallback design buys, and why this trade is acceptable at all.
+- **Home upload bandwidth** carries any media cobalt tunnels rather than
+  redirects.
+- **Disk is tight**: 4.7 GB free on C: at last check. The install is a few
+  hundred MB and fits, but `C:\.android\sdk\ndk` is 4.3 GB of unused NDK if
+  more room is ever needed.
+
+### This was tested, not assumed
+
+Run on the owner's own machine, 30 August 2026, cobalt 11.7.1 from source, no
+Docker, no tunnel yet — just the local instance answering on :9000:
+
+| Link | Result |
+| --- | --- |
+| `vkvideo.ru/video-229033973_456239171` | `tunnel` — *AY YOLA — Homay (Премьера клипа 2025)* |
+| `instagram.com/reel/DcnQEC5Mndn/` | `redirect` — a real `fbcdn.net` .mp4 |
+| `ok.ru/video/7475662490142` | `tunnel` |
+
+Resolving is not delivering, so the VK tunnel was pulled as well:
+**HTTP 200, `video/mp4`, 87,750,449 bytes in 49 s, first bytes `ftypisom`** — a
+real, playable MP4.
+
+So both dead platforms come back from this address, at no cost. That is the
+whole question answered, and it answers it in favour of the free route: the
+rented instance failed at VK from a datacenter, and a home connection does not.
+
+## Where to run it, if you would rather not use your own PC
 
 It needs a machine with Docker and a public address.
 
