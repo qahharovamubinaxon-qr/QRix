@@ -18,6 +18,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 > the task file, this note can go.
 
 ## NOW (this week)
+- [x] Per-page OG/Twitter/schema social cards, replacing the one generic
+  homepage card every one of ~840 pages advertised. TAKEN + SHIPPED Sep 2 —
+  resumed 3-day-old uncommitted work found sitting in the shared worktree
+  (app/api/og/route.tsx + lib/seo.ts's ogImageUrl(), dated Aug 30, several
+  commits behind HEAD and never logged). Verified locally before shipping
+  (route renders with/without ?t=, a real blog post's og:image/twitter:image/
+  JSON-LD image all resolve to its own title, tsc clean, logo-mirror check
+  clean) then live post-deploy on /blog/qr-code-for-instagram and
+  /downloader/vk. See DAILY_LOG 2026-09-02 for detail.
+  FOUND WHILE SHIPPING IT, bigger than the item itself: design-v2 and main had
+  diverged 30 commits vs 8 (a concurrent session on `claude/qrix-six-point`
+  had been pushing Adsterra ads + downloader resilience work straight to main
+  without pulling design-v2 first). Not force-pushed either way — merged,
+  reverified, pushed the merge to both branches. See DAILY_LOG 2026-09-02b.
+  next: nothing on the OG item — closed. The branch-collision root cause is
+  process, not code; worth the owner knowing two sessions can still stomp each
+  other on push even with the worktree-collision note already in this file.
 - [x] **ROOT CAUSE FOUND AND FIXED (Aug 7, M147e) — 167 URLs were orphaned, not thin.** URL
   Inspection on a stratified sample of 38 says 24 are "URL is unknown to
   Google": never crawled, not crawled-and-rejected. Whole families are out:
