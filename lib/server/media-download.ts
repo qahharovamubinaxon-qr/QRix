@@ -450,8 +450,20 @@ async function viaOk(url: string, signal: AbortSignal): Promise<MediaInfo | null
   let opts: any = null;
   try { opts = JSON.parse(unesc(raw)); } catch { return null; }
   const fv = opts?.flashvars || {};
+  /* `metadata` arrives as EITHER a JSON string or an already-parsed object,
+     and OK switched shapes between one probe and the next on the same video.
+     Blindly parsing threw on the object form, which fell through to the
+     metadataUrl branch that this response does not carry — so a working
+     extractor started reporting "extraction_failed" with nothing wrong at
+     either end. */
   let meta: any = null;
-  try { meta = fv.metadata ? JSON.parse(fv.metadata) : null; } catch { /* try the URL form */ }
+  if (fv.metadata) {
+    if (typeof fv.metadata === "string") {
+      try { meta = JSON.parse(fv.metadata); } catch { /* try the URL form */ }
+    } else if (typeof fv.metadata === "object") {
+      meta = fv.metadata;
+    }
+  }
   if (!meta && fv.metadataUrl) {
     const m = await fetch(fv.metadataUrl, { method: "POST", headers: { "User-Agent": UA }, signal }).catch(() => null);
     meta = m?.ok ? await m.json().catch(() => null) : null;
