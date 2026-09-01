@@ -48,13 +48,14 @@ const ICO = path.join(ROOT, "app", "favicon.ico");
 
 const svg = fs.readFileSync(MASTER, "utf8");
 
-/* Two files draw the mark in code rather than loading a generated PNG, and both
-   can rot without anyone noticing:
+/* Three files draw the mark in code rather than loading a generated PNG, and all
+   three can rot without anyone noticing:
 
      app/opengraph-image.tsx  the share card — the last thing anyone looks at
+     app/api/og/route.tsx     the PER-PAGE share card — same mark, own title
      components/Logo.tsx      the site header — the FIRST thing everyone looks at
 
-   The header is why this list has two entries. The icon, the favicon and the
+   The header is why this list started growing. The icon, the favicon and the
    share card were all changed in one pass while Logo.tsx quietly kept a gradient
    tile and three QR dots for a full release, on every page of the site.
 
@@ -65,6 +66,7 @@ const svg = fs.readFileSync(MASTER, "utf8");
 const shapes = svg.match(/<(rect|line|circle|path)\b[^>]*>/g) || [];
 const MIRRORS = [
   path.join(ROOT, "app", "opengraph-image.tsx"),
+  path.join(ROOT, "app", "api", "og", "route.tsx"),
   path.join(ROOT, "components", "Logo.tsx"),
 ];
 for (const file of MIRRORS) {

@@ -18,6 +18,23 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 > the task file, this note can go.
 
 ## NOW (this week)
+- [x] Per-page OG/Twitter/schema social cards, replacing the one generic
+  homepage card every one of ~840 pages advertised. TAKEN + SHIPPED Sep 2 —
+  resumed 3-day-old uncommitted work found sitting in the shared worktree
+  (app/api/og/route.tsx + lib/seo.ts's ogImageUrl(), dated Aug 30, several
+  commits behind HEAD and never logged). Verified locally before shipping
+  (route renders with/without ?t=, a real blog post's og:image/twitter:image/
+  JSON-LD image all resolve to its own title, tsc clean, logo-mirror check
+  clean) then live post-deploy on /blog/qr-code-for-instagram and
+  /downloader/vk. See DAILY_LOG 2026-09-02 for detail.
+  FOUND WHILE SHIPPING IT, bigger than the item itself: design-v2 and main had
+  diverged 30 commits vs 8 (a concurrent session on `claude/qrix-six-point`
+  had been pushing Adsterra ads + downloader resilience work straight to main
+  without pulling design-v2 first). Not force-pushed either way — merged,
+  reverified, pushed the merge to both branches. See DAILY_LOG 2026-09-02b.
+  next: nothing on the OG item — closed. The branch-collision root cause is
+  process, not code; worth the owner knowing two sessions can still stomp each
+  other on push even with the worktree-collision note already in this file.
 - [x] **ROOT CAUSE FOUND AND FIXED (Aug 7, M147e) — 167 URLs were orphaned, not thin.** URL
   Inspection on a stratified sample of 38 says 24 are "URL is unknown to
   Google": never crawled, not crawled-and-rejected. Whole families are out:
@@ -1789,7 +1806,47 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] Spanish (es) downloader + top-tools pages (copy RU pattern).
 - [ ] Turkish (tr), Indonesian (id) — same.
 - [ ] PDF converter-pair pages (word-to-pdf, excel-to-pdf, ppt-to-pdf…).
-- [ ] Blog autopilot: +20 topics from GSC impressions data (weekly review).
+- [x] Blog autopilot: +20 topics from GSC impressions data (weekly review).
+  TAKEN Aug 30 — and the real finding wasn't the topic count, it was that the
+  queue had been SILENTLY DEAD for 25 days. The 21-topic list was fully
+  published (20 via Supabase + 1, bulk-qr-code-generator-csv, already static)
+  by 2026-08-05; the daily cron (0 6 * * *) has been firing
+  `no_pending_topics` and doing nothing every day since, with no owner alert
+  for that path — notifyOwner only fires on an AI-quality skip, not on an
+  empty queue. Found by querying `autopilot_posts` directly (count 20, most
+  recent published_at 2026-08-05), not by reading the code.
+  "+20" wasn't reachable from real demand: `npm run kpi -- --days 28 --json`
+  (1000 queries) is dominated by background-remover and bulk-qr variants,
+  both already owned by existing content. After filtering those out and then
+  cross-checking BOTH content sources autopilot treats as "existing" — this
+  file's AUTOPILOT_TOPICS array AND lib/blog.ts's static POSTS — only 3
+  genuine gaps survived: /image-tools/passport-photo (204 imp/28d, zero blog
+  support), /ai-tools/face-enhancer (128 imp/28d, zero blog support),
+  /qr-tools/linkedin (50 imp/28d, zero blog support). Shipped (14ba0e6).
+  THREE CANDIDATES WERE DROPPED AS DUPLICATES, and this is worth its own
+  line: wifi, tiktok-profile-qr and "scan without an app" all show real GSC
+  demand, and all three already have a published static article
+  (wifi-qr-code-guide, tiktok-qr-code, scan-qr-code-from-image) that the
+  first duplicate-check pass (against AUTOPILOT_TOPICS alone) missed
+  entirely. Caught only by then also grepping lib/blog.ts.
+  A LARGER VERSION OF THE SAME DEFECT, NOT FIXED HERE: grepping both files
+  for every slug turned up pairs that already exist BOTH ways —
+  remove-background-from-image-free (autopilot) vs remove-image-background
+  (static), upscale-image-quality-ai-free (autopilot) vs upscale-image /
+  upscale-image-with-ai (static, two of them), qr-code-for-instagram
+  (autopilot) vs instagram-qr-code (static), vcard-qr-code-business-card
+  (autopilot) vs vcard-qr-code-digital-business-card (static). All four
+  pairs are LIVE today — not a risk, an existing fact, since both sources
+  render through the same /blog/[slug] route. Whether they compete for the
+  same query or split it is unmeasured; worth a `npm run kpi` cross-check
+  against both slugs of each pair before assuming it's fine.
+  ALSO NOT FIXED: the alerting gap. `no_pending_topics` should ping Telegram
+  same as an AI-quality skip does — a queue silently going empty for 25 days
+  is worse than one failed article, and nothing short of an owner or
+  growth-session code-read catches it today.
+  next: watch tomorrow's daily VERIFY for /blog/passport-photo-online-free
+  (or whichever of the 3 the cron picks first) actually publishing — this
+  session cannot verify live content that a once-daily cron hasn't run yet.
 - [x] Internal-links pass: every tool page links 6+ related pages. SHIPPED AND VERIFIED LIVE Aug 5 (M166).
   MEASURED FIRST, and the item was not stale — it was worse than written.
   Content links per page on production 2026-08-05 (chrome links subtracted by

@@ -244,6 +244,48 @@ export const AUTOPILOT_TOPICS: Topic[] = [
     angle: "Show how to link a QR to an IG profile, creative placements (packaging, receipts, events), and tracking scans to see what drives follows. Upbeat and practical.",
     related: ["how-to-create-a-qr-code"],
   },
+  /* ── Batch added 2026-08-30: the queue above (21 topics) was fully
+        exhausted by 2026-08-05 and the daily cron had been silently
+        publishing nothing for 25 days. Picked from `npm run kpi -- --days 28
+        --json`, filtered for demand NOT already covered by a topic above
+        (background-remover and bulk-qr variants dominate the raw list and
+        are already owned) and cross-checked against BOTH topic sources —
+        this array AND the static lib/blog.ts POSTS, which autopilot also
+        treats as "existing" (see runAutopilot's `existing` set). That second
+        check dropped three of the original six candidates: wifi (dup of the
+        static wifi-qr-code-guide), tiktok-profile-qr (dup of the static
+        tiktok-qr-code) and "scan without an app" (dup of the static
+        scan-qr-code-from-image) — all real GSC demand, already served.
+        Ordered by the LANDING PAGE'S real 28-day impressions, each verified
+        200 live before being added: passport-photo 204 imp, face-enhancer
+        128, linkedin 50. ── */
+  {
+    slug: "passport-photo-online-free",
+    title: "How to Take a Passport Photo Online for Free (Any Country's Spec)",
+    description: "Turn a phone photo into a compliant passport, visa or ID photo — correct size, background and DPI for your country, free and in the browser.",
+    keywords: ["passport photo online", "free passport photo maker", "passport photo size", "create passport size photo online free", "visa photo online"],
+    category: "Image", toolHref: "/image-tools/passport-photo", toolLabel: "Make a passport photo free",
+    angle: "This page already earns 204 impressions/28d with zero blog support. Explain why passport photos get rejected (wrong size, background, head position), how QRix auto-crops to a country's exact spec (US 2x2in, Schengen 35x45mm, etc.) with a plain white background, and a step-by-step. Mention the RU/UZ localized versions and per-country pages exist for readers who want an exact size.",
+    related: ["remove-background-from-image-free", "upscale-image-quality-ai-free"],
+  },
+  {
+    slug: "ai-face-enhancer-free",
+    title: "AI Face Enhancer: Fix Blurry, Low-Light or Old Photos Free",
+    description: "Sharpen faces, fix low-light grain and restore old photos with AI — free, online, no signup, and the rest of the photo stays untouched.",
+    keywords: ["ai face enhancer", "ai face enhancer free", "face enhancer", "face enhancer ai", "face photo enhancer", "enhance face online free"],
+    category: "AI", toolHref: "/ai-tools/face-enhancer", toolLabel: "Enhance a face photo free",
+    angle: "128 impressions/28d on the tool page, zero blog support. Explain how AI face restoration differs from a generic upscaler (it recognises facial structure, so eyes/skin/hair repair cleanly instead of just sharpening pixels), realistic before/after expectations, best use cases (old family photos, low-light selfies, profile pictures), and a walkthrough. Cross-link the general upscaler and denoiser for non-face photos.",
+    related: ["upscale-image-quality-ai-free", "ai-image-denoiser-online"],
+  },
+  {
+    slug: "linkedin-qr-code-networking",
+    title: "How to Create a LinkedIn QR Code for Networking Events",
+    description: "Skip typing your name into a search bar — a LinkedIn QR code lets someone connect with you in one scan, right from a conference badge or business card.",
+    keywords: ["linkedin qr code", "create linkedin qr code", "generate linkedin qr code", "qr code for linkedin profile", "linkedin qr code networking"],
+    category: "QR Codes", toolHref: "/qr-tools/linkedin", toolLabel: "Create a LinkedIn QR code",
+    angle: "50 impressions/28d on the page. Cover where LinkedIn's own in-app QR code falls short (only scannable inside the LinkedIn app, not from a camera), how a URL-based code fixes that, and placements: conference badges, resume footer, email signature, business card back. Pair with the vCard article for the 'which one do I actually need' question.",
+    related: ["vcard-qr-code-business-card", "qr-code-for-instagram"],
+  },
 ];
 
 // ── Reading (blog integration) ─────────────────────────────────────────────
@@ -368,7 +410,14 @@ export async function runAutopilot(): Promise<AutopilotResult> {
   const existing = new Set(POSTS.map((p) => p.slug));
   for (const p of await getAutopilotPosts()) existing.add(p.slug);
   const topic = AUTOPILOT_TOPICS.find((t) => !existing.has(t.slug));
-  if (!topic) return { published: false, reason: "no_pending_topics" };
+  if (!topic) {
+    // Silent for 25 days (2026-08-05 → 2026-08-30, see BACKLOG.md) before
+    // anyone noticed the queue had run dry — the AI-skip path below alerts,
+    // this path did not. An empty queue is a standing problem, not a one-off,
+    // so it re-alerts once a day rather than once ever.
+    notifyOwner("autopilot:empty", `🤖 <b>Autopilot queue is empty</b> — all ${AUTOPILOT_TOPICS.length} topics in AUTOPILOT_TOPICS are published. Add more in lib/server/autopilot.ts or the daily article stops.`, 20 * 3_600_000);
+    return { published: false, reason: "no_pending_topics" };
+  }
 
   const post = await writeArticle(topic);
   if (!post) {

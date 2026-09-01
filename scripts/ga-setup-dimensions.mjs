@@ -7,6 +7,11 @@
    So "did the VK visitors actually download anything" was unanswerable while the
    answer sat in the property untouched.
 
+   `q` covers a second event, search_miss (components/CommandSearch.tsx): every
+   on-site search that matched zero tools, logged once per unique query per
+   session. Registering it turns "what should we build next" from a guess into
+   a report — but same caveat as the others: not retroactive.
+
    Registration is NOT retroactive. It starts collection when it runs, which is
    the whole argument against putting it off another week.
 
@@ -25,6 +30,7 @@ const WANT = [
   { parameterName: "tool", displayName: "Tool", description: "Which tool fired tool_used (downloader, img-passport, ...)" },
   { parameterName: "action", displayName: "Action", description: "Step within the tool, e.g. download - this is what makes a funnel" },
   { parameterName: "platform", displayName: "Platform", description: "Downloader source platform - vk, ok, instagram, ..." },
+  { parameterName: "q", displayName: "Search query", description: "search_miss query text - what visitors searched for and found nothing" },
 ];
 
 const key = loadKey();

@@ -6,8 +6,15 @@ export const SITE_TAGLINE = "Free QR Code, PDF & Image Tools";
 export const SITE_DESCRIPTION =
   "QRix is an all-in-one toolkit: 185+ free tools — dynamic QR codes with logos & analytics, 20+ PDF tools (merge, split, compress, convert, OCR, sign), image, video and AI tools — fast, private and right in your browser.";
 
-/** The generated 1200×630 social card (app/opengraph-image.tsx), served at this route. */
+/** The generic 1200×630 social card (app/opengraph-image.tsx), served at this route.
+ *  Used only as a fallback — every real page gets its own card via ogImageUrl(). */
 export const OG_IMAGE = `${SITE_URL}/opengraph-image`;
+
+/** Per-page 1200×630 social card naming the page's own title (app/api/og/route.tsx),
+ *  instead of every one of the ~840 pages advertising the same generic homepage card. */
+export function ogImageUrl(title: string): string {
+  return `${SITE_URL}/api/og?t=${encodeURIComponent(title)}`;
+}
 
 /** Build per-page metadata with canonical + Open Graph + Twitter. */
 export function pageMeta(opts: {
@@ -40,13 +47,13 @@ export function pageMeta(opts: {
       // nested segments do NOT inherit it. So point every page at that generated
       // route explicitly (a real, served 1200×630 PNG). The previous /og.png did
       // not exist, so every non-root page advertised a 404 og:image.
-      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: opts.title }],
+      images: [{ url: ogImageUrl(opts.title), width: 1200, height: 630, alt: opts.title }],
     },
     twitter: {
       card: "summary_large_image",
       title: opts.title,
       description,
-      images: [OG_IMAGE],
+      images: [ogImageUrl(opts.title)],
     },
   };
 }
