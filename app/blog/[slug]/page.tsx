@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { FiArrowRight, FiClock, FiChevronRight, FiUser } from "react-icons/fi";
-import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME, OG_IMAGE } from "@/lib/seo";
+import { pageMeta, jsonLd, breadcrumbLd, faqLd, SITE_URL, SITE_NAME, ogImageUrl } from "@/lib/seo";
 import { articleAuthorLd, articlePublisherLd, BYLINE, OPERATOR } from "@/lib/operator";
 import { getPost, POSTS, formatPostDate } from "@/lib/blog";
 import { getAutopilotPost } from "@/lib/server/autopilot";
@@ -85,11 +85,12 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
             mainEntityOfPage: url,
             /* M145: `image` was missing entirely (audit schema F3) — Google lists
                it as required for Article. There is no per-post artwork, so this
-               is the site OG image, which is a real served 1200x630 PNG.
+               is the post's own generated card (its title, not the generic one) —
+               a real served 1200x630 PNG, same one used in og:image below.
                author is now a Person @id-linked to /about#operator rather than an
                anonymous Organization copy: a named human is the stronger E-E-A-T
                signal, and the @id makes every article the SAME human. */
-            image: { "@type": "ImageObject", url: OG_IMAGE, width: 1200, height: 630 },
+            image: { "@type": "ImageObject", url: ogImageUrl(post.title), width: 1200, height: 630 },
             author: articleAuthorLd(),
             publisher: articlePublisherLd(),
           },
