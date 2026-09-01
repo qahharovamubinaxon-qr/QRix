@@ -78,7 +78,13 @@ function BannerUnit({ adKey, width, height }: { adKey: string; width: number; he
         srcDoc={doc}
         width={width}
         height={height}
-        style={{ border: 0, display: "block", maxWidth: "100%" }}
+        /* Width and height are set in CSS as well as in the attributes. The
+           attributes alone lost to a global stylesheet rule and the frame
+           rendered at zero height — the ad script had run, Adsterra had built
+           its inner frame, and nothing was visible. A collapsed ad looks
+           exactly like an unsold one from the outside, which is the kind of
+           bug that gets blamed on fill rate for weeks. */
+        style={{ border: 0, display: "block", width, height, maxWidth: "100%" }}
         scrolling="no"
         loading="lazy"
         title="Advertisement"
