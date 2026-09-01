@@ -21,7 +21,7 @@ export const metadata: Metadata = pageMeta({
 const PROMISES = [
   { icon: <FiSlash size={16} />, t: "Codes never expire", d: "Static QR codes hold the data inside the code itself — not on our server. No one can ever switch them off." },
   { icon: <FiZap size={16} />, t: "No scan limits", d: "Your code won't die on your busiest day. Unlimited scans, always." },
-  { icon: <FiShield size={16} />, t: "No watermark, no ads", d: "Clean codes you fully own. We never stamp a logo or inject ads into your scan flow." },
+  { icon: <FiShield size={16} />, t: "No watermark on your codes", d: "Clean codes you fully own. We never stamp a logo on them, and nothing is ever injected into your scan flow." },
   { icon: <FiCheck size={16} />, t: "No signup, no credit card", d: "Open the tool and go. We never ask for a card 'to start a free trial.'" },
   { icon: <FiEye size={16} />, t: "Private by design", d: "QR and most PDF/image tools run entirely in your browser. The few that use a server — like PDF compress — say so right on their page." },
   /* M151. This card used to be headed "Free features others charge for" and

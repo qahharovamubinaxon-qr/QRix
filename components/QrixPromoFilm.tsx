@@ -24,7 +24,7 @@ const FPS = 30;
 const SITE = "qrix.uz";
 const CATS = ["QR Codes", "PDF", "Images", "Video", "AI", "3D"];
 // Competitive differentiators — what other QR tools charge for or don't offer at all.
-const BENEFITS = ["QR codes never expire", "Unlimited scans, forever", "No watermark, no ads", "See links before you scan", "185+ tools — 100% free"];
+const BENEFITS = ["QR codes never expire", "Unlimited scans, forever", "No watermark on your codes", "See links before you scan", "185+ tools — 100% free"];
 
 // Orange palette — vibrant backdrop, white/dark ink.
 const C = {

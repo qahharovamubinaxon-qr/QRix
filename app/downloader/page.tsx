@@ -7,7 +7,7 @@ const TITLE = "Video Downloader — TikTok, Instagram, VK & More";
 const DESC = "Free online video, audio & image downloader. Paste a link from TikTok, Instagram, VK, X, Facebook, Pinterest, Reddit and more — save MP4, MP3 or JPG in your chosen quality. No ads, no signup, no watermark.";
 
 const FAQS = [
-  { q: "How do I download a video?", a: "Copy the video's link, paste it into the box above, and pick a format — video (MP4), audio (MP3) or image. The download starts instantly through QRix, with no ads or pop-ups." },
+  { q: "How do I download a video?", a: "Copy the video's link, paste it into the box above, and pick a format — video (MP4), audio (MP3) or image. The download starts instantly through QRix, with no pop-ups and nothing to install." },
   { q: "Is it free?", a: "Yes — completely free, no signup, no watermark, and no software to install. The link is resolved on our servers and the file streams straight through to your device; nothing is stored." },
   { q: "Which sites are supported?", a: `QRix downloads from ${PLATFORMS.map((p) => p.name).join(", ")}. More platforms are added regularly.` },
   { q: "Can I download just the audio (MP3)?", a: "Yes. When a link has an audio track, an “Audio · MP3” option appears — perfect for saving sounds and music from TikTok or Instagram." },
@@ -89,7 +89,7 @@ export default function DownloaderPage() {
           <div className="qx-card p-5 space-y-3 text-[13.5px] leading-relaxed" style={{ color: "var(--text-muted)" }}>
             <p>
               QRix Downloader saves public videos, sounds and images from {PLATFORMS.length} social platforms with one paste.
-              There are no ads, no pop-ups, no fake Download buttons and nothing to install — the download starts
+              There are no pop-ups, no fake Download buttons and nothing to install — the download starts
               in your browser with a live progress bar, on any phone or computer.
             </p>
             <p>

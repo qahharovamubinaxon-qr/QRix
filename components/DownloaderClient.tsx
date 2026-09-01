@@ -15,6 +15,7 @@ import { TG_CHANNEL, TG_CHANNEL_URL, TG_BOT, TG_BOT_URL } from "@/lib/social";
 import { PLATFORMS } from "@/lib/downloader-platforms";
 import { saveBlob } from "@/lib/save-file";
 import { trackTool } from "@/lib/track";
+import AdsterraSlot from "@/components/AdsterraSlot";
 
 type Fmt = {
   id: string; type: "video" | "audio" | "image"; container: string; quality: string; label: string; token: string;
@@ -170,7 +171,7 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
       {!info && !busy && (
         <div className="mt-5">
           <div className="qx-mono text-[10px] uppercase tracking-[0.18em] mb-2.5" style={{ color: "var(--text-faint)" }}>
-            {"// works with " + PLATFORMS.length + " platforms — no ads, no watermark"}
+            {"// works with " + PLATFORMS.length + " platforms — no watermark, no sign-up"}
           </div>
           <div className="qx-dl-mq">
             <div className="qx-dl-mq-track">
@@ -283,6 +284,13 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
         </div>
       )}
 
+      {/* Ad — only once a link has RESOLVED, and only below the download
+          buttons. Never above them and never beside them: a misclick on an ad
+          the user took for the download button is invalid traffic, and invalid
+          traffic closes the account rather than merely wasting an impression.
+          Hidden in compact mode, which is the embeddable widget. */}
+      {info && !compact && <AdsterraSlot format="native" />}
+
       {!compact && (
         <>
           {/* Telegram: same downloader, inside a chat */}
@@ -301,8 +309,11 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
             </a>
           </div>
           <p className="text-[11px] mt-4 leading-relaxed" style={{ color: "var(--text-faint)" }}>
-            Paste a public link, pick a format, and it downloads through QRix — no ads, no pop-ups, nothing installed.
-            Only download content you have the right to. QRix does not host any media.
+            {/* "no ads" used to be in this sentence. It stopped being true the
+                day an ad was placed above it, and a false promise beside the
+                thing it is lying about is worse than no promise at all. */}
+            Paste a public link, pick a format, and it downloads through QRix — no pop-ups, no sign-up,
+            nothing installed. Only download content you have the right to. QRix does not host any media.
           </p>
         </>
       )}
