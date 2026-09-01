@@ -10,7 +10,7 @@
 import Link from "next/link";
 import { FiChevronRight, FiInfo, FiArrowRight, FiShield, FiZap, FiGift, FiSmartphone, FiGlobe, FiSlash } from "react-icons/fi";
 import GlobalFileDrop from "@/components/GlobalFileDrop";
-import AdSlot from "@/components/AdSlot";
+import AdsterraSlot from "@/components/AdsterraSlot";
 import ShareButtons from "@/components/ShareButtons";
 import ToolFavorite from "@/components/ToolFavorite";
 import RecordVisit from "@/components/RecordVisit";
@@ -122,8 +122,10 @@ export default function ToolPageShell({
       {/* Tool */}
       <div className="qx-rise qx-rise-1">{children}</div>
 
-      {/* In-content ad (renders only when AdSense is configured) */}
-      <AdSlot slot="0000000000" />
+      {/* In-content ad — below the tool, never above it: someone who came to
+          resize an image should reach the tool first. Renders nothing until
+          NEXT_PUBLIC_ADSTERRA_NATIVE_SRC is set. */}
+      <AdsterraSlot format="native" />
 
       {/* About + How-to */}
       <div className="grid lg:grid-cols-2 gap-6 mt-8">

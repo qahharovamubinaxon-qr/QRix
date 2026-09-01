@@ -9,7 +9,7 @@ import { getAutopilotPost } from "@/lib/server/autopilot";
 import { relatedPosts } from "@/lib/server/blog-related";
 import BookmarkButton from "@/components/BookmarkButton";
 import ShareButtons from "@/components/ShareButtons";
-import AdSlot from "@/components/AdSlot";
+import AdsterraSlot from "@/components/AdsterraSlot";
 
 // Statically render hand-written posts; autopilot posts render on demand (ISR).
 export const revalidate = 3600;
@@ -183,8 +183,8 @@ export default async function BlogArticle({ params }: { params: Promise<{ slug: 
         </div>
       </aside>
 
-      {/* In-content ad — renders only after AdSense approval (env-gated) */}
-      <AdSlot slot="blog-in-article" format="fluid" className="mt-12" />
+      {/* In-content ad, env-gated — nothing renders until the key is set. */}
+      <AdsterraSlot format="banner" width={300} height={250} />
 
       {/* FAQ */}
       <section className="mt-12">
