@@ -18,6 +18,25 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 > the task file, this note can go.
 
 ## NOW (this week)
+- [x] Russia added to the passport-photo country family (TWO_FRONTS.md G1 —
+  "five countries exist, forty would be forty pages"). TAKEN + SHIPPED Sep 2.
+  35x45mm, sourced from Приказ МВД России от 16.11.2020 N 773 п.36 on Russia's
+  official legal-acts portal, cross-verified across 3 independent fetches
+  after one garbled figure ("235x75mm", actually a misread print-thickness
+  clause) was caught and discarded before it could ship. See DAILY_LOG
+  2026-09-02d for the full sourcing trail.
+  This is an English-language page (G1 — exact-spec long tail for Google),
+  NOT the Russian-language work TWO_FRONTS.md Y3 item 4 asks for ("фото на
+  документы · фото 3х4" — a Yandex/CIS-audience page). Do not treat this as
+  closing that item; it is a different page in a different language for a
+  different search engine. Y3 #4 would need the passport-photo family
+  localized into the app/ru/ pattern, which does not exist yet for this
+  family and is its own, larger scoping task.
+  next: more countries (Germany, China, Schengen-if-a-source-turns-up) follow
+  the same pattern — one at a time, each cross-verified before it ships, not
+  batched. Do not add a country without a primary-source figure; the file's
+  own header rule ("EVERY figure here is copied from the issuing authority's
+  own published page") is why Schengen is still absent after months.
 - [x] Per-page OG/Twitter/schema social cards, replacing the one generic
   homepage card every one of ~840 pages advertised. TAKEN + SHIPPED Sep 2 —
   resumed 3-day-old uncommitted work found sitting in the shared worktree

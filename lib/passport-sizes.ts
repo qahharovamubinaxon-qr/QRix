@@ -132,6 +132,24 @@ export const PASSPORT_SIZES: PassportSize[] = [
       "Passport Seva states that Polaroids, photos from ordinary printers and phone snapshots do not scan acceptably — print at a photo studio.",
     ],
   },
+  {
+    slug: "russia",
+    context: "Russia uses the same 35×45 mm rectangle as the UK, Australia and India, but MVD's regulation is more prescriptive than any of those: it states BOTH a maximum head height as a percentage of the frame and a fixed clear margin above the head, where most authorities publish only one or the other. This page covers the DOMESTIC internal passport (паспорт гражданина РФ) specifically — the biometric international passport (загранпаспорт) is a separate application with its own digital-upload specification, not this one.",
+    country: "Russia",
+    document: "Russian internal passport photo (паспорт гражданина РФ)",
+    sizeLabel: "35 mm wide × 45 mm high",
+    w: 413, h: 531,
+    headRule: "Crown to chin must not exceed 80% of the frame's vertical height, and the clear space above the head must be 5 mm (±1 mm).",
+    background: "White, even, no stripes, spots or shadows",
+    authority: "Ministry of Internal Affairs of Russia (MVD), Order No. 773 of 16.11.2020",
+    source: "http://publication.pravo.gov.ru/Document/View/0001202012310102",
+    checked: "2026-09-02",
+    notes: [
+      "This is Приказ МВД России от 16.11.2020 № 773, п.36 — the administrative regulation for issuing and replacing the internal passport, published on Russia's official legal-acts portal.",
+      "The percentage rule and the millimetre margin rule both apply; a crop that satisfies one does not automatically satisfy the other.",
+      "Applying for the international biometric passport instead uses a different specification — check which document you are applying for before using this size.",
+    ],
+  },
 ];
 
 export const getPassportSize = (slug: string) => PASSPORT_SIZES.find((p) => p.slug === slug);
