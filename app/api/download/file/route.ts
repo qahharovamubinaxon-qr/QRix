@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyMedia, resolveCobaltStream, resolveSoundcloudStream, MEDIA_UA } from "@/lib/server/media-download";
+import { verifyMedia, resolveCobaltStream, resolveSoundcloudStream, streamHls, MEDIA_UA } from "@/lib/server/media-download";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -17,6 +17,22 @@ export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("t") || "";
   const meta = verifyMedia(token);
   if (!meta) return NextResponse.json({ error: "bad_token" }, { status: 403 });
+
+  /* HLS platforms (Rutube) have no single file to proxy — the CDN 403s the
+     underlying .mp4 — so the segments are stitched into one MPEG-TS stream
+     here and the browser remuxes it to MP4. No Content-Length exists for a
+     stream assembled on the fly, so the client falls back to indeterminate
+     progress rather than showing a wrong percentage. */
+  if (meta.kind === "hls") {
+    const body = await streamHls(meta.playlistUrl).catch(() => null);
+    if (!body) return NextResponse.json({ error: "resolve_failed" }, { status: 502 });
+    const h = new Headers();
+    h.set("Content-Type", meta.mime);
+    h.set("Content-Disposition", `attachment; filename="${meta.filename.replace(/"/g, "")}"`);
+    h.set("Cache-Control", "no-store");
+    h.set("X-Content-Type-Options", "nosniff");
+    return new NextResponse(body, { status: 200, headers: h });
+  }
 
   let mediaUrl: string | null = null;
   try {

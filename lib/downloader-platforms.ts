@@ -48,6 +48,10 @@ export const PLATFORMS: Platform[] = [
     svg: `<svg viewBox="0 0 24 24" width="100%" height="100%"><rect x="2" y="2" width="20" height="20" rx="6" fill="#000"/><path fill="none" stroke="#fff" stroke-width="1.6" d="M8 8.5c1-1.6 2.5-2.3 4-2.3 2.6 0 4 2 4 5.5s-1.2 6-4.4 6c-2 0-3.2-1.2-3.2-2.7 0-1.4 1.2-2.3 2.8-2.3 2 0 3 1.3 3 3.3"/></svg>` },
   { id: "tumblr", name: "Tumblr", color: "#36465d", domains: ["tumblr.com"], kinds: ["video", "image"],
     svg: `<svg viewBox="0 0 24 24" width="100%" height="100%"><rect x="2" y="2" width="20" height="20" rx="6" fill="#36465D"/><path fill="#fff" d="M13.2 18c-2 0-3.4-1-3.4-3.5v-3.6H8.4V9c1.6-.4 2.3-1.8 2.4-3h1.7v2.7h2v2.2h-2v3.2c0 .8.4 1.1 1.1 1.1h1v2.4c-.3.2-1 .4-1.4.4z"/></svg>` },
+  { id: "rutube", name: "Rutube", color: "#ef0f43", domains: ["rutube.ru"], kinds: ["video"],
+    svg: `<svg viewBox="0 0 24 24" width="100%" height="100%"><rect x="2" y="2" width="20" height="20" rx="5" fill="#EF0F43"/><path fill="#fff" d="M7 7h6.6a3.2 3.2 0 0 1 0 6.4H11l3.4 3.6h-2.7L8.4 13.4H9V7zm2 2v2.6h4.4a1.3 1.3 0 0 0 0-2.6z"/></svg>` },
+  { id: "telegram", name: "Telegram", color: "#2aabee", domains: ["t.me", "telegram.me"], kinds: ["video", "image"],
+    svg: `<svg viewBox="0 0 24 24" width="100%" height="100%"><circle cx="12" cy="12" r="10" fill="#2AABEE"/><path fill="#fff" d="M17.6 7.6 15.7 17c-.1.6-.5.8-1 .5l-2.8-2-1.3 1.3c-.2.2-.3.3-.6.3l.2-3 5.2-4.7c.2-.2-.1-.3-.4-.1l-6.4 4-2.7-.9c-.6-.2-.6-.6.1-.9l10.6-4.1c.5-.2.9.1.7.9z"/></svg>` },
   { id: "bilibili", name: "Bilibili", color: "#00a1d6", domains: ["bilibili.com", "b23.tv"], kinds: ["video", "audio"],
     svg: `<svg viewBox="0 0 24 24" width="100%" height="100%"><rect x="2" y="4" width="20" height="16" rx="4" fill="#00A1D6"/><path fill="#fff" d="M8 2.6l2.2 2H14l2.2-2 .9 1-1 1H17a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V9.6a3 3 0 0 1 3-3h.9l-1-1zM7 9.4a.9.9 0 0 0-.9.9v5a.9.9 0 0 0 .9.9h10a.9.9 0 0 0 .9-.9v-5a.9.9 0 0 0-.9-.9zm2 2.1 .001 1.6H8V11.5zm7 0v1.6h-1V11.5z"/></svg>` },
 ];
@@ -81,7 +85,17 @@ export function formatPhrase(p: Platform, lang: "en" | "ru" | "uz"): string {
 export function detectPlatform(raw: string): Platform | null {
   let host = "";
   try { host = new URL(raw.trim()).hostname.toLowerCase().replace(/^www\./, ""); } catch { return null; }
-  return PLATFORMS.find((p) => p.domains.some((d) => host.includes(d))) || null;
+  return PLATFORMS.find((p) => p.domains.some((d) => hostMatches(host, d))) || null;
+}
+
+/* Matching had to move from `host.includes(d)` to label boundaries because
+   "pinteres[t.co]m" contains Twitter's t.co — so every Pinterest link was
+   detected as Twitter and handed to the wrong extractor. The bug was invisible
+   from the outside: the download simply failed, which looks like any other
+   dead link. Anything ending in "t.com" hit it. */
+function hostMatches(host: string, frag: string): boolean {
+  if (frag.endsWith(".")) return host === frag.slice(0, -1) || host.startsWith(frag);
+  return host === frag || host.endsWith(`.${frag}`) || host.startsWith(`${frag}.`);
 }
 
 /** Every hostname fragment we accept — the server validates against this so the

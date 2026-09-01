@@ -213,6 +213,56 @@ if (added.length && !flag("--no-indexnow")) {
 
 /* -------------------------------------------------------------- the verdict */
 
+/* Downloader canary.
+   The site's most-visited page spent a fortnight answering 200 while
+   delivering nothing to anyone: the page was up, the resolver behind it was
+   not, and nothing in this script could tell the difference. Checking that a
+   URL still 200s is not the same as checking the tool still works, so this
+   asks the live API to resolve a real link on each platform and reports what
+   it actually says. No secrets needed — it is the same call a visitor makes. */
+if (!flag("--no-downloader")) {
+  const CANARIES = [
+    ["ok.ru", "https://ok.ru/video/7475662490142"],
+    ["rutube", "https://rutube.ru/video/c599713cbb4c12ce90d498947c9ef571/"],
+    ["telegram", "https://t.me/telegram/406"],
+    ["pinterest", "https://www.pinterest.com/pin/99360735500167749/"],
+    ["vk", "https://vkvideo.ru/video-229033973_456239171"],
+  ];
+  console.log(`\n  Downloader — asking production to resolve a real link per platform:`);
+  for (const [name, link] of CANARIES) {
+    try {
+      const r = await fetch(`${ORIGIN}/api/download?url=${encodeURIComponent(link)}`, { signal: AbortSignal.timeout(45000) });
+      const j = await r.json();
+      if (j.ok) {
+        console.log(`  ok    ${name.padEnd(10)} ${j.formats.length} format(s)`);
+      } else {
+        /* VK, Instagram, Facebook and X have no in-process extractor — they
+           resolve only through cobalt, and there is no working instance right
+           now (see cobalt/README.md). Their failure is a KNOWN gap with an
+           owner action attached, so it is reported on its own line rather than
+           counted as a regression: a check that is permanently red teaches
+           everyone to stop reading it, which is how the last outage survived a
+           fortnight.
+
+           Both error shapes mean the same thing here. `vk_needs_api` is what
+           comes back with no cobalt configured at all; `extraction_failed` is
+           what comes back when COBALT_API_URL points at an instance that is
+           not answering — which is exactly today's situation.
+
+           Once cobalt is connected this line should read "ok". If it still
+           says needs-cobalt after that, the instance is not working and this
+           is the line that says so. */
+        const COBALT_ONLY = new Set(["vk", "instagram", "facebook", "twitter"]);
+        const expected = COBALT_ONLY.has(name) && ["vk_needs_api", "extraction_failed"].includes(j.error);
+        if (expected) console.log(`  note  ${name.padEnd(10)} ${j.error}  (known gap — needs a working cobalt, see cobalt/README.md)`);
+        else fail(`downloader: ${name} -> ${j.error}`);
+      }
+    } catch (e) {
+      fail(`downloader: ${name} unreachable — ${e.message}`);
+    }
+  }
+}
+
 const clean = problems.length === 0;
 if (clean || flag("--update-baseline")) {
   writeFileSync(
@@ -226,7 +276,7 @@ if (clean || flag("--update-baseline")) {
 
 console.log(
   clean
-    ? `\nVERIFY: ok — ${targets.length} URLs, robots, sitemap ${current.length}${added.length ? ` (+${added.length})` : ""}${flag("--no-sources") ? "" : ", vendor sources"}`
+    ? `\nVERIFY: ok — ${targets.length} URLs, robots, sitemap ${current.length}${added.length ? ` (+${added.length})` : ""}${flag("--no-sources") ? "" : ", vendor sources"}, downloader canaries`
     : `\nVERIFY: issues — ${problems.length} problem(s):\n` + problems.map((p) => `  · ${p}`).join("\n"),
 );
 process.exit(clean ? 0 : 1);

@@ -1,0 +1,74 @@
+# cobalt — the fallback resolver behind QRix's downloader.
+#
+# QRix reads TikTok, SoundCloud, Vimeo, Pinterest, Odnoklassniki, Telegram and
+# Rutube with its own in-process extractors and needs nothing here for those.
+# cobalt covers what we cannot read ourselves: VK, Instagram, Facebook and X.
+#
+# It used to be the ONLY route for every platform, and when the previous
+# instance stopped answering the site's most-visited page served a fortnight of
+# traffic without delivering one file. It is a fallback now, so losing it costs
+# four platforms rather than the whole feature — but those four include VK,
+# which is the single most-visited page on the site.
+#
+# ── Deploy ────────────────────────────────────────────────────────────────
+#   1. Put this file on any machine that runs Docker and has a public address.
+#   2. Replace API_URL below with that address. cobalt hands out download links
+#      that point at API_URL, so a wrong value breaks downloads while every
+#      health check still passes — this is the one setting that must be right.
+#   3. docker compose up -d
+#   4. Check it: curl https://your-address/    → JSON naming version + services
+#   5. In Vercel → QRix → Settings → Environment Variables, set
+#        COBALT_API_URL = https://your-address
+#      and redeploy. QRix accepts a COMMA-SEPARATED LIST here, so a second
+#      instance can be added later without touching any code:
+#        COBALT_API_URL = https://first.example,https://second.example
+#   6. Confirm from the repo:  npm run verify:daily
+#      The downloader canary asks production to resolve a real VK link and
+#      prints what it actually got back.
+#
+# ── If the instance is reachable from the open internet ───────────────────
+# Anyone who finds the address can use it at your expense. Set an API key and
+# put the same key in Vercel as COBALT_API_KEY — QRix already sends it. See
+# cobalt's /docs/protect-an-instance.md.
+
+services:
+  cobalt:
+    image: ghcr.io/imputnet/cobalt:11
+    init: true
+    read_only: true
+    restart: unless-stopped
+    container_name: cobalt
+
+    ports:
+      # behind a reverse proxy (nginx, Caddy, Traefik), bind to localhost
+      # instead by replacing this line with:  - 127.0.0.1:9000:9000
+      - 9000:9000/tcp
+
+    environment:
+      # MUST be the public address browsers will be sent to, with a trailing
+      # slash. Not localhost — cobalt embeds this in the links it returns.
+      API_URL: "https://cobalt.example.com/"
+
+      # Uncomment to require a key, and set the same value in Vercel as
+      # COBALT_API_KEY. Strongly recommended for anything publicly reachable.
+      # API_KEY_URL: "file:///keys.json"
+
+      # Some platforms only serve logged-in clients. Cookies raise the success
+      # rate on Instagram in particular. Uncomment this and the volume below.
+      # COOKIE_PATH: "/cookies.json"
+
+    labels:
+      - com.centurylinklabs.watchtower.scope=cobalt
+
+    # volumes:
+    #   - ./cookies.json:/cookies.json
+    #   - ./keys.json:/keys.json:ro
+
+  # keeps the cobalt image current on its own — the platforms this talks to
+  # change constantly, and a pinned old build quietly stops resolving things
+  watchtower:
+    image: ghcr.io/containrrr/watchtower
+    restart: unless-stopped
+    command: --cleanup --scope cobalt --interval 900 --include-restarting
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock

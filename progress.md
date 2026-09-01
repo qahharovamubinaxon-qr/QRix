@@ -2524,3 +2524,226 @@ earns real search traffic, a dedicated long-tail family exists, nothing links
 them) has shown up twice in one session, both times found by accident while
 scoping something else — worth checking directly next time rather than
 waiting for a third accident.
+
+---
+
+## Mission 153 — the downloader stops depending on one machine
+
+Started from the owner's question "did the people who came for /downloader/vk
+actually get their file". GA4 could not answer it until the custom dimensions
+`tool` / `action` / `platform` were registered (npm run ga:setup, 2026-08-24),
+and npm run ga now reports the funnel beside the totals.
+
+The answer was no. /downloader/vk is the most-visited page on the site — 99
+users, 107 sessions in seven days — and it produced **zero** successful
+tool_used events, while answering HTTP 200 the whole time. trackTool only fires
+on `j.ok`, so zero means nobody got a file.
+
+Cause: every platform except TikTok and SoundCloud resolved through a single
+self-hosted cobalt instance, and it had stopped answering. Probing production
+confirmed it — TikTok (keyless, no cobalt) returned ok:true with a real title;
+VK and OK.ru returned extraction_failed. The error was `extraction_failed`
+rather than `engine_not_configured`, which proves COBALT_API_URL *is* set: the
+instance is reachable-but-failing, not missing.
+
+Rebuilt so cobalt is a FALLBACK, not the primary route. In-process extractors:
+Vimeo (player config; HLS-only uploads return null rather than a button that
+fails at download), Pinterest (JSON island), Odnoklassniki (data-options →
+flashvars, both the inline and metadataUrl shapes), Telegram (?embed=1), and
+VK through the official API gated on VK_ACCESS_TOKEN.
+
+VK deliberately gets no scraper. It answers scrapers with an anti-bot
+interstitial — HTTP 200, ordinary HTML, no media — measured directly from a
+residential IP during this mission, on vk.com, vk.ru and video_ext.php alike.
+It does this to datacenter ranges essentially always, so our own scraper on
+Vercel would hit the identical wall. Writing one would have looked like
+progress and changed nothing.
+
+Two bugs found on the way:
+  · detectPlatform matched domains with host.includes(), and "pinteres[t.co]m"
+    contains Twitter's t.co — so every Pinterest link went to the Twitter
+    extractor. Anything ending in "t.com" hit it. Now matches label
+    boundaries; Pinterest resolves and downloads end to end, verified.
+  · The "(not set)" label in ga-kpi.mjs blamed the registration date for a
+    bucket with two causes; most tools send only `tool`, so their rows land
+    there legitimately and forever.
+
+New: `npm run probe:downloader [url…]` — resolves a link AND reaches past the
+signed token to check the real media URL will serve, because "the URL
+responds" and "the tool works" are different questions.
+
+Also added three project agents in .claude/agents/ (qrix-analyst,
+qrix-marketer, qrix-tool-qa), each forbidden from asserting what it did not
+measure.
+
+Verified: tsc clean · test:nav 6/6 · test:links 37/37 · probe:downloader
+delivers Pinterest end-to-end (200, real bytes).
+
+Remaining: OK.ru, Telegram and Rutube are unverified — the owner is supplying
+real links, and made-up video ids fail in a way indistinguishable from a
+broken extractor. Rutube serves HLS only, so it needs a remux step and is not
+built. Instagram is not built. VK stays dark until VK_ACCESS_TOKEN is set by
+the owner in Vercel.
+
+Merged to main as 1a05e75. Branch claude/qrix-six-point.
+
+### M153b — Rutube, and why Instagram is not here
+
+Rutube's play/options API is public and keyless but serves HLS only; the CDN
+403s the .mp4 its segment paths are named after. A new "h" token kind carries
+the variant playlist, the proxy concatenates the segments into one MPEG-TS
+response, and the browser remuxes to MP4 with mediabunny — the same shape as
+the existing audio-extract path. Segments are fetched one at a time (a 1080p
+video is hundreds of them) and a failed segment errors the stream rather than
+being skipped, because a silently truncated video still opens.
+
+Verified on production, end to end: 6 renditions (144p–1080p), and the file
+proxy streamed 166 MB of the 360p rendition at ~1.9 MB/s, first byte 0x47.
+
+KNOWN LIMIT: the browser holds the whole file in memory to remux it. That 20-
+minute video is 166 MB at 360p; at 1080p it is several times that, and a phone
+will not survive it. Short clips — which is most of what people paste — are
+fine. Offering six qualities is the mitigation, not a decoration.
+
+Instagram remains unsupported after real investigation, not assumption: reel
+pages carry no og:video, no video_url and no playable_url, under a browser UA
+(620 KB of HTML) or Googlebot (920 KB). The media exists only behind an
+authenticated GraphQL call, so there is no keyless server-side route. Adding it
+would need either a logged-in session cookie (fragile, against their terms) or
+a paid third-party API — an owner decision, not a coding one.
+
+VK is written and waiting on VK_ACCESS_TOKEN, which only the owner can create.
+Live behaviour today is the honest `vk_needs_api`.
+
+Merged to main as e4787b1.
+
+### M153c — Odnoklassniki, and a bug only production could show
+
+The OK.ru extractor worked first try against a real link: six renditions
+(FULL/HD/SD/LOW/LOWEST/MOBILE, sorted by OK's own naming), correct title, and
+a media URL answering 200 locally.
+
+In production every download returned 403 bad_token. OK serves a different CDN
+depending on where the request comes from — mycdn.me to Uzbekistan, which was
+allowlisted, and vkuser.net to Vercel's us-east range, which was not. So
+verifyMedia rejected a token the same server had just signed. The extractor was
+never the problem; the allowlist had been written from the only country we had
+ever tested from.
+
+Verified after the fix, on production: 200, video/mp4, 46.6 MB pulled, first
+bytes `ftypisom` — a real playable MP4.
+
+Downloader status after M153: Rutube, Telegram, Pinterest, Odnoklassniki,
+TikTok and SoundCloud all verified live end-to-end. VK is written and waiting
+on VK_ACCESS_TOKEN. Instagram is not possible keyless — evidence in M153b.
+
+Lesson worth keeping: for any platform that shards by region, a local pass says
+nothing about which host production will be handed. Test the file proxy from
+production, not just the resolver from here.
+
+Merged to main as 2ae7a4d.
+
+### M153d — correcting the VK/Instagram conclusion
+
+The owner pointed out that Instagram used to work. That is right, and the
+M153b note read as if Instagram had never been possible. It was: it worked
+through cobalt, and it stopped when cobalt stopped. What M153b actually
+established is narrower — there is no KEYLESS SERVER-SIDE route to Instagram
+media, which is a statement about writing our own extractor, not about whether
+the feature ever functioned.
+
+VK was re-tested properly rather than left at the earlier "blocked" reading,
+which was partly self-inflicted: repeated probes from one IP earn a rate-limit
+that looks identical to a permanent block.
+
+With a cookie jar and manual redirects VK behaves quite differently from the
+first probe. vkvideo.ru attempts an autologin, fails with "invalid user" and
+lands on badbrowser.php. vk.com/video_ext.php does return a real embed page —
+but the media URLs are no longer in it. The 22 KB of player config carries only
+feature flags (hls_fmp4, useManagedMediaSource, …); the modern VK player
+fetches its sources through a separate authenticated call.
+
+So a VK extractor is not a one-off piece of code, it is a maintained
+adversarial target — which is precisely the job cobalt and yt-dlp do full time.
+
+And VK's API is not the cheap alternative it looked like: obtaining a token now
+requires business verification with SWIFT and bank-card details. That is not a
+reasonable price for one downloader route, and it was declined.
+
+Conclusion for both platforms: the realistic route is a working cobalt
+instance, not our own scrapers. The rest of the downloader no longer depends on
+it — Rutube, Telegram, Pinterest, Odnoklassniki, TikTok and SoundCloud are all
+in-process and verified live — so cobalt is now a fallback that adds VK,
+Instagram, Facebook and X rather than a single point of failure for everything.
+
+### M153e — failover, a canary, and the two pages it caught
+
+Three changes, one root cause: a page answering 200 while the tool behind it
+delivered nothing, with no check able to tell the difference.
+
+COBALT_API_URL now takes a comma-separated LIST. One instance being the only
+route is why VK and Instagram went dark; a list is tried in order and an
+instance answering "error" is not treated as fatal, since another may succeed
+on the same URL from a different IP.
+
+verify:daily gained a downloader canary that asks PRODUCTION to resolve a real
+link per platform — the same call a visitor makes, so it needs no secrets.
+Platforms that only exist through cobalt (VK, Instagram, Facebook, X) report as
+a labelled known gap rather than a failure, because a permanently red check
+teaches everyone to stop reading it, which is how the last outage survived two
+weeks. Once cobalt is connected those lines should read ok; if they do not,
+that is the line that says the instance is not working.
+
+The canary caught a regression within the hour — my own. Adding Rutube and
+Telegram to PLATFORMS put them in the sitemap and generateStaticParams, but the
+per-platform SEO registry had no entry for them, so both fell through
+notFound() and served the HOMEPAGE title and canonical: the client-page
+canonical trap, on two brand-new indexable URLs. Both now carry full copy
+(title, description, intro, keywords, features, four FAQs, Russian keywords)
+and are registered in lib/search-index.ts, which the sitemap does automatically
+from PLATFORMS but the site's own search does not. Verified the older platform
+pages were unaffected.
+
+cobalt/ holds a deployment kit — compose file, the three settings that decide
+whether it works, and how to verify from this repo. The API_URL trap is named
+in the header: it must be the PUBLIC address, because cobalt embeds it in the
+links it returns, so a wrong value breaks every download while the instance
+looks healthy. Hosting cost is the owner's decision; no free tier is promised.
+
+VERIFY now clean: 15 URLs, sitemap 847 (+6), canaries ok/ok/ok/ok + VK labelled.
+Merged to main as 563cb18.
+
+### M153f — VK and Instagram are live again
+
+A cobalt instance now runs on Railway (project qrix-cobalt, image
+ghcr.io/imputnet/cobalt:11, API_URL set to its public domain). It resolves VK,
+Instagram and Facebook from a datacenter address, which also answers the open
+question from M153e: the old instance did NOT die because VK blocks
+datacenters. It just died.
+
+Connecting it could not go through COBALT_API_URL. The owner is locked out of
+Vercel — their Vercel entry is gone from Google Authenticator, so every sign-in
+fails 2FA and recovery is an email round-trip of unknown length. The endpoint
+is a public HTTPS URL rather than a key, so it ships in code instead, where git
+can deliver it.
+
+The first attempt shipped it as `env || DEFAULT` and changed nothing:
+COBALT_API_URL is already set in production, to the instance that died, so the
+dead value kept winning. That is the exact failure this whole mission was
+about, reproduced one line after documenting it. The constant is now APPENDED
+to the env value and deduped — the list is tried in order and a dead entry
+costs one timeout, so carrying both beats trusting either. Verified by forcing
+it: with COBALT_API_URL=dead.example.invalid, VK still resolves.
+
+Live on production, measured:
+  VK          ok, and 79,790,080 bytes pulled through the file proxy, ftypisom
+  Instagram   ok
+  canary      ok.ru 6 · rutube 6 · telegram 1 · pinterest 1 · vk 1 — no gaps
+
+The downloader now covers nine platforms end to end. The Railway trial expires
+30 days from 2026-08-30; the expiry is written at the constant and the canary
+is what will announce it.
+
+STILL OPEN: Vercel account recovery. It is not needed for the downloader any
+more, but it is where the site lives — the owner should run "Start 2FA
+recovery" from the Vercel sign-in page, which uses their Gmail.

@@ -52,6 +52,8 @@ const PAGES: SearchItem[] = [
   { title: "Pinterest Downloader", href: "/downloader/pinterest", group: "Pages", keywords: "pinterest pin video image download" },
   { title: "SoundCloud to MP3", href: "/downloader/soundcloud", group: "Pages", keywords: "soundcloud mp3 track music download" },
   { title: "OK.ru Video Downloader", href: "/downloader/ok", group: "Pages", keywords: "odnoklassniki ok ru video skachat download" },
+  { title: "Rutube Downloader", href: "/downloader/rutube", group: "Pages", keywords: "rutube video skachat download mp4 рутуб" },
+  { title: "Telegram Video Downloader", href: "/downloader/telegram", group: "Pages", keywords: "telegram t.me channel video photo skachat download телеграм" },
   { title: "Скачать видео (RU)", href: "/ru/downloader", group: "Pages", keywords: "скачать видео тикток вк рилс одноклассники загрузчик ru russian" },
   { title: "Video yuklab olish (UZ)", href: "/uz/downloader", group: "Pages", keywords: "video yuklab olish tiktok instagram vk yuklash uzbek uz suv belgisisiz" },
   { title: "PDF в Word (RU)", href: "/ru/pdf-to-word", group: "Pages", keywords: "pdf в word конвертировать пдф ворд ru" },
