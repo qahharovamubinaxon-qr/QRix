@@ -1,6 +1,6 @@
 # QRix — Status Report
 
-**Verified:** 30 August 2026 · **Live:** https://qrixtools.com (HTTP 200)
+**Verified:** 2 September 2026 · **Live:** https://qrixtools.com (HTTP 200)
 **Repo:** github.com/qahharovamubinaxon-qr/QRix · branch `claude/qrix-six-point`, level with `origin/main`
 
 Everything below was checked by opening files and running commands, not inferred.
@@ -101,7 +101,9 @@ SQL also defines `reviews`, `autopilot_posts`.
 
 **Stripe** — integrated in code: 5 routes (`/api/billing/{checkout,portal,webhook}`, `/api/v1/billing/{checkout,webhook}`). **No Stripe keys are set**, so checkout cannot run. **Payme / Click — not present.**
 
-**AdSense** — code is in place (`app/layout.tsx:143`, `components/AdSlot.tsx`), gated on `NEXT_PUBLIC_ADSENSE_CLIENT`. That variable is **not set**, and the live homepage contains **zero** AdSense script tags. **The site currently shows no ads and earns nothing.**
+**Ads — Adsterra, live since 2 Sep 2026.** Two units, both env-gated and verified in production: a native banner below every tool (`components/ToolPageShell.tsx`) and a 300x250 in blog articles. Popunder, social bar and adult ads are all deliberately OFF.
+
+**AdSense — not used, and should not be applied for while the downloader lives on this domain.** Google's publisher policy forbids pages that help users download streaming video; `/downloader/*` is 57 pages and the site's most-visited section. The AdSense component remains in the tree unused. Note the downside is asymmetric: a rejected application is recoverable, a *revoked* AdSense account is usually permanent and follows the person, not the site.
 
 **Google Analytics** — present and firing on the live page ✅ (GA4, with custom dimensions `tool` / `action` / `platform` registered 24 Aug 2026).
 
@@ -148,12 +150,12 @@ ff9dd49  docs: M153f — VK and Instagram back, and the env var that outranked t
 
 - **Genuinely done (95%+):** the tools themselves — QR, PDF, image, downloader, OCR, background removal. Plus SEO, sitemap, localised routes, deploy pipeline, test suite.
 - **Half done (40–60%):** backend persistence. Schema and code exist; no real database is connected, so users, history and limits live in a mock store.
-- **Not done (0–20%):** monetisation. Stripe code without keys, AdSense code without a client id.
+- **Not done (0–20%):** paid plans. Stripe code without keys. Ads are live but earn a few dollars a month at current traffic.
 
 **The three biggest gaps, in order:**
 1. `DATABASE_URL` unset → nothing a user does is remembered
-2. `NEXT_PUBLIC_ADSENSE_CLIENT` unset → no ad revenue despite AdSense being wired
-3. Stripe keys unset → no subscription can be purchased
+2. Stripe keys unset → no subscription can be purchased
+3. Traffic. Ads are live but ~1,500 page views/month at CIS CPM is a few dollars — the ad network chosen matters far less than growing the audience
 
 ---
 
@@ -207,7 +209,7 @@ Caveat: GA runs in consent mode, so these are a **floor**, not a count.
 ## 11. Known open items
 
 1. **No real database.** Highest-value unblock.
-2. **AdSense not switched on** — one env var away from ad revenue.
+2. **Ad revenue is traffic-bound, not setup-bound** — Adsterra is live; ~1,500 views/month is worth a few dollars.
 3. **Stripe keys absent** — no payments possible.
 4. **Railway cobalt trial expires ~29 Sep 2026.**
 5. **Tool UI translated to only 3 of 15 languages**; only `/ru/` and `/uz/` have routes.
