@@ -156,7 +156,13 @@ export const db = {
    is left alone rather than replaced with an empty list, because an empty
    /admin is indistinguishable from a site with no accounts and would be read
    as the latter. */
-if (profilesConfigured()) {
+/* Skipped during `next build`. Prerendering 847 pages imports this module, and
+   a build that reaches out to Supabase is a build that can fail because a
+   third party was slow — nothing here is needed to render a static page. At
+   runtime the first request into a fresh lambda pays the round trip once. */
+const BUILDING = process.env.NEXT_PHASE === "phase-production-build";
+
+if (!BUILDING && profilesConfigured()) {
   const real = await loadUsers();
   if (real) db.users.hydrate(real);
 }
