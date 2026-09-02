@@ -60,6 +60,7 @@
     "probe:hreflang": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-hreflang.mjs",
     "probe:db-profiles": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/resolve-ts-alias.mjs scripts/probe-db-profiles.mjs",
     "probe:tg-report": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/resolve-ts-alias.mjs scripts/probe-tg-report.mjs",
+    "ga:channel": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ga-channel.mjs",
     "ga": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ga-kpi.mjs",
     "ga:setup": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ga-setup-dimensions.mjs"
   },
