@@ -5,6 +5,7 @@
  * backed by Prisma — call sites never change. SERVER ONLY.
  */
 import { serverConfig } from "./config";
+import { loadUsers, profilesConfigured, pushInsert, pushUpdate, pushDelete } from "./db-profiles";
 import type {
   User, Subscription, Order, ApiKey, Job, Notification, Settings, Favorite,
   HistoryItem, RecentTool, Download, Upload, Project, EventRow, FeatureFlag,
@@ -16,24 +17,41 @@ const now = () => new Date().toISOString();
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString();
 const daysAhead = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString();
 
-/** Minimal typed in-memory collection with the query surface the app needs. */
+/** Minimal typed in-memory collection with the query surface the app needs.
+ *
+ *  `sync` lets a collection be backed by a real table without changing any of
+ *  the 28 files that call these methods. It cannot be awaited here — every
+ *  method is synchronous by contract — so writes go to memory immediately and
+ *  are pushed onward in the background. See db-profiles.ts for what that costs
+ *  and why it is still the right trade at this size. */
+type SyncHooks<T> = {
+  insert?: (row: T) => void;
+  update?: (row: T, patch: Partial<T>) => void;
+  remove?: (row: T) => void;
+};
+
 class Collection<T> {
   private rows: T[] = [];
-  constructor(seed: T[] = []) { this.rows = seed; }
+  private sync?: SyncHooks<T>;
+  constructor(seed: T[] = [], sync?: SyncHooks<T>) { this.rows = seed; this.sync = sync; }
+  /** Replace the contents wholesale — used once at boot when a real table
+      has been read, so the seeded demo rows never reach a caller. */
+  hydrate(rows: T[]) { this.rows = rows; }
   all() { return [...this.rows]; }
   find(pred: (r: T) => boolean) { return this.rows.find(pred); }
   filter(pred: (r: T) => boolean) { return this.rows.filter(pred); }
   count(pred?: (r: T) => boolean) { return pred ? this.rows.filter(pred).length : this.rows.length; }
-  insert(row: T) { this.rows.unshift(row); return row; }
+  insert(row: T) { this.rows.unshift(row); this.sync?.insert?.(row); return row; }
   update(pred: (r: T) => boolean, patch: Partial<T>) {
     const r = this.rows.find(pred);
-    if (r) Object.assign(r, patch);
+    if (r) { Object.assign(r, patch); this.sync?.update?.(r, patch); }
     return r;
   }
   remove(pred: (r: T) => boolean) {
-    const before = this.rows.length;
+    const doomed = this.rows.filter(pred);
     this.rows = this.rows.filter((r) => !pred(r));
-    return before - this.rows.length;
+    for (const r of doomed) this.sync?.remove?.(r);
+    return doomed.length;
   }
 }
 
@@ -85,7 +103,11 @@ function seedEvents(): EventRow[] {
 
 // ── Store ────────────────────────────────────────────────────────────────
 export const db = {
-  users: new Collection<User>(seedUsers),
+  users: new Collection<User>(seedUsers, {
+    insert: (u) => pushInsert(u),
+    update: (u, patch) => pushUpdate(u.id, patch),
+    remove: (u) => pushDelete(u.id),
+  }),
   subscriptions: new Collection<Subscription>(seedSubs),
   orders: new Collection<Order>(seedOrders),
   apiKeys: new Collection<ApiKey>([]),
@@ -124,6 +146,20 @@ export const db = {
   webhooks: new Collection<import("./webhooks").Webhook>([]),
   webhookDeliveries: new Collection<import("./webhooks").WebhookDelivery>([]),
 };
+
+/* Boot-time hydration.
+   Top-level await, so no request can observe the seeded demo users once a real
+   table is reachable. It costs one round trip per lambda instance, bounded by
+   the timeout inside loadUsers — a slow Supabase must not hang every route.
+
+   A null result means "could not look", NOT "no users": in that case the seed
+   is left alone rather than replaced with an empty list, because an empty
+   /admin is indistinguishable from a site with no accounts and would be read
+   as the latter. */
+if (profilesConfigured()) {
+  const real = await loadUsers();
+  if (real) db.users.hydrate(real);
+}
 
 export const dbDriver = serverConfig.db.driver;
 export const helpers = { now, daysAgo, daysAhead };

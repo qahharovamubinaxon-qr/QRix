@@ -11,7 +11,18 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+
+  // Two URLs, because one connection cannot do both jobs on serverless.
+  // DATABASE_URL is the transaction-mode pooler (pgbouncer, :6543) — it is what
+  // a lambda should hold, since hundreds of cold starts must not become hundreds
+  // of Postgres connections. But pgbouncer cannot run migrations: they need
+  // session state, prepared statements and advisory locks that a transaction
+  // pooler discards. So migrations go through DIRECT_URL (:5432) instead.
+  //
+  // Getting this wrong fails in an unhelpful direction: `migrate` reports a
+  // confusing prepared-statement error rather than "you pointed me at a pooler".
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 // ─────────────────────────── Auth / Users ────────────────────────────
