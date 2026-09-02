@@ -199,6 +199,52 @@ restricted JavaScript runtime with short CPU limits and no ffmpeg; cobalt needs
 a full Node process and long-lived streams. Cloudflare's container product is a
 paid add-on.
 
+## The 29 September decision, costed
+
+The Railway trial started 30 August 2026 and its $5 credit lasts 30 days. When
+it runs out VK, Instagram, Facebook and X stop resolving — roughly a third of
+the site's traffic arrives at `/downloader/vk` alone.
+
+**Writing our own VK extractor is not an option, and this was tested rather
+than assumed.** Four routes, all dead ends:
+
+| Attempt | Result |
+| --- | --- |
+| Plain page fetch | anti-bot interstitial, then a redirect loop |
+| `video_ext.php` with a cookie jar | real embed page, but the media URLs are not in it — the modern player fetches them separately |
+| `al_video.php` with a cookie jar | 819 bytes, no media, no error |
+| Official API | needs business verification with SWIFT and bank-card details |
+
+So something cobalt-shaped is required. What it costs:
+
+| Option | Monthly | Notes |
+| --- | --- | --- |
+| **Owner's PC + Cloudflare Tunnel** | **$0** | Already proven: pulled 87 MB of VK video from this address. Needs the machine switched on; when it sleeps, four platforms pause and six keep working. |
+| **Railway Hobby** | **$5** | No server to administer. The estimate below says usage lands inside the included credit. |
+| Hetzner CX22 | ~€7.99 EU / ~$4.59 US | 20 TB traffic included, so spikes are free. You manage Docker. |
+| Contabo | ~$4–7 | More RAM per euro, less consistent performance. |
+
+### Why Railway should fit inside its $5
+
+Egress is $0.05/GB there, and VK downloads TUNNEL through cobalt — every byte
+the visitor saves crosses Railway. So the bill is traffic-shaped, not
+subscription-shaped, and worth estimating rather than guessing:
+
+- measured last week: 9 `tool_used` downloader events, 2 of them an actual
+  `download`, against 109 visitors on `/downloader/vk`
+- one VK video measured at 87 MB; call it 50 MB average
+- even at ten times the measured completion rate — ~20 downloads a week —
+  that is ~4 GB/month, about **$0.20** of egress
+- an idle cobalt container is roughly **$3–4/month** of RAM and CPU
+
+Total ≈ $4, inside the $5 credit. **But the shape of the risk is worth naming:
+a single popular video, or one visitor pulling 1080p repeatedly, moves egress
+faster than anything else on the bill.** Hetzner's included 20 TB removes that
+variable entirely, which is why it is worth considering despite costing more at
+rest.
+
+Numbers checked 2 September 2026.
+
 ## Where to run it, if you would rather not use your own PC
 
 It needs a machine with Docker and a public address.
