@@ -17,6 +17,12 @@ export default function QRToolView({ slug }: { slug: string }) {
 
   return (
     <ToolPageShell
+      /* The breadcrumb schema for this route is emitted by page.tsx, one
+         file up, alongside softwareAppLd and faqLd. The shell defaults to
+         emitting its own, so without this flag /qr-tools/* shipped two
+         BreadcrumbList blocks — which is what happens when the schema and
+         the component that renders it live in different files. */
+      breadcrumbSchema={false}
       category="QR Tools"
       categoryHref="/qr-tools"
       title={meta.title}
