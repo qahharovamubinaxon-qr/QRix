@@ -53,6 +53,7 @@ export default async function RemoveBgUseCasePage({ params }: { params: Promise<
         ])} />
 
       <ToolPageShell
+        breadcrumbSchema={false}
         category="Image Tools" categoryHref="/image-tools"
         title={u.h1} emoji={u.emoji} grad="linear-gradient(135deg,#ff6a13,#e14e08)"
         intro={u.intro}

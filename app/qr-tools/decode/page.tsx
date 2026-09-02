@@ -22,6 +22,7 @@ export default function Page() {
         ])}
       />
       <ToolPageShell
+        breadcrumbSchema={false}
         category="QR Tools" categoryHref="/qr-tools" title="QR Decoder & Safety Check" emoji="🛡️"
         grad="linear-gradient(135deg,#0891b2,#22d3ee)"
         intro="Read a QR from any image — and see exactly where it leads, with a safety check, before you open it."

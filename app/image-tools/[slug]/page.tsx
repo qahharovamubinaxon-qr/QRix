@@ -57,7 +57,7 @@ export default async function ImageToolPage({ params }: { params: Promise<{ slug
           faqLd(tool.faqs),
         ])}
       />
-      <ToolPageShell category="Image Tools" categoryHref="/image-tools" title={tool.title} emoji={tool.emoji} grad={tool.grad} intro={tool.intro} about={tool.about} steps={tool.steps}>
+      <ToolPageShell breadcrumbSchema={false} category="Image Tools" categoryHref="/image-tools" title={tool.title} emoji={tool.emoji} grad={tool.grad} intro={tool.intro} about={tool.about} steps={tool.steps}>
         <ImageEngineRegistry engine={tool.engine} />
 
         <section className="qx-card p-6 mt-7" aria-label="Frequently asked questions">

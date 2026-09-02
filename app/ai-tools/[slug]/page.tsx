@@ -64,6 +64,7 @@ export default async function AiToolPage({ params }: { params: Promise<{ slug: s
         ])}
       />
       <ToolPageShell
+        breadcrumbSchema={false}
         category="AI Tools"
         categoryHref="/ai-tools"
         title={tool.title}

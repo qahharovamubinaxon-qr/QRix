@@ -22,6 +22,7 @@ export default function Page() {
         ])}
       />
       <ToolPageShell
+        breadcrumbSchema={false}
         category="Image Tools" categoryHref="/image-tools" title="EXIF Remover" emoji="📵"
         grad="linear-gradient(135deg,#16a34a,#4ade80)"
         intro="Strip hidden GPS location, device and timestamp data from photos before you share them."

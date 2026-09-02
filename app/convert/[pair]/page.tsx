@@ -45,6 +45,7 @@ export default async function ConvertPairPage({ params }: { params: Promise<{ pa
         ])} />
 
       <ToolPageShell
+        breadcrumbSchema={false}
         category="Image Tools" categoryHref="/image-tools"
         title={p.h1} emoji={p.emoji} grad={pairGrad(p)}
         intro={p.intro}

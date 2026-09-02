@@ -79,6 +79,7 @@ export default async function PassportCountryPage({ params }: { params: Promise<
         ])} />
 
       <ToolPageShell
+        breadcrumbSchema={false}
         category="Image Tools" categoryHref="/image-tools"
         title={`${p.country} passport photo size — ${p.sizeLabel}`} emoji="🪪"
         grad="linear-gradient(135deg,#ff6a13,#e14e08)"

@@ -54,6 +54,7 @@ export default async function ThreeToolPage({ params }: { params: Promise<{ slug
         ])}
       />
       <ToolPageShell
+        breadcrumbSchema={false}
         category="3D Tools"
         categoryHref="/3d-tools"
         title={tool.title}

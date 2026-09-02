@@ -57,6 +57,7 @@ export default async function VideoToolPage({ params }: { params: Promise<{ slug
         ])}
       />
       <ToolPageShell
+        breadcrumbSchema={false}
         category="Video Tools"
         categoryHref="/video-tools"
         title={tool.title}

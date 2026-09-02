@@ -22,6 +22,7 @@ export default function Page() {
         ])}
       />
       <ToolPageShell
+        breadcrumbSchema={false}
         category="PDF Tools" categoryHref="/pdf-tools" title="Redact PDF" emoji="🖤"
         grad="linear-gradient(135deg,#dc2626,#f87171)"
         intro="Black out names, numbers and secrets — permanently, not just visually."

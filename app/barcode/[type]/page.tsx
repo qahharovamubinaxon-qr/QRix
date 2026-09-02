@@ -46,6 +46,7 @@ export default async function BarcodeTypePage({ params }: { params: Promise<{ ty
         ])} />
 
       <ToolPageShell
+        breadcrumbSchema={false}
         category="QR Tools" categoryHref="/qr-tools"
         title={t.h1} emoji={t.emoji} grad={typeGrad(t)}
         intro={t.intro}

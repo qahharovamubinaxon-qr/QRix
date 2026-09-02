@@ -47,6 +47,7 @@ export default async function ResizePresetPage({ params }: { params: Promise<{ p
         ])} />
 
       <ToolPageShell
+        breadcrumbSchema={false}
         category="Image Tools" categoryHref="/image-tools"
         title={p.h1} emoji={p.emoji} grad={presetGrad(p)}
         intro={p.intro}

@@ -40,6 +40,7 @@ export default function Page() {
         ])}
       />
       <ToolPageShell
+        breadcrumbSchema={false}
         category="Video Tools"
         categoryHref="/video-tools"
         title="Promo Video Maker"

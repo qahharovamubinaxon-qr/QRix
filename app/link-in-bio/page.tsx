@@ -22,6 +22,7 @@ export default function Page() {
         ])}
       />
       <ToolPageShell
+        breadcrumbSchema={false}
         category="QR Tools"
         categoryHref="/qr-tools"
         title="Link-in-Bio Page"

@@ -72,6 +72,7 @@ export default function DocumentScannerPage() {
         ])} />
 
       <ToolPageShell
+        breadcrumbSchema={false}
         category="Image Tools" categoryHref="/image-tools"
         title="Document Scanner" emoji="🪪"
         grad="linear-gradient(135deg,#ff6a13,#e14e08)"

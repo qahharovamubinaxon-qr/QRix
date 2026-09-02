@@ -15,6 +15,7 @@ import ShareButtons from "@/components/ShareButtons";
 import ToolFavorite from "@/components/ToolFavorite";
 import RecordVisit from "@/components/RecordVisit";
 import { relatedTools } from "@/lib/related-tools";
+import { jsonLd, breadcrumbLd } from "@/lib/seo";
 
 type Step = { title: string; desc: string };
 type Faq = { q: string; a: string };
@@ -72,6 +73,7 @@ export default function ToolPageShell({
   faqs,
   useCases,
   processing = "device",
+  breadcrumbSchema = true,
   children,
 }: {
   category: string;
@@ -86,6 +88,11 @@ export default function ToolPageShell({
   useCases?: string[];
   /** "cloud" for any tool that sends the file to a server. Default "device". */
   processing?: Processing;
+  /** Emit BreadcrumbList here. Default true, so a new tool page inherits it
+      without anyone remembering to. Pages that already build their own
+      combined jsonLd([...]) block pass false — two BreadcrumbList blocks on
+      one page is a defect, not extra credit. */
+  breadcrumbSchema?: boolean;
   children: React.ReactNode;
 }) {
   const related = relatedTools(categoryHref, title);
@@ -93,6 +100,28 @@ export default function ToolPageShell({
     <div id="top" className="max-w-6xl mx-auto p-5 lg:p-8">
       <GlobalFileDrop />
       <RecordVisit title={title} group={category} />
+
+      {/* The visible breadcrumb below has been here all along; the machine-
+          readable one had to be remembered per page, and six tool pages never
+          were — including /image-tools/remove-bg, which carries most of the
+          site's search impressions. Emitting it from the shell means the
+          markup and the schema can no longer disagree, and a tool added
+          tomorrow gets it without anyone thinking about it. */}
+      {breadcrumbSchema && (
+        <script type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={jsonLd([
+            breadcrumbLd([
+              { name: "Home", path: "/" },
+              { name: category, path: categoryHref },
+              /* No path on the last crumb: this is the page the reader is
+                 already on, and the shell is a server component with no way to
+                 know its own URL. Schema.org allows it and Google documents it. */
+              { name: title },
+            ]),
+          ])} />
+      )}
+
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-xs mb-5" style={{ color: "var(--text-muted)" }}>
         <Link href="/dashboard" className="hover:opacity-80">Dashboard</Link>

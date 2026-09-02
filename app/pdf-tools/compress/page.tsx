@@ -36,7 +36,7 @@ export default function Page() {
           faqLd(FAQS),
         ])}
       />
-      <ToolPageShell category="PDF Tools" categoryHref="/pdf-tools" title={TITLE} emoji="🗜️"
+      <ToolPageShell breadcrumbSchema={false} category="PDF Tools" categoryHref="/pdf-tools" title={TITLE} emoji="🗜️"
         grad="linear-gradient(135deg,#16a34a,#4ade80)"
         intro="Reduce your PDF file size in your browser — no upload, no size limit."
         about="Compression shrinks the file size of a PDF so it's easier to email, upload or store. Nearly all the weight in a scan or an export is its embedded photos, so that is what this re-encodes — text, vectors, links and form fields are written back untouched. It all runs in your browser, which means a 50 MB scan is no harder than a small one and the document never leaves your device."

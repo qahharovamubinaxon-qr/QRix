@@ -65,7 +65,11 @@ export function jsonLd(data: Record<string, unknown> | Record<string, unknown>[]
   };
 }
 
-export function breadcrumbLd(items: { name: string; path: string }[]) {
+/** `path` is optional on purpose. Schema.org and Google both allow the LAST
+    crumb — the page you are already on — to carry no `item`, and that is what
+    lets a shared server component emit a breadcrumb without being told its own
+    URL. Every existing caller passes a path, so nothing changes for them. */
+export function breadcrumbLd(items: { name: string; path?: string }[]) {
   return {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -73,7 +77,7 @@ export function breadcrumbLd(items: { name: string; path: string }[]) {
       "@type": "ListItem",
       position: i + 1,
       name: it.name,
-      item: SITE_URL + it.path,
+      ...(it.path ? { item: SITE_URL + it.path } : {}),
     })),
   };
 }
