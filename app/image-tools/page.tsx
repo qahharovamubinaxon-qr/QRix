@@ -7,6 +7,8 @@
 
 import Link from "next/link";
 import ImageExpansionGrid from "@/components/image/ImageExpansionGrid";
+import { IMAGE_TOOLS } from "@/lib/image-tools-meta";
+import { jsonLd, breadcrumbLd, SITE_URL } from "@/lib/seo";
 import {
   FiImage, FiShield, FiZap, FiCheckCircle,
   FiChevronRight, FiHome, FiLink as FiLinkIcon, FiWifi, FiUser, FiFileText,
@@ -22,6 +24,21 @@ const SIDE_LINKS = [
 export default function ImageToolsPage() {
   return (
     <div className="flex min-h-screen">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={jsonLd([
+          breadcrumbLd([{ name: "Home", path: "/" }, { name: "Image Tools", path: "/image-tools" }]),
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "QRix Image Tools",
+            itemListElement: IMAGE_TOOLS.map((t, i) => ({
+              "@type": "ListItem", position: i + 1, name: t.title, url: `${SITE_URL}/image-tools/${t.slug}`,
+            })),
+          },
+        ])}
+      />
       <aside className="hidden lg:flex w-56 shrink-0 flex-col p-4 sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto"
         style={{ background: "var(--surface)", borderRight: "1px solid var(--border)" }}>
         <nav className="space-y-1">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { QR_TOOLS } from "@/lib/qr-tools-meta";
+import { jsonLd, breadcrumbLd, SITE_URL } from "@/lib/seo";
 import {
   FiGrid, FiImage, FiFileText, FiHome, FiShield, FiZap, FiCheckCircle,
   FiArrowRight, FiChevronRight, FiSearch,
@@ -36,6 +37,21 @@ export default function QRToolsPage() {
 
   return (
     <div className="flex min-h-screen">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={jsonLd([
+          breadcrumbLd([{ name: "Home", path: "/" }, { name: "QR Tools", path: "/qr-tools" }]),
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "QRix QR Code Tools",
+            itemListElement: QR_TOOLS.map((t, i) => ({
+              "@type": "ListItem", position: i + 1, name: t.title, url: `${SITE_URL}/qr-tools/${t.slug}`,
+            })),
+          },
+        ])}
+      />
       {/* Чап мини-сайдбар */}
       <aside className="hidden lg:flex w-56 shrink-0 flex-col p-4 sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto"
         style={{ background: "var(--surface)", borderRight: "1px solid var(--border)" }}>

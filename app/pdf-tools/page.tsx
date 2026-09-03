@@ -7,6 +7,7 @@ import {
   getRecentFiles, getPdfStats, addRecentFile, fmtSize, fmtAgo,
   type RecentFile, type PdfStats,
 } from "@/lib/pdf-stats";
+import { jsonLd, breadcrumbLd, SITE_URL } from "@/lib/seo";
 import {
   FiGrid, FiLink as FiLinkIcon, FiWifi, FiUser, FiImage, FiFileText,
   FiScissors, FiMinimize2, FiFile, FiType, FiRotateCw, FiLayers,
@@ -92,6 +93,21 @@ export default function PdfToolsPage() {
 
   return (
     <div className="flex min-h-screen">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={jsonLd([
+          breadcrumbLd([{ name: "Home", path: "/" }, { name: "PDF Tools", path: "/pdf-tools" }]),
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "QRix PDF Tools",
+            itemListElement: TOOLS.filter((t) => !t.soon).map((t, i) => ({
+              "@type": "ListItem", position: i + 1, name: t.title, url: `${SITE_URL}${t.href}`,
+            })),
+          },
+        ])}
+      />
       {/* ===== Чап мини-сайдбар ===== */}
       <aside
         className="hidden lg:flex w-56 shrink-0 flex-col p-4 sticky top-16 max-h-[calc(100vh-4rem)] overflow-y-auto"
