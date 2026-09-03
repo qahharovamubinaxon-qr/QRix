@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { pageMeta } from "@/lib/seo";
+import { pageMeta, jsonLd, breadcrumbLd, SITE_URL } from "@/lib/seo";
+import { QR_TOOLS } from "@/lib/qr-tools-meta";
 
 /* page.tsx here is a client component, and a client component cannot export
    `metadata`. Without this layout Next falls back to the ROOT metadata, so the
@@ -20,5 +21,24 @@ export const metadata: Metadata = pageMeta({
 });
 
 export default function QrToolsLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={jsonLd([
+          breadcrumbLd([{ name: "Home", path: "/" }, { name: "QR Tools", path: "/qr-tools" }]),
+          {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "QRix QR Code Tools",
+            itemListElement: QR_TOOLS.map((t, i) => ({
+              "@type": "ListItem", position: i + 1, name: t.title, url: `${SITE_URL}/qr-tools/${t.slug}`,
+            })),
+          },
+        ])}
+      />
+      {children}
+    </>
+  );
 }
