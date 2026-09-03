@@ -62,3 +62,6 @@ gsc*.json
 
 # listing screenshots produced by scripts/shoot-listing.mjs (regenerate, never commit)
 scripts/.shots/
+
+# generated SEO crawl output (npm run aeo:audit --json)
+.seo-crawl.json
