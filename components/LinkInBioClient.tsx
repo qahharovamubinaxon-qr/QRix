@@ -548,7 +548,7 @@ export default function LinkInBioClient() {
 
                 {/* page content — fills the screen; status bar & island float above it */}
                 <div className="flex-1 flex flex-col [&>div]:flex-1 [&>div]:pt-8" style={{ minHeight: 600 }}>
-                  <BioView page={page} />
+                  <BioView page={page} preview />
                 </div>
 
                 {/* home indicator */}

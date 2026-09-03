@@ -134,6 +134,19 @@ export default function DownloaderPage() {
             ))}
           </div>
         </section>
+
+        {/* embed — links the /widgets page, which was otherwise orphaned */}
+        <section className="mt-10">
+          <div className="qx-card p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 className="font-display text-lg font-bold" style={{ color: "var(--text)" }}>Add this downloader to your own site</h2>
+              <p className="mt-1 text-[13.5px]" style={{ color: "var(--text-muted)" }}>
+                Drop a lightweight, free embeddable widget into any website, blog or WordPress page.
+              </p>
+            </div>
+            <a href="/widgets" className="qx-btn-hero inline-flex shrink-0 self-start sm:self-auto !py-2.5 !px-5 text-sm">Get the embed widget</a>
+          </div>
+        </section>
       </main>
     </>
   );

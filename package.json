@@ -57,6 +57,8 @@
     "probe:related": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-related.mjs",
     "probe:downloader": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/resolve-ts-alias.mjs scripts/probe-downloader.mjs",
     "aeo:audit": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/aeo-audit.mjs",
+    "seo:inventory": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/seo-inventory.mjs",
+    "seo:intent": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/resolve-ts-alias.mjs scripts/seo-intent-map.mjs",
     "probe:sitemap": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-sitemap.mjs",
     "probe:hreflang": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/probe-hreflang.mjs",
     "probe:db-profiles": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --import ./scripts/resolve-ts-alias.mjs scripts/probe-db-profiles.mjs",

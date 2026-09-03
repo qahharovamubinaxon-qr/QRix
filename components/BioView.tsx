@@ -12,8 +12,11 @@ const SOCIAL_ICONS: { key: keyof BioSocials; icon: React.ReactNode; name: string
   { key: "fb", icon: <SiFacebook size={18} />, name: "Facebook" },
 ];
 
-/** Renders a link-in-bio page from a config. Used by the editor preview and /p. */
-export default function BioView({ page }: { page: BioPage }) {
+/** Renders a link-in-bio page from a config. Used by the editor preview and /p.
+ *  `preview` renders the title without <h1> semantics: the editor lives on a tool
+ *  page that already owns the page's single <h1>, so a second one here is an SEO
+ *  defect. On /p (the real published page) the title IS the page heading. */
+export default function BioView({ page, preview = false }: { page: BioPage; preview?: boolean }) {
   const accent = page.c || "#F58F20";
   const theme = BIO_THEMES[page.th || "dark"] || BIO_THEMES.dark;
   const bs = page.bs || "outline";
@@ -59,7 +62,11 @@ export default function BioView({ page }: { page: BioPage }) {
             {page.av || (page.t || "?").slice(0, 1).toUpperCase()}
           </div>
         )}
-        <h1 className="font-display text-2xl font-extrabold text-center" style={{ color: tText }}>{page.t || "Your name"}</h1>
+        {preview ? (
+          <div className="font-display text-2xl font-extrabold text-center" style={{ color: tText }}>{page.t || "Your name"}</div>
+        ) : (
+          <h1 className="font-display text-2xl font-extrabold text-center" style={{ color: tText }}>{page.t || "Your name"}</h1>
+        )}
         {page.s && <p className="text-sm text-center mt-2 max-w-[300px]" style={{ color: tMuted }}>{page.s}</p>}
 
         {/* social icon row */}

@@ -1,0 +1,2781 @@
+{
+  "generated": "2026-09-03T10:03:05.822Z",
+  "note": "primaryIntent/secondaryIntents are each tool's registry keywords; questionsAnswered are the FAQ questions actually rendered on the page (schema FAQPage). No query here is invented and none maps to a page that does not exist.",
+  "tools": [
+    {
+      "family": "qr",
+      "url": "/qr-tools/url",
+      "title": "URL QR Code",
+      "primaryIntent": "url qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Does the QR code still work if I change my website later?",
+        "Do I need to include https:// in my link?",
+        "Is there a limit on how long the URL can be?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/text",
+      "title": "Text QR Code",
+      "primaryIntent": "text qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What happens when someone scans a text QR code?",
+        "Does the text need an internet connection to read?",
+        "How much text can I fit in one code?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/email",
+      "title": "Email QR Code",
+      "primaryIntent": "email qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What does scanning an email QR code do?",
+        "Can I pre-fill the subject and body?",
+        "Does it send the email automatically when scanned?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/phone",
+      "title": "Phone QR Code",
+      "primaryIntent": "phone qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Does scanning start the call automatically?",
+        "Should I include the country code?",
+        "Will it work on both iPhone and Android?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/sms",
+      "title": "SMS QR Code",
+      "primaryIntent": "sms qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What happens when someone scans an SMS QR code?",
+        "Can I set the message text in advance?",
+        "Does the recipient pay for the message?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/wifi",
+      "title": "WiFi QR Code",
+      "primaryIntent": "wifi qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "How does a WiFi QR code connect people to my network?",
+        "Which encryption type should I choose?",
+        "Is my WiFi password safe in the code?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/whatsapp",
+      "title": "WhatsApp QR Code",
+      "primaryIntent": "whatsapp qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What does a WhatsApp QR code do when scanned?",
+        "Do I need WhatsApp Business to use this?",
+        "Can I include a starting message?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/telegram",
+      "title": "Telegram QR Code",
+      "primaryIntent": "telegram qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What does scanning a Telegram QR code open?",
+        "Do I enter my username with the @ symbol?",
+        "Can I link to a channel or group instead of my profile?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/instagram",
+      "title": "Instagram QR Code",
+      "primaryIntent": "instagram qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What happens when someone scans my Instagram QR code?",
+        "Do I enter my handle with or without the @?",
+        "Is this different from the code inside the Instagram app?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/facebook",
+      "title": "Facebook QR Code",
+      "primaryIntent": "facebook qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What does a Facebook QR code link to?",
+        "Should I paste the page link or the username?",
+        "Will it open in the Facebook app or a browser?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/twitter",
+      "title": "X (Twitter) QR Code",
+      "primaryIntent": "x (twitter) qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What does scanning an X QR code do?",
+        "Do I include the @ in my handle?",
+        "Does it still work now that Twitter is X?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/youtube",
+      "title": "YouTube QR Code",
+      "primaryIntent": "youtube qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Can I link to a single video or my whole channel?",
+        "Will the video play right after scanning?",
+        "Do I need to shorten the YouTube link first?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/tiktok",
+      "title": "TikTok QR Code",
+      "primaryIntent": "tiktok qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What does a TikTok QR code open?",
+        "Do I enter my username with the @?",
+        "Is this the same as the profile code in the TikTok app?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/linkedin",
+      "title": "LinkedIn QR Code",
+      "primaryIntent": "linkedin qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What does scanning a LinkedIn QR code do?",
+        "Where do I find my profile URL?",
+        "Can I use it for a company page too?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/vcard",
+      "title": "vCard QR Code",
+      "primaryIntent": "vcard qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What information can a vCard QR code hold?",
+        "Does the contact save without an internet connection?",
+        "Will it update if my phone number changes?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/mecard",
+      "title": "MeCard QR Code",
+      "primaryIntent": "mecard qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What's the difference between MeCard and vCard?",
+        "Do people need an app to save the contact?",
+        "Can I edit the details after generating the code?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/event",
+      "title": "Event QR Code",
+      "primaryIntent": "event qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Which calendars does it work with?",
+        "Does scanning add the event automatically?",
+        "Can I set a specific time and date?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/geo",
+      "title": "Location QR Code",
+      "primaryIntent": "location qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "How is this different from the Google Maps code?",
+        "Which map app opens when scanned?",
+        "How do I find my coordinates?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/maps",
+      "title": "Google Maps QR Code",
+      "primaryIntent": "google maps qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Do scanners need the Google Maps app?",
+        "Should I enter an address or a place name?",
+        "Will it give turn-by-turn directions?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/gs1-digital-link",
+      "title": "GS1 Digital Link QR Code",
+      "primaryIntent": "gs1 digital link qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/upi",
+      "title": "UPI Payment QR Code",
+      "primaryIntent": "upi payment qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/paypal",
+      "title": "PayPal QR Code",
+      "primaryIntent": "paypal qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Do I need a PayPal business account?",
+        "Can I set a fixed amount?",
+        "Is my PayPal login in the code?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/bitcoin",
+      "title": "Bitcoin QR Code",
+      "primaryIntent": "bitcoin qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What does the code contain?",
+        "Why use a QR instead of typing the address?",
+        "Can I reuse the same code?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/crypto",
+      "title": "Crypto QR Code",
+      "primaryIntent": "crypto qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Which coins are supported?",
+        "Can one code hold multiple coins?",
+        "Does the payer need a specific wallet app?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/appstore",
+      "title": "App Store QR Code",
+      "primaryIntent": "app store qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Can one code point to both iOS and Android?",
+        "Does it open the store app directly?",
+        "What link should I paste?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/spotify",
+      "title": "Spotify QR Code",
+      "primaryIntent": "spotify qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Do listeners need a Spotify account?",
+        "What can I link to?",
+        "Is this the same as a Spotify Code?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/zoom",
+      "title": "Zoom QR Code",
+      "primaryIntent": "zoom qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What do I paste in?",
+        "Does it work for recurring meetings?",
+        "Do participants need the Zoom app?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/skype",
+      "title": "Skype QR Code",
+      "primaryIntent": "skype qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "What happens when someone scans it?",
+        "Do they need Skype installed?",
+        "Can it start a video call?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/facetime",
+      "title": "FaceTime QR Code",
+      "primaryIntent": "facetime qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Does this work on Android?",
+        "Should I use a phone number or email?",
+        "Can it start a video call?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/pdf",
+      "title": "PDF QR Code",
+      "primaryIntent": "pdf qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "Does the PDF get stored inside the code?",
+        "What if I update the document later?",
+        "Does the reader need a PDF app?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/app",
+      "title": "Link / App QR Code",
+      "primaryIntent": "link / app qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "How is this different from the App Store code?",
+        "What link should I use?",
+        "Can I change where it points later?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "qr",
+      "url": "/qr-tools/wifi-guest",
+      "title": "Guest WiFi QR Code",
+      "primaryIntent": "guest wifi qr code",
+      "secondaryIntents": [],
+      "questionsAnswered": [
+        "How is this different from the standard WiFi code?",
+        "Do guests need an app to connect?",
+        "Is my main network password exposed?"
+      ],
+      "answerSurface": null
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/brightness",
+      "title": "Brightness Adjuster",
+      "primaryIntent": "brightness adjuster",
+      "secondaryIntents": [
+        "brighten image",
+        "make photo brighter"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Brighten or darken any image with a live slider."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/contrast",
+      "title": "Contrast Adjuster",
+      "primaryIntent": "contrast adjuster",
+      "secondaryIntents": [
+        "increase contrast",
+        "photo contrast"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Boost or soften image contrast instantly."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/exposure",
+      "title": "Exposure Adjuster",
+      "primaryIntent": "exposure adjust",
+      "secondaryIntents": [
+        "fix exposure",
+        "photo exposure"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Correct exposure like a light meter."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/gamma",
+      "title": "Gamma Correction",
+      "primaryIntent": "gamma correction",
+      "secondaryIntents": [
+        "adjust gamma",
+        "midtone brightness"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Tune midtones without crushing highlights or shadows."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/saturation",
+      "title": "Saturation Adjuster",
+      "primaryIntent": "saturation adjuster",
+      "secondaryIntents": [
+        "increase saturation",
+        "vivid photo"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Make colors pop or go subtle."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/hue",
+      "title": "Hue Rotator",
+      "primaryIntent": "hue rotate",
+      "secondaryIntents": [
+        "change color hue",
+        "shift colors"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Rotate every color around the wheel."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/vibrance",
+      "title": "Vibrance Booster",
+      "primaryIntent": "vibrance",
+      "secondaryIntents": [
+        "boost vibrance",
+        "smart saturation"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Smart saturation that protects skin tones."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/temperature",
+      "title": "Color Temperature",
+      "primaryIntent": "color temperature",
+      "secondaryIntents": [
+        "warm cool photo",
+        "white balance"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Warm up or cool down the mood."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/tint",
+      "title": "Tint Adjuster",
+      "primaryIntent": "tint adjust",
+      "secondaryIntents": [
+        "green magenta tint",
+        "color cast fix"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Correct green/magenta color casts."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/grayscale",
+      "title": "Grayscale Converter",
+      "primaryIntent": "grayscale image",
+      "secondaryIntents": [
+        "black and white photo",
+        "convert to bw"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Turn any photo black & white."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/sepia",
+      "title": "Sepia Filter",
+      "primaryIntent": "sepia filter",
+      "secondaryIntents": [
+        "vintage photo",
+        "old photo effect"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Add a warm vintage sepia tone."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/invert",
+      "title": "Invert Colors",
+      "primaryIntent": "invert colors",
+      "secondaryIntents": [
+        "negative image",
+        "photo negative"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Create a color negative."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/posterize",
+      "title": "Posterize",
+      "primaryIntent": "posterize image",
+      "secondaryIntents": [
+        "poster effect",
+        "reduce colors"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Reduce colors into bold flat bands."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/pixelate",
+      "title": "Pixelate",
+      "primaryIntent": "pixelate image",
+      "secondaryIntents": [
+        "pixel effect",
+        "censor face"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Add a blocky pixel effect — or censor an area."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/mosaic",
+      "title": "Mosaic Filter",
+      "primaryIntent": "mosaic effect",
+      "secondaryIntents": [
+        "tile effect",
+        "mosaic photo"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Turn a photo into a mosaic of tiles."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/blur",
+      "title": "Blur Image",
+      "primaryIntent": "blur image",
+      "secondaryIntents": [
+        "blur photo",
+        "soft blur"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Softly blur an entire image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/gaussian-blur",
+      "title": "Gaussian Blur",
+      "primaryIntent": "gaussian blur",
+      "secondaryIntents": [
+        "smooth blur",
+        "blur background"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Smooth, natural gaussian blur."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/sharpen",
+      "title": "Sharpen Image",
+      "primaryIntent": "sharpen image",
+      "secondaryIntents": [
+        "unblur",
+        "crisp photo"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Bring back crisp edges."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/emboss",
+      "title": "Emboss Effect",
+      "primaryIntent": "emboss effect",
+      "secondaryIntents": [
+        "3d relief",
+        "stone effect"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Give the image a carved 3D relief."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/edge-detection",
+      "title": "Edge Detection",
+      "primaryIntent": "edge detection",
+      "secondaryIntents": [
+        "outline image",
+        "sobel filter"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Trace the outlines in a photo."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/remove-noise",
+      "title": "Noise Reducer",
+      "primaryIntent": "reduce noise",
+      "secondaryIntents": [
+        "remove grain",
+        "denoise photo"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Clean up grain while keeping detail."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/glow-effect",
+      "title": "Glow Effect",
+      "primaryIntent": "glow effect",
+      "secondaryIntents": [
+        "soft glow",
+        "dreamy photo"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Add a soft dreamy glow."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/vignette",
+      "title": "Vignette",
+      "primaryIntent": "vignette effect",
+      "secondaryIntents": [
+        "dark edges",
+        "photo vignette"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Darken the edges to focus the center."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/shadow-effect",
+      "title": "Drop Shadow",
+      "primaryIntent": "drop shadow image",
+      "secondaryIntents": [
+        "add shadow",
+        "product shadow"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Add a soft drop shadow behind the subject."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/crop-image",
+      "title": "Crop Image",
+      "primaryIntent": "crop image",
+      "secondaryIntents": [
+        "crop photo online",
+        "aspect ratio crop"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Crop an image by dragging a box, with aspect-ratio presets."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/rotate-image",
+      "title": "Rotate Image",
+      "primaryIntent": "rotate image",
+      "secondaryIntents": [
+        "turn photo",
+        "straighten image"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Rotate in 90° steps or fine-tune the angle."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/flip-image",
+      "title": "Flip Image",
+      "primaryIntent": "flip image",
+      "secondaryIntents": [
+        "flip photo vertical",
+        "upside down image"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Flip horizontally or vertically."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/mirror-image",
+      "title": "Mirror Image",
+      "primaryIntent": "mirror image",
+      "secondaryIntents": [
+        "mirror photo",
+        "reflection effect"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Create a mirror reflection."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/rounded-corners",
+      "title": "Rounded Corners",
+      "primaryIntent": "rounded corners image",
+      "secondaryIntents": [
+        "round image corners",
+        "circle crop"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Round the corners — or make it a circle."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/image-border",
+      "title": "Border Generator",
+      "primaryIntent": "add border to image",
+      "secondaryIntents": [
+        "photo border",
+        "image frame color"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Add a solid color border of any width."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/frame-generator",
+      "title": "Frame Generator",
+      "primaryIntent": "photo frame",
+      "secondaryIntents": [
+        "add frame to picture",
+        "decorative frame"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Wrap your photo in a decorative frame."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/canvas-resize",
+      "title": "Canvas Resize",
+      "primaryIntent": "canvas resize",
+      "secondaryIntents": [
+        "extend canvas",
+        "add padding to image"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Extend the canvas / add padding."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/transparent-background",
+      "title": "Transparent Background",
+      "primaryIntent": "transparent background",
+      "secondaryIntents": [
+        "make color transparent",
+        "remove white background"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Knock out a solid background color to transparency."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/smart-auto-crop",
+      "title": "Smart Auto Crop",
+      "primaryIntent": "auto crop image",
+      "secondaryIntents": [
+        "trim whitespace",
+        "smart crop"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Auto-trim empty borders around the subject."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/face-crop",
+      "title": "Face Crop",
+      "primaryIntent": "face crop",
+      "secondaryIntents": [
+        "crop to face",
+        "profile picture crop"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Auto-center a square crop on the face."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/convert-to-jpg",
+      "title": "Convert to JPG",
+      "primaryIntent": "convert to jpg",
+      "secondaryIntents": [
+        "png to jpg",
+        "webp to jpg"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Convert any image to JPG."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/convert-to-png",
+      "title": "Convert to PNG",
+      "primaryIntent": "convert to png",
+      "secondaryIntents": [
+        "jpg to png",
+        "webp to png"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Convert any image to lossless PNG."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/convert-to-webp",
+      "title": "Convert to WebP",
+      "primaryIntent": "convert to webp",
+      "secondaryIntents": [
+        "jpg to webp",
+        "png to webp"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Convert to the tiny modern WebP."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/convert-to-avif",
+      "title": "Convert to AVIF",
+      "primaryIntent": "convert to avif",
+      "secondaryIntents": [
+        "avif converter",
+        "next-gen image format"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Convert to next-gen AVIF (where supported)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/convert-to-bmp",
+      "title": "Convert to BMP",
+      "primaryIntent": "convert to bmp",
+      "secondaryIntents": [
+        "image to bmp",
+        "bitmap converter"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Convert to uncompressed BMP."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/convert-to-tiff",
+      "title": "Convert to TIFF",
+      "primaryIntent": "convert to tiff",
+      "secondaryIntents": [
+        "image to tiff",
+        "tiff converter"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Convert to print-ready TIFF."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/convert-to-ico",
+      "title": "Convert to ICO",
+      "primaryIntent": "convert to ico",
+      "secondaryIntents": [
+        "favicon generator",
+        "png to ico"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Make a favicon .ico file."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/convert-to-svg",
+      "title": "PNG to SVG",
+      "primaryIntent": "png to svg",
+      "secondaryIntents": [
+        "raster to vector",
+        "image to svg"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Wrap or trace an image into SVG."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/heic-to-jpg",
+      "title": "HEIC to JPG",
+      "primaryIntent": "heic to jpg",
+      "secondaryIntents": [
+        "iphone photo converter",
+        "heic converter"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Convert iPhone HEIC photos to JPG."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/social-media-resize",
+      "title": "Social Media Resizer",
+      "primaryIntent": "social media image resizer",
+      "secondaryIntents": [
+        "resize for instagram",
+        "social media sizes"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize an image to any social platform size in one click."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/instagram-post",
+      "title": "Instagram Post Maker",
+      "primaryIntent": "instagram post size",
+      "secondaryIntents": [
+        "resize for instagram post",
+        "instagram post maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact Instagram Post size (1080×1080)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/instagram-story",
+      "title": "Instagram Story Maker",
+      "primaryIntent": "instagram story size",
+      "secondaryIntents": [
+        "resize for instagram story",
+        "instagram story maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact Instagram Story size (1080×1920)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/facebook-cover",
+      "title": "Facebook Cover Maker",
+      "primaryIntent": "facebook cover size",
+      "secondaryIntents": [
+        "resize for facebook cover",
+        "facebook cover maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact Facebook Cover size (820×312)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/youtube-thumbnail",
+      "title": "YouTube Thumbnail Maker",
+      "primaryIntent": "youtube thumbnail size",
+      "secondaryIntents": [
+        "resize for youtube thumbnail",
+        "youtube thumbnail maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact YouTube Thumbnail size (1280×720)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/youtube-banner",
+      "title": "YouTube Banner Maker",
+      "primaryIntent": "youtube banner size",
+      "secondaryIntents": [
+        "resize for youtube banner",
+        "youtube banner maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact YouTube Banner size (2560×1440)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/tiktok-cover",
+      "title": "TikTok Cover Maker",
+      "primaryIntent": "tiktok cover size",
+      "secondaryIntents": [
+        "resize for tiktok cover",
+        "tiktok cover maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact TikTok Cover size (1080×1920)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/linkedin-banner",
+      "title": "LinkedIn Banner Maker",
+      "primaryIntent": "linkedin banner size",
+      "secondaryIntents": [
+        "resize for linkedin banner",
+        "linkedin banner maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact LinkedIn Banner size (1584×396)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/pinterest-pin",
+      "title": "Pinterest Pin Maker",
+      "primaryIntent": "pinterest pin size",
+      "secondaryIntents": [
+        "resize for pinterest pin",
+        "pinterest pin maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact Pinterest Pin size (1000×1500)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/twitter-header",
+      "title": "Twitter/X Header Maker",
+      "primaryIntent": "twitter/x header size",
+      "secondaryIntents": [
+        "resize for twitter/x header",
+        "twitter/x header maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact Twitter/X Header size (1500×500)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/discord-banner",
+      "title": "Discord Banner Maker",
+      "primaryIntent": "discord banner size",
+      "secondaryIntents": [
+        "resize for discord banner",
+        "discord banner maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize your image to the exact Discord Banner size (960×540)."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/color-picker",
+      "title": "Image Color Picker",
+      "primaryIntent": "color picker from image",
+      "secondaryIntents": [
+        "get hex from image",
+        "eyedropper online"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Pick the exact color of any pixel in an image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/dominant-color",
+      "title": "Dominant Color Extractor",
+      "primaryIntent": "dominant color extractor",
+      "secondaryIntents": [
+        "average color image",
+        "main colors of photo"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Find the dominant colors in any image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/palette-generator",
+      "title": "Palette Generator",
+      "primaryIntent": "color palette generator",
+      "secondaryIntents": [
+        "palette from image",
+        "extract colors"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Generate a color palette from an image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/gradient-generator",
+      "title": "Gradient Generator",
+      "primaryIntent": "gradient generator",
+      "secondaryIntents": [
+        "css gradient",
+        "gradient background maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Create beautiful CSS gradients and export PNG."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/histogram-viewer",
+      "title": "Histogram Viewer",
+      "primaryIntent": "image histogram",
+      "secondaryIntents": [
+        "rgb histogram viewer",
+        "exposure histogram"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "View the RGB & luminance histogram of an image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/text-overlay",
+      "title": "Add Text to Image",
+      "primaryIntent": "add text to image",
+      "secondaryIntents": [
+        "text on photo",
+        "caption image"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Add styled text captions onto any image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/emoji-overlay",
+      "title": "Add Emoji to Image",
+      "primaryIntent": "add emoji to photo",
+      "secondaryIntents": [
+        "sticker on image",
+        "emoji overlay"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Drop emoji and sticker overlays onto a photo."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/watermark-image",
+      "title": "Add Watermark to Image",
+      "primaryIntent": "add watermark to image",
+      "secondaryIntents": [
+        "photo watermark",
+        "copyright image"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Stamp a text watermark across an image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/qr-on-image",
+      "title": "Add QR Code to Image",
+      "primaryIntent": "qr code on image",
+      "secondaryIntents": [
+        "add qr to photo",
+        "qr overlay"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Overlay a scannable QR code onto any image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/barcode-on-image",
+      "title": "Add Barcode to Image",
+      "primaryIntent": "barcode on image",
+      "secondaryIntents": [
+        "add barcode to label",
+        "product label maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Overlay a barcode (EAN/UPC/Code128) onto an image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/image-splitter",
+      "title": "Image Splitter",
+      "primaryIntent": "image splitter",
+      "secondaryIntents": [
+        "split image into grid",
+        "instagram grid maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Split an image into a grid of tiles."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/image-joiner",
+      "title": "Image Joiner",
+      "primaryIntent": "join images",
+      "secondaryIntents": [
+        "merge images",
+        "combine photos"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Merge multiple images into one, side by side or stacked."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/collage-maker",
+      "title": "Collage Maker",
+      "primaryIntent": "collage maker",
+      "secondaryIntents": [
+        "photo collage",
+        "picture grid maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Create a photo collage from a grid layout."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/before-after-slider",
+      "title": "Before/After Slider",
+      "primaryIntent": "before after slider",
+      "secondaryIntents": [
+        "image comparison",
+        "compare two images"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Create an interactive before/after comparison."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/passport-photo",
+      "title": "Passport Photo Maker",
+      "primaryIntent": "passport photo maker",
+      "secondaryIntents": [
+        "id photo",
+        "visa photo size"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Create passport/ID photos at standard sizes."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/batch-convert",
+      "title": "Batch Image Converter",
+      "primaryIntent": "batch image converter",
+      "secondaryIntents": [
+        "convert multiple images",
+        "bulk image convert"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Convert many images to one format at once."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/batch-resize",
+      "title": "Batch Image Resizer",
+      "primaryIntent": "batch resize images",
+      "secondaryIntents": [
+        "bulk resize",
+        "resize multiple photos"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Resize many images to the same dimensions."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/batch-compress",
+      "title": "Batch Image Compressor",
+      "primaryIntent": "batch compress images",
+      "secondaryIntents": [
+        "bulk compress",
+        "compress multiple photos"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Compress many images in one go."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/batch-rename",
+      "title": "Batch Image Renamer",
+      "primaryIntent": "batch rename images",
+      "secondaryIntents": [
+        "bulk rename files",
+        "rename photos pattern"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Rename many images with a pattern and download."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/batch-metadata-remove",
+      "title": "Batch Metadata Remover",
+      "primaryIntent": "batch remove exif",
+      "secondaryIntents": [
+        "strip metadata from multiple photos",
+        "bulk exif remover"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Strip EXIF/GPS metadata from many photos at once."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/metadata-viewer",
+      "title": "Image Metadata Viewer",
+      "primaryIntent": "image metadata viewer",
+      "secondaryIntents": [
+        "exif viewer",
+        "photo info"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Inspect an image's EXIF and technical metadata."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/metadata-remover",
+      "title": "Image Metadata Remover",
+      "primaryIntent": "remove image metadata",
+      "secondaryIntents": [
+        "strip exif",
+        "remove gps from photo"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Remove all EXIF/GPS metadata from an image."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/exif-editor",
+      "title": "EXIF Editor",
+      "primaryIntent": "exif editor",
+      "secondaryIntents": [
+        "edit photo metadata",
+        "view exif data"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "View EXIF and export a clean copy."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/screenshot-beautifier",
+      "title": "Screenshot Beautifier",
+      "primaryIntent": "screenshot beautifier",
+      "secondaryIntents": [
+        "beautiful screenshots",
+        "gradient background screenshot"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Turn plain screenshots into gorgeous framed shots."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/device-frame",
+      "title": "Device Frame Generator",
+      "primaryIntent": "device frame generator",
+      "secondaryIntents": [
+        "phone mockup",
+        "browser mockup"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Wrap a screenshot in a phone or browser frame."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/mockup-generator",
+      "title": "Mockup Generator",
+      "primaryIntent": "mockup generator",
+      "secondaryIntents": [
+        "product mockup",
+        "design mockup"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Place your design onto a device/product mockup."
+    },
+    {
+      "family": "image",
+      "url": "/image-tools/image-comparison",
+      "title": "Image Comparison",
+      "primaryIntent": "image comparison tool",
+      "secondaryIntents": [
+        "compare two photos",
+        "difference slider"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Are my images uploaded?",
+        "Which formats work?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Compare two images side by side with a slider."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/background-remover",
+      "title": "AI Background Remover",
+      "primaryIntent": "ai background remover",
+      "secondaryIntents": [
+        "remove background",
+        "transparent png",
+        "cut out image"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?",
+        "How accurate are the edges?"
+      ],
+      "answerSurface": "Erase the background from any photo automatically — get a clean transparent PNG for products, portraits and logos."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/image-upscaler",
+      "title": "AI Image Upscaler",
+      "primaryIntent": "ai image upscaler",
+      "secondaryIntents": [
+        "upscale image",
+        "enhance resolution",
+        "enlarge photo"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?",
+        "How large can I upscale?"
+      ],
+      "answerSurface": "Enlarge photos 2×–4× while keeping edges crisp — revive small thumbnails and old pictures."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/face-enhancer",
+      "title": "AI Face Enhancer",
+      "primaryIntent": "ai face enhancer",
+      "secondaryIntents": [
+        "enhance portrait",
+        "fix selfie",
+        "photo enhancer"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?",
+        "Will it change how I look?"
+      ],
+      "answerSurface": "One-click portrait enhancement: clarity, tone and detail tuned for faces."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/portrait-enhancer",
+      "title": "AI Portrait Enhancer",
+      "primaryIntent": "portrait enhancer",
+      "secondaryIntents": [
+        "studio photo effect",
+        "improve portrait quality"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Studio-style finishing for portraits: depth, clarity and balanced light."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/sharpen-image",
+      "title": "AI Sharpen Image",
+      "primaryIntent": "sharpen image",
+      "secondaryIntents": [
+        "fix blurry photo",
+        "unblur image",
+        "image sharpener"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?",
+        "Can it fix heavy blur?"
+      ],
+      "answerSurface": "Bring back crisp edges in soft or slightly blurred photos."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/blur-remover",
+      "title": "AI Blur Remover",
+      "primaryIntent": "remove blur from photo",
+      "secondaryIntents": [
+        "deblur image",
+        "fix out of focus"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Cut through softness: a deblur pipeline that restores edge definition."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/image-denoiser",
+      "title": "AI Image Denoiser",
+      "primaryIntent": "denoise image",
+      "secondaryIntents": [
+        "remove grain",
+        "clean noisy photo",
+        "iso noise removal"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Clean up high-ISO grain and compression noise without smearing detail."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/restore-old-photo",
+      "title": "AI Old Photo Restoration",
+      "primaryIntent": "restore old photo",
+      "secondaryIntents": [
+        "fix faded photo",
+        "old photo repair",
+        "photo restoration ai"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?",
+        "Can it repair torn areas?"
+      ],
+      "answerSurface": "Give scanned family photos a second life — denoise, re-contrast, sharpen."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/cartoon-generator",
+      "title": "AI Cartoon Generator",
+      "primaryIntent": "cartoon yourself",
+      "secondaryIntents": [
+        "photo to cartoon",
+        "cartoonizer",
+        "cartoon filter"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Photo → cartoon: flattened colors, comic edges, instant result."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/sketch-generator",
+      "title": "AI Sketch Generator",
+      "primaryIntent": "photo to sketch",
+      "secondaryIntents": [
+        "pencil sketch from photo",
+        "sketch generator",
+        "drawing effect"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Which formats are supported?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "A convincing pencil-sketch effect using the classic dodge-blend technique."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/ocr",
+      "title": "AI OCR — Image to Text",
+      "primaryIntent": "ai ocr",
+      "secondaryIntents": [
+        "image to text",
+        "extract text from image",
+        "photo to text"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Does it work on mobile?",
+        "Which languages are recognized?",
+        "Does handwriting work?"
+      ],
+      "answerSurface": "Point it at any photo or scan and get clean, copyable text out."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/screenshot-to-text",
+      "title": "AI Screenshot OCR",
+      "primaryIntent": "screenshot to text",
+      "secondaryIntents": [
+        "copy text from screenshot",
+        "extract text from screenshot"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Does it work on mobile?",
+        "Can I paste directly?"
+      ],
+      "answerSurface": "Ctrl+V a screenshot, get the text — no retyping error messages ever again."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/caption-generator",
+      "title": "AI Caption Generator",
+      "primaryIntent": "caption generator",
+      "secondaryIntents": [
+        "instagram caption ideas",
+        "social media captions",
+        "hashtag generator"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Does it work on mobile?",
+        "How are captions generated?",
+        "Are hashtags included?"
+      ],
+      "answerSurface": "Type your topic, pick a vibe, get ready-to-post captions with hashtags."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/prompt-generator",
+      "title": "AI Prompt Generator",
+      "primaryIntent": "ai prompt generator",
+      "secondaryIntents": [
+        "midjourney prompt builder",
+        "stable diffusion prompts"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Does it work on mobile?",
+        "Which models does it target?"
+      ],
+      "answerSurface": "Compose professional image-generation prompts from proven building blocks."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/translator",
+      "title": "AI Translator",
+      "primaryIntent": "ai translator",
+      "secondaryIntents": [
+        "translate english uzbek",
+        "russian uzbek translator"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Which languages are supported?"
+      ],
+      "answerSurface": "A clean translation workspace powered by neural AI — free and instant."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/speech-to-text",
+      "title": "AI Speech to Text",
+      "primaryIntent": "speech to text",
+      "secondaryIntents": [
+        "voice typing",
+        "dictation online",
+        "voice to text free"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Does it work on mobile?",
+        "Which browsers work?",
+        "Can I transcribe an audio file?"
+      ],
+      "answerSurface": "Talk — watch your words appear. Live on-device speech recognition."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/subtitle-generator",
+      "title": "AI Subtitle Generator",
+      "primaryIntent": "subtitle generator",
+      "secondaryIntents": [
+        "srt generator",
+        "create subtitles online",
+        "captions for video"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Can it transcribe a video file directly?",
+        "What format is exported?"
+      ],
+      "answerSurface": "Speak along with your video and get a timestamped .srt file out."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/qr-generator",
+      "title": "AI QR Generator",
+      "primaryIntent": "ai qr code generator",
+      "secondaryIntents": [
+        "styled qr code",
+        "branded qr code ai"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Does it work on mobile?",
+        "Will styled codes still scan?"
+      ],
+      "answerSurface": "Type your link and a vibe — the AI styles a scannable QR to match."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/logo-generator",
+      "title": "AI Logo Generator",
+      "primaryIntent": "ai logo generator",
+      "secondaryIntents": [
+        "free logo maker",
+        "monogram logo",
+        "startup logo"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Does it work on mobile?",
+        "Can I use the logo commercially?",
+        "Is SVG export available?"
+      ],
+      "answerSurface": "Type your brand name — get a wall of clean monogram + wordmark logos."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/avatar-generator",
+      "title": "AI Avatar Generator",
+      "primaryIntent": "avatar generator",
+      "secondaryIntents": [
+        "profile picture maker",
+        "initials avatar",
+        "pfp maker"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Does it work on mobile?",
+        "Can it make AI photo avatars?"
+      ],
+      "answerSurface": "A polished avatar in ten seconds: initials or emoji, gradient ring, done."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/thumbnail-generator",
+      "title": "AI Thumbnail Generator",
+      "primaryIntent": "youtube thumbnail maker",
+      "secondaryIntents": [
+        "thumbnail generator",
+        "free thumbnail creator"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Does it work on mobile?",
+        "Can I upload my own photo background?"
+      ],
+      "answerSurface": "Bold 1280×720 thumbnails with pro title layouts — no design skills needed."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/banner-generator",
+      "title": "AI Banner Generator",
+      "primaryIntent": "banner maker",
+      "secondaryIntents": [
+        "youtube banner",
+        "twitter header maker",
+        "linkedin cover"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Does it work on mobile?",
+        "Which sizes are included?"
+      ],
+      "answerSurface": "One design, every platform size — banners with safe-zone aware layouts."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/poster-generator",
+      "title": "AI Poster Generator",
+      "primaryIntent": "poster generator",
+      "secondaryIntents": [
+        "qr poster maker",
+        "scan me poster",
+        "printable poster"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Does it work on mobile?"
+      ],
+      "answerSurface": "Print-ready posters with a scannable QR — templates for every business need."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/resume-builder",
+      "title": "AI Resume Builder",
+      "primaryIntent": "resume builder",
+      "secondaryIntents": [
+        "free cv maker",
+        "ats resume",
+        "cv pdf generator"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "Is my file uploaded to a server?",
+        "Does it work on mobile?",
+        "Is the layout ATS-friendly?"
+      ],
+      "answerSurface": "Fill the form, watch the resume build itself, download a recruiter-ready PDF."
+    },
+    {
+      "family": "ai",
+      "url": "/ai-tools/image-generator",
+      "title": "AI Image Generator",
+      "primaryIntent": "ai image generator",
+      "secondaryIntents": [
+        "text to image",
+        "free image generation"
+      ],
+      "questionsAnswered": [
+        "Is this AI tool free?",
+        "When does generation go live?"
+      ],
+      "answerSurface": "Describe it, generate it — free AI text-to-image, right in your browser."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/compress-video",
+      "title": "Video Compressor",
+      "primaryIntent": "compress video",
+      "secondaryIntents": [
+        "video compressor",
+        "reduce video size",
+        "make video smaller"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "How large can my video be?",
+        "How much smaller will my video get?"
+      ],
+      "answerSurface": "Shrink videos for chat apps, email and uploads — quality slider, live progress, no upload."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/video-optimizer",
+      "title": "Video Optimizer",
+      "primaryIntent": "optimize video",
+      "secondaryIntents": [
+        "video for web",
+        "reduce video bitrate",
+        "social media video size"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "How large can my video be?"
+      ],
+      "answerSurface": "The set-and-forget preset: web-ready bitrate and smooth playback in one click."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/video-converter",
+      "title": "Video Converter",
+      "primaryIntent": "video converter",
+      "secondaryIntents": [
+        "convert video online",
+        "mp4 to webm",
+        "webm to mp4",
+        "mov converter"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "How large can my video be?",
+        "Can I convert to MP4?"
+      ],
+      "answerSurface": "Any playable video in → choose MP4 or WebM out. Fast, private, free."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/change-resolution",
+      "title": "Change Video Resolution",
+      "primaryIntent": "change video resolution",
+      "secondaryIntents": [
+        "video to 1080p",
+        "video to 720p",
+        "upscale video 4k"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "Does upscaling add detail?"
+      ],
+      "answerSurface": "One click to 480p / 720p / 1080p / 4K with correct aspect ratio."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/resize-video",
+      "title": "Resize Video",
+      "primaryIntent": "resize video",
+      "secondaryIntents": [
+        "video dimensions",
+        "instagram story video size",
+        "square video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "How large can my video be?"
+      ],
+      "answerSurface": "Exact width×height or one-tap social presets — 9:16, 1:1, 16:9."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/trim-video",
+      "title": "Trim Video",
+      "primaryIntent": "trim video",
+      "secondaryIntents": [
+        "cut video online",
+        "shorten video",
+        "video trimmer"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "How large can my video be?",
+        "How precise is the trim?"
+      ],
+      "answerSurface": "Drag two handles on a thumbnail timeline, export exactly that segment."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/cut-video",
+      "title": "Cut Video",
+      "primaryIntent": "cut video",
+      "secondaryIntents": [
+        "remove part of video",
+        "delete video section",
+        "video cutter"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "How large can my video be?"
+      ],
+      "answerSurface": "Mark the middle you don't want — export everything around it, joined."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/merge-videos",
+      "title": "Merge Videos",
+      "primaryIntent": "merge videos",
+      "secondaryIntents": [
+        "combine videos",
+        "join video clips",
+        "video joiner"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "How large can my video be?",
+        "Can clips have different sizes?"
+      ],
+      "answerSurface": "Drop several clips, order them, get one continuous video out."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/split-video",
+      "title": "Split Video",
+      "primaryIntent": "split video",
+      "secondaryIntents": [
+        "divide video",
+        "video splitter",
+        "cut video in two"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "How large can my video be?"
+      ],
+      "answerSurface": "One video in, two videos out — split at the exact frame you choose."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/crop-video",
+      "title": "Crop Video",
+      "primaryIntent": "crop video",
+      "secondaryIntents": [
+        "video crop online",
+        "cut video frame",
+        "remove edges video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "How large can my video be?"
+      ],
+      "answerSurface": "Drag a crop box over the preview — export only what's inside."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/rotate-video",
+      "title": "Rotate Video",
+      "primaryIntent": "rotate video",
+      "secondaryIntents": [
+        "fix sideways video",
+        "turn video 90 degrees",
+        "video rotation"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?"
+      ],
+      "answerSurface": "Sideways phone video? One tap makes it permanent-upright."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/flip-video",
+      "title": "Flip Video",
+      "primaryIntent": "flip video",
+      "secondaryIntents": [
+        "mirror video",
+        "unmirror selfie video",
+        "horizontal flip"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?"
+      ],
+      "answerSurface": "Un-mirror selfie clips or flip vertically — preview first, then export."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/video-speed",
+      "title": "Video Speed Controller",
+      "primaryIntent": "change video speed",
+      "secondaryIntents": [
+        "speed up video",
+        "slow motion video",
+        "timelapse maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "What happens to the audio?"
+      ],
+      "answerSurface": "0.25×–4×: turn recordings into timelapses or buttery slow-mo."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/mute-video",
+      "title": "Mute Video",
+      "primaryIntent": "mute video",
+      "secondaryIntents": [
+        "remove audio from video",
+        "silent video",
+        "delete video sound"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?"
+      ],
+      "answerSurface": "Strip the soundtrack completely — one click, silent file out."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/watermark-video",
+      "title": "Watermark Video",
+      "primaryIntent": "watermark video",
+      "secondaryIntents": [
+        "add text to video",
+        "brand video",
+        "copyright video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "Can I use a logo image?"
+      ],
+      "answerSurface": "Burn a text watermark into the pixels — position, size, opacity."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/extract-audio",
+      "title": "Extract Audio from Video",
+      "primaryIntent": "extract audio from video",
+      "secondaryIntents": [
+        "video to audio",
+        "get sound from video",
+        "rip audio",
+        "video to mp3",
+        "video to m4a"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "Which format should I pick?",
+        "How large can my video be?"
+      ],
+      "answerSurface": "Video in → clean audio out. Pick MP3, M4A, WAV or OGG."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/mp4-to-mp3",
+      "title": "MP4 to MP3",
+      "primaryIntent": "mp4 to mp3",
+      "secondaryIntents": [
+        "video to mp3",
+        "convert mp4 to audio",
+        "mp3 from video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "Is the output really MP3?"
+      ],
+      "answerSurface": "The classic conversion — soundtrack out of an MP4 in seconds."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/mp3-to-mp4",
+      "title": "MP3 to MP4",
+      "primaryIntent": "mp3 to mp4",
+      "secondaryIntents": [
+        "audio to video",
+        "waveform video",
+        "podcast to video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?"
+      ],
+      "answerSurface": "Audio in → video out, with a live animated waveform visual."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/add-audio",
+      "title": "Add Audio to Video",
+      "primaryIntent": "add audio to video",
+      "secondaryIntents": [
+        "add music to video",
+        "replace video sound",
+        "soundtrack video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "Can I keep the original audio too?"
+      ],
+      "answerSurface": "Video + music file → one video with the new soundtrack."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/video-to-gif",
+      "title": "Video to GIF",
+      "primaryIntent": "video to gif",
+      "secondaryIntents": [
+        "make gif from video",
+        "gif converter",
+        "gif maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "How long can the GIF be?",
+        "Is this a real GIF file?"
+      ],
+      "answerSurface": "Timeline-select a moment, export a loopable GIF — real encoder, on-device."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/create-gif",
+      "title": "GIF Maker",
+      "primaryIntent": "gif maker",
+      "secondaryIntents": [
+        "create gif",
+        "make a gif online",
+        "reaction gif maker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "Where can I use the GIF?"
+      ],
+      "answerSurface": "Reaction GIFs in three clicks — mark, encode, share."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/gif-to-mp4",
+      "title": "GIF to MP4",
+      "primaryIntent": "gif to mp4",
+      "secondaryIntents": [
+        "gif to video",
+        "convert gif",
+        "gif converter video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What format is the output?",
+        "Which browsers support GIF decoding?"
+      ],
+      "answerSurface": "GIFs are huge — the same animation as video is 10× smaller."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/video-thumbnail",
+      "title": "Video Thumbnail Generator",
+      "primaryIntent": "video thumbnail",
+      "secondaryIntents": [
+        "extract frame from video",
+        "video frame capture",
+        "youtube thumbnail from video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "What resolution is the capture?"
+      ],
+      "answerSurface": "Scrub to the exact moment, capture a full-res still."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/video-screenshot",
+      "title": "Video Screenshot",
+      "primaryIntent": "video screenshot",
+      "secondaryIntents": [
+        "screenshot from video",
+        "capture video frame",
+        "still from video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?"
+      ],
+      "answerSurface": "Pixel-perfect stills — straight from the video data, not your screen."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/extract-frames",
+      "title": "Extract Video Frames",
+      "primaryIntent": "extract frames from video",
+      "secondaryIntents": [
+        "video frames to images",
+        "frame sequence export",
+        "video to images"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "How many frames can I extract?"
+      ],
+      "answerSurface": "10, 20 or 50 evenly-spaced stills — zipped and downloaded in one go."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/video-metadata",
+      "title": "Video Metadata Viewer",
+      "primaryIntent": "video metadata",
+      "secondaryIntents": [
+        "video info",
+        "check video bitrate",
+        "video resolution checker"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?"
+      ],
+      "answerSurface": "Every technical fact about your file — in one glance, zero upload."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/subtitle-generator",
+      "title": "Video Subtitle Generator",
+      "primaryIntent": "video subtitles",
+      "secondaryIntents": [
+        "srt generator",
+        "generate subtitles",
+        "captions for video"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Can it transcribe the video file directly?"
+      ],
+      "answerSurface": "Speak along with your video — timestamped SRT comes out."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/subtitle-editor",
+      "title": "Subtitle Editor",
+      "primaryIntent": "subtitle editor",
+      "secondaryIntents": [
+        "edit srt file",
+        "srt timing shift",
+        "fix subtitles"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "Is my video uploaded to a server?",
+        "My subtitles are 2 seconds late — can this fix it?"
+      ],
+      "answerSurface": "Open an SRT, fix lines, nudge all timings, export — no software."
+    },
+    {
+      "family": "video",
+      "url": "/video-tools/subtitle-translator",
+      "title": "Subtitle Translator",
+      "primaryIntent": "translate subtitles",
+      "secondaryIntents": [
+        "srt translator",
+        "subtitle translation",
+        "translate srt file"
+      ],
+      "questionsAnswered": [
+        "Is this tool free?",
+        "When does automatic translation activate?"
+      ],
+      "answerSurface": "Same timing, new language — free neural subtitle translation."
+    },
+    {
+      "family": "3d",
+      "url": "/3d-tools/image-to-3d",
+      "title": "Image to 3D Model",
+      "primaryIntent": "image to 3d",
+      "secondaryIntents": [
+        "photo to 3d model",
+        "ai 3d generator",
+        "glb converter",
+        "stl from image",
+        "usdz"
+      ],
+      "questionsAnswered": [
+        "How many generations are free?",
+        "Which formats can I export?",
+        "What images work best?",
+        "Is there a watermark?"
+      ],
+      "answerSurface": "Upload a single image and QRix generates a high-quality 3D model you can inspect right in the browser — orbit, zoom, relight — then download in GLB, OBJ, STL or USDZ."
+    }
+  ]
+}
