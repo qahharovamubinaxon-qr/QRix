@@ -2789,3 +2789,52 @@ STILL OPEN: Yandex Webmaster not connected (needs owner's account; ~6x Google's
 traffic for this audience, unoptimised). Geo mismatch (impressions to wrong
 countries) still unexplained — next look is GSC query text. Post-deploy
 Lighthouse pass recommended as the objective performance check.
+
+---
+
+## Mission — AEO shipped to production + category-hub schema (3 Sep 2026)
+
+The prior AEO mission's work was committed on `claude/qrix-six-point` but had
+NOT been merged to `main`, and Vercel deploys `main` — so none of it was live.
+Confirmed by reading production: llms.txt still said "16 platforms", /downloader
+did not link /widgets. Merged the 4 commits to `main` (fast-forward, tsc + build
+clean), Vercel deployed, verified live: /widgets no longer an orphan, /link-in-bio
+back to one `<h1>`, llms.txt now "18 platforms".
+
+Then closed a real gap: `/qr-tools`, `/image-tools`, `/pdf-tools` carried only
+the site-wide Organization/WebSite schema, while `/ai-tools`, `/video-tools`,
+`/3d-tools` already emitted ItemList + BreadcrumbList. Brought the three big hubs
+to parity (QR 34 · Image 33 · PDF 21 tools listed, Home→Category breadcrumb).
+
+⚠️ REGRESSION MADE AND FIXED. First attempt put the JSON-LD in each hub's
+`layout.tsx` (`0a321cc`) — but a layout wraps every child route, so ~137 tool
+pages inherited the hub breadcrumb ON TOP of their own = duplicate BreadcrumbList.
+`tsc` and `build` were both clean; only the full production crawl caught it. Fix
+(`b12019c`): moved the schema into each hub's own `page.tsx` (client components —
+the `<script>` still server-renders into the HTML, verified in `.next/server`),
+so it applies to the hub route only. Layouts reverted to metadata-only.
+
+⚠️ CDN CACHE ARTIFACT. Post-fix audits kept flagging a SHRINKING, SHIFTING set of
+/image-tools/* pages as duplicate (137 → 47, different members each run). Ground
+truth resolved it: the BUILT HTML (`.next/server/app/image-tools/*.html`) and
+fresh cache-busted fetches both show exactly 1 BreadcrumbList on every page
+checked. Vercel served stale edge-cached HTML (from the 0a321cc window) to the
+crawler for cold pages while sequential fresh fetches returned the correct
+current version. The fix is correct and live; the audit was reading stale cache.
+Lesson: after a redeploy, verify with fresh/cache-busted fetches, and trust the
+built artifact over a crawl taken seconds after deploy.
+
+Also shipped `docs/outreach-copy.md`: ready-to-paste listing text for
+AlternativeTo, SaaSHub, Product Hunt, Show HN and the Habr/VC.ru/Telegram CIS
+angle — turning link-building-strategy.md from "where" into "the exact words",
+so the owner pastes and submits. No invented metrics/reviews.
+
+Validation: test:links 37/37, test:related 11/11, tsc 0, build 0, 851 URLs,
+0 P0, 0 duplicate titles/descriptions, 0 orphans.
+
+Commits (all on `main`): `76ee66c` on-page fixes+docs · `1ca28d5` llms.txt 18 ·
+`4ff3cd7` outreach copy · `0a321cc` hub schema (regressed) · `b12019c` regression fix.
+
+STILL OWNER-GATED (the "your parts, at the end" items): AlternativeTo/SaaSHub/PH
+submissions (owner's accounts), Yandex Webmaster connect, GSC geo query drill-down
+(key is Vercel-only), post-deploy Lighthouse.
