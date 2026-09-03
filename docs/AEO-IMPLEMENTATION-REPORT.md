@@ -94,10 +94,21 @@ number without its window.
 
 ## Remaining work, for whoever picks this up
 
-1. **`/widgets` is an orphan** — in the sitemap, linked from nothing. Link it or drop it.
-2. **`/link-in-bio` has two `<h1>`.**
-3. **Yandex Webmaster is not connected.** Yandex sends roughly six times Google's traffic with zero optimisation; this is the largest unclaimed win and needs the owner's account.
-4. **The geo problem is unexplained.** Impressions go to the Philippines, India and Indonesia while the audience is Russia, Uzbekistan and Kazakhstan. hreflang and the language switcher were both tested and ruled out. Next place to look: which queries those impressions come from, in Search Console.
+1. ~~`/widgets` is an orphan~~ — FIXED 3 Sep 2026: `/downloader` links it. Live.
+2. ~~`/link-in-bio` has two `<h1>`~~ — FIXED 3 Sep 2026: one `<h1>` now. Live.
+3. ~~Yandex Webmaster is not connected~~ — **WRONG, it was already connected.**
+   Verified in the panel 4 Sep 2026: qrixtools.com is added, indexed and earning
+   clicks (Mission 102 wired it; this report never checked). The real Yandex
+   queries are the useful find — see #4.
+4. **The geo "problem" was a Google artifact, now explained.** Google shows the
+   site to the Philippines/India/Indonesia, but that channel barely matters. The
+   real audience is on **Yandex**, and its top queries (read from the panel
+   4 Sep) are a tight CIS cluster: Russian passport photos ("сделать фото
+   413x531", "как обрезать фото 413х531", "размер фото 413 на 531") and OK.ru/VK
+   video downloads ("ok.ru video downloader", "vk ok ru videos"). Nothing was
+   broken — the audience is CIS/Russian and Yandex serves it correctly. Double
+   down on the passport-photo (413×531 = 35×45 mm) and OK.ru/VK clusters, in
+   Russian, not on Google.
 5. **Ads are live but the inventory is poor** — gambling and pirated-streaming creatives on a site used for passport photos. Adsterra category blocking, a different network, or no ads until traffic justifies one. Owner's decision.
 
 ---

@@ -95,9 +95,21 @@ not observed.**
 
 ## Top 10 remaining opportunities
 
-1. Build off-site authority (Tier-1 directories) — the actual blocker to ranking.
-2. Connect **Yandex Webmaster** — largest unclaimed measurement for this audience.
-3. Explain + fix the **geo mismatch** (impressions to wrong countries) via GSC queries.
+1. **Product Hunt launch** — the one Tier-1 directory genuinely still open (Yandex,
+   SaaSHub and AlternativeTo were already done — see the correction below).
+2. **Amplify the Russian passport-photo cluster** — Yandex's #1 clicked query is
+   "сделать фото 413x531" (Russian passport, 35×45 mm). `/passport-photo/russia`
+   exists but only in English; a Russian-language page targeting these exact
+   queries is the clearest data-backed win.
+3. **OK.ru/VK downloader in Russian** — the other proven Yandex cluster
+   ("ok.ru video downloader", "vk ok ru videos"); already has /ru/downloader pages.
+
+> CORRECTION (4 Sep 2026): earlier drafts listed "Connect Yandex Webmaster" and
+> "fix the geo mismatch" as open. Both were wrong. Yandex was ALREADY connected
+> (Mission 102) — verified live in the panel — and SaaSHub was already
+> submitted+verified, AlternativeTo already live. The "geo mismatch" was only a
+> Google artifact; Yandex serves the correct CIS/Russian audience. The real
+> opportunities are the two clusters above, read from Yandex's own query data.
 4. Win **Tier-A "without uploading" terms** — true differentiator, winnable.
 5. Win **"no signup / no expiry" QR terms** — QRix out-features the thin incumbents.
 6. Grow **CIS downloader** Google presence (VK/OK/Rutube) — low competition.

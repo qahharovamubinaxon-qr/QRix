@@ -1,5 +1,14 @@
 # QRix — ready-to-paste outreach copy
 
+> **STATUS CHECK (4 Sep 2026).** Some of this is already done — verified, not
+> assumed. **AlternativeTo:** LIVE (QRix added 11 Aug 2026, 12 alternatives,
+> already listed against iLovePDF, Smallpdf and others). **SaaSHub:**
+> submitted + VERIFIED (Mission 102). **Yandex Webmaster:** connected and earning
+> clicks. So the genuinely-open Tier-1 target is **Product Hunt** (§3). On
+> AlternativeTo the only value left is adding a few more high-traffic
+> "alternative to" relations (TinyPNG, remove.bg, QRCode Monkey) — do it once the
+> site is un-paused so a reviewer doesn't hit the 402.
+
 Every block below is **copy-paste ready**. The owner submits each one himself —
 nothing here is auto-posted, and no listing invents a metric, a review, or a
 claim the product does not back. Facts used (all true, mirrored from the live

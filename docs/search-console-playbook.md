@@ -41,9 +41,13 @@ scripts already in the repo — no new tooling, no dashboards to babysit.
   language switcher were both ruled out. Next: read the *queries* those impressions
   come from in GSC — the query text will say whether it is wrong-country demand or
   wrong-intent matching.
-- **Yandex.** Not connected. Yandex reportedly sends ~6× Google's traffic to this
-  audience with zero optimisation. Connecting Yandex Webmaster is the single largest
-  unclaimed measurement — it needs the owner's Yandex account.
+- **Yandex.** CONNECTED (verified in the panel 4 Sep 2026 — an earlier draft here
+  wrongly said "not connected"). qrixtools.com is added, indexed and earning clicks.
+  The panel's top queries are the real audience signal: Russian passport photos
+  ("сделать фото 413x531", "размер фото 413 на 531") and OK.ru/VK downloads. This is
+  the CIS/Russian audience the site actually serves — weight Yandex + these clusters
+  over Google. (Yandex also flags 2 duplicate descriptions and clusters some thin
+  /ru/ template pages to their English twin — normal dedup, not a defect.)
 - **AI referral.** Tag and watch `utm_source=chatgpt.com` in GA. It is currently the
   largest real channel; if it grows, weight AI-answer citability over Google tweaks.
 
