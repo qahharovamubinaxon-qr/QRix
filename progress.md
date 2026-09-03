@@ -2747,3 +2747,45 @@ is what will announce it.
 STILL OPEN: Vercel account recovery. It is not needed for the downloader any
 more, but it is where the site lives — the owner should run "Start 2FA
 recovery" from the Vercel sign-in page, which uses their Gmail.
+
+---
+
+## Mission — SEO / AEO / GEO audit + fixes (3 Sep 2026, commit 1411db3)
+
+Ran the full brief against production. A crawl of all 851 sitemap URLs found
+**0 P0 / 0 P1** — the site was already technically sound. The two pages the
+brief called "previously problematic" both return 200 and are clean:
+/ai-tools/face-enhancer and /uz/compress. No longer broken.
+
+FIXED (the only two real on-page defects the crawl found):
+  - /link-in-bio double <h1> — the editor's live BioView preview rendered a
+    second <h1>. BioView now takes a `preview` prop: non-heading <div> in the
+    editor, real <h1> kept on the published /p page.
+  - /widgets orphan — was in the sitemap, linked nowhere. /downloader now links
+    it with a genuine embed CTA.
+
+Both verify only AFTER this branch deploys (the crawl hits production). Re-run
+`npm run aeo:audit` post-deploy — expect 0 multiple-H1, 0 orphans.
+
+CREATED (all from real data, nothing fabricated):
+  - scripts/seo-inventory.mjs  -> docs/seo-url-inventory.json  (851 URLs)
+  - scripts/seo-intent-map.mjs -> docs/search-intent-map.json  (169 tools,
+    624 real FAQ questions, 495 keyword intents from the registries)
+  - docs/technical-seo-audit.md, keyword-priority-map.md,
+    internal-linking-map.md, competitor-gap-analysis.md,
+    link-building-strategy.md, search-console-playbook.md, aeo-benchmark.md,
+    SEO-AEO-FINAL-REPORT.md
+  - package.json: `seo:inventory`, `seo:intent` scripts
+
+THE HONEST FINDING (docs/aeo-benchmark.md, 3 verified WebSearch queries): QRix
+does NOT rank in Google's top 10 for the competitive terms tested — including
+ones where it has a true differentiator — because it has no off-site authority
+yet. Its real traffic is AI referral (ChatGPT), not Google organic. So the
+next work is authority/outreach (docs/link-building-strategy.md) and AI-answer
+citability, NOT more on-page tags. Rankings, keyword volumes, backlinks and DA
+are marked "unmeasured", never invented — no metrics API in this environment.
+
+STILL OPEN: Yandex Webmaster not connected (needs owner's account; ~6x Google's
+traffic for this audience, unoptimised). Geo mismatch (impressions to wrong
+countries) still unexplained — next look is GSC query text. Post-deploy
+Lighthouse pass recommended as the objective performance check.
