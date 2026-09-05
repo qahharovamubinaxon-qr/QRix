@@ -2838,3 +2838,29 @@ Commits (all on `main`): `76ee66c` on-page fixes+docs · `1ca28d5` llms.txt 18 �
 STILL OWNER-GATED (the "your parts, at the end" items): AlternativeTo/SaaSHub/PH
 submissions (owner's accounts), Yandex Webmaster connect, GSC geo query drill-down
 (key is Vercel-only), post-deploy Lighthouse.
+
+---
+
+## Mission — downloader byte-proxy moved off Vercel (6 Sep 2026)
+
+The Hobby account paused (HTTP 402) because `/api/download/file` streamed every
+downloaded video through the Vercel function — full file size counted as Fast
+Origin Transfer, 30 GB against a 10 GB limit. Owner upgraded to Pro ($20, one
+cycle) to un-pause; the permanent fix ships the byte transfer to a free
+Cloudflare Worker so Hobby stays under limit and we downgrade before ~6 Oct.
+
+`8ba6d14`: `/api/download/file`, when `MEDIA_PROXY_URL` is set, signs the
+freshly-resolved media URL (+ Referer) with the shared `CRON_SECRET` and
+302-redirects to the Worker (`workers/media-proxy/`), which verifies the HMAC and
+streams the file. Cloudflare has no egress charge, so the bytes never touch
+Vercel. Signature = not an open proxy. Verified the Worker's Web-Crypto HMAC is
+byte-identical to Vercel's node:crypto `signPayload()`. Inert until the env is
+set — the deploy changed nothing on its own. HLS (Rutube) still streams via
+Vercel (stitched on the fly, small share). tsc 0, build 0.
+
+OWNER-GATED to finish: deploy the Worker (`wrangler deploy`, or the Cloudflare
+dashboard), set its `MEDIA_SECRET` = Vercel's `CRON_SECRET`, then set
+`MEDIA_PROXY_URL` on Vercel and redeploy. Then verify a VK + TikTok download and
+that Fast Origin Transfer stops climbing. THEN downgrade Pro → Hobby before ~6
+Oct (card only has $1; the $20 renewal would fail). See
+[[downloader-vercel-origin-transfer]].
