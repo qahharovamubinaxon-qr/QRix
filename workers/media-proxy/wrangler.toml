@@ -1,0 +1,8 @@
+name = "qrix-media-proxy"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+
+# No KV, no D1, no bindings — this Worker is a stateless streaming proxy.
+# The only secret is MEDIA_SECRET, set out-of-band with:
+#   wrangler secret put MEDIA_SECRET
+# It must equal the CRON_SECRET that Vercel uses to sign the links.

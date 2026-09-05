@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyMedia, resolveCobaltStream, resolveSoundcloudStream, streamHls, MEDIA_UA } from "@/lib/server/media-download";
+import { verifyMedia, resolveCobaltStream, resolveSoundcloudStream, streamHls, signProxyUrl, MEDIA_UA } from "@/lib/server/media-download";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -50,6 +50,20 @@ export async function GET(req: NextRequest) {
     /cdninstagram|instagram/.test(host) ? "https://www.instagram.com/" :
     /fbcdn|facebook/.test(host) ? "https://www.facebook.com/" :
     /pinimg|pinterest/.test(host) ? "https://www.pinterest.com/" : "";
+
+  /* Hand the heavy byte transfer to the off-Vercel proxy Worker when it is
+     configured. Vercel signs the freshly-resolved URL (+ the Referer this CDN
+     needs) and 302-redirects the browser to the Worker, which streams it.
+     Cloudflare has no egress cap, so the video bytes never touch Vercel's Fast
+     Origin Transfer — the metric that paused the Hobby account. The signature
+     means the Worker can only stream a URL we just resolved, not an open proxy.
+     With MEDIA_PROXY_URL unset the route streams the bytes itself, unchanged —
+     so this is inert until the env is set. HLS (Rutube) still streams here: it
+     is stitched on the fly, a smaller share, and porting it is separate work. */
+  const proxyBase = process.env.MEDIA_PROXY_URL;
+  if (proxyBase) {
+    return NextResponse.redirect(signProxyUrl(proxyBase, mediaUrl, referer, meta.filename, meta.mime), 302);
+  }
 
   let upstream: Response;
   try {

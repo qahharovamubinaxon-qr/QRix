@@ -112,6 +112,17 @@ export function signMedia(url: string, filename: string, mime: string): string {
   return signPayload({ k: "d", u: url, f: filename, m: mime, e: Date.now() + TOKEN_TTL_MS });
 }
 
+/** A short-lived signed link to the off-Vercel media-proxy Worker. The Worker
+    verifies this HMAC with the SAME shared secret, so it can only ever stream a
+    URL this server just resolved — never an arbitrary host, so it is not an open
+    proxy. Used only when MEDIA_PROXY_URL is set; otherwise the file route streams
+    the bytes itself. TTL is short because the redirect is followed immediately —
+    a resolved cobalt tunnel link is fetched within seconds of being signed. */
+export function signProxyUrl(base: string, mediaUrl: string, referer: string, filename: string, mime: string): string {
+  const p = signPayload({ pu: mediaUrl, r: referer || "", f: filename, m: mime, e: Date.now() + 5 * 60 * 1000 });
+  return `${base.replace(/\/+$/, "")}/?p=${encodeURIComponent(p)}`;
+}
+
 export type VerifiedToken =
   | { kind: "direct"; url: string; filename: string; mime: string }
   | { kind: "cobalt"; pageUrl: string; mode: "auto" | "audio"; index?: number; filename: string; mime: string }
