@@ -15,7 +15,7 @@ browser ──GET https://qrix-media-proxy…?p=…──▶ this Worker ──�
 ```
 
 Vercel only turns the signed token into a real media URL, then redirects. This
-Worker verifies the signature (same `CRON_SECRET`), fetches with the right
+Worker verifies the signature (shared `MEDIA_PROXY_SECRET`), fetches with the right
 `Referer`, and streams the file back. It is switched on by setting
 `MEDIA_PROXY_URL` on Vercel; unset, Vercel streams the bytes itself (unchanged).
 
@@ -27,7 +27,8 @@ From `workers/media-proxy/`:
 npm i -g wrangler        # if not installed
 wrangler login           # opens your Cloudflare account in the browser
 wrangler secret put MEDIA_SECRET
-#   → paste the SAME value as CRON_SECRET in Vercel (must match exactly)
+#   → paste a NEW random string you make up (30+ chars). You will set the
+#     SAME string on Vercel as MEDIA_PROXY_SECRET — they must match exactly.
 wrangler deploy
 ```
 
@@ -35,19 +36,25 @@ wrangler deploy
 
 ## Turn it on
 
-Set one env var on Vercel (Project → Settings → Environment Variables), then redeploy:
+Set two env vars on Vercel (Project → Settings → Environment Variables), then redeploy:
 
 ```
-MEDIA_PROXY_URL = https://qrix-media-proxy.<you>.workers.dev
+MEDIA_PROXY_URL    = https://qrix-media-proxy.<you>.workers.dev
+MEDIA_PROXY_SECRET = <the same random string you gave the Worker as MEDIA_SECRET>
 ```
+
+Why a dedicated secret: `CRON_SECRET` is a Vercel *Sensitive* variable — write-only,
+its value can never be read back, so it cannot be copied into the Worker. And the
+code's fallback is the Supabase service-role key, which must never leave Vercel.
 
 Verify: download a VK and a TikTok video. The file should still arrive, and
 Vercel's Usage → Fast Origin Transfer should stop climbing.
 
 ## Notes
 
-- **Secret must match.** `MEDIA_SECRET` here === `CRON_SECRET` on Vercel, or every
-  link returns 403.
+- **Secret must match.** `MEDIA_SECRET` here === `MEDIA_PROXY_SECRET` on Vercel, or
+  every link returns 403. If `MEDIA_PROXY_SECRET` is unset on Vercel, the route
+  simply streams the bytes itself (old path) — it never breaks downloads.
 - **Signed, not open.** A link is a 5-minute HMAC over the resolved URL; the
   Worker refuses anything it did not come from Vercel.
 - **HLS (Rutube)** still streams through Vercel for now — it is stitched on the

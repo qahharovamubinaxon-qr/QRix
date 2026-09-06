@@ -62,7 +62,9 @@ export async function GET(req: NextRequest) {
      is stitched on the fly, a smaller share, and porting it is separate work. */
   const proxyBase = process.env.MEDIA_PROXY_URL;
   if (proxyBase) {
-    return NextResponse.redirect(signProxyUrl(proxyBase, mediaUrl, referer, meta.filename, meta.mime), 302);
+    // null when MEDIA_PROXY_SECRET is unset — then keep streaming here.
+    const proxied = signProxyUrl(proxyBase, mediaUrl, referer, meta.filename, meta.mime);
+    if (proxied) return NextResponse.redirect(proxied, 302);
   }
 
   let upstream: Response;

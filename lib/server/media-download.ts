@@ -118,9 +118,19 @@ export function signMedia(url: string, filename: string, mime: string): string {
     proxy. Used only when MEDIA_PROXY_URL is set; otherwise the file route streams
     the bytes itself. TTL is short because the redirect is followed immediately —
     a resolved cobalt tunnel link is fetched within seconds of being signed. */
-export function signProxyUrl(base: string, mediaUrl: string, referer: string, filename: string, mime: string): string {
-  const p = signPayload({ pu: mediaUrl, r: referer || "", f: filename, m: mime, e: Date.now() + 5 * 60 * 1000 });
-  return `${base.replace(/\/+$/, "")}/?p=${encodeURIComponent(p)}`;
+export function signProxyUrl(base: string, mediaUrl: string, referer: string, filename: string, mime: string): string | null {
+  /* Signed with a DEDICATED secret, not secret()/CRON_SECRET. CRON_SECRET is a
+     Vercel "Sensitive" variable — write-only, its value can never be read back,
+     so it cannot be copied into the Worker. And the fallback in secret() is the
+     Supabase service-role key, which must never leave this server. So the proxy
+     handshake gets its own MEDIA_PROXY_SECRET: the owner sets the same value
+     here and as MEDIA_SECRET on the Worker. Missing → null → the caller streams
+     the bytes itself, so an unset secret degrades to the old path, never 403s. */
+  const key = process.env.MEDIA_PROXY_SECRET;
+  if (!key) return null;
+  const payload = b64url(JSON.stringify({ pu: mediaUrl, r: referer || "", f: filename, m: mime, e: Date.now() + 5 * 60 * 1000 }));
+  const sig = b64url(crypto.createHmac("sha256", key).update(payload).digest());
+  return `${base.replace(/\/+$/, "")}/?p=${encodeURIComponent(`${payload}.${sig}`)}`;
 }
 
 export type VerifiedToken =
