@@ -2864,3 +2864,13 @@ dashboard), set its `MEDIA_SECRET` = Vercel's `CRON_SECRET`, then set
 that Fast Origin Transfer stops climbing. THEN downgrade Pro → Hobby before ~6
 Oct (card only has $1; the $20 renewal would fail). See
 [[downloader-vercel-origin-transfer]].
+
+- **9 Sep 2026 — Worker proxy switched ON.** Owner reactivated Pro (site 200
+  again after the failed-payment suspension), set `MEDIA_SECRET` on the
+  Cloudflare Worker and `MEDIA_PROXY_SECRET` on Vercel; `MEDIA_PROXY_URL`
+  (public, not a secret) added on Vercel by Claude. Worker probe went
+  500 "not set" → 400 "bad request" = secret present, unsigned requests refused.
+  This push redeploys so `/api/download/file` sees the vars and 302s to
+  `https://qrix-media-proxy.eduguard.workers.dev`. Next: confirm a real
+  download redirects + arrives, watch Fast Origin Transfer stop climbing, then
+  downgrade Pro → Hobby ~3–4 Oct (before the 5 Oct renewal).
