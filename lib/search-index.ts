@@ -8,6 +8,7 @@ import { CONVERT_PAIRS } from "@/lib/convert-pairs";
 import { RESIZE_PRESETS } from "@/lib/resize-presets";
 import { BG_USE_CASES } from "@/lib/removebg-usecases";
 import { PASSPORT_SIZES } from "@/lib/passport-sizes";
+import { getPassportRu, PASSPORT_RU_SLUGS } from "@/lib/passport-sizes-i18n";
 
 /** One flat, client-safe index of everything searchable on the site. */
 export type SearchGroup =
@@ -186,6 +187,13 @@ export function buildSearchIndex(): SearchItem[] {
       title: `${p.country} Passport Photo Size — ${p.sizeLabel}`, href: `/passport-photo/${p.slug}`, group: "Image Tools" as const,
       keywords: `${p.country} passport photo size visa photo ${p.sizeLabel}`,
     })),
+    ...PASSPORT_RU_SLUGS.flatMap((s) => {
+      const hit = getPassportRu(s);
+      return hit ? [{
+        title: hit.ru.h1, href: `/ru/passport-photo/${s}`, group: "Image Tools" as const,
+        keywords: `${hit.ru.keywords.join(" ")} фото на паспорт рф 35х45 413x531 ru`,
+      }] : [];
+    }),
     ...THREE_TOOLS.map((t) => ({
       title: t.title, href: `/3d-tools/${t.slug}`, group: "Pages" as const, keywords: t.keywords.join(" "),
     })),

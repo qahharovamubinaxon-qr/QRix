@@ -2874,3 +2874,18 @@ Oct (card only has $1; the $20 renewal would fail). See
   `https://qrix-media-proxy.eduguard.workers.dev`. Next: confirm a real
   download redirects + arrives, watch Fast Origin Transfer stop climbing, then
   downgrade Pro → Hobby ~3–4 Oct (before the 5 Oct renewal).
+
+- **10 Sep 2026 — /ru/passport-photo/russia.** Yandex Webmaster's own query list
+  makes "сделать фото 413x531 px" / "размер фото 413 на 531" the site's #1 clicked
+  cluster, but the only page with the sourced MVD spec (/passport-photo/russia)
+  was English and /ru/passport-photo is the generic 3×4 tool. New server-rendered
+  Russian twin: MVD Приказ № 773 spec (35×45 mm = 413×531 px @300 DPI, head ≤80 %,
+  5 mm ±1 margin, white bg, internal passport ≠ загранпаспорт) translated — no
+  new claims — with PassportClient lang="ru", HowTo/FAQ/WebApplication schema,
+  ONE BreadcrumbList (it does not wrap ToolPageShell, whose chrome is English),
+  reciprocal hreflang on BOTH pages, sitemap + search-index entries, inbound
+  "Русская версия" link from the EN page so it is not an orphan. Copy lives in
+  lib/passport-sizes-i18n.ts; RU twins are added ONLY for countries with real
+  Russian demand (a translated page nobody searches for is a thin twin Yandex
+  clusters away). tsc 0, build 0; built HTML verified (title, canonical,
+  hreflang×3, h1=1, BreadcrumbList=1). Live check + IndexNow ping follow.

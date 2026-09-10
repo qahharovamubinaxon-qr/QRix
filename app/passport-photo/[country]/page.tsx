@@ -4,6 +4,7 @@ import ToolPageShell from "@/components/ToolPageShell";
 import { PassportClient } from "@/components/image/ImageSpecialClients";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd, howToLd } from "@/lib/seo";
 import { PASSPORT_SIZES, getPassportSize, otherPassportSizes } from "@/lib/passport-sizes";
+import { getPassportRu } from "@/lib/passport-sizes-i18n";
 
 /* One page per country, each cropping to the size that country's own authority
    publishes, and each linking that authority so the number can be checked.
@@ -31,6 +32,11 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
       `${p.sizeLabel} passport photo`,
       `${p.country.toLowerCase()} passport photo online`,
     ],
+    /* Reciprocal hreflang with /ru/passport-photo/<slug> where a Russian
+       page exists. Declared on BOTH pages — a one-sided pair is ignored. */
+    ...(getPassportRu(p.slug)
+      ? { languages: { en: `/passport-photo/${p.slug}`, ru: `/ru/passport-photo/${p.slug}`, "x-default": `/passport-photo/${p.slug}` } }
+      : {}),
   });
 }
 
@@ -136,6 +142,15 @@ export default async function PassportCountryPage({ params }: { params: Promise<
               style={{ background: "var(--surface-2)", border: "1px solid var(--border-hover)", color: "var(--primary-bright)" }}>
               All sizes →
             </Link>
+            {/* The Russian twin — an inbound link so it is never an orphan,
+                and the language a Russian-passport applicant actually types in. */}
+            {getPassportRu(p.slug) && (
+              <Link href={`/ru/passport-photo/${p.slug}`} hrefLang="ru"
+                className="inline-flex items-center px-3.5 py-2 rounded-full text-[12.5px] font-bold"
+                style={{ background: "var(--surface-2)", border: "1px solid var(--border-hover)", color: "var(--primary-bright)" }}>
+                Русская версия →
+              </Link>
+            )}
           </div>
         </section>
       </div>
