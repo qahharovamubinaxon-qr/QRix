@@ -2904,3 +2904,20 @@ Oct (card only has $1; the $20 renewal would fail). See
   (was 146), ChatGPT now #1 referrer (15), Yandex ~37 combined.
   Lesson recorded in memory: a push during suspension needs a re-push after
   reactivation.
+
+- **12 Sep 2026 — ads moved to where the traffic is (`04e6a94`).** Adsterra was
+  showing 21 impressions / $0 because of PLACEMENT: the slot sat only on the 46
+  ToolPageShell pages + blog, while the week's traffic was /downloader/vk (59),
+  /downloader/ok (17), / (20), /ru/*. The downloader slot was gated on `info`
+  (nothing shown until a link resolved) and the /ru/ + /uz/ localized pages had
+  no slot at all though their English twins did. Fixed: downloader renders on
+  arrival, LocalizedToolPage and /ru/passport-photo/* get the same slot in the
+  same position (below the tool). Homepage deliberately left ad-free per the
+  owner. Verified live: slot present on downloader vk/ok/telegram, ru+uz
+  /compress, /ru/passport-photo(+/russia), /image-tools/remove-bg; absent on /.
+  Ad language is not controllable per page — Adsterra selects by visitor geo.
+  A forced interstitial before download was requested and advised against
+  (account risk from forced views, Google intrusive-interstitial penalty,
+  undermines the positioning that makes ChatGPT the #1 referrer, and earns <$1/mo
+  at this volume); safer alternative proposed = show the ad during the existing
+  link-resolve wait. Awaiting owner's decision.
