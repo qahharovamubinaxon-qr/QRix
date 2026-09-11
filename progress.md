@@ -2889,3 +2889,18 @@ Oct (card only has $1; the $20 renewal would fail). See
   Russian demand (a translated page nobody searches for is a thin twin Yandex
   clusters away). tsc 0, build 0; built HTML verified (title, canonical,
   hreflang×3, h1=1, BreadcrumbList=1). Live check + IndexNow ping follow.
+
+- **11 Sep 2026 — /ru/passport-photo/russia LIVE, verified.** The 10 Sep push
+  (`9d9321d`) landed on main while the Vercel team was suspended for the unpaid
+  Pro invoice, so Vercel never built it — no "Error", the commit simply had no
+  deployment; after the owner reactivated Pro the site came back on the older
+  `fd0d477` and the new route was 404 on a live site. Rebuilt with an empty
+  commit (`bd45de0`). Verified live: 200, correct Russian title, self-canonical,
+  hrefLang en/ru/x-default on BOTH pages (reciprocal), one h1, one
+  BreadcrumbList, in the live sitemap. IndexNow submission is the site's own
+  server job (`lib/server/indexnow.ts`, `INDEXNOW_KEY` on Vercel) — runs
+  automatically; Yandex is already re-crawling (50×2XX, 20 pages added, 0 removed,
+  "Ошибок нет", 9 clicks +800%). Analytics recovering post-outage: 209 visitors/7d
+  (was 146), ChatGPT now #1 referrer (15), Yandex ~37 combined.
+  Lesson recorded in memory: a push during suspension needs a re-push after
+  reactivation.
