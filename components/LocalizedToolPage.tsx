@@ -7,6 +7,7 @@
    HTML, so nothing is lost for crawlers. */
 
 import Link from "next/link";
+import AdsterraSlot from "@/components/AdsterraSlot";
 import LocalizedToolEngine from "@/components/LocalizedToolEngine";
 import { jsonLd, breadcrumbLd, softwareAppLd, faqLd } from "@/lib/seo";
 import type { LocTool, LocLang } from "@/lib/localized-tools";
@@ -58,6 +59,13 @@ export default function LocalizedToolPage({ tool, lang, others }: { tool: LocToo
         <div className="qx-card p-5 lg:p-6">
           <LocalizedToolEngine slug={tool.slug} lang={lang} />
         </div>
+
+        {/* In-content ad — same slot and same position as the English
+            ToolPageShell (below the tool, never above it). These /ru/ and /uz/
+            pages carried no ad at all while their English twins did, which is
+            where most of the traffic actually lands. Adsterra picks the
+            creative's language from the visitor's geo, not from this page. */}
+        <AdsterraSlot format="native" />
 
         {/* how it works */}
         <section className="mt-12">

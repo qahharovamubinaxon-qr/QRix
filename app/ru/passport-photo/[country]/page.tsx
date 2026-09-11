@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AdsterraSlot from "@/components/AdsterraSlot";
 import { PassportClient } from "@/components/image/ImageSpecialClients";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd, howToLd } from "@/lib/seo";
 import { getPassportRu, PASSPORT_RU_SLUGS } from "@/lib/passport-sizes-i18n";
@@ -93,6 +94,9 @@ export default async function PassportCountryRuPage({ params }: { params: Promis
         <section className="qx-card p-4 sm:p-6" aria-label="Инструмент">
           <PassportClient lang="ru" preset={{ label: `${ru.sizeLabel} — паспорт РФ`, w: size.w, h: size.h }} />
         </section>
+
+        {/* Below the tool, matching every other tool page. */}
+        <AdsterraSlot format="native" />
 
         {/* The specification, and who published it — a millimetre with no
             author is asking to be trusted for no reason. */}

@@ -284,12 +284,15 @@ export default function DownloaderClient({ compact = false, placeholder }: { com
         </div>
       )}
 
-      {/* Ad — only once a link has RESOLVED, and only below the download
-          buttons. Never above them and never beside them: a misclick on an ad
-          the user took for the download button is invalid traffic, and invalid
-          traffic closes the account rather than merely wasting an impression.
-          Hidden in compact mode, which is the embeddable widget. */}
-      {info && !compact && <AdsterraSlot format="native" />}
+      {/* Ad — rendered on arrival now, not only once a link has resolved: the
+          downloader pages carry most of the site's traffic and the old
+          condition meant a visitor who never pasted a link saw no ad at all.
+          Position is unchanged and non-negotiable: BELOW the input and below
+          the download buttons, never above them and never beside them. A
+          misclick on an ad the user took for the download button is invalid
+          traffic, and invalid traffic closes the account rather than merely
+          wasting an impression. Hidden in compact mode (the embeddable widget). */}
+      {!compact && <AdsterraSlot format="native" />}
 
       {!compact && (
         <>
