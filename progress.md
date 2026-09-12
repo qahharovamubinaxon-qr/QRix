@@ -2921,3 +2921,25 @@ Oct (card only has $1; the $20 renewal would fail). See
   undermines the positioning that makes ChatGPT the #1 referrer, and earns <$1/mo
   at this volume); safer alternative proposed = show the ad during the existing
   link-resolve wait. Awaiting owner's decision.
+
+- **13 Sep 2026 — first look at REAL Google Search Console data, and /bulk-qr rebuilt.**
+  Pulled GSC (sc-domain:qrixtools.com, 14 Jul – 10 Sep) from the live panel: 13.6K
+  impressions, **35 clicks, average position 82.6**. The finding that reshapes the
+  plan: **QRix has NO queries at positions 11–30** — the band every "quick win"
+  playbook targets. Brand `qrix` sits at 3.2; the next-best non-brand query is
+  `telegram qr code` at 36.0. The biggest impression cluster (background remover,
+  ~1,100 impressions across ~25 variants) sits at 85–97 against remove.bg/Canva/
+  Adobe and has produced 1 click in two months — an authority problem, not a copy
+  problem. `pdf to word` — the brief's assumed flagship — draws ZERO impressions
+  and is not in the top 1,000 queries.
+  Acted on the one page the data actually supports: **/bulk-qr** (45 impressions at
+  position 70.3, and the site's thinnest page). H1 `Bulk QR Generator` →
+  `Bulk QR Code Generator`, 479 → 1,442 words, 5 new H2 sections, 7 real FAQs
+  rendered + FAQPage schema, WebApplication + BreadcrumbList + HowTo added (it had
+  none), internal links out 1 → 6. Every claim re-read from the code first
+  (512×512 PNG, error-correction H, 5 dot styles, zipped client-side). tsc 0,
+  build 0; built HTML verified h1=1 h2=5 Question=7 HowToStep=4.
+  New docs: `SEO_KEYWORD_MAP.md` (every query with its real position),
+  `SEO_AEO_ROADMAP.md`, `SEO_CHANGELOG.md`.
+  Conclusion recorded honestly: on-page is no longer the binding constraint —
+  off-site authority is, and no code change fixes it.
