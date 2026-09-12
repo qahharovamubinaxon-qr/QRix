@@ -93,3 +93,18 @@ Recorded because acting on them would have wasted real work:
   serves exactly the right audience; the site's market is CIS/Russian-speaking.
 - **"`pdf to word` is the flagship target"** — it draws zero impressions and is
   not in the top 1,000 queries. Good page, no demand yet.
+
+---
+
+## 13 Sep 2026 (later) — a claim of mine, checked and withdrawn
+
+The first draft of `SEO_KEYWORD_MAP.md` and `SEO_AEO_ROADMAP.md` named
+"contactless menu QR" (position 49.5, 17 impressions) as the one content gap
+worth building. **That was wrong.** `/use/en/restaurant-menu-qr-code` already
+exists — 1,859 words, FAQ schema, matching title — with a Russian twin at
+`/use/ru/…`, both HTTP 200. Checked before building anything; both documents
+corrected rather than quietly edited.
+
+The correction matters more than the error: with it, **every query in the GSC
+data that has a workable position already has a good page behind it.** There is
+no on-page work left that the data justifies. What remains is off-site.

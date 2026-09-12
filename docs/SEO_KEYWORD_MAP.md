@@ -36,7 +36,7 @@ has a real page behind it.
 |---|---|---|---|
 | telegram qr code | 24 | **36.0** | `/qr-tools/telegram` |
 | app download qr code | 11 | **42.7** | `/qr-tools/appstore` |
-| contactless menu qr code | 17 | **49.5** | *(no dedicated page — see gaps)* |
+| contactless menu qr code | 17 | **49.5** | `/use/en/restaurant-menu-qr-code` (1,859 words, FAQ schema — already strong) |
 | bulk qr code | 10 | 68.6 | `/bulk-qr` |
 | linkedin qr code generator | 21 | 69.0 | `/qr-tools/linkedin` |
 | bulk qr code generator | 45 | 70.3 | `/bulk-qr` |
@@ -100,9 +100,10 @@ is the one QRix actually serves.
 2. **`/qr-tools/telegram`, `/qr-tools/appstore`** — positions 36 and 43, already
    1,800-word pages with FAQ and schema. On-page is not what is holding them
    back; they need external citations.
-3. **Content gap: a contactless-menu QR page.** Position 49.5 with 17
-   impressions and *no dedicated page* — the query is being served by something
-   generic. The one genuinely missing page worth building.
+3. ~~Content gap: a contactless-menu QR page~~ — **wrong, checked and withdrawn.**
+   `/use/en/restaurant-menu-qr-code` already exists (and `/use/ru/…`), 1,859
+   words with FAQ schema and a matching title. Position 49.5 is that page. There
+   is no content gap here; it needs citations, not copy.
 4. **CIS/Yandex cluster** — passport photo 413×531 and OK.ru/VK. Proven clicks.
 5. **Everything else waits on off-site authority.**
 

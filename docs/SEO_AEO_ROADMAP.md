@@ -92,9 +92,12 @@ Yandex + ChatGPT, not English Google. The Russian passport-photo page
 (`/ru/passport-photo/russia`, shipped 11 Sep) is the template: a real query,
 a sourced answer, in the language it is typed in.
 
-### 3. One missing page worth building
-**Contactless menu QR** — position 49.5 on 17 impressions with *no dedicated
-page*. The only clear content gap in the data; everything else has a page.
+### 3. There is no content gap — this was checked and the claim withdrawn
+An earlier draft of this file called "contactless menu QR" (position 49.5) the
+one missing page. It is not missing: `/use/en/restaurant-menu-qr-code` and its
+Russian twin already exist, 1,859 words with FAQ schema and a matching title.
+Every query in the data with a workable position already has a good page behind
+it. **No page on this site is currently held back by its own content.**
 
 ### 4. Leave the background-remover cluster alone
 1,100 impressions at position 85–97. It looks like the biggest opportunity and
