@@ -1,0 +1,38 @@
+# Netlify build configuration.
+# ─────────────────────────────────────────────────────────────────────────────
+# Added 14 Sep 2026 as the free alternative to Vercel: the Pro subscription
+# lapsed on an unfunded card, Vercel hides its Downgrade control once a plan
+# expires, and the site has been returning 402 since. Netlify's free tier runs
+# this stack as-is — its Next.js runtime supports "13.5 or later" (we are on
+# 16.2.7, so no Next upgrade is needed, unlike Cloudflare's adapter which wants
+# >= 16.3.3) and its functions run Node.js, so the 58 routes that declare
+# `runtime = "nodejs"` and the one `sharp` import keep working.
+#
+# Netlify auto-detects Next.js and installs @netlify/plugin-nextjs, so the build
+# command and publish directory are deliberately NOT pinned here — letting the
+# runtime choose them is what keeps this working across Next releases.
+#
+# NOT carried over from vercel.json, and tracked in docs/NETLIFY-MIGRATION.md:
+#   · the three daily crons (autopilot / telegram-reports / social-post)
+#   · api/py-pdf2docx.py — Netlify has no Python runtime. It is the LAST
+#     fallback in the PDF->Word chain (Adobe -> Aspose -> CloudConvert -> this),
+#     so the tool degrades rather than breaks.
+#   · @vercel/analytics and @vercel/speed-insights go inert. GA4 still reports.
+
+[build]
+  # Node 22 matches the local toolchain the build is verified against.
+  environment = { NODE_VERSION = "22" }
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# /embed/* is meant to be iframed by any site — the distribution play — so it
+# must not inherit a frame-blocking header. next.config.ts sets the same rule;
+# this mirrors it at the CDN edge.
+[[headers]]
+  for = "/embed/*"
+  [headers.values]
+    Content-Security-Policy = "frame-ancestors *"
