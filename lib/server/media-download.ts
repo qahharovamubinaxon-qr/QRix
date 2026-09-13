@@ -112,6 +112,22 @@ export function signMedia(url: string, filename: string, mime: string): string {
   return signPayload({ k: "d", u: url, f: filename, m: mime, e: Date.now() + TOKEN_TTL_MS });
 }
 
+/** The Referer a CDN needs before it will serve the file. Several of them
+    (TikTok, Instagram, Facebook, Pinterest) reject a request that arrives
+    without one, so this is not cosmetic — it is the difference between a
+    download and a 403.
+
+    Exported so the file route and the Cloudflare Worker (which receives it
+    inside the signed payload) agree on one mapping rather than two copies. */
+export function refererFor(mediaUrl: string): string {
+  const host = hostOf(mediaUrl);
+  if (/tiktokcdn|tikwm|muscdn|byteoversea/.test(host)) return "https://www.tiktok.com/";
+  if (/cdninstagram|instagram/.test(host)) return "https://www.instagram.com/";
+  if (/fbcdn|facebook/.test(host)) return "https://www.facebook.com/";
+  if (/pinimg|pinterest/.test(host)) return "https://www.pinterest.com/";
+  return "";
+}
+
 /** A short-lived signed link to the off-Vercel media-proxy Worker. The Worker
     verifies this HMAC with the SAME shared secret, so it can only ever stream a
     URL this server just resolved — never an arbitrary host, so it is not an open

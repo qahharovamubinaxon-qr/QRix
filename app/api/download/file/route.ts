@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyMedia, resolveCobaltStream, resolveSoundcloudStream, streamHls, signProxyUrl, MEDIA_UA } from "@/lib/server/media-download";
+import { verifyMedia, resolveCobaltStream, resolveSoundcloudStream, streamHls, signProxyUrl, refererFor, MEDIA_UA } from "@/lib/server/media-download";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -43,13 +43,10 @@ export async function GET(req: NextRequest) {
   if (!mediaUrl) return NextResponse.json({ error: "resolve_failed" }, { status: 502 });
 
   // A wrong Referer makes some CDNs reject the request. Send the platform's
-  // real site as Referer for hosts that check it; send none otherwise.
-  const host = (() => { try { return new URL(mediaUrl).hostname.toLowerCase(); } catch { return ""; } })();
-  const referer =
-    /tiktokcdn|tikwm|muscdn|byteoversea/.test(host) ? "https://www.tiktok.com/" :
-    /cdninstagram|instagram/.test(host) ? "https://www.instagram.com/" :
-    /fbcdn|facebook/.test(host) ? "https://www.facebook.com/" :
-    /pinimg|pinterest/.test(host) ? "https://www.pinterest.com/" : "";
+  // real site as Referer for hosts that check it; send none otherwise. The
+  // mapping lives in media-download.ts so the Worker and the downloader probe
+  // send exactly what this route sends — see refererFor().
+  const referer = refererFor(mediaUrl);
 
   /* Hand the heavy byte transfer to the off-Vercel proxy Worker when it is
      configured. Vercel signs the freshly-resolved URL (+ the Referer this CDN
