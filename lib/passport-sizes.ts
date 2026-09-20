@@ -15,6 +15,15 @@
    dimensions, and a widely-repeated 35×45 is not the same thing as a sourced
    one. It goes in when a primary source is found, not before.
 
+   A SECOND TRAP, found when Germany was added (Sep 20). A country's FORMAT can
+   still be correct while the SUBMISSION ROUTE has changed underneath it:
+   Germany's photo is still 35×45 mm, but since 1 May 2025 a domestic
+   Personalausweis/Reisepass application takes a digital photo over an
+   encrypted connection and stopped accepting paper prints after 31 July 2025.
+   A page that published only the millimetres would be accurate and still send
+   somebody to a print shop for nothing. Check how the photo is SUBMITTED, not
+   only how big it is, before adding a country.
+
    Pixels are at 300 DPI, the print resolution these authorities assume:
    mm × 300 ÷ 25.4, and inches × 300 where the authority publishes inches.
 
@@ -148,6 +157,27 @@ export const PASSPORT_SIZES: PassportSize[] = [
       "This is Приказ МВД России от 16.11.2020 № 773, п.36 — the administrative regulation for issuing and replacing the internal passport, published on Russia's official legal-acts portal.",
       "The percentage rule and the millimetre margin rule both apply; a crop that satisfies one does not automatically satisfy the other.",
       "Applying for the international biometric passport instead uses a different specification — check which document you are applying for before using this size.",
+    ],
+  },
+  {
+    slug: "germany",
+    context: "Germany is the one country on this list where a printed photo may no longer be what the application wants. Since 1 May 2025 a Personalausweis or Reisepass applied for INSIDE Germany takes a digital photo — made at the authority itself, or made by a certified studio and collected by the office over an encrypted connection using a Data Matrix code you are handed on paper — and paper prints stopped being accepted after 31 July 2025. The 35×45 mm size is still the German format and still the one to print for an application made at a German mission abroad, so check which route your application takes before you print anything. The BMI is also unusual in stating its head rule as a PROPORTION of the frame rather than a measurement: the face fills 70 to 80% of the photo's height.",
+    country: "Germany",
+    document: "German passport and ID photo (Passbild)",
+    sizeLabel: "35 mm wide × 45 mm high",
+    w: 413, h: 531,
+    headRule: "The face must fill 70–80% of the photo's height, measured from the tip of the chin to the top of the head — about 32–36 mm on a 45 mm photo. For children up to the age of 10 it is 50–80%.",
+    background: "Plain, single-coloured and shadow-free, with clear contrast to the face and hair",
+    authority: "Federal Ministry of the Interior (BMI) — Fotomustertafel, Stand Juli 2025",
+    source: "https://www.bundesdruckerei-gmbh.de/files/dokumente/pdf/fotomustertafel.pdf",
+    checked: "2026-09-20",
+    notes: [
+      "Since 1 May 2025, photos for a Personalausweis or Reisepass applied for in Germany must be digital — made at the passport authority, or made by a certified studio or drugstore and retrieved by the office over an encrypted connection using a Data Matrix code. Paper photos were accepted only until 31 July 2025.",
+      "A printed 35×45 mm photo is still the right format for an application made at a German mission abroad, where the Federal Foreign Office publishes the same size and gives the head height as 32–36 mm.",
+      "The quality criteria come from the BMI's Fotomustertafel (Artikelnummer BMI24037, Stand Juli 2025): neutral expression, mouth closed, looking straight into the camera, head centred and upright, eyes clearly visible and not covered by frames.",
+      "Head coverings are permitted only on religious grounds, and then the face must be visible from the lower edge of the chin to the forehead with no shadow falling on it.",
+      "Retouching, filters and soft focus are listed as grounds for rejection, as are red eye, reflections on the face, patterned or shadowed backgrounds, and tinted or reflecting lenses.",
+      "German driving licences are not affected by the digital-photo rule.",
     ],
   },
 ];
