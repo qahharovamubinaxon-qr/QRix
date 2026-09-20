@@ -63,7 +63,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   same submission-route trap — it was never asked of them; (2) China next, same
   one-at-a-time pattern; (3) a German-language twin ONLY if GSC/Yandex shows
   German demand — do not add it on the assumption.
-- [ ] RE-CHECK THE OTHER SIX COUNTRIES FOR THE SUBMISSION-ROUTE TRAP. Germany
+- [~] RE-CHECK THE OTHER SIX COUNTRIES FOR THE SUBMISSION-ROUTE TRAP. TAKEN Sep 20 immediately after Germany shipped, UK first. Germany
   (Sep 20) turned up a failure mode this family never tested for: the published
   millimetres stay right while the way the photo must REACH the authority
   changes, and a page that only states the size is accurate and still useless.
