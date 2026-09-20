@@ -2943,3 +2943,39 @@ Oct (card only has $1; the $20 renewal would fail). See
   `SEO_AEO_ROADMAP.md`, `SEO_CHANGELOG.md`.
   Conclusion recorded honestly: on-page is no longer the binding constraint —
   off-site authority is, and no code change fixes it.
+
+- **20 Sep 2026 — the passport-photo family grew to 7 countries, and the six
+  that already existed turned out to need checking (`2858a04`, `d8e7340`).**
+  Session started by recreating the growth worktree (it was gone) and finding
+  design-v2 forty commits BEHIND origin/main with none ahead — a clean
+  fast-forward, not the Sep 2 divergence. Daily verify: sitemap 850→853,
+  robots anchored, 11 URLs green, downloader canaries green, the government
+  source that was unreachable on Sep 2 is back.
+  **Germany shipped** as the 7th country. Two figures cross-verified before a
+  word was written: 35×45 mm with a 32–36 mm face from the Federal Foreign
+  Office, and "the face fills 70–80% of the photo's height" from the BMI
+  Fotomustertafel (BMI24037, Stand Juli 2025). They reconcile exactly — 70% of
+  45 mm is 31.5 — and that reconciliation *is* the cross-check. Worth keeping:
+  **the BMI publishes no millimetres at all**; the 32–36 mm every competitor
+  quotes is arithmetic on a 45 mm photo, so the entry leads with the
+  authority's own wording and gives the mm as derived.
+  The finding that makes the page better than its competitors, now recorded as
+  a trap class in the data file's header: **a country's FORMAT can stay correct
+  while the SUBMISSION ROUTE changes underneath it.** Since 1 May 2025 a German
+  domestic Personalausweis/Reisepass application takes a *digital* photo pulled
+  by the office over an encrypted connection via a Data Matrix code; paper
+  stopped being accepted after 31 July 2025. A page publishing only the
+  millimetres would be accurate and still send somebody to a print shop for
+  nothing.
+  **Then that question was asked of the six existing countries, and three of
+  three checked were wrong.** India was the serious one: Passport Seva's own
+  booklet says "Photograph is NOT REQUIRED" at a PSK/POPSK — the route almost
+  everyone uses — and our entry said photos are affixed to the printed form,
+  full stop. UK had `headRule: null` while GOV.UK publishes 29–34 mm, so the
+  page's own head-size FAQ was suppressed for want of a figure that was always
+  there. Canada's note never said the online renewal *replaces* the two prints.
+  A grammar bug in the shared FAQ template ("a India passport photo") was
+  reaching all seven pages' FAQPage schema and is fixed.
+  USA (403) and Australia (timeout) would not fetch; they and Russia stay open
+  on the item. Two of the last three primary sources were PDFs WebFetch could
+  not extract — that is now the expected case, and the PDF MCP is the route.
