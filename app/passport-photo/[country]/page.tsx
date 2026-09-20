@@ -56,7 +56,7 @@ export default async function PassportCountryPage({ params }: { params: Promise<
 
   const faqs = [
     {
-      q: `What size is a ${p.country} passport photo?`,
+      q: `What size is a passport photo for ${p.country}?`,
       a: `${p.sizeLabel}, as published by ${p.authority}. This page crops to exactly that, at 300 DPI (${p.w}×${p.h} pixels).`,
     },
     ...(p.headRule ? [{ q: "How big does the head have to be?", a: p.headRule }] : []),
