@@ -18,30 +18,76 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 > the task file, this note can go.
 
 ## NOW (this week)
-- [~] Germany added to the passport-photo country family — the 7th country,
-  TAKEN Sep 20. The Russia item (below, Sep 2) ends with the pattern to follow:
-  "more countries (Germany, China, Schengen-if-a-source-turns-up) follow the
-  same pattern — one at a time, each cross-verified before it ships, not
-  batched. Do not add a country without a primary-source figure."
-  WHY THIS AND NOT AN ITEM ALREADY IN NOW: the three remaining [ ] items here
-  are all recorded-and-deliberately-not-taken. Two are gated on the OWNER-GATED
-  cookie decision (the homepage split; the homepage's twelve-language English
-  fallthrough) and the third (/embed/downloader's second root layout) was
-  priced and declined on its sibling page. None is unblocked, so NOW had no
-  actionable item and this is the demand-verified expansion the strategy points
-  at: /image-tools/passport-photo is 278 of 1,881 weekly impressions (15% of
-  everything) on the generic query "passport photo online", and SEO_STRATEGY's
-  own "winnable shape" paragraph names "passport/visa photo by country and
-  size" as one of the two long tails inside a family that already surfaces.
-  RULE THIS ITEM INHERITS, from lib/passport-sizes.ts' own header: every figure
-  copied from the issuing authority's published page, cross-verified across
-  independent fetches before it is written. Schengen is still absent after
-  months for exactly this reason. If Germany's primary source does not yield a
-  clean figure, this item BACKS OUT rather than shipping a widely-repeated
-  number — a wrong millimetre costs somebody a rejected application.
-  next: source the German figures from the issuing authority, cross-verify,
-  then follow the Russia shape (data entry -> EN page -> cross-links both
-  directions -> sitemap -> IndexNow -> verify live).
+- [x] Germany added to the passport-photo country family — the 7th country.
+  TAKEN + SHIPPED Sep 20, live at /passport-photo/germany. Taken because the
+  three remaining [ ] items in NOW are all recorded-and-deliberately-not-taken
+  (two gated on the OWNER-GATED cookie decision — the homepage split and the
+  homepage's twelve-language English fallthrough; the third, /embed/downloader's
+  second root layout, priced and declined on its sibling), so NOW had no
+  actionable item. This is the demand-verified expansion the strategy points at:
+  /image-tools/passport-photo is 278 of 1,881 weekly impressions (15%) on the
+  generic query, and SEO_STRATEGY's "winnable shape" paragraph names
+  "passport/visa photo by country and size" as one of the two long tails inside
+  a family that already surfaces.
+  TWO FIGURES, CROSS-VERIFIED BEFORE ANYTHING WAS WRITTEN, per the rule in
+  lib/passport-sizes.ts' header:
+    - 35×45 mm, face 32–36 mm — Federal Foreign Office (diplo.de mission page)
+    - face fills 70–80% of the photo's height — BMI Fotomustertafel,
+      Artikelnummer BMI24037, Stand Juli 2025 (read as text out of the PDF)
+  They reconcile EXACTLY — 70% of 45 mm = 31.5, 80% = 36 — and that is the
+  cross-check. Worth keeping: the BMI states the rule as a PROPORTION and does
+  not give millimetres at all; the 32–36 mm every competitor quotes is the
+  arithmetic on a 45 mm photo. The entry publishes the authority's own wording
+  and gives the mm as the derived equivalent, not the other way round.
+  THE FINDING THAT MAKES THE PAGE WORTH MORE THAN ITS COMPETITORS, and a new
+  trap class now recorded in the file header: a country's FORMAT can still be
+  correct while the SUBMISSION ROUTE has changed underneath it. Since 1 May 2025
+  a Personalausweis/Reisepass applied for INSIDE Germany takes a digital photo,
+  collected by the office over an encrypted connection via a Data Matrix code;
+  paper prints stopped being accepted after 31 July 2025. A page publishing only
+  the millimetres would be accurate and still send somebody to a print shop for
+  nothing. 35×45 mm remains correct for applications at German missions abroad,
+  and the page says which is which.
+  BMI/personalausweisportal (.bund.de) were unreachable FROM THIS NETWORK
+  (connection timeout, not a 403 — confirmed by direct curl on two hosts), so
+  `source` links the Bundesdruckerei-hosted copy of the same BMI document, which
+  was verified to serve and carries BMI's own imprint and article number. If a
+  later session can reach bmi.bund.de, swapping the link is a one-line change.
+  VERIFIED LIVE: 200, self-canonical, own non-homepage title, unique H1,
+  WebApplication + BreadcrumbList + HowTo(3) + FAQPage(5 Q/A) in JSON-LD, every
+  sourced claim rendered (1 May 2025 / 31 July 2025 / 70–80% / Data Matrix /
+  Fotomustertafel / 413×531 px). Sitemap 853 -> 854. Inbound links from the hub,
+  all 6 sibling countries and /image-tools/passport-photo; outbound to all 6.
+  IndexNow -> HTTP 200. tsc clean, test:links 37/37.
+  FOLLOW-UPS, ranked, added below: (1) re-check the other 6 countries for the
+  same submission-route trap — it was never asked of them; (2) China next, same
+  one-at-a-time pattern; (3) a German-language twin ONLY if GSC/Yandex shows
+  German demand — do not add it on the assumption.
+- [ ] RE-CHECK THE OTHER SIX COUNTRIES FOR THE SUBMISSION-ROUTE TRAP. Germany
+  (Sep 20) turned up a failure mode this family never tested for: the published
+  millimetres stay right while the way the photo must REACH the authority
+  changes, and a page that only states the size is accurate and still useless.
+  None of USA / UK / Canada / Australia / India / Russia was ever asked that
+  question — they were sourced for dimensions only, and five of the six were
+  last read 2026-08-07. Highest suspicion, in order: the UK (its entry already
+  notes "renewing online uses a different digital specification" without saying
+  what that means for the printed size), Canada, and India (its entry says the
+  photos are affixed to a printed form — if that changed, the whole entry's
+  framing is stale). One country at a time, same rule: primary source, quoted,
+  or no change. Cheap, purely corrective, and it protects the one thing this
+  family sells — being right.
+- [ ] China as the 8th passport-photo country, same one-at-a-time pattern.
+  Not started. Note before taking it: China's own spec is unusual (33×48 mm for
+  the passport, plus a separate digital 354×472 px requirement for the online
+  application system), so the entry will likely need BOTH a print size and a
+  digital one — which the current PassportSize type does not model. Price that
+  type change before writing copy; it may be the same work the UK re-check
+  above needs, in which case do them together.
+- [ ] German-language twin of /passport-photo/germany — GATED, do not build on
+  assumption. The RU twins exist because Yandex demand for them is measured.
+  Nothing measures German demand today. The gate: German queries appearing in
+  GSC for the passport family, or a /de/ impression cluster. If it turns up,
+  the LocalizedToolPage pattern already exists and the work is mechanical.
 - [x] Russia added to the passport-photo country family (TWO_FRONTS.md G1 —
   "five countries exist, forty would be forty pages"). TAKEN + SHIPPED Sep 2.
   35x45mm, sourced from Приказ МВД России от 16.11.2020 N 773 п.36 on Russia's
