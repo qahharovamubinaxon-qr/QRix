@@ -63,19 +63,44 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   same submission-route trap — it was never asked of them; (2) China next, same
   one-at-a-time pattern; (3) a German-language twin ONLY if GSC/Yandex shows
   German demand — do not add it on the assumption.
-- [~] RE-CHECK THE OTHER SIX COUNTRIES FOR THE SUBMISSION-ROUTE TRAP. TAKEN Sep 20 immediately after Germany shipped, UK first. Germany
-  (Sep 20) turned up a failure mode this family never tested for: the published
-  millimetres stay right while the way the photo must REACH the authority
-  changes, and a page that only states the size is accurate and still useless.
-  None of USA / UK / Canada / Australia / India / Russia was ever asked that
-  question — they were sourced for dimensions only, and five of the six were
-  last read 2026-08-07. Highest suspicion, in order: the UK (its entry already
-  notes "renewing online uses a different digital specification" without saying
-  what that means for the printed size), Canada, and India (its entry says the
-  photos are affixed to a printed form — if that changed, the whole entry's
-  framing is stale). One country at a time, same rule: primary source, quoted,
-  or no change. Cheap, purely corrective, and it protects the one thing this
-  family sells — being right.
+- [~] RE-CHECK THE OTHER SIX COUNTRIES FOR THE SUBMISSION-ROUTE TRAP.
+  TAKEN Sep 20 straight after Germany shipped. THREE OF SIX DONE AND LIVE
+  (UK, Canada, India) — all three had a real problem, which settles whether
+  the item was worth taking:
+    - INDIA was stale and actively misleading. Passport Seva's own instruction
+      booklet v3.0 states verbatim: "Photograph is NOT REQUIRED for
+      applications submitted at Passport Seva Kendra (PSK), Post Office
+      Passport Seva Kendra (POPSK)" — the route almost everyone uses, where
+      the photo is captured at the centre. The 4.5×3.5 cm print applies only
+      to DPC / Speed Post Centre / Citizen Service Centre channels. Our entry
+      said the photos are affixed to the printed form, full stop, which would
+      send most applicants to a photo studio for nothing. Source moved from a
+      consulate page to the booklet itself (primary), and the published
+      rejection rules added (no computer print, no black-and-white, unsigned).
+    - UK had headRule: null while GOV.UK publishes one — 29–34 mm crown to
+      chin. The page's own "how big does the head have to be?" FAQ was being
+      suppressed for want of a figure that was there all along. Also: two
+      prints are for PAPER applications only; online needs a digital photo,
+      via a code from a booth or shop or taken on a device during the
+      application.
+    - CANADA's note said only "renewing online uses a different digital
+      specification" without saying it REPLACES the two prints. It does.
+  Also fixed in the same pass: a grammar bug in the shared FAQ template that
+  reached all 7 pages' FAQPage schema — "What size is a India passport photo?"
+  -> "What size is a passport photo for India?".
+  Verified live on uk/canada/india/germany: 200, self-canonical, own titles,
+  UK's 29–34 mm rendering, India's stale sentence gone (grep count 0), new FAQ
+  wording on all four. tsc clean, test:links 37/37, IndexNow HTTP 200.
+  NOT DONE, and the reason is network, not judgement: travel.state.gov
+  returned 403 and passports.gov.au timed out this session, so USA and
+  AUSTRALIA are unchecked. RUSSIA is also unchecked — its entry already
+  distinguishes the internal passport from the biometric загранпаспорт and
+  says the latter has its own digital-upload spec, so it is the least likely
+  of the three to be wrong, but "least likely" is not "checked".
+  next: retry travel.state.gov and passports.gov.au (a 403 and a timeout are
+  both worth one retry from a later session before concluding anything), then
+  Russia. USA is the one to do first — it has an online renewal route that
+  takes an uploaded digital photo, which is exactly the shape of the trap.
 - [ ] China as the 8th passport-photo country, same one-at-a-time pattern.
   Not started. Note before taking it: China's own spec is unusual (33×48 mm for
   the passport, plus a separate digital 354×472 px requirement for the online
