@@ -18,6 +18,30 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 > the task file, this note can go.
 
 ## NOW (this week)
+- [~] Germany added to the passport-photo country family — the 7th country,
+  TAKEN Sep 20. The Russia item (below, Sep 2) ends with the pattern to follow:
+  "more countries (Germany, China, Schengen-if-a-source-turns-up) follow the
+  same pattern — one at a time, each cross-verified before it ships, not
+  batched. Do not add a country without a primary-source figure."
+  WHY THIS AND NOT AN ITEM ALREADY IN NOW: the three remaining [ ] items here
+  are all recorded-and-deliberately-not-taken. Two are gated on the OWNER-GATED
+  cookie decision (the homepage split; the homepage's twelve-language English
+  fallthrough) and the third (/embed/downloader's second root layout) was
+  priced and declined on its sibling page. None is unblocked, so NOW had no
+  actionable item and this is the demand-verified expansion the strategy points
+  at: /image-tools/passport-photo is 278 of 1,881 weekly impressions (15% of
+  everything) on the generic query "passport photo online", and SEO_STRATEGY's
+  own "winnable shape" paragraph names "passport/visa photo by country and
+  size" as one of the two long tails inside a family that already surfaces.
+  RULE THIS ITEM INHERITS, from lib/passport-sizes.ts' own header: every figure
+  copied from the issuing authority's published page, cross-verified across
+  independent fetches before it is written. Schengen is still absent after
+  months for exactly this reason. If Germany's primary source does not yield a
+  clean figure, this item BACKS OUT rather than shipping a widely-repeated
+  number — a wrong millimetre costs somebody a rejected application.
+  next: source the German figures from the issuing authority, cross-verify,
+  then follow the Russia shape (data entry -> EN page -> cross-links both
+  directions -> sitemap -> IndexNow -> verify live).
 - [x] Russia added to the passport-photo country family (TWO_FRONTS.md G1 —
   "five countries exist, forty would be forty pages"). TAKEN + SHIPPED Sep 2.
   35x45mm, sourced from Приказ МВД России от 16.11.2020 N 773 п.36 on Russia's
