@@ -110,7 +110,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   entry from memory. Retry each session start with one curl; if it ever
   serves 200, read how-apply/photos.html + have-passport/renew-online.html.
   USA is the most likely trap: online renewal takes an uploaded digital photo.
-- [ ] China as the 8th passport-photo country, same one-at-a-time pattern.
+- [~] China as the 8th passport-photo country, same one-at-a-time pattern. (taken Oct 13; next: source the spec)
   Not started. Note before taking it: China's own spec is unusual (33×48 mm for
   the passport, plus a separate digital 354×472 px requirement for the online
   application system), so the entry will likely need BOTH a print size and a
