@@ -50,7 +50,25 @@ export type PassportSize = {
   source: string;
   checked: string;
   notes: string[];
+  /** What the page calls the thing, where it is not a passport photo — China's
+      entry is the VISA photo a foreign applicant needs. Default "passport photo". */
+  noun?: string;
+  /** A separate upload-only spec, where the online form wants different pixels
+      from the print — not just a scan of it. Sourced like everything else. */
+  digital?: {
+    label: string;
+    w: number;
+    h: number;
+    /** JPEG ceiling the form enforces; the tool steps quality down to fit. */
+    maxKB: number;
+    rule: string;
+    authority: string;
+    source: string;
+  };
 };
+
+export const photoNoun = (p: PassportSize) => p.noun ?? "passport photo";
+export const photoNounTitle = (p: PassportSize) => photoNoun(p).replace(/\b\w/g, (c) => c.toUpperCase());
 
 export const PASSPORT_SIZES: PassportSize[] = [
   {
@@ -183,6 +201,34 @@ export const PASSPORT_SIZES: PassportSize[] = [
       "Retouching, filters and soft focus are listed as grounds for rejection, as are red eye, reflections on the face, patterned or shadowed backgrounds, and tinted or reflecting lenses.",
       "German driving licences are not affected by the digital-photo rule.",
     ],
+  },
+  {
+    slug: "china",
+    noun: "visa photo",
+    context: "China is the one country on this list with TWO photo specifications for the same application, and they are not the same shape. The printed photo is 33 mm wide by 48 mm high — taller and narrower than the 35×45 mm most countries use, so a European-size photo cannot simply be trimmed to fit. The online visa application form then asks for an uploaded JPEG that may be no larger than 354×472 pixels and must weigh between 40 and 120 KB: a 3:4 frame, wider in proportion than the print. A scan of the print does not meet the upload rule, and the upload does not replace the print. This page covers the visa photo a foreign applicant needs; a Chinese citizen's own passport is a different application.",
+    country: "China",
+    document: "Chinese visa photo (for foreign applicants)",
+    sizeLabel: "48 mm high × 33 mm wide",
+    w: 390, h: 567,
+    headRule: "Width of head 15–22 mm; height of head 28–33 mm, with the head centred in the photo.",
+    background: "White or close to white, with no edge frame",
+    authority: "Embassy of the People's Republic of China (consular notice on visa photos, in force from 1 December 2016)",
+    source: "https://au.china-embassy.gov.cn/eng/lsfw_12/vc/201611/t20161123_1002346.htm",
+    checked: "2026-10-13",
+    notes: [
+      "The requirements were set by the Consular Department of China's Ministry of Foreign Affairs and are published by its embassies; the embassy's notice states that a visa application may be declined if the photo does not satisfy them.",
+      "The head-height range is printed as 28–33 mm by the embassy in Australia and by the visa centres, but as 20–33 mm on at least one other embassy's English page. A head 28–33 mm tall satisfies both readings, so crop to that.",
+      "The print must be in colour, taken within the last 6 months, on glossy photo paper — not matte or plain paper — and free of stains, scratches and creases. Some visa centres ask for two prints; check the centre you apply through.",
+      "Expression neutral, eyes open, lips closed, ears visible; head tilted no more than 20° left or right or 25° up or down. Glasses are allowed unless thick-rimmed, tinted or reflecting; head coverings only for religious reasons, with the face unobscured.",
+    ],
+    digital: {
+      label: "354 × 472 px JPEG — online form",
+      w: 354, h: 472,
+      maxKB: 120,
+      rule: "JPEG only, no larger than 354 × 472 pixels, file size 40–120 KB; taken within the past 6 months on a white or near-white background.",
+      authority: "Chinese Visa Application Service Center",
+      source: "https://www.visaforchina.cn/MAN3_EN/qianzhengyewu/jichuzhishi/changjianwenti/164185152103256105.html",
+    },
   },
 ];
 

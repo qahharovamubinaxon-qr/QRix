@@ -7,7 +7,7 @@ import { THREE_TOOLS } from "@/lib/three-tools-meta";
 import { CONVERT_PAIRS } from "@/lib/convert-pairs";
 import { RESIZE_PRESETS } from "@/lib/resize-presets";
 import { BG_USE_CASES } from "@/lib/removebg-usecases";
-import { PASSPORT_SIZES } from "@/lib/passport-sizes";
+import { PASSPORT_SIZES, photoNounTitle } from "@/lib/passport-sizes";
 import { getPassportRu, PASSPORT_RU_SLUGS } from "@/lib/passport-sizes-i18n";
 
 /** One flat, client-safe index of everything searchable on the site. */
@@ -184,8 +184,8 @@ export function buildSearchIndex(): SearchItem[] {
     })),
     { title: "Passport Photo Size by Country", href: "/passport-photo", group: "Image Tools" as const, keywords: "passport photo size by country visa photo size passport photo maker sourced" },
     ...PASSPORT_SIZES.map((p) => ({
-      title: `${p.country} Passport Photo Size — ${p.sizeLabel}`, href: `/passport-photo/${p.slug}`, group: "Image Tools" as const,
-      keywords: `${p.country} passport photo size visa photo ${p.sizeLabel}`,
+      title: `${p.country} ${photoNounTitle(p)} Size — ${p.sizeLabel}`, href: `/passport-photo/${p.slug}`, group: "Image Tools" as const,
+      keywords: `${p.country} passport photo size visa photo ${p.sizeLabel}${p.digital ? ` online form ${p.digital.w}x${p.digital.h} jpeg` : ""}`,
     })),
     ...PASSPORT_RU_SLUGS.flatMap((s) => {
       const hit = getPassportRu(s);

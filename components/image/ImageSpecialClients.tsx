@@ -127,17 +127,23 @@ export function ImageStudioClient({ mode }: { mode: "beautifier" | "device" | "r
 }
 
 /* ── Passport photo ── */
-const DOC_SIZES = [["35×45 mm (EU/Visa)", 413, 531], ["2×2 in (US)", 600, 600], ["50×70 mm", 591, 827], ["35×35 mm", 413, 413]] as [string, number, number][];
+type DocSize = [label: string, w: number, h: number, maxKB?: number];
+const DOC_SIZES: DocSize[] = [["35×45 mm (EU/Visa)", 413, 531], ["2×2 in (US)", 600, 600], ["50×70 mm", 591, 827], ["35×35 mm", 413, 413]];
+type PassportPreset = { label: string; w: number; h: number; maxKB?: number };
 /* A country page passes the size its authority publishes; without one the tool
    keeps the four generic presets it has always had. The preset is prepended and
    selected, and the generic list stays available underneath — someone who
    landed on the India page and actually needs the US size should not have to
-   navigate away to get it. */
-export function PassportClient({ preset, lang = "en" }: { preset?: { label: string; w: number; h: number }; lang?: ToolLang } = {}) {
+   navigate away to get it. `digital` is a second, upload-only size for
+   countries whose online form wants different pixels from the print (China's
+   visa form: a JPEG no larger than 354×472 and at most 120 KB) — `maxKB` makes
+   the single-photo download step its JPEG quality down until it fits. */
+export function PassportClient({ preset, digital, lang = "en" }: { preset?: PassportPreset; digital?: PassportPreset; lang?: ToolLang } = {}) {
   const t = toolUI(lang).passport;
-  const sizes: [string, number, number][] = preset
-    ? [[preset.label, preset.w, preset.h], ...DOC_SIZES]
-    : DOC_SIZES;
+  const sizes: DocSize[] = [
+    ...[preset, digital].filter((p): p is PassportPreset => !!p).map((p): DocSize => [p.label, p.w, p.h, p.maxKB]),
+    ...DOC_SIZES,
+  ];
   const [img, setImg] = useState<HTMLImageElement | null>(null);
   const [sizeIdx, setSizeIdx] = useState(0);
   const [zoom, setZoom] = useState(1);
@@ -160,7 +166,11 @@ export function PassportClient({ preset, lang = "en" }: { preset?: { label: stri
     const c = render(); if (!c) return;
     let out = c;
     if (sheet) { const s = document.createElement("canvas"); s.width = 1800; s.height = 1200; const ctx = s.getContext("2d")!; ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, s.width, s.height); const cols = Math.floor(1800 / (c.width + 20)), rows = Math.floor(1200 / (c.height + 20)); for (let r = 0; r < rows; r++) for (let cc = 0; cc < cols; cc++) ctx.drawImage(c, 20 + cc * (c.width + 20), 20 + r * (c.height + 20)); out = s; }
-    const b = await new Promise<Blob | null>((r) => out.toBlob(r, "image/jpeg", 0.95)); if (b) { setBlob(b); const { saveBlob } = await import("@/lib/save-file"); await saveBlob(b, sheet ? "passport-sheet.jpg" : "passport-photo.jpg"); }
+    const maxKB = sheet ? undefined : sizes[sizeIdx][3];
+    const encode = (q: number) => new Promise<Blob | null>((r) => out.toBlob(r, "image/jpeg", q));
+    let b = await encode(0.95);
+    for (let q = 0.88; maxKB && b && b.size > maxKB * 1024 && q >= 0.4; q -= 0.07) b = await encode(q);
+    if (b) { setBlob(b); const { saveBlob } = await import("@/lib/save-file"); await saveBlob(b, sheet ? "passport-sheet.jpg" : "passport-photo.jpg"); }
   }
 
   return <div className="qx-card p-6 space-y-5">

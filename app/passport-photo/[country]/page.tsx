@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import ToolPageShell from "@/components/ToolPageShell";
 import { PassportClient } from "@/components/image/ImageSpecialClients";
 import { pageMeta, jsonLd, breadcrumbLd, softwareAppLd, faqLd, howToLd } from "@/lib/seo";
-import { PASSPORT_SIZES, getPassportSize, otherPassportSizes } from "@/lib/passport-sizes";
+import { PASSPORT_SIZES, getPassportSize, otherPassportSizes, photoNoun, photoNounTitle } from "@/lib/passport-sizes";
 import { getPassportRu } from "@/lib/passport-sizes-i18n";
 
 /* One page per country, each cropping to the size that country's own authority
@@ -22,15 +22,19 @@ export async function generateMetadata({ params }: { params: Promise<{ country: 
   const { country } = await params;
   const p = getPassportSize(country);
   if (!p) return {};
+  const noun = photoNoun(p);
   return pageMeta({
-    title: `${p.country} Passport Photo Size — ${p.sizeLabel}, Free Online Tool`,
-    description: `Crop a photo to the ${p.sizeLabel} ${p.country} passport photo size, at 300 DPI, in your browser. The size is quoted from ${p.authority}.`,
+    title: `${p.country} ${photoNounTitle(p)} Size — ${p.sizeLabel}, Free Online Tool`,
+    description: p.digital
+      ? `Crop a photo to the ${p.sizeLabel} ${p.country} ${noun} size at 300 DPI, or to the ${p.digital.w}×${p.digital.h} px JPEG the online form takes, in your browser. Sizes quoted from the issuing authorities.`
+      : `Crop a photo to the ${p.sizeLabel} ${p.country} ${noun} size, at 300 DPI, in your browser. The size is quoted from ${p.authority}.`,
     path: `/passport-photo/${p.slug}`,
     keywords: [
-      `${p.country.toLowerCase()} passport photo size`,
-      `passport photo size ${p.country.toLowerCase()}`,
-      `${p.sizeLabel} passport photo`,
-      `${p.country.toLowerCase()} passport photo online`,
+      `${p.country.toLowerCase()} ${noun} size`,
+      `${noun} size ${p.country.toLowerCase()}`,
+      `${p.sizeLabel} ${noun}`,
+      `${p.country.toLowerCase()} ${noun} online`,
+      ...(p.digital ? [`${p.country.toLowerCase()} online ${noun} ${p.digital.w}x${p.digital.h}`] : []),
     ],
     /* Reciprocal hreflang with /ru/passport-photo/<slug> where a Russian
        page exists. Declared on BOTH pages — a one-sided pair is ignored. */
@@ -47,19 +51,24 @@ export default async function PassportCountryPage({ params }: { params: Promise<
 
   const path = `/passport-photo/${p.slug}`;
   const others = otherPassportSizes(p.slug);
+  const noun = photoNoun(p);
+  const d = p.digital;
 
   const steps: [string, string][] = [
     ["Upload a front-facing portrait", "Nothing is uploaded to a server — the crop happens in your browser."],
     [`Frame to ${p.sizeLabel}`, `Drag to position the face and zoom to frame it${p.headRule ? `, keeping to the published head size` : ""}.`],
-    ["Download at 300 DPI", "Save one photo, or a 4×6 print sheet to take to a photo service."],
+    d
+      ? ["Download the print or the upload", `Save the print at 300 DPI or a 4×6 sheet for a photo service — or switch the size to ${d.w}×${d.h} px for the online form, which is saved as a JPEG under ${d.maxKB} KB.`]
+      : ["Download at 300 DPI", "Save one photo, or a 4×6 print sheet to take to a photo service."],
   ];
 
   const faqs = [
     {
-      q: `What size is a passport photo for ${p.country}?`,
+      q: `What size is a ${noun} for ${p.country}?`,
       a: `${p.sizeLabel}, as published by ${p.authority}. This page crops to exactly that, at 300 DPI (${p.w}×${p.h} pixels).`,
     },
     ...(p.headRule ? [{ q: "How big does the head have to be?", a: p.headRule }] : []),
+    ...(d ? [{ q: "What size is the photo for the online application form?", a: `${d.rule} That is a different frame from the print, so this tool offers it as a separate size (${d.label}). Source: ${d.authority}.` }] : []),
     { q: "What background does it need?", a: `${p.background}. This tool crops and sizes the photo; it does not replace the background — the background remover does that.` },
     { q: "Is my photo uploaded anywhere?", a: "No. The crop runs in your browser, so a photo destined for an identity document never leaves your device." },
     {
@@ -73,28 +82,29 @@ export default async function PassportCountryPage({ params }: { params: Promise<
       <script type="application/ld+json"
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={jsonLd([
-          softwareAppLd(`${p.country} passport photo tool`, `Crop a photo to ${p.sizeLabel}, the ${p.country} passport photo size.`, path),
+          softwareAppLd(`${p.country} ${noun} tool`, `Crop a photo to ${p.sizeLabel}, the ${p.country} ${noun} size.`, path),
           breadcrumbLd([
             { name: "Home", path: "/" },
             { name: "Image Tools", path: "/image-tools" },
             { name: "Passport Photo", path: "/passport-photo" },
             { name: p.country, path },
           ]),
-          howToLd(`Make a ${p.country} passport photo`, `Crop a portrait to ${p.sizeLabel}.`, path, steps),
+          howToLd(`Make a ${p.country} ${noun}`, `Crop a portrait to ${p.sizeLabel}.`, path, steps),
           faqLd(faqs),
         ])} />
 
       <ToolPageShell
         breadcrumbSchema={false}
         category="Image Tools" categoryHref="/image-tools"
-        title={`${p.country} passport photo size — ${p.sizeLabel}`} emoji="🪪"
+        title={`${p.country} ${noun} size — ${p.sizeLabel}`} emoji="🪪"
         grad="linear-gradient(135deg,#ff6a13,#e14e08)"
         intro={`Crop a portrait to the ${p.sizeLabel} ${p.document.toLowerCase()}, at 300 DPI, without uploading it anywhere.`}
         about={p.context}
         steps={steps.map(([title, desc]) => ({ title, desc }))}
         faqs={faqs}
       >
-        <PassportClient preset={{ label: `${p.sizeLabel} — ${p.country}`, w: p.w, h: p.h }} />
+        <PassportClient preset={{ label: `${p.sizeLabel} — ${p.country}`, w: p.w, h: p.h }}
+          digital={d ? { label: d.label, w: d.w, h: d.h, maxKB: d.maxKB } : undefined} />
       </ToolPageShell>
 
       <div className="max-w-6xl mx-auto px-5 lg:px-8 pb-10 space-y-6">
@@ -110,6 +120,8 @@ export default async function PassportCountryPage({ params }: { params: Promise<
             <div><dt className="font-bold" style={{ color: "var(--text)" }}>At 300 DPI</dt><dd style={{ color: "var(--text-muted)" }}>{p.w} × {p.h} pixels</dd></div>
             <div><dt className="font-bold" style={{ color: "var(--text)" }}>Background</dt><dd style={{ color: "var(--text-muted)" }}>{p.background}</dd></div>
             {p.headRule && <div><dt className="font-bold" style={{ color: "var(--text)" }}>Head size</dt><dd style={{ color: "var(--text-muted)" }}>{p.headRule}</dd></div>}
+            {d && <div className="sm:col-span-2"><dt className="font-bold" style={{ color: "var(--text)" }}>Online form upload</dt><dd style={{ color: "var(--text-muted)" }}>{d.rule}{" "}
+              <a href={d.source} target="_blank" rel="nofollow noopener" style={{ color: "var(--primary-bright)" }}>{d.authority}</a></dd></div>}
           </dl>
 
           {p.notes.length > 0 && (
