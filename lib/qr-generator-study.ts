@@ -466,15 +466,15 @@ export const VENDORS: Vendor[] = [
     host: "scanova.io",
     sourceUrl: "https://scanova.io/pricing/",
     sourceLabel: "Pricing page",
-    checked: D,
+    checked: "2026-10-13",
     shape: "platform",
     headline: "No permanent free plan at all — the free thing is a 14-day trial, which is a different product.",
     evidence: [
-      "After the 14-day free trial ends, Static QR Codes will continue to work but Dynamic QR Codes will be deactivated",
+      "Your Dynamic QR Code will stop working once the free trial ends",
       "Powered by Scanova",
     ],
     checks: {
-      permanent: LIMIT("No free plan for codes to be permanent on."),
+      permanent: LIMIT("No free plan for codes to be permanent on. Its FAQ sends anyone wanting a code that works forever to a separate static generator; inside the platform, dynamic codes stop when the trial ends."),
       noAccount: LIMIT("Trial requires signing up, though the page states no credit card is needed to start."),
       freeDynamic: LIMIT("Dynamic codes are the paid product; the free route is the 14-day trial."),
       scanCap: OK("Unlimited scans is stated as a plan feature — on the paid plans."),
