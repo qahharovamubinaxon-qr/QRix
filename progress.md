@@ -2981,3 +2981,5 @@ Oct (card only has $1; the $20 renewal would fail). See
   not extract — that is now the expected case, and the PDF MCP is the route.
 
 **2026-10-13 — passport re-check 5/6 + Scanova evidence.** Daily verify caught Scanova rewording the sentence the comparison study quotes; verdict held, marker refreshed. Australia's Passport Office page moved and now publishes a 35–40 × 45–50 mm range and a dye-sublimation-not-inkjet print rule — the entry was wrong on size framing, head-rule wording and background, and silent on the print rule that fails home-printed photos. Russia gained the Gosuslugi upload-plus-prints note. USA remains unverifiable: travel.state.gov blocks every route available here.
+
+**2026-10-13 — China visa photo, 8th country.** First entry with two specs for one application: a 48×33 mm print and a ≤354×472 px, 40–120 KB JPEG for the online form, a different frame. PassportSize learned `noun` and `digital`; the tool learned a size-capped JPEG download with a floor. The passport family finally appears in llms.txt. Lesson: tight curl polling for a deploy trips Vercel's challenge site-wide for this IP — wait on the deployments API instead.

@@ -110,13 +110,30 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   entry from memory. Retry each session start with one curl; if it ever
   serves 200, read how-apply/photos.html + have-passport/renew-online.html.
   USA is the most likely trap: online renewal takes an uploaded digital photo.
-- [~] China as the 8th passport-photo country, same one-at-a-time pattern. (taken Oct 13; next: source the spec)
-  Not started. Note before taking it: China's own spec is unusual (33×48 mm for
-  the passport, plus a separate digital 354×472 px requirement for the online
-  application system), so the entry will likely need BOTH a print size and a
-  digital one — which the current PassportSize type does not model. Price that
-  type change before writing copy; it may be the same work the UK re-check
-  above needs, in which case do them together.
+- [x] China as the 8th passport-photo country — SHIPPED Oct 13 as the VISA
+  photo (c757b0e + 971aeb5, live at /passport-photo/china, title "China Visa
+  Photo Size — 48 mm high × 33 mm wide"). The sourcing is about a foreign
+  applicant's visa, not a Chinese citizen's passport — every official page
+  found is a consular visa notice, so the page says so and uses noun "visa photo".
+    - PRINT: MFA consular notice via the embassy in Australia (in force
+      1 Dec 2016): 48×33 mm, head width 15–22 mm, head height 28–33 mm, white
+      or near-white, glossy paper. One other embassy's English page prints
+      20–33 mm; 28–33 satisfies both readings and the page says that openly.
+    - DIGITAL: Chinese Visa Application Service Center FAQ — JPEG, no larger
+      than 354×472 px, 40–120 KB. That is 3:4, a different frame from the
+      print, so a scan of the print fails it.
+    - TYPE CHANGE: PassportSize gained optional `noun` and `digital`
+      {w,h,maxKB,minKB,rule,authority,source}; PassportClient takes a second
+      `digital` preset; single-photo download steps JPEG quality down until
+      ≤maxKB and re-encodes at q1 if <minKB. Measured in-browser: worst-case
+      noise reaches ≤120 KB at q0.81; a smooth synthetic image encoded to 9 KB,
+      which is why the floor exists. Page title/meta/JSON-LD/FAQ are noun-aware.
+    - Also registered the whole passport family in llms.txt (it never was).
+  NOT VERIFIED: the React tool end-to-end — the browser pane tab is hidden at
+  0×0 and never hydrates (known trap). The encode ladder was tested directly.
+  FOLLOW-UPS: (1) apply `digital` to the USA entry once travel.state.gov can be
+  read (online renewal upload spec) and to the UK online route; (2) the ru twin
+  template does not know `noun`/`digital` — fine today (no China twin).
 - [ ] German-language twin of /passport-photo/germany — GATED, do not build on
   assumption. The RU twins exist because Yandex demand for them is measured.
   Nothing measures German demand today. The gate: German queries appearing in
