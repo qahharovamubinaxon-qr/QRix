@@ -63,7 +63,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   same submission-route trap — it was never asked of them; (2) China next, same
   one-at-a-time pattern; (3) a German-language twin ONLY if GSC/Yandex shows
   German demand — do not add it on the assumption.
-- [~] RE-CHECK THE OTHER SIX COUNTRIES FOR THE SUBMISSION-ROUTE TRAP.
+- [x] RE-CHECK THE OTHER SIX COUNTRIES FOR THE SUBMISSION-ROUTE TRAP. (5 of 6; USA blocked, split out)
   TAKEN Sep 20 straight after Germany shipped. THREE OF SIX DONE AND LIVE
   (UK, Canada, India) — all three had a real problem, which settles whether
   the item was worth taking:
@@ -91,16 +91,25 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   Verified live on uk/canada/india/germany: 200, self-canonical, own titles,
   UK's 29–34 mm rendering, India's stale sentence gone (grep count 0), new FAQ
   wording on all four. tsc clean, test:links 37/37, IndexNow HTTP 200.
-  NOT DONE, and the reason is network, not judgement: travel.state.gov
-  returned 403 and passports.gov.au timed out this session, so USA and
-  AUSTRALIA are unchecked. RUSSIA is also unchecked — its entry already
-  distinguishes the internal passport from the biometric загранпаспорт and
-  says the latter has its own digital-upload spec, so it is the least likely
-  of the three to be wrong, but "least likely" is not "checked".
-  next: retry travel.state.gov and passports.gov.au (a 403 and a timeout are
-  both worth one retry from a later session before concluding anything), then
-  Russia. USA is the one to do first — it has an online renewal route that
-  takes an uploaded digital photo, which is exactly the shape of the trap.
+  Oct 13 (dafcc8c, live): AUSTRALIA and RUSSIA done; both had real changes.
+    - AUSTRALIA's page MOVED (now passports.gov.au/help/passport-photos —
+      reached via the built-in browser; curl and WebFetch both time out) and
+      its content changed under us: size is now a 35–40 × 45–50 mm RANGE (our
+      "minimum, don't trim" claim and the "head not hair" distinction are no
+      longer on the page), background is "plain white or light grey", and it
+      requires dye-sublimation (NOT inkjet) glossy ≥200 gsm prints — a home
+      inkjet print of a correctly sized file fails. No digital route: new and
+      renewal (even the online form) lodge 2 prints at a post office.
+    - RUSSIA: Gosuslugi's own instructions — online form asks you to upload a
+      face photo AND you bring two 3.5×4.5 cm prints (colour or b/w) to the
+      appointment, plus a third for a temporary ID. Added as a note.
+  USA split out below — blocked, not skipped.
+- [ ] USA passport photo re-check — BLOCKED BY NETWORK, three vantage points.
+  travel.state.gov returns a Cloudflare "you have been blocked" page to curl,
+  to WebFetch (403) and to the built-in browser (Oct 13). Do NOT edit the
+  entry from memory. Retry each session start with one curl; if it ever
+  serves 200, read how-apply/photos.html + have-passport/renew-online.html.
+  USA is the most likely trap: online renewal takes an uploaded digital photo.
 - [ ] China as the 8th passport-photo country, same one-at-a-time pattern.
   Not started. Note before taking it: China's own spec is unusual (33×48 mm for
   the passport, plus a separate digital 354×472 px requirement for the online

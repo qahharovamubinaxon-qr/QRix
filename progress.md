@@ -2979,3 +2979,5 @@ Oct (card only has $1; the $20 renewal would fail). See
   USA (403) and Australia (timeout) would not fetch; they and Russia stay open
   on the item. Two of the last three primary sources were PDFs WebFetch could
   not extract — that is now the expected case, and the PDF MCP is the route.
+
+**2026-10-13 — passport re-check 5/6 + Scanova evidence.** Daily verify caught Scanova rewording the sentence the comparison study quotes; verdict held, marker refreshed. Australia's Passport Office page moved and now publishes a 35–40 × 45–50 mm range and a dye-sublimation-not-inkjet print rule — the entry was wrong on size framing, head-rule wording and background, and silent on the print rule that fails home-printed photos. Russia gained the Gosuslugi upload-plus-prints note. USA remains unverifiable: travel.state.gov blocks every route available here.
