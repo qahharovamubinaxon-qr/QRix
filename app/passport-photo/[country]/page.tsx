@@ -104,7 +104,7 @@ export default async function PassportCountryPage({ params }: { params: Promise<
         faqs={faqs}
       >
         <PassportClient preset={{ label: `${p.sizeLabel} — ${p.country}`, w: p.w, h: p.h }}
-          digital={d ? { label: d.label, w: d.w, h: d.h, maxKB: d.maxKB } : undefined} />
+          digital={d ? { label: d.label, w: d.w, h: d.h, maxKB: d.maxKB, minKB: d.minKB } : undefined} />
       </ToolPageShell>
 
       <div className="max-w-6xl mx-auto px-5 lg:px-8 pb-10 space-y-6">

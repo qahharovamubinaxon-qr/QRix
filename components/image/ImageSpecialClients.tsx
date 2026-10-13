@@ -127,21 +127,22 @@ export function ImageStudioClient({ mode }: { mode: "beautifier" | "device" | "r
 }
 
 /* ── Passport photo ── */
-type DocSize = [label: string, w: number, h: number, maxKB?: number];
+type DocSize = [label: string, w: number, h: number, maxKB?: number, minKB?: number];
 const DOC_SIZES: DocSize[] = [["35×45 mm (EU/Visa)", 413, 531], ["2×2 in (US)", 600, 600], ["50×70 mm", 591, 827], ["35×35 mm", 413, 413]];
-type PassportPreset = { label: string; w: number; h: number; maxKB?: number };
+type PassportPreset = { label: string; w: number; h: number; maxKB?: number; minKB?: number };
 /* A country page passes the size its authority publishes; without one the tool
    keeps the four generic presets it has always had. The preset is prepended and
    selected, and the generic list stays available underneath — someone who
    landed on the India page and actually needs the US size should not have to
    navigate away to get it. `digital` is a second, upload-only size for
    countries whose online form wants different pixels from the print (China's
-   visa form: a JPEG no larger than 354×472 and at most 120 KB) — `maxKB` makes
-   the single-photo download step its JPEG quality down until it fits. */
+   visa form: a JPEG no larger than 354×472 and 40–120 KB) — `maxKB` makes
+   the single-photo download step its JPEG quality down until it fits, and
+   `minKB` re-encodes a too-small file at full quality. */
 export function PassportClient({ preset, digital, lang = "en" }: { preset?: PassportPreset; digital?: PassportPreset; lang?: ToolLang } = {}) {
   const t = toolUI(lang).passport;
   const sizes: DocSize[] = [
-    ...[preset, digital].filter((p): p is PassportPreset => !!p).map((p): DocSize => [p.label, p.w, p.h, p.maxKB]),
+    ...[preset, digital].filter((p): p is PassportPreset => !!p).map((p): DocSize => [p.label, p.w, p.h, p.maxKB, p.minKB]),
     ...DOC_SIZES,
   ];
   const [img, setImg] = useState<HTMLImageElement | null>(null);
@@ -170,6 +171,8 @@ export function PassportClient({ preset, digital, lang = "en" }: { preset?: Pass
     const encode = (q: number) => new Promise<Blob | null>((r) => out.toBlob(r, "image/jpeg", q));
     let b = await encode(0.95);
     for (let q = 0.88; maxKB && b && b.size > maxKB * 1024 && q >= 0.4; q -= 0.07) b = await encode(q);
+    const minKB = sheet ? undefined : sizes[sizeIdx][4];
+    if (minKB && b && b.size < minKB * 1024) b = await encode(1);
     if (b) { setBlob(b); const { saveBlob } = await import("@/lib/save-file"); await saveBlob(b, sheet ? "passport-sheet.jpg" : "passport-photo.jpg"); }
   }
 

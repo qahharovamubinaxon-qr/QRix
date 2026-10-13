@@ -61,6 +61,8 @@ export type PassportSize = {
     h: number;
     /** JPEG ceiling the form enforces; the tool steps quality down to fit. */
     maxKB: number;
+    /** JPEG floor the form enforces; a smaller file is re-encoded at full quality. */
+    minKB: number;
     rule: string;
     authority: string;
     source: string;
@@ -225,6 +227,7 @@ export const PASSPORT_SIZES: PassportSize[] = [
       label: "354 × 472 px JPEG — online form",
       w: 354, h: 472,
       maxKB: 120,
+      minKB: 40,
       rule: "JPEG only, no larger than 354 × 472 pixels, file size 40–120 KB; taken within the past 6 months on a white or near-white background.",
       authority: "Chinese Visa Application Service Center",
       source: "https://www.visaforchina.cn/MAN3_EN/qianzhengyewu/jichuzhishi/changjianwenti/164185152103256105.html",
