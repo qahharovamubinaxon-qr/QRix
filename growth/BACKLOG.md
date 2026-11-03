@@ -2078,6 +2078,17 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 - [ ] Premium plan launch after Lemon Squeezy bank connect.
 
 ## OWNER-GATED (needs human)
+- [B] NETLIFY ENV — set these on Netlify, then Deploys -> Trigger deploy (env
+  is baked in at build time). Seen 3 Nov 2026 on /api/ready:
+  · CRON_SECRET (new random value) — the three cron Scheduled Functions
+    (98a50ef) answer 401 without it, so the daily autopilot article,
+    Telegram report and autoposter stay off. Verify next day: a new
+    autopilot_posts row, or the function log line "[cron] ... -> 200".
+  · AUTH_SECRET (new random value) — currently the "dev-insecure" default.
+    Low risk today (the cookie signs a random server-side session token),
+    but it should not stay a public string.
+  · TELEGRAM_* and the AI keys (CEREBRAS/CLOUDFLARE, see memory) — telegram
+    reports "degraded"; the autopilot needs an AI provider to write.
 - [B] Vercel Domains: set www.qrixtools.com -> qrixtools.com redirect to
   PERMANENT (currently 307 temporary — weakens host canonicalization).
 - [B] Free Google API key for PageSpeed Insights v5 -> real CrUX field data
@@ -2111,6 +2122,12 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   into strong, and only the owner can supply that.
 
 ## Done
+- [x] Nov 3: vercel.json crons re-created as Netlify Scheduled Functions
+  (98a50ef) — netlify/functions/cron-{autopilot,telegram-reports,social-post}.ts
+  call the same /api/cron routes with Bearer CRON_SECRET. Inert until the
+  owner sets CRON_SECRET (OWNER-GATED). Same session: QRStuff study row
+  re-read (4a69912) — static codes now free with no sign-up, free dynamic
+  codes expire after 30 days; headline and noAccount corrected.
 - [x] Jul 30: image tools stopped serving crawlers a page with no tool on it
   (M147, 3812696 + the probe in a follow-up). /convert/*, /resize/* and
   /image-tools/[slug] served 0 input[type=file] and 0 <label> — the h1 and
