@@ -31,7 +31,7 @@ migration is an hour it was going to be down anyway.
 
 | Thing | Effect | Plan |
 |---|---|---|
-| `vercel.json` **crons** (autopilot 06:00, telegram-reports 07:00, social-post 09:00) | Netlify ignores `vercel.json`; daily automation stops | Re-create as Netlify **Scheduled Functions**, or point a free external cron (cron-job.org) at the three routes with the `CRON_SECRET` header. Not user-facing — do it after the site is up. |
+| `vercel.json` **crons** (autopilot 06:00, telegram-reports 07:00, social-post 09:00) | Netlify ignores `vercel.json`; daily automation stops | **Done 3 Nov 2026** — `netlify/functions/cron-*.ts` are Scheduled Functions calling the same routes with `Authorization: Bearer $CRON_SECRET`. They do nothing until **`CRON_SECRET` is set on Netlify and the site redeployed**; `/api/ready` reports it while it is missing. |
 | `api/py-pdf2docx.py` | Netlify has **no Python runtime** | It is the **last** fallback in PDF→Word (Adobe → Aspose → CloudConvert → this). Adobe is the live path, so the tool degrades rather than breaks. |
 | `@vercel/analytics`, `@vercel/speed-insights` | Go inert — no more Vercel Analytics | **GA4 already runs** (`NEXT_PUBLIC_GA_ID`), so traffic reporting survives. Yandex Webmaster and Search Console are unaffected. |
 | `/api/og` (`runtime = "edge"`) | Netlify Edge Functions should run `next/og`, but this is the one thing to verify | After deploy, open `https://<site>/api/og?t=Test` — expect `200 image/png`. If it fails, drop `export const runtime = "edge"` from that route so it runs as a Node function. |

@@ -12,8 +12,9 @@
 # command and publish directory are deliberately NOT pinned here — letting the
 # runtime choose them is what keeps this working across Next releases.
 #
-# NOT carried over from vercel.json, and tracked in docs/NETLIFY-MIGRATION.md:
-#   · the three daily crons (autopilot / telegram-reports / social-post)
+# Carried over differently or not at all, tracked in docs/NETLIFY-MIGRATION.md:
+#   · the three daily crons — now netlify/functions/cron-*.ts Scheduled
+#     Functions, which authorize only once CRON_SECRET is set on Netlify
 #   · api/py-pdf2docx.py — Netlify has no Python runtime. It is the LAST
 #     fallback in the PDF->Word chain (Adobe -> Aspose -> CloudConvert -> this),
 #     so the tool degrades rather than breaks.
