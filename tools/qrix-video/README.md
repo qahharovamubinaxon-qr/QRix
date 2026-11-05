@@ -72,6 +72,39 @@ download.
 `assets/gen/` images are cropped before use. Given the product promises "без
 водяных знаков", an un-cropped one would have been an own goal.
 
+## The 3D cut
+
+`photo-413x531-3d` is the same script on a 3D set: an office, a monitor
+carrying a real frame of the tool, and an assistant character. Everything is
+built from primitives in `src/qrix3d/pieces.tsx` — no model files.
+
+Render it single-threaded or it dies:
+
+```bash
+npx remotion render photo-413x531-3d out/photo-413x531-3d.mp4 --crf=20 --concurrency=1
+```
+
+**`--concurrency=1` is not optional.** The default opens several tabs, each
+with its own WebGL context, and this machine dies around frame 786 of 1042.
+
+**`@react-three/postprocessing` renders an empty frame here.** The full chain
+and Bloom alone both produce nothing, so it is the composer rather than any
+effect. The glow is faked in 2D instead: a blurred, screen-blended layer over
+the canvas — which is what bloom is.
+
+**`useOffthreadVideoTexture` returns null here.** Proven by turning the
+fallback magenta and watching the monitor turn magenta. The monitor carries a
+still instead, and the walkthrough leaves the set for the live recording.
+
+**Check camera framings against the object positions.** The first version put
+the camera at z=2.9 with the chair back at z=2.87 and rendered the inside of
+the furniture; the second raced to each next framing as a shot *began*, so it
+was pressed against the monitor seconds before the line about it.
+
+**Do not pipe the render's output.** `... | tr | grep | tail` closed its
+stdout and killed it with `EOF / write` before a single frame — a failure that
+looks exactly like a render bug and is not one.
+
 ## Voice
 
 `ru-RU-DmitryNeural` asks, `ru-RU-SvetlanaNeural` answers. Edge TTS exposes no
