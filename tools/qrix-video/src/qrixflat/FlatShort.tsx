@@ -110,60 +110,62 @@ const CaptionBar: React.FC<{ phrases: Phrase[] }> = ({ phrases }) => {
   const t = frame / fps;
   const active = phrases.find((p) => t >= p.start - 0.12 && t < p.end + 0.28);
   if (!active) return null;
+
   const words = wordsOf(active);
-  const inAt = Math.round((active.start - 0.12) * fps);
+  // Four words at a time, in the chunk the current word falls in. A whole
+  // phrase set at a readable size wraps to three ragged lines; a chunk stays
+  // on one or two and the eye never has to hunt for the live word.
+  const SIZE = 4;
+  const idx = Math.max(0, words.findIndex((w) => t < w.end));
+  const start = Math.floor((idx === -1 ? words.length - 1 : idx) / SIZE) * SIZE;
+  const chunk = words.slice(start, start + SIZE);
 
   return (
     <div
       style={{
         position: "absolute",
-        left: 46,
-        right: 46,
-        top: CARD.top + CARD.height + 46,
+        left: 60,
+        right: 60,
+        top: CARD.top + CARD.height + 52,
         display: "flex",
+        flexWrap: "wrap",
+        gap: "6px 18px",
         justifyContent: "center",
-        opacity: interpolate(frame - inAt, [0, 4], [0, 1], {
-          extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-        }),
-        translate: interpolate(frame - inAt, [0, 9], ["0px 12px", "0px 0px"], {
-          extrapolateLeft: "clamp",
-          extrapolateRight: "clamp",
-          easing: EASE,
-        }),
+        alignItems: "baseline",
       }}
     >
-      <div
-        style={{
-          backgroundColor: INK,
-          borderRadius: 22,
-          padding: "20px 28px",
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "8px 14px",
-          justifyContent: "center",
-          maxWidth: 960,
-          boxShadow: "0 16px 34px rgba(20,16,10,0.2)",
-        }}
-      >
-        {words.map((w, i) => {
-          const spoken = t >= w.start - 0.02;
-          return (
-            <span
-              key={`${w.word}-${i}`}
-              style={{
-                fontFamily: FONT,
-                fontSize: 54,
-                fontWeight: 800,
-                lineHeight: 1.1,
-                color: spoken ? ORANGE : "#ffffff",
-              }}
-            >
-              {w.word}
-            </span>
-          );
-        })}
-      </div>
+      {chunk.map((w, i) => {
+        const at = Math.round(w.start * fps);
+        const since = frame - at;
+        const spoken = t >= w.start - 0.02;
+        return (
+          <span
+            key={`${w.word}-${start + i}`}
+            style={{
+              fontFamily: FONT,
+              fontSize: 70,
+              fontWeight: 800,
+              lineHeight: 1.08,
+              letterSpacing: -1,
+              color: spoken ? ORANGE : "#2a241d",
+              // transform and opacity only, ease-out, 60ms apart, settling
+              // under 220ms — the words arrive with the voice instead of
+              // sliding around after it.
+              opacity: interpolate(since, [0, 5], [0.28, 1], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+              }),
+              translate: interpolate(since, [0, 7], ["0px 12px", "0px 0px"], {
+                extrapolateLeft: "clamp",
+                extrapolateRight: "clamp",
+                easing: EASE,
+              }),
+            }}
+          >
+            {w.word}
+          </span>
+        );
+      })}
     </div>
   );
 };
@@ -202,19 +204,45 @@ const Big: React.FC<{ children: React.ReactNode; size?: number; color?: string }
 );
 
 export const FlatShort: React.FC<{ voice: Voice; recDir: string }> = ({ voice, recDir }) => {
-  const S = {
-    ask: [0, 6.838],
-    promise: [6.838, 11.394],
-    step1: [11.394, 15.842],
-    step2: [15.842, 21.301],
-    step3: [21.301, 23.987],
-    claim: [23.987, 28.621],
-    cta: [28.621, voice.total + 1.1],
-  } as const;
-  const seq = (k: keyof typeof S) => ({
-    from: Math.round(S[k][0] * FPS),
-    durationInFrames: Math.round((S[k][1] - S[k][0]) * FPS),
-  });
+  /**
+   * Scenes are derived from the voice track, not typed in.
+   *
+   * The boundaries used to be hand-written seconds, so the moment a line was
+   * rewritten — and one had to be, because "Открываешь QRix" names a brand
+   * nobody can search for instead of the domain — every cut after it drifted
+   * off its sentence. Each scene is now a span of phrases, and its time comes
+   * from where those phrases actually land.
+   */
+  const SCENES = [
+    { key: "ask", first: 0, last: 2 },
+    { key: "promise", first: 3, last: 5 },
+    { key: "step1", first: 6, last: 7 },
+    { key: "step2", first: 8, last: 10 },
+    { key: "step3", first: 11, last: 12 },
+    { key: "claim", first: 13, last: 14 },
+    { key: "cta", first: 15, last: voice.phrases.length - 1 },
+  ] as const;
+
+  type SceneKey = (typeof SCENES)[number]["key"];
+
+  const bounds = (k: SceneKey) => {
+    const i = SCENES.findIndex((x) => x.key === k);
+    const sc = SCENES[i];
+    const startAt = voice.phrases[sc.first]?.start ?? 0;
+    const next = SCENES[i + 1];
+    const endAt = next
+      ? (voice.phrases[next.first]?.start ?? voice.total) - 0.3
+      : voice.total + 1.1;
+    return [startAt === 0 ? 0 : startAt - 0.3, endAt] as const;
+  };
+
+  const seq = (k: SceneKey) => {
+    const [a, b] = bounds(k);
+    return {
+      from: Math.max(0, Math.round(a * FPS)),
+      durationInFrames: Math.max(1, Math.round((b - a) * FPS)),
+    };
+  };
 
   /**
    * The recording is a 9:16 page and the card is wider than it is tall, so
@@ -230,37 +258,66 @@ export const FlatShort: React.FC<{ voice: Voice; recDir: string }> = ({ voice, r
    * vertically to the part of the page the line is about — `focus` is that
    * point, in 0-1 of the page.
    */
-  const clip = (from: number, to: number, k: keyof typeof S, focus: number) => {
-    const W = 1080 - CARD.side * 2;
-    const scale = W / 1080;
-    const scaledH = 1920 * scale;
-    const top = Math.max(
-      Math.min(0, CARD.height - scaledH),
-      Math.min(0, CARD.height / 2 - focus * scaledH),
-    );
+  /**
+   * The shot is defined by the region of the page it has to show, not by a
+   * zoom factor.
+   *
+   * Pushing in by a number got it wrong in both directions: at 1.0 the card
+   * held a wall of unreadable page, and at 1.45 it held the uploaded image
+   * alone with none of the tool around it — which teaches the viewer nothing.
+   * `region` is the fraction of page height the shot must contain and `focus`
+   * is its centre, both measured off the recording; the scale follows from
+   * them. When the region is tall the footage ends up narrower than the card,
+   * so it sits in a device frame rather than being stretched.
+   */
+  const clip = (
+    from: number,
+    to: number,
+    k: SceneKey,
+    focus: number,
+    region: number,
+  ) => {
+    const scale = CARD.height / (region * 1920);
+    const w = 1080 * scale;
+    const h = 1920 * scale;
+    const framed = w < 1080 - CARD.side * 2 - 8;
     return (
-      <AbsoluteFill style={{ overflow: "hidden" }}>
+      <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
         <div
           style={{
-            position: "absolute",
-            left: 0,
-            top,
-            width: 1080,
-            height: 1920,
-            scale: String(scale),
-            transformOrigin: "top left",
+            position: "relative",
+            width: Math.min(w, 1080 - CARD.side * 2),
+            height: CARD.height - (framed ? 24 : 0),
+            overflow: "hidden",
+            borderRadius: framed ? 26 : 0,
+            border: framed ? "3px solid #222c44" : "none",
+            boxShadow: framed ? "0 16px 40px rgba(0,0,0,0.45)" : "none",
           }}
         >
-          <ScreenClip
-            src={`${recDir}/screen.mp4`}
-            from={from}
-            to={to}
-            fx={0.5}
-            fy={0.5}
-            zoom={1.0}
-            zoomTo={1.03}
-            durationInFrames={seq(k).durationInFrames}
-          />
+          <div
+            style={{
+              position: "absolute",
+              left: "50%",
+              top: 0,
+              width: 1080,
+              height: 1920,
+              marginLeft: -540,
+              scale: String(scale),
+              transformOrigin: "50% 0%",
+              translate: `0px ${(CARD.height / 2 - focus * h) / scale}px`,
+            }}
+          >
+            <ScreenClip
+              src={`${recDir}/screen.mp4`}
+              from={from}
+              to={to}
+              fx={0.5}
+              fy={0.5}
+              zoom={1.0}
+              zoomTo={1.02}
+              durationInFrames={seq(k).durationInFrames}
+            />
+          </div>
         </div>
       </AbsoluteFill>
     );
@@ -302,17 +359,17 @@ export const FlatShort: React.FC<{ voice: Voice; recDir: string }> = ({ voice, r
       </Sequence>
 
       <Sequence name="Step 1" {...seq("step1")}>
-        <Card label="Шаг 1 — открываешь">{clip(26.5, 32.7, "step1", 0.42)}</Card>
+        <Card label="Шаг 1 — qrixtools.com">{clip(26.5, 32.9, "step1", 0.30, 0.52)}</Card>
         <Stage pose="work" />
       </Sequence>
 
       <Sequence name="Step 2" {...seq("step2")}>
-        <Card label="Шаг 2 — загружаешь">{clip(32.4, 38.6, "step2", 0.4)}</Card>
+        <Card label="Шаг 2 — загружаешь">{clip(33.0, 39.6, "step2", 0.42, 0.72)}</Card>
         <Stage pose="work" />
       </Sequence>
 
       <Sequence name="Step 3" {...seq("step3")}>
-        <Card label="Шаг 3 — скачиваешь">{clip(61.0, 64.3, "step3", 0.33)}</Card>
+        <Card label="Шаг 3 — скачиваешь">{clip(61.3, 64.6, "step3", 0.66, 0.46)}</Card>
         <Stage pose="point" />
       </Sequence>
 
@@ -334,8 +391,10 @@ export const FlatShort: React.FC<{ voice: Voice; recDir: string }> = ({ voice, r
       <Sequence name="CTA" {...seq("cta")}>
         <Card label="Готово">
           <Centered>
-            <Big size={132} color={ORANGE}>QRIX</Big>
-            <div style={{ fontFamily: FONT, fontSize: 54, fontWeight: 700, color: "#ecebe7", marginTop: 26 }}>
+            {/* The domain is the only thing on this card a viewer can act
+                on, so it is the largest thing on it. */}
+            <Big size={96} color={ORANGE}>qrixtools.com</Big>
+            <div style={{ fontFamily: FONT, fontSize: 54, fontWeight: 700, color: "#ecebe7", marginTop: 30 }}>
               185 инструментов
             </div>
             <div style={{ fontFamily: FONT, fontSize: 40, color: "#9a968f", marginTop: 12 }}>
