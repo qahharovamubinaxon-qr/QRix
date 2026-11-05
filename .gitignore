@@ -62,3 +62,6 @@ tools/**/out/
 tools/**/.remotion/
 tools/lemo-films/**/stills/
 tools/lemo-films/**/events.json
+tools/lemo-films/**/audio/
+tools/qrix-video/public/rec/
+tools/qrix-video/public/sfx/
