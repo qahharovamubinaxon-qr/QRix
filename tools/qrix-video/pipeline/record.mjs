@@ -157,7 +157,7 @@ await page.waitForTimeout(650);
 
 // 2 — the file lands.
 beat("drop");
-await drop.setInputFiles(join(root, "public", "demo-face-clean.jpg"));
+await drop.setInputFiles(join(root, "public", "demo-upload.png"));
 await page.waitForTimeout(2600);
 beat("cropReady");
 
