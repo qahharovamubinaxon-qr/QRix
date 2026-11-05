@@ -1,0 +1,270 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Фото 413×531 — Pictogram Motion</title>
+<style>html,body{margin:0;background:#15161c;overflow:hidden}canvas{display:block}</style>
+<canvas id="c"></canvas>
+<script type="module">
+const W = innerWidth, H = innerHeight;
+const cv = document.getElementById("c"); cv.width = W; cv.height = H;
+const ctx = cv.getContext("2d");
+const voice = await fetch("./audio/voice.json").then((r) => r.json());
+window.DUR = voice.total + 1.15;
+
+/* ── Colour set ───────────────────────────────────────────────────────────
+   Five hues and one dark neutral, each hue in five tones. A card owns one
+   hue; the middle tone is the base, the disc takes a neighbouring tone, and
+   light hues take dark type. Nothing in the film uses a sixth colour.     */
+const ramp = (base) => base;
+const HUES = {
+  sand:   ["#4a3b22", "#7a6336", "#c9a24e", "#e2c47f", "#f3e2bb"],
+  orange: ["#5a1c08", "#a33311", "#ff4d1c", "#ff8a5f", "#ffd0bc"],
+  indigo: ["#1b1f45", "#2f3870", "#4b5bb8", "#8894de", "#cdd3f2"],
+  teal:   ["#0d3a38", "#145e5a", "#1e918a", "#5cc3bc", "#b4e6e2"],
+  green:  ["#1d3317", "#335a26", "#54913c", "#8cc274", "#cbe6bd"],
+};
+const DARK = "#15161c";
+const CREAM = "#f4f1e8";
+const INKD = "#1b1c22";
+void ramp;
+
+const cl = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const eo = (t) => 1 - Math.pow(1 - cl(t), 4);
+const sw = (t, a, b, f = eo) => f(cl((t - a) / (b - a)));
+const rnd = (i) => {
+  let h = (20260531 ^ (i * 2654435761)) >>> 0;
+  h ^= h >>> 15; h = Math.imul(h, 2246822507); h ^= h >>> 13;
+  return (h >>> 0) / 4294967296;
+};
+
+const P = voice.phrases.map((p) => p.start);
+/* Six cards plus an opening pattern card; each boundary is a phrase start, so
+   a cut can never land in the middle of a sentence. */
+const CARDS = [
+  { t: 0,     hue: null,     title: "",                     sub: "" },
+  { t: P[0],  hue: "sand",   title: "ФОТО НА ДОКУМЕНТЫ",    sub: "DOCUMENT PHOTO",   ico: "doc" },
+  { t: P[3],  hue: "orange", title: "413 × 531",            sub: "PIXELS AT 300 DPI", ico: "rule" },
+  { t: P[6],  hue: "indigo", title: "КАДРИРОВАНИЕ",         sub: "CROP TO SIZE",      ico: "crop" },
+  { t: P[9],  hue: "teal",   title: "НЕ УХОДИТ НА СЕРВЕР",  sub: "NEVER UPLOADED",    ico: "lock" },
+  { t: P[13], hue: "green",  title: "СКАЧАЛ",               sub: "DOWNLOADED",        ico: "down" },
+  { t: P[15], hue: "orange", title: "QRIXTOOLS.COM",        sub: "185 FREE TOOLS",    ico: "sheet" },
+];
+const cardAt = (t) => {
+  let i = 0;
+  while (i < CARDS.length - 1 && t >= CARDS[i + 1].t) i++;
+  return i;
+};
+
+/* ── The pattern: discs, half-discs and motif cells, rows shifted sideways ── */
+const CELL = Math.round(H / 6 / 2);
+const pattern = (t, tones, contrast, shiftSeed) => {
+  const cols = Math.ceil(W / CELL) + 4, rows = Math.ceil(H / CELL) + 2;
+  ctx.save();
+  ctx.globalAlpha = contrast;
+  ctx.fillStyle = tones[1];
+  ctx.fillRect(0, 0, W, H);
+  for (let r = 0; r < rows; r++) {
+    // Whole rows cut and shifted: the signature move of the style, and the
+    // thing that makes a static pattern read as motion when a card lands.
+    const phase = rnd(shiftSeed + r) * 2 - 1;
+    const slide = Math.sin(t * 0.9 + r) * phase * CELL * 0.85;
+    for (let c = -2; c < cols; c++) {
+      const x = c * CELL + slide, y = r * CELL;
+      const k = rnd(shiftSeed * 31 + r * 97 + c);
+      const tone = tones[1 + ((rnd(shiftSeed + r * 13 + c * 7) * 4) | 0) % 4];
+      if (k < 0.42) {
+        ctx.fillStyle = tone;
+        ctx.beginPath(); ctx.arc(x + CELL / 2, y + CELL / 2, CELL / 2, 0, 7); ctx.fill();
+        if (k < 0.16) {
+          ctx.fillStyle = tones[0];
+          ctx.beginPath(); ctx.arc(x + CELL / 2, y + CELL / 2, CELL / 5, 0, 7); ctx.fill();
+        }
+      } else if (k < 0.62) {
+        ctx.fillStyle = tone;
+        const rot = ((rnd(shiftSeed + c * 3 + r) * 4) | 0) * Math.PI / 2;
+        ctx.save(); ctx.translate(x + CELL / 2, y + CELL / 2); ctx.rotate(rot);
+        ctx.beginPath(); ctx.arc(0, 0, CELL / 2, Math.PI, 0); ctx.fill(); ctx.restore();
+      } else if (k < 0.74) {
+        ctx.strokeStyle = tone; ctx.lineWidth = Math.max(2, CELL / 12);
+        for (let a = 1; a <= 3; a++) {
+          ctx.beginPath();
+          ctx.arc(x, y + CELL, (CELL / 3.2) * a, -Math.PI / 2, 0); ctx.stroke();
+        }
+      }
+    }
+  }
+  ctx.restore();
+};
+
+/* ── Pictograms: round-capped bars, discs, capsules; no faces, no emotion ─── */
+const bar = (x1, y1, x2, y2, w, col) => {
+  ctx.strokeStyle = col; ctx.lineWidth = w; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+};
+const disc = (x, y, r, col) => { ctx.fillStyle = col; ctx.beginPath(); ctx.arc(x, y, r, 0, 7); ctx.fill(); };
+
+const PICTO = {
+  doc(cx, cy, s, ink, acc) {
+    ctx.fillStyle = ink;
+    ctx.beginPath(); ctx.roundRect(cx - s * 0.34, cy - s * 0.44, s * 0.68, s * 0.88, s * 0.05); ctx.fill();
+    disc(cx, cy - s * 0.14, s * 0.15, acc);
+    ctx.fillStyle = acc;
+    ctx.beginPath(); ctx.roundRect(cx - s * 0.2, cy + s * 0.06, s * 0.4, s * 0.24, s * 0.2); ctx.fill();
+  },
+  rule(cx, cy, s, ink, acc) {
+    ctx.fillStyle = ink;
+    ctx.beginPath(); ctx.roundRect(cx - s * 0.46, cy - s * 0.14, s * 0.92, s * 0.28, s * 0.06); ctx.fill();
+    for (let i = 0; i < 7; i++)
+      bar(cx - s * 0.38 + i * s * 0.127, cy - s * 0.14,
+          cx - s * 0.38 + i * s * 0.127, cy - s * 0.14 + (i % 2 ? s * 0.08 : s * 0.15),
+          s * 0.022, acc);
+  },
+  crop(cx, cy, s, ink, acc) {
+    const r = s * 0.36;
+    ctx.strokeStyle = ink; ctx.lineWidth = s * 0.07; ctx.lineCap = "round";
+    ctx.strokeRect(cx - r, cy - r * 1.28, r * 2, r * 2.56);
+    ctx.fillStyle = acc;
+    for (const [dx, dy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]])
+      ctx.fillRect(cx + dx * r - s * 0.05, cy + dy * r * 1.28 - s * 0.05, s * 0.1, s * 0.1);
+  },
+  lock(cx, cy, s, ink, acc) {
+    ctx.strokeStyle = ink; ctx.lineWidth = s * 0.1; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.arc(cx, cy - s * 0.1, s * 0.24, Math.PI, 0); ctx.stroke();
+    ctx.fillStyle = ink;
+    ctx.beginPath(); ctx.roundRect(cx - s * 0.34, cy - s * 0.1, s * 0.68, s * 0.5, s * 0.07); ctx.fill();
+    disc(cx, cy + s * 0.14, s * 0.07, acc);
+  },
+  down(cx, cy, s, ink, acc) {
+    bar(cx, cy - s * 0.4, cx, cy + s * 0.16, s * 0.12, ink);
+    ctx.strokeStyle = ink; ctx.lineWidth = s * 0.12; ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath(); ctx.moveTo(cx - s * 0.2, cy - s * 0.04);
+    ctx.lineTo(cx, cy + s * 0.18); ctx.lineTo(cx + s * 0.2, cy - s * 0.04); ctx.stroke();
+    ctx.fillStyle = acc;
+    ctx.beginPath(); ctx.roundRect(cx - s * 0.34, cy + s * 0.3, s * 0.68, s * 0.12, s * 0.06); ctx.fill();
+  },
+  sheet(cx, cy, s, ink, acc) {
+    ctx.fillStyle = ink;
+    ctx.beginPath(); ctx.roundRect(cx - s * 0.42, cy - s * 0.44, s * 0.84, s * 0.88, s * 0.05); ctx.fill();
+    ctx.fillStyle = acc;
+    for (let i = 0; i < 6; i++) {
+      const col = i % 2, row = (i / 2) | 0;
+      ctx.beginPath();
+      ctx.roundRect(cx - s * 0.32 + col * s * 0.34, cy - s * 0.34 + row * s * 0.26,
+        s * 0.26, s * 0.2, s * 0.03);
+      ctx.fill();
+    }
+  },
+};
+
+/* ── A card ───────────────────────────────────────────────────────────────── */
+const drawCard = (t, i) => {
+  const c = CARDS[i];
+  const next = CARDS[i + 1];
+  const t0 = c.t, t1 = next ? next.t : window.DUR;
+  const u = t - t0;
+
+  if (!c.hue) { pattern(t, HUES.orange, 1, 7); return; }
+
+  const tones = HUES[c.hue];
+  const light = c.hue === "sand";
+  const ink = light ? INKD : CREAM;
+  const acc = light ? tones[1] : tones[4];
+
+  ctx.fillStyle = tones[0]; ctx.fillRect(0, 0, W, H);
+  // Under type the pattern runs at low contrast; it is scenery, not content.
+  pattern(t, tones, 0.3, i * 17 + 3);
+
+  // The stage: a large sun disc in a neighbouring tone, one light sweep.
+  const grow = sw(u, 0, 0.42);
+  const cx = W / 2, cy = H * 0.37;
+  disc(cx, cy, Math.min(W, H) * 0.3 * grow, tones[light ? 3 : 1]);
+  const g = ctx.createLinearGradient(0, cy - 400, W, cy + 200);
+  g.addColorStop(0, "rgba(255,255,255,0)");
+  g.addColorStop(0.5, "rgba(255,255,255,0.07)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  // The pictogram arrives on the beat — a drop with a short settle, never a fade.
+  const land = sw(u, 0.08, 0.34);
+  const s = Math.min(W, H) * 0.34;
+  ctx.save();
+  ctx.translate(0, (1 - land) * -90);
+  ctx.globalAlpha = land;
+  PICTO[c.ico](cx, cy, s, ink, acc);
+  ctx.restore();
+
+  // Card 04 is the turn: the arrow to the cloud, struck through.
+  if (c.ico === "lock") {
+    const strike = sw(u, 1.4, 1.75);
+    ctx.save(); ctx.globalAlpha = land;
+    ctx.strokeStyle = ink; ctx.lineWidth = s * 0.05; ctx.setLineDash([s * 0.07, s * 0.07]);
+    ctx.beginPath(); ctx.moveTo(cx + s * 0.5, cy - s * 0.1);
+    ctx.lineTo(cx + s * 0.95, cy - s * 0.52); ctx.stroke();
+    ctx.setLineDash([]);
+    disc(cx + s * 1.05, cy - s * 0.62, s * 0.13, tones[3]);
+    if (strike > 0) {
+      ctx.strokeStyle = HUES.orange[2]; ctx.lineWidth = s * 0.07;
+      ctx.beginPath();
+      ctx.moveTo(cx + s * 0.5, cy - s * 0.62);
+      ctx.lineTo(cx + s * (0.5 + 0.55 * strike), cy - s * (0.62 - 0.52 * strike));
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Type as architecture: title out of a mask, the second language under it.
+  const mask = (text, y, font, col, at, h) => {
+    const k = sw(u, at, at + 0.32);
+    if (k <= 0) return;
+    ctx.save();
+    ctx.beginPath(); ctx.rect(0, y - h, W, h + 10); ctx.clip();
+    ctx.font = font; ctx.textAlign = "center"; ctx.fillStyle = col;
+    ctx.fillText(text, W / 2, y - (1 - k) * h);
+    ctx.restore();
+  };
+  mask(c.title, H * 0.72, `900 ${c.title.length > 16 ? 72 : 96}px Inter, 'Segoe UI', Arial, sans-serif`, ink, 0.2, 110);
+  mask(c.sub, H * 0.78, "700 40px Inter, 'Segoe UI', Arial, sans-serif", acc, 0.32, 60);
+
+  // Broadcast meta in the corners.
+  const metaA = sw(u, 0.45, 0.7);
+  ctx.save();
+  ctx.globalAlpha = metaA * 0.85;
+  ctx.font = "500 26px 'JetBrains Mono', Consolas, monospace";
+  ctx.fillStyle = ink; ctx.textAlign = "left";
+  ctx.letterSpacing = "4px";
+  ctx.fillText(`${String(i).padStart(2, "0")} / 06`, 64, 92);
+  ctx.textAlign = "right";
+  ctx.fillText("QRIXTOOLS.COM", W - 64, 92);
+  ctx.restore();
+  void t1;
+};
+
+/* ── Subtitle: a narrow strip, so it never argues with the title ──────────── */
+let lastTexts = [];
+const caption = (t) => {
+  const p = voice.phrases.find((q) => t >= q.start - 0.1 && t < q.end + 0.4);
+  if (!p) return null;
+  const a = Math.min(sw(t, p.start - 0.1, p.start + 0.06), 1 - sw(t, p.end + 0.2, p.end + 0.4));
+  ctx.save();
+  ctx.font = "600 34px Inter, 'Segoe UI', Arial, sans-serif";
+  const w = Math.min(W - 80, ctx.measureText(p.text).width + 72);
+  const x = (W - w) / 2, y = H - 210, h = 64;
+  ctx.globalAlpha = a * 0.94;
+  ctx.fillStyle = "rgba(10,11,15,0.86)";
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, 6); ctx.fill();
+  ctx.fillStyle = CREAM; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(p.text, W / 2, y + h / 2 + 1);
+  ctx.restore();
+  return { id: `cap${p.n}`, text: p.text, x0: x, y0: y, x1: x + w, y1: y + h };
+};
+
+window.render = (t) => {
+  ctx.fillStyle = DARK; ctx.fillRect(0, 0, W, H);
+  drawCard(t, cardAt(t));
+  const c = caption(t);
+  lastTexts = c ? [c] : [];
+};
+window.TEXTS = (t) => { window.render(t); return lastTexts; };
+window.EV = CARDS.slice(1).map((c) => ({ t: c.t, type: "sfx", name: "hit" }));
+window.render(0);
+window.READY = true;
+</script>

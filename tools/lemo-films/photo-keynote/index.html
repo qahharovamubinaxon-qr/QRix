@@ -1,0 +1,348 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Фото 413×531 — Dark Tech Keynote</title>
+<style>html,body{margin:0;background:#06080c;overflow:hidden}canvas{display:block}</style>
+<canvas id="c"></canvas>
+<script type="module">
+const W = innerWidth, H = innerHeight;
+const cv = document.getElementById("c"); cv.width = W; cv.height = H;
+const ctx = cv.getContext("2d");
+const voice = await fetch("./audio/voice.json").then((r) => r.json());
+window.DUR = voice.total + 1.15;
+
+/* ── Ladder ───────────────────────────────────────────────────────────────
+   A cool neutral ladder and exactly one accent. The accent is reserved for
+   what the product does; if two things wear it, one of them is wrong. Red
+   exists only while the problem exists and never returns after the turn.  */
+const STAGE = "#06080c";
+const S1 = "#0e1219", S2 = "#151b25", S3 = "#1d2531";
+const TXT = "#e8ecf2", TXT2 = "#9aa5b4", LBL = "#5d6775";
+const ACC = "#ff4d1c";
+const BAD = "#e5484d";
+const GRID = 48;
+
+const cl = (v) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const eo = (t) => 1 - Math.pow(1 - cl(t), 4);
+const ei = (t) => Math.pow(cl(t), 4);
+const sw = (t, a, b, f = eo) => f(cl((t - a) / (b - a)));
+const mix = (a, b, t) => a + (b - a) * t;
+
+const P = voice.phrases.map((p) => p.start);
+const B = {
+  grid: 0, number: P[1], mess: P[2], flood: P[3], floodEnd: P[5],
+  beam: P[6], window: P[8], snap: P[9], sized: P[10],
+  reach: P[11], die: P[12], after: P[13],
+  sheet: P[15], end: P[16],
+};
+
+/* ── Stage ───────────────────────────────────────────────────────────────── */
+const stage = (t) => {
+  ctx.fillStyle = STAGE; ctx.fillRect(0, 0, W, H);
+  let g = ctx.createRadialGradient(W / 2, H * 0.3, 0, W / 2, H * 0.3, H * 0.6);
+  g.addColorStop(0, "rgba(120,150,200,0.085)"); g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  g = ctx.createRadialGradient(W * 0.14, H * 0.74, 0, W * 0.14, H * 0.74, H * 0.42);
+  g.addColorStop(0, "rgba(90,120,255,0.05)"); g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+
+  const a = sw(t, 0, 1.0);
+  ctx.save(); ctx.globalAlpha = a;
+  for (let x = 0, i = 0; x <= W; x += GRID, i++) {
+    ctx.strokeStyle = i % 4 === 0 ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)";
+    ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, H); ctx.stroke();
+  }
+  for (let y = 0, i = 0; y <= H; y += GRID, i++) {
+    ctx.strokeStyle = i % 4 === 0 ? "rgba(255,255,255,0.06)" : "rgba(255,255,255,0.03)";
+    ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(W, y + 0.5); ctx.stroke();
+  }
+  ctx.restore();
+
+  g = ctx.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.72);
+  g.addColorStop(0, "rgba(0,0,0,0)"); g.addColorStop(1, "rgba(0,0,0,0.55)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+};
+
+/**
+ * Light is the reveal tool: only what the beam has passed turns on. A beam is
+ * cheap to draw and it does the work a fade cannot — it says the stage is lit
+ * from somewhere, and it gives the cut a direction.
+ */
+const beamAt = (t, a, b) => {
+  const u = cl((t - a) / (b - a));
+  return u <= 0 || u >= 1 ? null : u;
+};
+const drawBeam = (u) => {
+  const x = -200 + u * (W + 400);
+  const g = ctx.createLinearGradient(x - 220, 0, x + 220, 0);
+  g.addColorStop(0, "rgba(255,255,255,0)");
+  g.addColorStop(0.5, "rgba(190,215,255,0.16)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  return x;
+};
+
+/* ── Surfaces ─────────────────────────────────────────────────────────────── */
+const card = (x, y, w, h, opts = {}) => {
+  ctx.save();
+  ctx.globalAlpha = opts.alpha ?? 1;
+  ctx.shadowColor = "rgba(0,0,0,0.6)"; ctx.shadowBlur = 22; ctx.shadowOffsetY = 8;
+  ctx.fillStyle = opts.fill ?? S2;
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, opts.r ?? 14); ctx.fill();
+  ctx.shadowColor = "transparent";
+  ctx.strokeStyle = opts.border ?? "rgba(255,255,255,0.08)";
+  ctx.lineWidth = 1; ctx.stroke();
+  ctx.strokeStyle = "rgba(255,255,255,0.07)";
+  ctx.beginPath(); ctx.moveTo(x + 10, y + 0.5); ctx.lineTo(x + w - 10, y + 0.5); ctx.stroke();
+  ctx.restore();
+};
+
+const txt = (s, x, y, o = {}) => {
+  ctx.save();
+  ctx.font = o.font ?? "500 34px Inter, 'Segoe UI', Arial, sans-serif";
+  ctx.fillStyle = o.color ?? TXT;
+  ctx.textAlign = o.align ?? "left";
+  ctx.textBaseline = o.baseline ?? "alphabetic";
+  ctx.globalAlpha = o.alpha ?? 1;
+  if (o.track) ctx.letterSpacing = `${o.track}px`;
+  ctx.fillText(s, x, y);
+  ctx.restore();
+};
+
+/* ── 2. The giant number — its own screen, no caption over it ─────────────── */
+const bigNumber = (t) => {
+  const a = sw(t, B.number, B.number + 0.5) * (1 - sw(t, B.mess - 0.5, B.mess));
+  if (a <= 0.01) return;
+  const y = H * 0.46;
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.shadowColor = "rgba(255,77,28,0.45)"; ctx.shadowBlur = 50;
+  txt("413 × 531", W / 2, y, {
+    font: "600 170px 'Inter Tight', Inter, 'Segoe UI', Arial, sans-serif",
+    align: "center", color: ACC, track: -8,
+  });
+  ctx.shadowColor = "transparent";
+  txt("ПИКСЕЛЕЙ · 35 × 45 ММ · 300 DPI", W / 2, y + 78, {
+    font: "500 28px 'JetBrains Mono', Consolas, monospace",
+    align: "center", color: LBL, track: 5,
+  });
+  ctx.restore();
+};
+
+/* ── 3-4. The mess, then one decisive action ──────────────────────────────── */
+const SEED = 20260413;
+const rnd = (i) => {
+  let h = (SEED ^ (i * 2654435761)) >>> 0;
+  h ^= h >>> 15; h = Math.imul(h, 2246822507); h ^= h >>> 13;
+  return (h >>> 0) / 4294967296;
+};
+const TILES = 18;
+const KEEP = 10;
+
+const tiles = (t) => {
+  if (t < B.mess || t > B.window - 0.1) return;
+  const beam = beamAt(t, B.beam, B.beam + 1.0);
+  const beamX = beam === null ? (t > B.beam ? W + 400 : -400) : -200 + beam * (W + 400);
+  const cols = 3, cw = 268, ch = 206;
+  const x0 = (W - cols * cw) / 2 + 10, y0 = H * 0.19;
+  for (let i = 0; i < TILES; i++) {
+    const col = i % cols, row = (i / cols) | 0;
+    const x = x0 + col * cw, y = y0 + row * ch;
+    const born = B.mess + 0.2 + (i / TILES) * (B.floodEnd - B.mess - 0.4) * (1 - 0.35 * (i / TILES));
+    const inA = sw(t, born, born + 0.22);
+    if (inA <= 0) continue;
+    const kept = i === KEEP;
+    // The beam decides: what it has passed is either kept or switched off.
+    const lit = x + 60 < beamX;
+    const off = lit && !kept ? sw(t, B.beam + 0.1 + (x / W) * 0.6, B.beam + 0.5 + (x / W) * 0.6) : 0;
+    const a = inA * (1 - off);
+    if (a <= 0.01) continue;
+    const rise = (1 - inA) * 26;
+    card(x, y + rise, cw - 22, ch - 22, { alpha: a, fill: kept && lit ? S3 : S1 });
+    // Procedural thumbnail: a portrait block at the wrong aspect, which is the
+    // problem the product solves, stated in geometry rather than in words.
+    const tw = 86 + rnd(i) * 54, th = 74 + rnd(i + 99) * 70;
+    ctx.save(); ctx.globalAlpha = a;
+    ctx.fillStyle = kept && lit ? ACC : "#2b3442";
+    ctx.beginPath();
+    ctx.roundRect(x + 22, y + rise + 22, tw, th, 6); ctx.fill();
+    ctx.restore();
+    txt(`IMG_${1000 + i * 7}`, x + 22, y + rise + ch - 56, {
+      font: "400 19px 'JetBrains Mono', Consolas, monospace", color: LBL, alpha: a,
+    });
+    // Problem colour, and only while the problem exists.
+    if (!kept && t < B.die) {
+      ctx.save(); ctx.globalAlpha = a * (1 - sw(t, B.beam, B.beam + 0.6));
+      ctx.fillStyle = "rgba(229,72,77,0.16)";
+      ctx.beginPath(); ctx.roundRect(x + 22, y + rise + ch - 46, 150, 26, 13); ctx.fill();
+      txt("НЕ ТОТ РАЗМЕР", x + 32, y + rise + ch - 27, {
+        font: "500 17px 'JetBrains Mono', Consolas, monospace", color: BAD, alpha: a,
+      });
+      ctx.restore();
+    }
+    if (kept && lit) {
+      ctx.save(); ctx.globalAlpha = a * sw(t, B.beam + 0.4, B.beam + 0.9);
+      ctx.strokeStyle = ACC; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.roundRect(x - 2, y + rise - 2, cw - 18, ch - 18, 16); ctx.stroke();
+      ctx.restore();
+    }
+  }
+};
+
+/* ── 5. The window: a frame that snaps to the grid ────────────────────────── */
+const windowShot = (t) => {
+  if (t < B.window || t > B.sheet - 0.2) return;
+  const a = sw(t, B.window, B.window + 0.4) * (1 - sw(t, B.sheet - 0.5, B.sheet - 0.2));
+  const w = 680, h = 880, x = (W - w) / 2, y = H * 0.26;
+  card(x, y, w, h, { alpha: a, fill: S2, r: 18 });
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.fillStyle = S3; ctx.beginPath(); ctx.roundRect(x, y, w, 56, [18, 18, 0, 0]); ctx.fill();
+  ctx.fillStyle = LBL; ctx.beginPath(); ctx.arc(x + 28, y + 28, 6, 0, 7); ctx.fill();
+  ctx.restore();
+  txt("паспорт РФ · 35 × 45 мм", x + 50, y + 36, {
+    font: "500 24px 'JetBrains Mono', Consolas, monospace", color: TXT2, alpha: a,
+  });
+
+  // The crop frame snaps to the module rather than easing into place: the
+  // precision is the product's character, so the motion has to be precise too.
+  const snap = Math.floor(sw(t, B.snap, B.snap + 0.9) * 4) / 4;
+  const fw = 392, fh = 504;
+  const fx = x + 144 - snap * 0 , fy = y + 150 + (1 - snap) * 48;
+  ctx.save(); ctx.globalAlpha = a;
+  ctx.fillStyle = "#0a0e14";
+  ctx.beginPath(); ctx.roundRect(x + 40, y + 96, w - 80, h - 220, 12); ctx.fill();
+  ctx.fillStyle = ACC; ctx.globalAlpha = a * 0.9;
+  ctx.beginPath(); ctx.roundRect(fx + 48, fy + 58, fw - 96, fh - 116, 8); ctx.fill();
+  ctx.globalAlpha = a;
+  ctx.strokeStyle = ACC; ctx.lineWidth = 3;
+  ctx.strokeRect(fx, fy, fw, fh);
+  for (const [cx, cy] of [[fx, fy], [fx + fw, fy], [fx, fy + fh], [fx + fw, fy + fh]]) {
+    ctx.fillStyle = ACC; ctx.fillRect(cx - 7, cy - 7, 14, 14);
+  }
+  ctx.restore();
+  const sized = sw(t, B.sized, B.sized + 0.4);
+  if (sized > 0)
+    txt("413 × 531", fx + fw / 2, fy + fh + 48, {
+      font: "600 44px 'Inter Tight', Inter, Arial, sans-serif",
+      align: "center", color: ACC, alpha: a * sized, track: -2,
+    });
+};
+
+/* ── 6. The turn: the card that does not arrive ───────────────────────────── */
+const theTurn = (t) => {
+  if (t < B.reach || t > B.sheet) return;
+  const up = sw(t, B.reach, B.die, eo);
+  const fade = sw(t, B.die, B.die + 0.5);
+  const x = W / 2 - 110, y0 = H * 0.62, y1 = H * 0.23;
+  const y = mix(y0, y1, up * 0.72);
+  // The destination is labelled and stays dark — it is never used.
+  txt("СЕРВЕР", W / 2, H * 0.17, {
+    font: "500 26px 'JetBrains Mono', Consolas, monospace",
+    align: "center", color: LBL, track: 6, alpha: sw(t, B.reach, B.reach + 0.4),
+  });
+  ctx.save();
+  ctx.globalAlpha = 0.5 * sw(t, B.reach, B.reach + 0.4);
+  ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.setLineDash([8, 10]); ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(W / 2, H * 0.2); ctx.lineTo(W / 2, H * 0.6); ctx.stroke();
+  ctx.restore();
+
+  card(x, y, 220, 150, { alpha: 1 - fade, fill: S3 });
+  ctx.save(); ctx.globalAlpha = (1 - fade); ctx.fillStyle = ACC;
+  ctx.beginPath(); ctx.roundRect(x + 56, y + 24, 108, 102, 6); ctx.fill(); ctx.restore();
+
+  if (t >= B.die) {
+    const k = sw(t, B.die, B.die + 0.35);
+    ctx.save(); ctx.globalAlpha = k * (1 - sw(t, B.after + 0.9, B.after + 1.6));
+    ctx.strokeStyle = ACC; ctx.lineWidth = 3;
+    const cy = mix(y0, y1, 0.72) + 75;
+    ctx.beginPath(); ctx.moveTo(W / 2 - 70, cy); ctx.lineTo(W / 2 + 70, cy); ctx.stroke();
+    ctx.restore();
+    txt("не уходит", W / 2, mix(y0, y1, 0.72) + 128, {
+      font: "500 36px Inter, 'Segoe UI', Arial, sans-serif",
+      align: "center", color: ACC, alpha: k,
+    });
+  }
+};
+
+/* ── 7-8. Result, then an empty stage ─────────────────────────────────────── */
+const sheet = (t) => {
+  if (t < B.sheet || t > B.end - 0.1) return;
+  const a = sw(t, B.sheet, B.sheet + 0.4) * (1 - sw(t, B.end - 0.4, B.end - 0.1));
+  const w = 560, h = 760, x = (W - w) / 2, y = H * 0.3;
+  card(x, y, w, h, { alpha: a, fill: S2, r: 16 });
+  for (let i = 0; i < 6; i++) {
+    const col = i % 2, row = (i / 2) | 0;
+    const pop = sw(t, B.sheet + 0.25 + i * 0.07, B.sheet + 0.45 + i * 0.07);
+    ctx.save(); ctx.globalAlpha = a * pop;
+    ctx.fillStyle = ACC;
+    ctx.beginPath();
+    ctx.roundRect(x + 56 + col * 240, y + 70 + row * 220, 184, 180, 8); ctx.fill();
+    ctx.restore();
+  }
+  txt("ГОТОВО · 300 DPI", W / 2, y + h - 40, {
+    font: "500 26px 'JetBrains Mono', Consolas, monospace",
+    align: "center", color: TXT2, alpha: a, track: 5,
+  });
+};
+
+const endCard = (t) => {
+  if (t < B.end) return;
+  const a = sw(t, B.end, B.end + 0.45);
+  txt("qrixtools.com", W / 2, H * 0.47, {
+    font: "600 82px 'Inter Tight', Inter, Arial, sans-serif",
+    align: "center", color: ACC, alpha: a, track: -2,
+  });
+  txt("185 ИНСТРУМЕНТОВ · БЕСПЛАТНО", W / 2, H * 0.47 + 56, {
+    font: "500 24px 'JetBrains Mono', Consolas, monospace",
+    align: "center", color: LBL, alpha: a, track: 6,
+  });
+};
+
+/* ── Caption: a UI component, and never over the number ───────────────────── */
+let lastTexts = [];
+const caption = (t) => {
+  if (t > B.number - 0.2 && t < B.mess - 0.2) return null;   // the number speaks alone
+  const p = voice.phrases.find((q) => t >= q.start - 0.1 && t < q.end + 0.4);
+  if (!p) return null;
+  const a = Math.min(sw(t, p.start - 0.1, p.start + 0.06), 1 - sw(t, p.end + 0.2, p.end + 0.4));
+  ctx.save();
+  ctx.font = "500 40px Inter, 'Segoe UI', Arial, sans-serif";
+  const w = Math.min(W - 96, ctx.measureText(p.text).width + 112);
+  const x = (W - w) / 2, y = H - 260, h = 84;
+  ctx.globalAlpha = a;
+  ctx.shadowColor = "rgba(0,0,0,0.55)"; ctx.shadowBlur = 26; ctx.shadowOffsetY = 8;
+  ctx.fillStyle = "rgba(14,18,25,0.92)";
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, 42); ctx.fill();
+  ctx.shadowColor = "transparent";
+  ctx.strokeStyle = "rgba(255,255,255,0.10)"; ctx.lineWidth = 1; ctx.stroke();
+  ctx.fillStyle = ACC; ctx.beginPath(); ctx.arc(x + 38, y + h / 2, 7, 0, 7); ctx.fill();
+  ctx.fillStyle = TXT; ctx.textBaseline = "middle";
+  ctx.fillText(p.text, x + 62, y + h / 2 + 1);
+  ctx.restore();
+  return { id: `cap${p.n}`, text: p.text, x0: x, y0: y, x1: x + w, y1: y + h };
+};
+
+window.render = (t) => {
+  stage(t);
+  const b1 = beamAt(t, 0.7, 1.7);
+  if (b1 !== null) drawBeam(b1);
+  bigNumber(t);
+  tiles(t);
+  windowShot(t);
+  theTurn(t);
+  sheet(t);
+  const b2 = beamAt(t, B.beam, B.beam + 1.0);
+  if (b2 !== null) drawBeam(b2);
+  endCard(t);
+  const c = caption(t);
+  lastTexts = c ? [c] : [];
+};
+window.TEXTS = (t) => { window.render(t); return lastTexts; };
+window.EV = [
+  { t: B.number, type: "sfx", name: "on" },
+  { t: B.beam, type: "sfx", name: "sweep" },
+  { t: B.snap, type: "sfx", name: "snap" },
+  { t: B.die, type: "sfx", name: "refuse" },
+  { t: B.sheet, type: "sfx", name: "confirm" },
+];
+window.render(0);
+window.READY = true;
+</script>

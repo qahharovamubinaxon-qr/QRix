@@ -1,0 +1,385 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Фото 413×531 — Isometric Infographic</title>
+<style>
+  html, body { margin: 0; background: #efeae0; overflow: hidden; }
+  canvas { display: block; }
+</style>
+<canvas id="c"></canvas>
+<script type="module">
+import { Scene, camera, lerpZoom, tones, inkText, ease, sweep, clamp01, project } from "./iso.js";
+
+const W = window.innerWidth, H = window.innerHeight;
+const cv = document.getElementById("c");
+cv.width = W; cv.height = H;
+const ctx = cv.getContext("2d");
+
+const voice = await fetch("./audio/voice.json").then((r) => r.json());
+window.DUR = voice.total + 1.15;
+
+/* ── Palette ───────────────────────────────────────────────────────────────
+   A pale ground and six flat hues, one meaning each. The subject's hue is
+   reserved: the photo is the only orange thing on the board, so "this one"
+   never has to be explained.                                              */
+const GROUND = "#efeae0";
+const INK    = "#2b2537";
+const SUBJ   = "#ff4d1c";   // the photo — reserved
+const DEVICE = "#3f6ea8";   // the device the work happens inside
+const BOARD  = "#cfc6b6";
+const SERVER = "#9a9287";   // the place the file does not go
+const GOOD   = "#467434";
+const PAPER  = "#f3efe6";
+
+const T = {
+  board: tones(BOARD), device: tones(DEVICE), subj: tones(SUBJ),
+  server: tones(SERVER), paper: tones(PAPER), good: tones(GOOD),
+};
+
+/* ── Beats, read off the measured voice track ─────────────────────────────
+   Nothing here is a typed-in guess: each beat is a phrase start, so a cut
+   or a label can never drift away from the line that explains it.         */
+const P = voice.phrases.map((p) => p.start);
+const B = {
+  open: 0, size: P[1], ask: P[2],
+  drop: P[3], promise: P[4], noUpload: P[5],
+  cut: P[6], skin: P[7],
+  count: P[8], countEnd: P[10],
+  route: P[11], turn: P[12], back: P[13],
+  sheet: P[15], legend: P[16],
+};
+
+/* ── Camera route ─────────────────────────────────────────────────────────
+   A vocabulary, not a rail: centre plus a log-interpolated zoom, and the
+   projection never rotates. The pull-out at the turn exists so the route's
+   reversal is readable whole — that is the one shot the film is about.    */
+const LEGS = [
+  { t: B.open,  c: [3.3, 3.1, 0.5], k: 88 },
+  { t: B.drop,  c: [2.7, 2.5, 0.7], k: 132 },
+  { t: B.cut,   c: [2.9, 2.5, 0.6], k: 196 },
+  { t: B.count, c: [2.3, 3.2, 0.6], k: 150 },
+  { t: B.route, c: [4.1, 2.5, 0.6], k: 96 },
+  { t: B.sheet, c: [2.9, 3.6, 0.5], k: 128 },
+  { t: B.legend,c: [3.3, 3.1, 0.5], k: 104 },
+];
+
+const camAt = (t) => {
+  let i = 0;
+  while (i < LEGS.length - 1 && t >= LEGS[i + 1].t) i++;
+  const a = LEGS[i], b = LEGS[Math.min(i + 1, LEGS.length - 1)];
+  const span = Math.max(0.001, b.t - a.t);
+  const u = b === a ? 1 : ease.inOut(clamp01((t - a.t) / span));
+  const c = a.c.map((v, j) => v + (b.c[j] - v) * u);
+  return camera(c, lerpZoom(a.k, b.k, u), W, H);
+};
+
+/* ── The board and its furniture ─────────────────────────────────────────── */
+const dots = (s, t) => {
+  const appear = sweep(t, 0, 1.6);
+  for (let x = -1; x <= 9; x += 0.5)
+    for (let y = -1; y <= 9; y += 0.5) {
+      const q = project(s.cam, x, y, 0);
+      const d = Math.hypot(x - 3.5, y - 3.5);
+      if (d / 9 > appear) continue;
+      ctx.fillStyle = "#d8d1c4";
+      ctx.fillRect(q.sx - 1.5, q.sy - 1.5, 3, 3);
+    }
+};
+
+/** Front faces show strata where the section meets the edge — the diorama tell. */
+const board = (s, t) => {
+  const rise = sweep(t, 0.3, 1.9);
+  const z = -0.9 + 0.9 * rise;
+  s.box(0, 0, z - 0.55, 7, 7, 0.55, BOARD, { tones: T.board });
+  s.push(0 + 0 + z + 0.2, (c, cam) => {
+    const p = (x, y, Z) => project(cam, x, y, Z);
+    const strata = [["#b9ad99", 0.18], ["#a99d88", 0.14], ["#8e8370", 0.1]];
+    let zz = z - 0.55;
+    for (const [col, th] of strata) {
+      c.save(); c.globalAlpha = rise;
+      s.poly([p(0, 7, zz + th), p(7, 7, zz + th), p(7, 7, zz), p(0, 7, zz)], col);
+      c.restore();
+      zz += th;
+    }
+  }, 0.3);
+};
+
+/* ── Objects ──────────────────────────────────────────────────────────────── */
+const device = (s, t) => {
+  const a = sweep(t, 0.8, 2.2);
+  if (a <= 0) return;
+  s.box(2.1, 2.1, 0, 1.9, 1.3, 0.16, DEVICE, { tones: T.device, alpha: a });   // slab
+  s.box(2.3, 2.25, 0.16, 1.5, 1.0, 0.05, "#101828", { alpha: a });             // screen bed
+};
+
+/** The server: present, lit the same as everything else, and never used. */
+const server = (s, t) => {
+  const a = sweep(t, 1.2, 2.6);
+  if (a <= 0) return;
+  const grey = t > B.sheet ? sweep(t, B.sheet, B.sheet + 1.0) : 0;
+  const base = grey > 0 ? "#b4ada3" : SERVER;
+  for (let i = 0; i < 3; i++)
+    s.box(5.9, 0.7, i * 0.34, 0.9, 0.9, 0.3, base, { alpha: a * (1 - 0.25 * grey) });
+  s.push(5.9 + 0.7 + 1.3, (c, cam) => {
+    const q = project(cam, 6.35, 1.15, 1.25);
+    inkText(c, "СЕРВЕР", q.sx, q.sy - 26, {
+      font: "600 30px 'Segoe UI', Arial, sans-serif", align: "center",
+      color: grey > 0 ? "#9a9287" : INK, alpha: a, track: 3,
+    });
+  }, 8);
+};
+
+/** The photo. Lands by motion with a squash — solids never arrive by alpha. */
+const photo = (s, t) => {
+  if (t < B.drop - 0.5) return;
+  const fall = sweep(t, B.drop - 0.5, B.drop, ease.in);
+  const land = sweep(t, B.drop, B.drop + 0.34, ease.out);
+  const z = 0.21 + (1 - fall) * 2.4;
+  const sq = land < 1 ? 1 - 0.18 * Math.sin(land * Math.PI) : 1;
+  const cut = sweep(t, B.skin, B.skin + 0.35, ease.out);
+  const w = 1.0, d = 0.72;
+  // The near skin slides out along its normal and fades; the crop stays.
+  if (cut > 0) {
+    s.box(2.55 + cut * 1.5, 2.3 + cut * 1.5, z, w * 0.42, d, 0.08 * sq, "#d8d2c6",
+      { alpha: 1 - cut });
+  }
+  s.box(2.55 + (cut > 0 ? w * 0.42 : 0), 2.3, z, w * (cut > 0 ? 0.58 : 1), d, 0.08 * sq,
+    SUBJ, { tones: T.subj });
+  // Hatched section rim appears as the skin leaves.
+  if (cut > 0.4) {
+    s.push(2.55 + 2.3 + z + 4, (c, cam) => {
+      c.save(); c.globalAlpha = (cut - 0.4) / 0.6;
+      c.strokeStyle = INK; c.lineWidth = 1.6;
+      for (let i = 0; i < 9; i++) {
+        const u = i / 9;
+        const p1 = project(cam, 2.55 + w * 0.42, 2.3 + u * d, z);
+        const p2 = project(cam, 2.55 + w * 0.42, 2.3 + u * d, z + 0.08);
+        c.beginPath(); c.moveTo(p1.sx, p1.sy); c.lineTo(p2.sx + 6, p2.sy); c.stroke();
+      }
+      c.restore();
+    }, 6);
+  }
+};
+
+/** The cut line draws before anything moves — nothing moves without a line leading it. */
+const cutLine = (s, t) => {
+  const g = sweep(t, B.cut, B.cut + 0.3);
+  if (g <= 0 || t > B.count) return;
+  const x = 2.55 + 1.0 * 0.42;
+  s.line([[x, 2.3, 0.33], [x, 2.3 + 0.72 * g, 0.33]],
+    { dash: [10, 8], lw: 2.4, color: INK, alpha: 1 - sweep(t, B.count - 0.5, B.count) });
+};
+
+/* ── Isotype: the number is built, not stated ─────────────────────────────── */
+const isotype = (s, t) => {
+  if (t < B.count || t > B.route - 0.2) return;
+  const fade = 1 - sweep(t, B.route - 0.7, B.route - 0.2);
+  const span = B.countEnd + 1.6 - B.count;
+  const u = clamp01((t - B.count) / span);
+  const total = 16;
+  const n = Math.floor(u * total + 0.0001);
+  for (let i = 0; i < total; i++) {
+    const pop = sweep(t, B.count + (i / total) * span, B.count + (i / total) * span + 0.18, ease.back);
+    if (pop <= 0) continue;
+    const col = i % 4, row = (i / 4) | 0;
+    const sz = 0.17 * pop;
+    s.box(1.15 + col * 0.26, 3.5 + row * 0.26, 0.0, sz, sz, sz, i < 8 ? SUBJ : DEVICE,
+      { alpha: fade });
+  }
+  s.push(99, (c, cam) => {
+    const q = project(cam, 1.9, 4.1, 0.2);
+    const shown = Math.round(413 * clamp01(u * 1.15));
+    const shown2 = Math.round(531 * clamp01(u * 1.15));
+    inkText(c, `${shown} × ${shown2}`, q.sx, q.sy, {
+      font: "400 62px 'Segoe UI', Arial, sans-serif", align: "left", alpha: fade,
+    });
+    inkText(c, "ПИКСЕЛЕЙ · 300 DPI", q.sx, q.sy + 34, {
+      font: "600 24px 'Segoe UI', Arial, sans-serif", align: "left", alpha: fade * 0.8, track: 3,
+    });
+  }, 0);
+  void n;
+};
+
+/* ── The route that turns back ────────────────────────────────────────────── */
+const route = (s, t) => {
+  if (t < B.route) return;
+  const toServer = [[3.0, 2.7, 0.3], [4.1, 2.1, 0.5], [5.1, 1.5, 0.6]];
+  const home     = [[5.1, 1.5, 0.6], [4.1, 2.8, 0.5], [3.1, 3.0, 0.3], [2.9, 2.6, 0.25]];
+
+  const out = sweep(t, B.route, B.turn, ease.out);
+  const seg = (pts, u, opts) => {
+    if (u <= 0) return;
+    const n = pts.length - 1;
+    const f = u * n;
+    const i = Math.min(n - 1, Math.floor(f));
+    const k = f - i;
+    const cut = pts.slice(0, i + 1).concat([[
+      pts[i][0] + (pts[i + 1][0] - pts[i][0]) * k,
+      pts[i][1] + (pts[i + 1][1] - pts[i][1]) * k,
+      pts[i][2] + (pts[i + 1][2] - pts[i][2]) * k,
+    ]]);
+    s.line(cut, opts);
+  };
+
+  seg(toServer, out, { dash: [12, 9], lw: 3.4, color: INK });
+
+  // The turn: the one place in the film where motion changes sign. It gets a
+  // stop mark and a held beat, because a reversal the eye misses is no turn.
+  if (t >= B.turn) {
+    const stop = sweep(t, B.turn, B.turn + 0.3, ease.back);
+    s.push(5.1 + 1.5 + 1.4, (c, cam) => {
+      const q = project(cam, 5.1, 1.5, 0.6);
+      c.save();
+      c.globalAlpha = stop * (1 - sweep(t, B.back + 1.2, B.back + 2.0));
+      c.strokeStyle = SUBJ; c.lineWidth = 4;
+      c.beginPath(); c.arc(q.sx, q.sy, 20 * stop, 0, Math.PI * 2); c.stroke();
+      c.beginPath(); c.moveTo(q.sx - 9, q.sy - 9); c.lineTo(q.sx + 9, q.sy + 9);
+      c.moveTo(q.sx + 9, q.sy - 9); c.lineTo(q.sx - 9, q.sy + 9); c.stroke();
+      c.restore();
+    }, 9);
+  }
+  const backU = sweep(t, B.back, B.sheet - 0.2, ease.out);
+  seg(home, backU, { dash: [12, 9], lw: 3.4, color: SUBJ });
+};
+
+/** The printed sheet — the payoff, arriving by motion. */
+const sheet = (s, t) => {
+  if (t < B.sheet) return;
+  const u = sweep(t, B.sheet, B.sheet + 0.6, ease.out);
+  s.box(2.2, 3.5 - 0.5 * (1 - u), 0.17, 1.6, 1.15, 0.03, PAPER, { tones: T.paper, alpha: u });
+  for (let i = 0; i < 6; i++) {
+    const col = i % 3, row = (i / 3) | 0;
+    const pop = sweep(t, B.sheet + 0.35 + i * 0.07, B.sheet + 0.55 + i * 0.07, ease.back);
+    if (pop <= 0) continue;
+    s.box(2.32 + col * 0.46, 3.62 - 0.5 * (1 - u) + row * 0.5, 0.2,
+      0.3 * pop, 0.36 * pop, 0.02, SUBJ, { alpha: u });
+  }
+};
+
+/* ── Label pins: dot → leader → rule → text ───────────────────────────────── */
+const PINS = [
+  { t: B.size, until: B.drop,  at: [3.0, 2.3, 0.3], dir: -1, text: "413 × 531 · 35×45 мм" },
+  { t: B.promise, until: B.cut, at: [2.6, 3.0, 0.3], dir: 1, text: "бесплатно · без регистрации" },
+  { t: B.noUpload, until: B.cut, at: [3.4, 2.6, 0.3], dir: -1, text: "файл не уходит", accent: true },
+  { t: B.back + 0.4, until: B.legend, at: [3.6, 2.9, 0.35], dir: 1, text: "всё в браузере", accent: true },
+];
+
+const pins = (s, t) => {
+  for (const p of PINS) {
+    const a = sweep(t, p.t, p.t + 0.3) * (1 - sweep(t, p.until - 0.4, p.until));
+    if (a <= 0.01) continue;
+    const grow = sweep(t, p.t, p.t + 0.45);
+    s.push(p.at[0] + p.at[1] + p.at[2] + 7, (c, cam) => {
+      const q = project(cam, p.at[0], p.at[1], p.at[2]);
+      const len = 96 * grow * p.dir;
+      const rule = 150 * grow;
+      c.save();
+      c.globalAlpha = a;
+      c.strokeStyle = p.accent ? SUBJ : INK;
+      c.lineWidth = 2;
+      c.beginPath(); c.moveTo(q.sx, q.sy); c.lineTo(q.sx, q.sy - len); c.stroke();
+      c.beginPath(); c.moveTo(q.sx, q.sy - len); c.lineTo(q.sx + rule, q.sy - len); c.stroke();
+      c.beginPath(); c.arc(q.sx, q.sy, 6, 0, Math.PI * 2);
+      c.fillStyle = GROUND; c.fill(); c.stroke();
+      c.restore();
+      if (grow > 0.55)
+        inkText(c, p.text, q.sx + 10, q.sy - len - 14, {
+          font: "600 32px 'Segoe UI', Arial, sans-serif",
+          color: p.accent ? SUBJ : INK, alpha: a,
+        });
+    }, 9);
+  }
+};
+
+/* ── The subtitle is a map label, and the legend is the end frame ─────────── */
+const caption = (t) => {
+  const p = voice.phrases.find((q) => t >= q.start - 0.1 && t < q.end + 0.45);
+  if (!p) return null;
+  const a = Math.min(sweep(t, p.start - 0.1, p.start + 0.08), 1 - sweep(t, p.end + 0.25, p.end + 0.45));
+  ctx.save();
+  ctx.font = "400 40px 'Segoe UI', Arial, sans-serif";
+  const w = Math.min(W - 110, ctx.measureText(p.text).width + 104);
+  const x = (W - w) / 2, y = H - 268, h = 86;
+  ctx.globalAlpha = a;
+  ctx.fillStyle = "#f7f3ea";
+  ctx.strokeStyle = INK; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.roundRect(x, y, w, h, 10); ctx.fill(); ctx.stroke();
+  ctx.fillStyle = SUBJ;
+  ctx.fillRect(x + 26, y + h / 2 - 9, 18, 18);          // legend chip
+  ctx.fillStyle = INK;
+  ctx.textBaseline = "middle";
+  ctx.fillText(p.text, x + 62, y + h / 2 + 1);
+  ctx.restore();
+  return { id: `cap${p.n}`, text: p.text, x0: x, y0: y, x1: x + w, y1: y + h };
+};
+
+const legend = (t) => {
+  if (t < B.legend) return;
+  const a = sweep(t, B.legend, B.legend + 0.4);
+  ctx.save();
+  ctx.globalAlpha = a;
+  inkText(ctx, "QRIXTOOLS.COM", W / 2, 300, {
+    font: "600 76px 'Segoe UI', Arial, sans-serif", align: "center", color: SUBJ, track: 4,
+  });
+  inkText(ctx, "185 ИНСТРУМЕНТОВ · БЕСПЛАТНО", W / 2, 362, {
+    font: "600 30px 'Segoe UI', Arial, sans-serif", align: "center", track: 4,
+  });
+  // The key: the route, drawn once, whole.
+  const y = 430, x0 = W / 2 - 220;
+  ctx.strokeStyle = INK; ctx.lineWidth = 3; ctx.setLineDash([12, 9]);
+  ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x0 + 150, y); ctx.stroke();
+  ctx.strokeStyle = SUBJ;
+  ctx.beginPath(); ctx.moveTo(x0 + 150, y); ctx.lineTo(x0 + 150, y + 26); ctx.lineTo(x0, y + 26); ctx.stroke();
+  ctx.setLineDash([]);
+  inkText(ctx, "маршрут файла — не покидает устройство", x0 + 172, y + 20, {
+    font: "400 26px 'Segoe UI', Arial, sans-serif",
+  });
+  ctx.restore();
+};
+
+const title = (t) => {
+  const a = sweep(t, 0.5, 1.3) * (1 - sweep(t, B.drop - 0.6, B.drop - 0.1));
+  if (a <= 0.01) return;
+  ctx.save(); ctx.globalAlpha = a;
+  inkText(ctx, "ФОТО НА ДОКУМЕНТЫ", W / 2, 250, {
+    font: "600 54px 'Segoe UI', Arial, sans-serif", align: "center", track: 8,
+  });
+  ctx.restore();
+};
+
+/* ── Frame ─────────────────────────────────────────────────────────────────── */
+let lastTexts = [];
+window.render = (t) => {
+  ctx.fillStyle = GROUND;
+  ctx.fillRect(0, 0, W, H);
+  const cam = camAt(t);
+  const s = new Scene(ctx, cam);
+  dots(s, t);
+  board(s, t);
+  device(s, t);
+  server(s, t);
+  photo(s, t);
+  cutLine(s, t);
+  isotype(s, t);
+  route(s, t);
+  sheet(s, t);
+  pins(s, t);
+  s.flush();
+  title(t);
+  legend(t);
+  const cap = caption(t);
+  lastTexts = cap ? [cap] : [];
+};
+
+window.TEXTS = (t) => { window.render(t); return lastTexts; };
+
+/* Cue events for the mixer: the landing, the cut, the stop, the sheet. */
+window.EV = [
+  { t: B.drop, type: "sfx", name: "land" },
+  { t: B.cut, type: "sfx", name: "cut" },
+  { t: B.turn, type: "sfx", name: "stop" },
+  { t: B.sheet, type: "sfx", name: "paper" },
+];
+
+window.render(0);
+window.READY = true;
+</script>

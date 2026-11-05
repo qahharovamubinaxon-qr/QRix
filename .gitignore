@@ -60,3 +60,5 @@ growth/.lock
 tools/**/node_modules
 tools/**/out/
 tools/**/.remotion/
+tools/lemo-films/**/stills/
+tools/lemo-films/**/events.json
