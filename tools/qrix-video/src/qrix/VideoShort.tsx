@@ -9,7 +9,9 @@ import {
 } from "remotion";
 import { Audio } from "@remotion/media";
 import { C, FONT, PAD } from "./theme";
-import { Backdrop, Brand, Bunny, EASE, Shot, StepChip } from "./parts";
+import { Backdrop, Brand, Bunny, EASE, StepChip } from "./parts";
+import { ScreenClip } from "./ScreenClip";
+import { Bed, Cue, CutWipe } from "./Sound";
 import { Captions, Phrase } from "./Captions";
 
 export type Voice = {
@@ -266,9 +268,9 @@ const Cta: React.FC = () => {
   );
 };
 
-export const VideoShort: React.FC<{ voice: Voice; shotDir: string }> = ({
+export const VideoShort: React.FC<{ voice: Voice; recDir: string }> = ({
   voice,
-  shotDir,
+  recDir,
 }) => {
   // Scene boundaries are pinned to the voice track, not guessed: the cut has
   // to land on the sentence that describes it or the demo stops teaching.
@@ -299,41 +301,47 @@ export const VideoShort: React.FC<{ voice: Voice; shotDir: string }> = ({
         <Promise_ />
       </Sequence>
 
-      <Sequence name="Step 1 — open" {...seq("step1")}>
-        {/* The page is 1080 wide and so is the frame, so anything past ~1.15x
-            starts shaving words off the headline. These numbers were set by
-            rendering the frames, not by eye. */}
-        <Shot
-          src={`${shotDir}/01-landing.png`}
+      {/* The three step scenes are slices of one continuous recording of the
+          tool being used. Source times come from public/rec/<id>/beats.json,
+          which the recorder writes as it works — reading them off a contact
+          sheet by eye is how the first cut ended up with blank page in it. */}
+      <Sequence name="Step 1 — reach" {...seq("step1")}>
+        <ScreenClip
+          src={`${recDir}/screen.mp4`}
+          from={10.6}
+          to={16.6}
           fx={0.5}
-          fy={0.17}
-          from={1.0}
-          to={1.12}
+          fy={0.5}
+          zoom={1.0}
+          zoomTo={1.06}
           durationInFrames={seq("step1").durationInFrames}
         />
         <StepChip n={1} label="Открываешь инструмент" />
-        <Bunny pose="point" height={420} side="right" offset={-40} bottom={320} />
       </Sequence>
 
-      <Sequence name="Step 2 — upload" {...seq("step2")}>
-        <Shot
-          src={`${shotDir}/02-uploaded.png`}
+      <Sequence name="Step 2 — drop" {...seq("step2")}>
+        <ScreenClip
+          src={`${recDir}/screen.mp4`}
+          from={16.4}
+          to={22.6}
           fx={0.5}
-          fy={0.36}
-          from={1.18}
-          to={1.32}
+          fy={0.52}
+          zoom={1.02}
+          zoomTo={1.1}
           durationInFrames={seq("step2").durationInFrames}
         />
         <StepChip n={2} label="Загружаешь фото" />
       </Sequence>
 
       <Sequence name="Step 3 — download" {...seq("step3")}>
-        <Shot
-          src={`${shotDir}/03-crop.png`}
-          fx={0.38}
-          fy={0.27}
-          from={1.40}
-          to={1.52}
+        <ScreenClip
+          src={`${recDir}/screen.mp4`}
+          from={44.6}
+          to={47.9}
+          fx={0.5}
+          fy={0.56}
+          zoom={1.05}
+          zoomTo={1.14}
           durationInFrames={seq("step3").durationInFrames}
         />
         <StepChip n={3} label="Скачиваешь 413×531" />
@@ -349,7 +357,22 @@ export const VideoShort: React.FC<{ voice: Voice; shotDir: string }> = ({
 
       <Brand />
       <Captions phrases={voice.phrases} />
-      <Audio src={staticFile(voice.audio)} />
+
+      {/* A wipe on every scene boundary except the first frame. */}
+      {([S.promise[0], S.step1[0], S.step2[0], S.step3[0], S.claim[0], S.cta[0]] as number[]).map(
+        (t) => (
+          <CutWipe key={t} at={t} />
+        ),
+      )}
+      {/* Markers only where something actually lands: the number, the file,
+          and the button. Punctuating every caption would be worse than
+          silence. */}
+      <Cue at={1.64} file="pop.wav" volume={0.5} />
+      <Cue at={17.4} file="pop.wav" volume={0.45} />
+      <Cue at={22.6} file="click.wav" volume={0.7} />
+
+      <Bed total={voice.total + 1.1} />
+      <Audio src={staticFile(voice.audio)} volume={1} />
     </AbsoluteFill>
   );
 };

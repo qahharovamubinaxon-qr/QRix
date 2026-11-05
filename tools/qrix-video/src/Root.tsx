@@ -21,7 +21,7 @@ export const RemotionRoot: React.FC = () => {
       fps={30}
       width={1080}
       height={1920}
-      defaultProps={{ voice, shotDir: "shots/photo-413x531" }}
+      defaultProps={{ voice, recDir: "rec/photo-413x531" }}
     />
   );
 };
