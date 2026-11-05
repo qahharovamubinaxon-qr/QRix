@@ -13,6 +13,7 @@ import { Mascot, Pose } from "./Mascot";
 import { ScreenClip } from "../qrix/ScreenClip";
 import { Phrase, wordsOf } from "../qrix/Captions";
 import { Bed, Cue } from "../qrix/Sound";
+import { Current, POWER4_OUT, seamStyle } from "./seam";
 
 export type Voice = {
   id: string;
@@ -42,6 +43,26 @@ const MUTED = "#6f6a61";
 const FONT = "Bricolage Grotesque, Segoe UI, Arial, sans-serif";
 
 const CARD = { top: 184, height: 860, side: 56 };
+
+/**
+ * One scene, moving as a unit across its boundaries.
+ *
+ * Previously the card faded and scaled itself on arrival while the cut was a
+ * hard swap, so the eye's momentum died at every boundary. Now the whole scene
+ * carries the film's current: it enters already travelling and leaves still
+ * travelling, and the cut lands mid-motion on both sides.
+ */
+const Scene: React.FC<{
+  durationInFrames: number;
+  current?: Current;
+  isFirst?: boolean;
+  isLast?: boolean;
+  children: React.ReactNode;
+}> = ({ durationInFrames, current = "left", isFirst, isLast, children }) => {
+  const frame = useCurrentFrame();
+  const st = seamStyle(frame, durationInFrames, current, isFirst, isLast);
+  return <AbsoluteFill style={st}>{children}</AbsoluteFill>;
+};
 
 const Card: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => {
   const frame = useCurrentFrame();
@@ -138,6 +159,16 @@ const CaptionBar: React.FC<{ phrases: Phrase[] }> = ({ phrases }) => {
         const at = Math.round(w.start * fps);
         const since = frame - at;
         const spoken = t >= w.start - 0.02;
+        // Waterfall entry, per the technique catalog: words whip in from below
+        // on power4.out, and opacity is BINARY — set, never faded. Fading an
+        // arrival is the §4 seam trick, and using it here is what made the
+        // last cut's captions look like they were dissolving into place
+        // instead of landing. Weight varies the throw: a long word travels
+        // further and takes longer than a short one.
+        const heavy = w.word.replace(/[^\p{L}\p{N}]/gu, "").length >= 7;
+        const light = w.word.replace(/[^\p{L}\p{N}]/gu, "").length <= 3;
+        const rise = heavy ? 64 : light ? 34 : 46;
+        const dur = heavy ? 6 : light ? 3 : 4;
         return (
           <span
             key={`${w.word}-${start + i}`}
@@ -148,17 +179,11 @@ const CaptionBar: React.FC<{ phrases: Phrase[] }> = ({ phrases }) => {
               lineHeight: 1.08,
               letterSpacing: -1,
               color: spoken ? ORANGE : "#2a241d",
-              // transform and opacity only, ease-out, 60ms apart, settling
-              // under 220ms — the words arrive with the voice instead of
-              // sliding around after it.
-              opacity: interpolate(since, [0, 5], [0.28, 1], {
+              opacity: since >= 0 ? 1 : 0,
+              translate: interpolate(since, [0, dur], [`0px ${rise}px`, "0px 0px"], {
                 extrapolateLeft: "clamp",
                 extrapolateRight: "clamp",
-              }),
-              translate: interpolate(since, [0, 7], ["0px 12px", "0px 0px"], {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-                easing: EASE,
+                easing: POWER4_OUT,
               }),
             }}
           >
@@ -334,76 +359,90 @@ export const FlatShort: React.FC<{ voice: Voice; recDir: string }> = ({ voice, r
       </div>
 
       <Sequence name="Ask" {...seq("ask")}>
-        <Card label="Что нужно">
-          <Centered>
-            <Big size={146} color={ORANGE}>413 × 531</Big>
-            <div style={{ fontFamily: FONT, fontSize: 42, color: "#9a968f", marginTop: 16 }}>
-              35 × 45 мм · паспорт РФ
-            </div>
-          </Centered>
-        </Card>
-        <Stage pose="think" />
-      </Sequence>
+        <Scene durationInFrames={seq("ask").durationInFrames} current="left" isFirst>
+          <Card label="Что нужно">
+            <Centered>
+              <Big size={146} color={ORANGE}>413 × 531</Big>
+              <div style={{ fontFamily: FONT, fontSize: 42, color: "#9a968f", marginTop: 16 }}>
+                35 × 45 мм · паспорт РФ
+              </div>
+            </Centered>
+          </Card>
+          <Stage pose="think" />
+        </Scene>
+            </Sequence>
 
       <Sequence name="Promise" {...seq("promise")}>
-        <Card label="Почему QRix">
-          <Centered>
-            <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
-              {["Бесплатно", "Без регистрации", "Файл не уходит на сервер"].map((s, i) => (
-                <Chip key={s} text={s} delay={i * 7} accent={i === 2} />
-              ))}
-            </div>
-          </Centered>
-        </Card>
-        <Stage pose="point" />
-      </Sequence>
+        <Scene durationInFrames={seq("promise").durationInFrames} current="left">
+          <Card label="Почему QRix">
+            <Centered>
+              <div style={{ display: "flex", flexDirection: "column", gap: 28 }}>
+                {["Бесплатно", "Без регистрации", "Файл не уходит на сервер"].map((s, i) => (
+                  <Chip key={s} text={s} delay={i * 7} accent={i === 2} />
+                ))}
+              </div>
+            </Centered>
+          </Card>
+          <Stage pose="point" />
+        </Scene>
+            </Sequence>
 
       <Sequence name="Step 1" {...seq("step1")}>
-        <Card label="Шаг 1 — qrixtools.com">{clip(26.5, 32.9, "step1", 0.30, 0.52)}</Card>
-        <Stage pose="work" />
-      </Sequence>
+        <Scene durationInFrames={seq("step1").durationInFrames} current="left">
+          <Card label="Шаг 1 — qrixtools.com">{clip(26.5, 32.9, "step1", 0.30, 0.52)}</Card>
+          <Stage pose="work" />
+        </Scene>
+            </Sequence>
 
       <Sequence name="Step 2" {...seq("step2")}>
-        <Card label="Шаг 2 — загружаешь">{clip(33.0, 39.6, "step2", 0.42, 0.72)}</Card>
-        <Stage pose="work" />
-      </Sequence>
+        <Scene durationInFrames={seq("step2").durationInFrames} current="left">
+          <Card label="Шаг 2 — загружаешь">{clip(33.0, 39.6, "step2", 0.42, 0.72)}</Card>
+          <Stage pose="work" />
+        </Scene>
+            </Sequence>
 
       <Sequence name="Step 3" {...seq("step3")}>
-        <Card label="Шаг 3 — скачиваешь">{clip(61.3, 64.6, "step3", 0.66, 0.46)}</Card>
-        <Stage pose="point" />
-      </Sequence>
+        <Scene durationInFrames={seq("step3").durationInFrames} current="left">
+          <Card label="Шаг 3 — скачиваешь">{clip(61.3, 64.6, "step3", 0.66, 0.46)}</Card>
+          <Stage pose="point" />
+        </Scene>
+            </Sequence>
 
       <Sequence name="Claim" {...seq("claim")}>
-        <Card label="Главное">
-          <Centered>
-            <Big size={104}>
-              Обработка —<br />
-              <span style={{ color: ORANGE }}>в браузере</span>
-            </Big>
-            <div style={{ fontFamily: FONT, fontSize: 40, color: "#9a968f", marginTop: 28, lineHeight: 1.35 }}>
-              Снимок не загружается на сервер.<br />Он остаётся на твоём устройстве.
-            </div>
-          </Centered>
-        </Card>
-        <Stage pose="point" />
-      </Sequence>
+        <Scene durationInFrames={seq("claim").durationInFrames} current="left">
+          <Card label="Главное">
+            <Centered>
+              <Big size={104}>
+                Обработка —<br />
+                <span style={{ color: ORANGE }}>в браузере</span>
+              </Big>
+              <div style={{ fontFamily: FONT, fontSize: 40, color: "#9a968f", marginTop: 28, lineHeight: 1.35 }}>
+                Снимок не загружается на сервер.<br />Он остаётся на твоём устройстве.
+              </div>
+            </Centered>
+          </Card>
+          <Stage pose="point" />
+        </Scene>
+            </Sequence>
 
       <Sequence name="CTA" {...seq("cta")}>
-        <Card label="Готово">
-          <Centered>
-            {/* The domain is the only thing on this card a viewer can act
-                on, so it is the largest thing on it. */}
-            <Big size={96} color={ORANGE}>qrixtools.com</Big>
-            <div style={{ fontFamily: FONT, fontSize: 54, fontWeight: 700, color: "#ecebe7", marginTop: 30 }}>
-              185 инструментов
-            </div>
-            <div style={{ fontFamily: FONT, fontSize: 40, color: "#9a968f", marginTop: 12 }}>
-              бесплатно · без водяных знаков
-            </div>
-          </Centered>
-        </Card>
-        <Stage pose="cheer" />
-      </Sequence>
+        <Scene durationInFrames={seq("cta").durationInFrames} current="up" isLast>
+          <Card label="Готово">
+            <Centered>
+              {/* The domain is the only thing on this card a viewer can act
+                  on, so it is the largest thing on it. */}
+              <Big size={96} color={ORANGE}>qrixtools.com</Big>
+              <div style={{ fontFamily: FONT, fontSize: 54, fontWeight: 700, color: "#ecebe7", marginTop: 30 }}>
+                185 инструментов
+              </div>
+              <div style={{ fontFamily: FONT, fontSize: 40, color: "#9a968f", marginTop: 12 }}>
+                бесплатно · без водяных знаков
+              </div>
+            </Centered>
+          </Card>
+          <Stage pose="cheer" />
+        </Scene>
+            </Sequence>
 
       <CaptionBar phrases={voice.phrases} />
 

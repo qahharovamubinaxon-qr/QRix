@@ -31,13 +31,25 @@ export const Mascot: React.FC<Props> = ({ pose = "idle", cell = 26, color = ORAN
   const frame = useCurrentFrame();
   const t = frame / 30;
 
-  // Breathing, and a step cycle the legs share so the walk reads as one motion.
-  const bob = Math.sin(t * 2.1) * 0.12;
-  const step = Math.sin(t * 5.2);
+  // No breathing loop and no idle step cycle.
+  //
+  // The motion doctrine bans idle wobble outright — motion has to perform, not
+  // tick over — and the previous cut had this character bobbing and walking on
+  // the spot for thirty-six seconds while saying nothing. What is left is a
+  // settle on arrival and a blink; everything else happens because the pose
+  // changed, which happens because the line changed.
+  const settle = interpolate(frame, [0, 9], [1, 0], {
+    extrapolateRight: "clamp",
+    easing: Easing.out(Easing.poly(4)),
+  });
+  const bob = settle * -0.5;
+  const step = settle * 1.4;
   const lean = pose === "think" ? -6 : pose === "point" ? 4 : 0;
 
   // A blink every few seconds, closed for about four frames.
-  const blinkPhase = (t * 0.55) % 1;
+  // A blink is not idle motion — it is the one thing that says the character
+  // is awake while it holds still.
+  const blinkPhase = (t * 0.5) % 1;
   const eyeOpen = blinkPhase > 0.955 ? 0.12 : 1;
 
   const armLeft = pose === "cheer" ? -38 : pose === "work" ? 14 : pose === "think" ? 8 : 0;
@@ -89,7 +101,7 @@ export const Mascot: React.FC<Props> = ({ pose = "idle", cell = 26, color = ORAN
       {/* Legs. In 'work' they stay planted; otherwise they alternate. */}
       {[3, 5, 10, 12].map((x, i) => {
         const phase = i % 2 === 0 ? step : -step;
-        const lift = pose === "work" ? 0 : Math.max(0, phase) * 0.35;
+        const lift = Math.max(0, phase) * 0.3;
         return (
           <rect
             key={`leg${x}`}
