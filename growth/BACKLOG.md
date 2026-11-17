@@ -24,7 +24,7 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
   URLs, the next saw 10 autopilot articles with canonical -> homepage; a minute
   later both were fine. Fix: retry once, then THROW on a real error (ISR keeps
   the last good render); only "no row" / "Supabase off" mean absent.
-  next: implement in lib/server/autopilot.ts, keep related-posts degrading.
+  SHIPPED 6b1739d (pushed both branches). next: confirm Netlify deploy is live, re-run verify:daily twice; also open: uniqode.com/pricing marker moved (re-read), rutube extraction_failed.
 - [x] Germany added to the passport-photo country family — the 7th country.
   TAKEN + SHIPPED Sep 20, live at /passport-photo/germany. Taken because the
   three remaining [ ] items in NOW are all recorded-and-deliberately-not-taken
