@@ -18,6 +18,13 @@ Statuses: [ ] todo · [~] in progress · [x] done (move to Done) · [B] blocked.
 > the task file, this note can go.
 
 ## NOW (this week)
+- [~] VERIFY FAIL Nov 17: transient Supabase errors become "post does not exist".
+  getAutopilotPosts()/getAutopilotPost() swallow every error into []/undefined,
+  and ISR then CACHES that for an hour: one verify run saw the sitemap lose 23
+  URLs, the next saw 10 autopilot articles with canonical -> homepage; a minute
+  later both were fine. Fix: retry once, then THROW on a real error (ISR keeps
+  the last good render); only "no row" / "Supabase off" mean absent.
+  next: implement in lib/server/autopilot.ts, keep related-posts degrading.
 - [x] Germany added to the passport-photo country family — the 7th country.
   TAKEN + SHIPPED Sep 20, live at /passport-photo/germany. Taken because the
   three remaining [ ] items in NOW are all recorded-and-deliberately-not-taken
