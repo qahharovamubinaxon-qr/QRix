@@ -1,0 +1,6 @@
+# Only the functions directory is declared here. Everything else — build
+# command, publish directory, Next.js runtime — stays with the settings in the
+# Netlify UI, which is what has been building the site since the move; a key
+# absent from this file is a key Netlify keeps taking from there.
+[functions]
+  directory = "netlify/functions"
