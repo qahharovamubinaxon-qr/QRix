@@ -289,34 +289,44 @@ export const AUTOPILOT_TOPICS: Topic[] = [
 ];
 
 // ── Reading (blog integration) ─────────────────────────────────────────────
-/** All published autopilot posts, newest first. [] when Supabase is off. */
+/* A transient Supabase error must NOT read as "no posts" / "no such post".
+   Every caller is ISR-cached for an hour (sitemap, blog index, articles, rss),
+   so swallowing an error into [] or undefined froze the failure in place: on
+   2026-11-17 one verify run saw the sitemap lose 23 URLs and the next saw ten
+   autopilot articles answering with the homepage canonical, a minute apart.
+   Now: retry once, then THROW. A thrown ISR revalidation keeps serving the
+   last good render; only "Supabase not configured" and "no row" mean absent. */
+async function withRetry<T>(run: () => PromiseLike<{ data: T | null; error: { message: string } | null }>): Promise<T | null> {
+  let last: unknown;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const { data, error } = await run();
+      if (!error) return data;
+      last = new Error(error.message);
+    } catch (e) {
+      last = e;
+    }
+    if (attempt === 0) await new Promise((r) => setTimeout(r, 250));
+  }
+  throw last instanceof Error ? last : new Error("autopilot: Supabase read failed");
+}
+
+/** All published autopilot posts, newest first. [] when Supabase is off; throws on a read error. */
 export async function getAutopilotPosts(): Promise<BlogPost[]> {
   const client = sb();
   if (!client) return [];
-  try {
-    const { data, error } = await client
-      .from(TABLE)
-      .select("data")
-      .order("created_at", { ascending: false })
-      .limit(500);
-    if (error || !data) return [];
-    return data.map((r) => (r as { data: BlogPost }).data).filter((p) => p && p.slug);
-  } catch {
-    return [];
-  }
+  const data = await withRetry(() =>
+    client.from(TABLE).select("data").order("created_at", { ascending: false }).limit(500),
+  );
+  return (data || []).map((r) => (r as { data: BlogPost }).data).filter((p) => p && p.slug);
 }
 
-/** A single autopilot post by slug, or undefined. */
+/** A single autopilot post by slug; undefined when absent or Supabase is off; throws on a read error. */
 export async function getAutopilotPost(slug: string): Promise<BlogPost | undefined> {
   const client = sb();
   if (!client) return undefined;
-  try {
-    const { data, error } = await client.from(TABLE).select("data").eq("slug", slug).single();
-    if (error || !data) return undefined;
-    return (data as { data: BlogPost }).data;
-  } catch {
-    return undefined;
-  }
+  const data = await withRetry(() => client.from(TABLE).select("data").eq("slug", slug).maybeSingle());
+  return data ? (data as { data: BlogPost }).data : undefined;
 }
 
 // ── Writing (cron) ──────────────────────────────────────────────────────────

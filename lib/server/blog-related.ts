@@ -53,7 +53,8 @@ function take<T>(from: T[], n: number, seed: string): T[] {
  * slugs and the top-up pool both come out of the same list.
  */
 export async function relatedPosts(post: BlogPost, want = 6): Promise<RelatedPost[]> {
-  const autopilot = await getAutopilotPosts();
+  // Related links are garnish: a failed read degrades instead of failing the article.
+  const autopilot = await getAutopilotPosts().catch(() => [] as BlogPost[]);
   const byslug = new Map<string, BlogPost>();
   for (const p of autopilot) byslug.set(p.slug, p);
 
